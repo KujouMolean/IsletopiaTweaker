@@ -1,0 +1,13 @@
+name: IsletopiaTweakers
+version: ${project.version}
+main: com.molean.isletopiatweakers.IsletopiaTweakers
+api-version: 1.13
+softdepend:
+  - PlaceholderAPI
+denpend:
+  - PlotSquared
+commands:
+  utils:
+    description: Provide a lot of utilities.
+    permission: utopislet.utils
+    usage: /<command>
