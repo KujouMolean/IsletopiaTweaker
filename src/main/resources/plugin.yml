@@ -6,8 +6,10 @@ softdepend:
   - PlaceholderAPI
 denpend:
   - PlotSquared
+  - AdvancedCommand
 commands:
   utils:
     description: Provide a lot of utilities.
     permission: utopislet.utils
     usage: /<command>
+  account: {}
