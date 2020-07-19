@@ -7,9 +7,13 @@ softdepend:
 denpend:
   - PlotSquared
   - AdvancedCommand
+  - SkinsRestorer
+  - AuthMe
 commands:
   utils:
     description: Provide a lot of utilities.
     permission: utopislet.utils
     usage: /<command>
   account: {}
+  guide: {}
+  help: {}
