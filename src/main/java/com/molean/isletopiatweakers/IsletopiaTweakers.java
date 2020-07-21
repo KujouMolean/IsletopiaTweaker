@@ -1,12 +1,7 @@
 package com.molean.isletopiatweakers;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import static org.bukkit.Material.*;
 
 public final class IsletopiaTweakers extends JavaPlugin implements Listener {
 
@@ -37,5 +32,7 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         new SkinSync();
         new TeleportSign();
         new RegistRecipe();
+        new AddMerchant();
+        new Neon();
     }
 }

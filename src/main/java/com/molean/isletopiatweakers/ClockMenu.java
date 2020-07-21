@@ -3,7 +3,6 @@ package com.molean.isletopiatweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -20,9 +19,10 @@ public class ClockMenu implements Listener {
         Action action = event.getAction();
         if (!material.equals(Material.CLOCK))
             return;
-        if (action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.LEFT_CLICK_BLOCK)) {
+        if (event.getPlayer().isSneaking() && action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.LEFT_CLICK_BLOCK)) {
             event.getPlayer().performCommand("issue plot visit ${island,%player_name%}");
         }
+
         if (action.equals(Action.RIGHT_CLICK_AIR) || action.equals(Action.RIGHT_CLICK_BLOCK)) {
             event.getPlayer().performCommand("deluxemenu open main");
         }

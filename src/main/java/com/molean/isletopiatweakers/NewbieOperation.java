@@ -34,7 +34,7 @@ public class NewbieOperation implements Listener {
             }
             if (!player.getInventory().contains(Material.CLOCK)) {
                 player.getInventory().addItem(newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
-                        List.of("§f[§f左键单击§f]§r §f回到§r §f主岛屿§r", "§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
+                        List.of("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r", "§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
             }
         }, 100);
     }
@@ -62,12 +62,14 @@ public class NewbieOperation implements Listener {
         ItemStack axe = newUnbreakableItem(Material.WOODEN_AXE, "§f[§d新手木斧§f]§r", List.of());
         ItemStack hoe = newUnbreakableItem(Material.WOODEN_HOE, "§f[§d新手木锄§f]§r", List.of());
         ItemStack food = new ItemStack(Material.APPLE, 16);
+        ItemStack waterBucket = new ItemStack(Material.WATER_BUCKET);
+        ItemStack lavaBucket = new ItemStack(Material.LAVA_BUCKET);
 
         inventory.setHelmet(helmet);
         inventory.setChestplate(chestPlate);
         inventory.setLeggings(leggings);
         inventory.setBoots(boots);
-        inventory.addItem(menu, food, sword, axe, pickAxe, hoe, shovel);
+        inventory.addItem(menu, food, sword, axe, pickAxe, hoe, shovel,waterBucket,lavaBucket);
     }
 
     public ItemStack newUnbreakableItem(Material material, String name, List<String> lores) {

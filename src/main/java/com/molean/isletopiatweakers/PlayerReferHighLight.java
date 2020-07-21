@@ -1,11 +1,14 @@
 package com.molean.isletopiatweakers;
 
 import com.molean.advancedcommand.AdvancedCommand;
+import net.mamoe.mirai.contact.Friend;
+import net.mamoe.mirai.contact.Group;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
@@ -16,11 +19,18 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 public class PlayerReferHighLight implements Listener {
-    public PlayerReferHighLight(){
-        Bukkit.getPluginManager().registerEvents(this,IsletopiaTweakers.getPlugin());
+    public PlayerReferHighLight() {
+        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
+
+        if(!event.isCancelled()){
+            Group group = Neon.getBot().getGroup(483653595);
+            group.sendMessageAsync(event.getPlayer().getName() + ":" + event.getMessage());
+        }
+
         String msg = event.getMessage();
         String msgLower = msg.toLowerCase();
         List<Player> players = new ArrayList<>(org.bukkit.Bukkit.getServer().getOnlinePlayers());

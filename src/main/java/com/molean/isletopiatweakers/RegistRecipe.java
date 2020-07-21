@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import static org.bukkit.Material.*;
-import static org.bukkit.Material.ENCHANTING_TABLE;
 
 public class RegistRecipe {
     public RegistRecipe() {
@@ -27,7 +26,12 @@ public class RegistRecipe {
                 YELLOW_DYE, YELLOW_DYE, YELLOW_DYE,
                 YELLOW_DYE, IRON_INGOT, YELLOW_DYE,
                 YELLOW_DYE, YELLOW_DYE, YELLOW_DYE);
-
+        //合成岩浆
+        RecipeUtils.registerShaped("tweaker_craft_lava_bucket", new ItemStack(LAVA_BUCKET),
+                BLAZE_POWDER, BLAZE_POWDER, BLAZE_POWDER,
+                BLAZE_POWDER, BUCKET, BLAZE_POWDER,
+                BLAZE_POWDER, BLAZE_POWDER, BLAZE_POWDER);
+        RecipeUtils.registerSmithingRecipie("tweaker_smithing_end_stone", new ItemStack(END_STONE), STONE, ENDER_PEARL);
         RecipeUtils.registerSmithingRecipie("tweaker_smithing_crimson_nylium", new ItemStack(CRIMSON_NYLIUM), NETHERRACK, CRIMSON_FUNGUS);
         RecipeUtils.registerSmithingRecipie("tweaker_smithing_warped_nylium", new ItemStack(WARPED_NYLIUM), NETHERRACK, WARPED_FUNGUS);
         RecipeUtils.registerCampfire("tweaker_campfire_warped_nylium", new ItemStack(IRON_NUGGET), CARROT, 1.0F, 60);
@@ -38,7 +42,8 @@ public class RegistRecipe {
         RecipeUtils.registerStonecutting("tweaker_stonecut_gravel", new ItemStack(GRAVEL), COBBLESTONE);
         RecipeUtils.registerBlasting("tweaker_blasting_gravel", new ItemStack(GRAVEL), COBBLESTONE, 1.0F, 150);
         RecipeUtils.registerBlasting("tweaker_blasting_sand", new ItemStack(SAND), GRAVEL, 1.0F, 150);
-        RecipeUtils.registerFurnace("tweaker_blasting_quartz", new ItemStack(QUARTZ), GLASS, 1.0F, 150);
+        RecipeUtils.registerFurnace("tweaker_furnace_quartz", new ItemStack(QUARTZ), GLASS, 1.0F, 150);
+        RecipeUtils.registerBlasting("tweaker_blasting_blaze_powder", new ItemStack(BLAZE_POWDER), REDSTONE_BLOCK, 1.0F, 150);
 
 
         //转换树苗
@@ -48,6 +53,7 @@ public class RegistRecipe {
         RecipeUtils.registerShapeless("tweaker_craft_jungle_sapling", new ItemStack(JUNGLE_SAPLING), BIRCH_SAPLING);
         RecipeUtils.registerShapeless("tweaker_craft_acacia_sapling", new ItemStack(ACACIA_SAPLING), JUNGLE_SAPLING);
         RecipeUtils.registerShapeless("tweaker_craft_dark_oak_sapling", new ItemStack(DARK_OAK_SAPLING), ACACIA_SAPLING);
-        RecipeUtils.registerShapeless("tweaker_craft_obsidian", new ItemStack(OBSIDIAN, 4), ENCHANTING_TABLE);
+        //合成烈焰棒
+        RecipeUtils.registerShapeless("tweaker_craft_blaze_rod", new ItemStack(BLAZE_ROD), BLAZE_POWDER, BLAZE_POWDER);
     }
 }

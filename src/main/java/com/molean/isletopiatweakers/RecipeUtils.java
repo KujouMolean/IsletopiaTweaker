@@ -66,4 +66,9 @@ public class RecipeUtils {
         SmokingRecipe smokingRecipe = new SmokingRecipe(namespacedKey, result, source, exp, time);
         Bukkit.addRecipe(smokingRecipe);
     }
+    public static MerchantRecipe generateMerchant(Material result, int price, int maxUses){
+        MerchantRecipe merchantRecipe = new MerchantRecipe(new ItemStack(result), maxUses);
+        merchantRecipe.addIngredient(new ItemStack(Material.EMERALD,price));
+        return merchantRecipe;
+    }
 }
