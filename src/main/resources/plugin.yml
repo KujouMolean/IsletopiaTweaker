@@ -1,6 +1,6 @@
 name: IsletopiaTweakers
 version: ${project.version}
-main: com.molean.isletopiatweakers.IsletopiaTweakers
+main: com.molean.isletopia.tweakers.IsletopiaTweakers
 api-version: 1.13
 softdepend:
   - PlaceholderAPI
@@ -10,10 +10,11 @@ denpend:
   - SkinsRestorer
   - AuthMe
 commands:
-  utils:
-    description: Provide a lot of utilities.
-    permission: utopislet.utils
-    usage: /<command>
-  account: {}
   guide: {}
   help: {}
+  visit: {}
+  issue: {}
+  sudo: {}
+  parameter: {}
+  netreg:
+    permission: isletopia.utils

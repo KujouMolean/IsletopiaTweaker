@@ -1,5 +1,6 @@
-package com.molean.isletopiatweakers;
+package com.molean.isletopia.tweakers.tweakers;
 
+import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Sign;

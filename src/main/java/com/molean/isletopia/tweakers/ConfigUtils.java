@@ -1,10 +1,9 @@
-package com.molean.isletopiatweakers;
+package com.molean.isletopia.tweakers;
 
 import com.google.common.io.ByteStreams;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;

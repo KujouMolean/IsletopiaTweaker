@@ -1,5 +1,6 @@
-package com.molean.isletopiatweakers;
+package com.molean.isletopia.tweakers.tweakers;
 
+import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.PigZombie;
@@ -11,7 +12,7 @@ import org.bukkit.event.entity.EntityTransformEvent;
 
 public class RemoveDisgustingMob implements Listener {
     public RemoveDisgustingMob(){
-        Bukkit.getPluginManager().registerEvents(this,IsletopiaTweakers.getPlugin());
+        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
     @EventHandler
     public void onTransfer(EntityTransformEvent event) {

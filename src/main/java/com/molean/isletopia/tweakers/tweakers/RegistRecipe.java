@@ -1,5 +1,6 @@
-package com.molean.isletopiatweakers;
+package com.molean.isletopia.tweakers.tweakers;
 
+import com.molean.isletopia.tweakers.RecipeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -26,11 +27,13 @@ public class RegistRecipe {
                 YELLOW_DYE, YELLOW_DYE, YELLOW_DYE,
                 YELLOW_DYE, IRON_INGOT, YELLOW_DYE,
                 YELLOW_DYE, YELLOW_DYE, YELLOW_DYE);
+
         //合成岩浆
         RecipeUtils.registerShaped("tweaker_craft_lava_bucket", new ItemStack(LAVA_BUCKET),
                 BLAZE_POWDER, BLAZE_POWDER, BLAZE_POWDER,
                 BLAZE_POWDER, BUCKET, BLAZE_POWDER,
                 BLAZE_POWDER, BLAZE_POWDER, BLAZE_POWDER);
+
         RecipeUtils.registerSmithingRecipie("tweaker_smithing_end_stone", new ItemStack(END_STONE), STONE, ENDER_PEARL);
         RecipeUtils.registerSmithingRecipie("tweaker_smithing_crimson_nylium", new ItemStack(CRIMSON_NYLIUM), NETHERRACK, CRIMSON_FUNGUS);
         RecipeUtils.registerSmithingRecipie("tweaker_smithing_warped_nylium", new ItemStack(WARPED_NYLIUM), NETHERRACK, WARPED_FUNGUS);

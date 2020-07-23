@@ -1,16 +1,20 @@
-package com.molean.isletopiatweakers;
+package com.molean.isletopia.tweakers;
 
+import com.molean.isletopia.network.Client;
+import com.molean.isletopia.network.MessageUtils;
+import com.molean.isletopia.network.Request;
+import com.molean.isletopia.network.Response;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
-import fr.xephi.authme.events.LoginEvent;
-import fr.xephi.authme.events.RegisterEvent;
+import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,8 +27,9 @@ public class NewbieOperation implements Listener {
     public NewbieOperation() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
     public void checkNewbie(Player player) {
-        Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
+        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             if (!player.isOnline())
                 return;
             Set<Plot> plots = PlotSquared.get().getPlots(PlotPlayer.wrap(player));
@@ -36,18 +41,38 @@ public class NewbieOperation implements Listener {
                 player.getInventory().addItem(newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
                         List.of("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r", "§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
             }
-        }, 100);
+        });
     }
 
     @EventHandler
-    public void onRegister(RegisterEvent event) {
-        checkNewbie(event.getPlayer());
+    public void onSync(SyncCompleteEvent event) {
+        Player player = event.getPlayer();
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            Request request = new Request("dispatcher", "getParameter");
+            request.set("player", event.getPlayer().getName());
+            request.set("key", "server");
+            Response response = Client.send(request);
+            if (response.getStatus().equalsIgnoreCase("successfully")) {
+                String server = response.get("return");
+                if (server.equalsIgnoreCase(IsletopiaTweakers.getServerName())) {
+                    checkNewbie(event.getPlayer());
+                }
+            }
+        });
     }
 
     @EventHandler
-    public void onLogin(LoginEvent event) {
-        checkNewbie(event.getPlayer());
+    public void onJoin(PlayerJoinEvent event) {
+        event.setJoinMessage(null);
     }
+
+    @EventHandler
+    public void onLeft(PlayerQuitEvent event) {
+        event.setQuitMessage(null);
+        Player player = event.getPlayer();
+        MessageUtils.setParameter(player.getName(), "lastServer", IsletopiaTweakers.getServerName());
+    }
+
     public void placeItem(PlayerInventory inventory) {
 
         ItemStack menu = newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
@@ -69,7 +94,7 @@ public class NewbieOperation implements Listener {
         inventory.setChestplate(chestPlate);
         inventory.setLeggings(leggings);
         inventory.setBoots(boots);
-        inventory.addItem(menu, food, sword, axe, pickAxe, hoe, shovel,waterBucket,lavaBucket);
+        inventory.addItem(menu, food, sword, axe, pickAxe, hoe, shovel, waterBucket, lavaBucket);
     }
 
     public ItemStack newUnbreakableItem(Material material, String name, List<String> lores) {

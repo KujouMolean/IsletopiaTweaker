@@ -1,5 +1,6 @@
-package com.molean.isletopiatweakers;
+package com.molean.isletopia.tweakers.tweakers;
 
+import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import com.plotsquared.core.api.PlotAPI;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
@@ -9,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;

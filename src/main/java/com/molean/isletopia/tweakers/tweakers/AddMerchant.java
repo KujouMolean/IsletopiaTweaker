@@ -1,5 +1,7 @@
-package com.molean.isletopiatweakers;
+package com.molean.isletopia.tweakers.tweakers;
 
+import com.molean.isletopia.tweakers.IsletopiaTweakers;
+import com.molean.isletopia.tweakers.RecipeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
