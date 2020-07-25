@@ -3,11 +3,13 @@ package com.molean.isletopia.tweakers;
 import com.molean.isletopia.network.Client;
 import com.molean.isletopia.network.Request;
 import com.molean.isletopia.network.Response;
+import com.molean.isletopia.parameter.OtherCommand;
 import com.molean.isletopia.parameter.ParameterCommand;
 import com.molean.isletopia.prompter.InventoryClickListener;
 import com.molean.isletopia.prompter.InventoryCloseListener;
 import com.molean.isletopia.prompter.IssueCommand;
 import com.molean.isletopia.tweakers.tweakers.*;
+import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.api.PlotAPI;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
@@ -18,7 +20,6 @@ import java.util.*;
 import java.util.function.Function;
 
 public final class IsletopiaTweakers extends JavaPlugin implements Listener {
-
 
     private static IsletopiaTweakers isletopiaTweakers;
 
@@ -45,12 +46,35 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
             String player = request.get("player");
             PlotAPI plotAPI = new PlotAPI();
             UUID uuid = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(player, 500);
-            Set<Plot> plots = plotAPI.getPlotSquared().getPlots(uuid);
-            response.set("return", plots.size() + "");
+            if (uuid == null) {
+                response.set("return", 0 + "");
+            } else {
+                Set<Plot> plots = plotAPI.getPlotSquared().getPlots(uuid);
+                response.set("return", plots.size() + "");
+            }
+
+        }
+        if (request.getType().equalsIgnoreCase("getOnlinePlayers")) {
+            response.setStatus("successfully");
+            List<String> playerNames = new ArrayList<>();
+            Bukkit.getOnlinePlayers().forEach(player -> playerNames.add(player.getName()));
+            response.set("players", String.join(",", playerNames));
         }
         if (request.getType().equalsIgnoreCase("broadcast")) {
             response.setStatus("successfully");
             Bukkit.broadcastMessage(request.get("message"));
+        }
+        if (request.getType().equalsIgnoreCase("updateUUID")) {
+            response.setStatus("successfully");
+            String player = request.get("player");
+            String uuid = request.get("uuid");
+            PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(player, UUID.fromString(uuid));
+        }
+        if (request.getType().equalsIgnoreCase("chat")) {
+            String player = request.get("player");
+            String message = request.get("message");
+            Bukkit.broadcastMessage("<" + player + "> " + message);
+            response.setStatus("successfully");
         }
         if (request.getType().equalsIgnoreCase("visit")) {
             String player = request.get("player");
@@ -95,7 +119,7 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         new LavaProtect();
         new NewbieOperation();
         new ObsidianRecovery();
-        new PlayerReferHighLight();
+        new PlayerChatTweaker();
         new PreventCreeperBreak();
         new RemoveDisgustingMob();
         new TeleportSign();
@@ -112,5 +136,6 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         getCommand("sudo").setExecutor(issueCommand);
         getCommand("sudo").setTabCompleter(issueCommand);
         getCommand("parameter").setExecutor(new ParameterCommand());
+        getCommand("otherparameter").setExecutor(new OtherCommand());
     }
 }

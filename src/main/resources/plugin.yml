@@ -16,5 +16,4 @@ commands:
   issue: {}
   sudo: {}
   parameter: {}
-  netreg:
-    permission: isletopia.utils
+  otherparameter: {}

@@ -44,6 +44,7 @@ public class Server {
     private void handleSocket(Socket socket) {
         new Thread(() -> {
             try {
+                socket.setSoTimeout(100);
                 InputStream inputStream = socket.getInputStream();
                 String requestString = new String(inputStream.readAllBytes());
                 Request request = new Gson().fromJson(requestString, Request.class);
@@ -58,7 +59,7 @@ public class Server {
         }).start();
     }
 
-    private Response handleRequst(Request request) throws IOException {
+    private Response handleRequst(Request request) {
         Response response = new Response();
         if (request.getTarget().equalsIgnoreCase("IsletopiaNetwork")) {
             if (request.getType().equalsIgnoreCase("register")) {

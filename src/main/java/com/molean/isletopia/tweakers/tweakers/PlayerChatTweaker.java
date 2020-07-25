@@ -8,8 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-public class PlayerReferHighLight implements Listener {
-    public PlayerReferHighLight() {
+public class PlayerChatTweaker implements Listener {
+    public PlayerChatTweaker() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 

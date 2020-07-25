@@ -19,6 +19,7 @@ public class Visit implements Listener {
             if (IsletopiaTweakers.getVisits().containsKey(player.getName())) {
                 String target = IsletopiaTweakers.getVisits().get(player.getName());
                 Bukkit.dispatchCommand(player, "plot visit " + target);
+                IsletopiaTweakers.getVisits().remove(player.getName());
             }
         });
     }

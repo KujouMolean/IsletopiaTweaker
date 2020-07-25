@@ -21,7 +21,7 @@ public class ClockMenu implements Listener {
         if (!material.equals(Material.CLOCK))
             return;
         if (event.getPlayer().isSneaking() && action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.LEFT_CLICK_BLOCK)) {
-            event.getPlayer().performCommand("issue plot visit ${island,%player_name%}");
+            event.getPlayer().performCommand("issue visit ${island,%player_name%}");
         }
 
         if (action.equals(Action.RIGHT_CLICK_AIR) || action.equals(Action.RIGHT_CLICK_BLOCK)) {
