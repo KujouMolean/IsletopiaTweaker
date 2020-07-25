@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 public class Client {
@@ -29,8 +27,7 @@ public class Client {
 
     public static Response send(String hostname, int port, Request request) {
         Response response = null;
-        try {
-            Socket socket = new Socket(hostname, port);
+        try (Socket socket = new Socket(hostname, port)) {
             socket.setSoTimeout(100);
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(new Gson().toJson(request).getBytes());
@@ -43,21 +40,6 @@ public class Client {
             exception.printStackTrace();
         }
         return response;
-    }
-
-    public static List<String> getRegistrations(){
-        Request request = new Request();
-        request.setType("getRegistrations");
-        request.setTarget("IsletopiaNetwork");
-        Response response = send(request);
-        String[] rawRegistrations = response.get("return").split(",");
-        List<String> registrations = new ArrayList<>();
-        for (String rawRegistration : rawRegistrations) {
-            if (!rawRegistration.trim().equalsIgnoreCase("")) {
-                registrations.add(rawRegistration.trim());
-            }
-        }
-        return registrations;
     }
 
     public boolean register(String name) {
@@ -78,29 +60,13 @@ public class Client {
         return response != null && response.getStatus().equalsIgnoreCase("successfully");
     }
 
-    public boolean unregister(String name){
-        Response response = null;
-        try {
-            thread.interrupt();
-            serverSocket.close();
-            Request request = new Request();
-            request.setType("unregister");
-            request.setTarget("IsletopiaNetwork");
-            request.getData().put("name", name);
-            response = send(request);
-        } catch (IOException exception) {
-            return false;
-        }
-        return response != null && response.getStatus().equalsIgnoreCase("successfully");
-    }
-
     private void listen() {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
                 socket.setSoTimeout(500);
                 new Thread(() -> {
-                    try {
+                    try(socket) {
                         InputStream inputStream = socket.getInputStream();
                         String requestString = new String(inputStream.readAllBytes());
                         Request request = new Gson().fromJson(requestString, Request.class);
@@ -108,7 +74,6 @@ public class Client {
                         String responseString = new Gson().toJson(response);
                         OutputStream outputStream = socket.getOutputStream();
                         outputStream.write(responseString.getBytes());
-                        socket.close();
                     } catch (IOException exception) {
                         exception.printStackTrace();
                     }

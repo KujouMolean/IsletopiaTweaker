@@ -45,7 +45,7 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
             response.setStatus("successfully");
             String player = request.get("player");
             PlotAPI plotAPI = new PlotAPI();
-            UUID uuid = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(player, 500);
+            UUID uuid = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(player, 30);
             if (uuid == null) {
                 response.set("return", 0 + "");
             } else {
