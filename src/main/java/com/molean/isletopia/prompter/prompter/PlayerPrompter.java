@@ -2,7 +2,7 @@ package com.molean.isletopia.prompter.prompter;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import com.molean.isletopia.network.MessageUtils;
+import com.molean.isletopia.network.UniversalParameter;
 import com.molean.isletopia.prompter.util.Pair;
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
@@ -72,17 +72,17 @@ public class PlayerPrompter extends ChestPrompter {
         });
         for (String player : playernames) {
             ItemStack skull;
-            skull = getSkull(player, "https://skin.molean.com/skin/" + player + ".png");
+            skull = getSkull(player);
             addItemStacks(new Pair<>(skull, player));
         }
     }
 
-    public ItemStack getSkull(String name, String url) {
+    public ItemStack getSkull(String name) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         headMeta.setDisplayName("§f" + name);
         GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        String skinValue = MessageUtils.getParameter(name, "skinValue");
+        String skinValue = UniversalParameter.getParameter(name, "skinValue");
         if (skinValue != null && !"".equalsIgnoreCase(skinValue)) {
             profile.getProperties().put("textures", new Property("textures", skinValue));
             try {

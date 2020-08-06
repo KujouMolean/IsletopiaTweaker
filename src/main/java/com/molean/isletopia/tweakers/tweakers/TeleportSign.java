@@ -32,7 +32,7 @@ public class TeleportSign implements Listener {
         if (!line.matches("\\[[a-zA-Z0-9].*\\]"))
             return;
         String target = line.substring(1, line.length() - 1);
-        String cmd = "plot visit " + target;
+        String cmd = "visit " + target;
         org.bukkit.Bukkit.dispatchCommand(event.getPlayer(), cmd);
         Bukkit.getLogger().info(event.getPlayer().getName() + " issued command by sign: " + cmd);
     }

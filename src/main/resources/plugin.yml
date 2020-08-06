@@ -6,9 +6,6 @@ softdepend:
   - PlaceholderAPI
 denpend:
   - PlotSquared
-  - AdvancedCommand
-  - SkinsRestorer
-  - AuthMe
 commands:
   guide: {}
   help: {}
@@ -16,4 +13,5 @@ commands:
   issue: {}
   sudo: {}
   parameter: {}
-  otherparameter: {}
+  parameterAdmin: {}
+  tell: {}

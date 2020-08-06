@@ -1,76 +1,74 @@
 package com.molean.isletopia.parameter;
 
-import com.molean.isletopia.network.MessageUtils;
-import me.clip.placeholderapi.PlaceholderAPI;
+import com.molean.isletopia.network.UniversalParameter;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class ParameterCommand implements CommandExecutor {
-    String[] subCommand = {"set", "unset", "view", "add", "remove"};
+
+    public ParameterCommand() {
+        Bukkit.getPluginCommand("parameter").setExecutor(this);
+        Bukkit.getPluginCommand("parameterAdmin").setExecutor(this);
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0)
             return false;
-        String cmd = args[0].toLowerCase();
-        String key = null, value = null;
-        if (args.length >= 2) {
-            if (sender instanceof Player)
-                key = PlaceholderAPI.setPlaceholders((Player) sender, args[1]);
-            else key = args[1];
+        String opt = args[0].toLowerCase();
+        String cmd = command.getName().toLowerCase();
+        String target = null, key = null, value = null;
+
+        if (cmd.equalsIgnoreCase("parameterAdmin")) {
+            if (args.length < 2)
+                return false;
+
+            target = args[1];
+            if (args.length >= 3) {
+                key = args[2];
+            }
+            if (args.length >= 4) {
+                value = args[3];
+            }
+        } else if (cmd.equalsIgnoreCase("parameter")) {
+            target = sender.getName();
+            if (args.length >= 2) {
+                key = args[1];
+            }
+            if (args.length >= 3) {
+                value = args[2];
+            }
         }
-        if (args.length >= 3) {
-            if (sender instanceof Player)
-                value = PlaceholderAPI.setPlaceholders((Player) sender, args[2]);
-            else value = args[2];
-        }
-        switch (cmd) {
+
+        switch (opt) {
             case "set":
-                if (args.length == 3) {
-                    MessageUtils.setParameter(sender.getName(), key, value);
-                    return true;
-                } else {
-                    return false;
+                if (target != null && key != null && value != null) {
+                    UniversalParameter.setParameter(target, key, value);
                 }
+                break;
             case "unset":
-                if (sender instanceof Player)
-                    key = PlaceholderAPI.setPlaceholders((Player) sender, args[1]);
-                else key = args[1];
-                if (args.length == 2) {
-                    MessageUtils.unsetParameter(sender.getName(), key);
-                    return true;
-                } else {
-                    return false;
+                if (target != null && key != null) {
+                    UniversalParameter.unsetParameter(target, key);
                 }
+                break;
             case "view":
-                if (sender instanceof Player)
-                    key = PlaceholderAPI.setPlaceholders((Player) sender, args[1]);
-                else key = args[1];
-                if (args.length == 2) {
-                    String s = MessageUtils.getParameter(sender.getName(), key);
-                    if (s == null)
-                        return true;
-                    sender.sendMessage(s.toString());
-                    return true;
-                } else {
-                    return false;
+                if (target != null && key != null) {
+                    String s = UniversalParameter.getParameter(target, key);
+                    sender.sendMessage(s);
                 }
+                break;
             case "add":
-                if (args.length == 3) {
-                    MessageUtils.addParameter(sender.getName(), key,value);
-                    return true;
-                } else {
-                    return false;
+                if (target != null && key != null && value != null) {
+                    UniversalParameter.addParameter(target, key, value);
                 }
+                break;
             case "remove":
-                if (args.length == 3) {
-                    MessageUtils.removeParameter(sender.getName(), key, value);
-                    return true;
-                } else {
-                    return false;
+                if (target != null && key != null && value != null) {
+                    UniversalParameter.removeParameter(target, key, value);
                 }
+                break;
         }
         return false;
     }

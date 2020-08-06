@@ -1,9 +1,10 @@
-package com.molean.isletopia.tweakers;
+package com.molean.isletopia.tweakers.tweakers;
 
 import com.molean.isletopia.network.Client;
-import com.molean.isletopia.network.MessageUtils;
 import com.molean.isletopia.network.Request;
 import com.molean.isletopia.network.Response;
+import com.molean.isletopia.network.UniversalParameter;
+import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
@@ -18,6 +19,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.Set;
@@ -34,6 +37,7 @@ public class NewbieOperation implements Listener {
                 return;
             Set<Plot> plots = PlotSquared.get().getPlots(PlotPlayer.wrap(player));
             if (plots.size() == 0) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 4));
                 player.performCommand("plot auto");
                 placeItem(player.getInventory());
             }
@@ -46,7 +50,6 @@ public class NewbieOperation implements Listener {
 
     @EventHandler
     public void onSync(SyncCompleteEvent event) {
-        Player player = event.getPlayer();
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Request request = new Request("dispatcher", "getParameter");
             request.set("player", event.getPlayer().getName());
@@ -70,7 +73,7 @@ public class NewbieOperation implements Listener {
     public void onLeft(PlayerQuitEvent event) {
         event.setQuitMessage(null);
         Player player = event.getPlayer();
-        MessageUtils.setParameter(player.getName(), "lastServer", IsletopiaTweakers.getServerName());
+        UniversalParameter.setParameter(player.getName(), "lastServer", IsletopiaTweakers.getServerName());
     }
 
     public void placeItem(PlayerInventory inventory) {
@@ -86,20 +89,21 @@ public class NewbieOperation implements Listener {
         ItemStack pickAxe = newUnbreakableItem(Material.WOODEN_PICKAXE, "§f[§d新手木镐§f]§r", List.of());
         ItemStack axe = newUnbreakableItem(Material.WOODEN_AXE, "§f[§d新手木斧§f]§r", List.of());
         ItemStack hoe = newUnbreakableItem(Material.WOODEN_HOE, "§f[§d新手木锄§f]§r", List.of());
-        ItemStack food = new ItemStack(Material.APPLE, 16);
-        ItemStack waterBucket = new ItemStack(Material.WATER_BUCKET);
+        ItemStack food = new ItemStack(Material.APPLE, 32);
         ItemStack lavaBucket = new ItemStack(Material.LAVA_BUCKET);
+        ItemStack ice = new ItemStack(Material.ICE, 2);
 
         inventory.setHelmet(helmet);
         inventory.setChestplate(chestPlate);
         inventory.setLeggings(leggings);
         inventory.setBoots(boots);
-        inventory.addItem(menu, food, sword, axe, pickAxe, hoe, shovel, waterBucket, lavaBucket);
+        inventory.addItem(menu, food, sword, axe, pickAxe, hoe, shovel, lavaBucket, ice);
     }
 
     public ItemStack newUnbreakableItem(Material material, String name, List<String> lores) {
         ItemStack itemStack = new ItemStack(material);
         ItemMeta itemMeta = itemStack.getItemMeta();
+        assert itemMeta != null;
         itemMeta.setUnbreakable(true);
         itemMeta.setDisplayName(name);
         itemMeta.setLore(lores);

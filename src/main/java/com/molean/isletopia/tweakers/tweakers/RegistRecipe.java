@@ -1,6 +1,5 @@
 package com.molean.isletopia.tweakers.tweakers;
 
-import com.molean.isletopia.tweakers.RecipeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -47,8 +46,6 @@ public class RegistRecipe {
         RecipeUtils.registerBlasting("tweaker_blasting_sand", new ItemStack(SAND), GRAVEL, 1.0F, 150);
         RecipeUtils.registerFurnace("tweaker_furnace_quartz", new ItemStack(QUARTZ), GLASS, 1.0F, 150);
         RecipeUtils.registerBlasting("tweaker_blasting_blaze_powder", new ItemStack(BLAZE_POWDER), REDSTONE_BLOCK, 1.0F, 150);
-
-
         //转换树苗
         RecipeUtils.registerShapeless("tweaker_craft_oak_sapling", new ItemStack(OAK_SAPLING), DARK_OAK_SAPLING);
         RecipeUtils.registerShapeless("tweaker_craft_spruce_sapling", new ItemStack(SPRUCE_SAPLING), OAK_SAPLING);
@@ -58,5 +55,7 @@ public class RegistRecipe {
         RecipeUtils.registerShapeless("tweaker_craft_dark_oak_sapling", new ItemStack(DARK_OAK_SAPLING), ACACIA_SAPLING);
         //合成烈焰棒
         RecipeUtils.registerShapeless("tweaker_craft_blaze_rod", new ItemStack(BLAZE_ROD), BLAZE_POWDER, BLAZE_POWDER);
+        //合成煤炭
+        RecipeUtils.registerShapeless("tweaker_craft_coal", new ItemStack(COAL), CHARCOAL);
     }
 }

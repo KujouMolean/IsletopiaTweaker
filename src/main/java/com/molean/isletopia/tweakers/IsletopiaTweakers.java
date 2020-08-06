@@ -3,7 +3,6 @@ package com.molean.isletopia.tweakers;
 import com.molean.isletopia.network.Client;
 import com.molean.isletopia.network.Request;
 import com.molean.isletopia.network.Response;
-import com.molean.isletopia.parameter.OtherCommand;
 import com.molean.isletopia.parameter.ParameterCommand;
 import com.molean.isletopia.prompter.InventoryClickListener;
 import com.molean.isletopia.prompter.InventoryCloseListener;
@@ -13,6 +12,7 @@ import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.api.PlotAPI;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,7 +23,7 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
 
     private static IsletopiaTweakers isletopiaTweakers;
 
-    private static Map<String, String> visits = new HashMap<>();
+    private static final Map<String, String> visits = new HashMap<>();
 
     private static String serverName;
 
@@ -52,7 +52,6 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
                 Set<Plot> plots = plotAPI.getPlotSquared().getPlots(uuid);
                 response.set("return", plots.size() + "");
             }
-
         }
         if (request.getType().equalsIgnoreCase("getOnlinePlayers")) {
             response.setStatus("successfully");
@@ -76,23 +75,47 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
             Bukkit.broadcastMessage("<" + player + "> " + message);
             response.setStatus("successfully");
         }
+        if (request.getType().equalsIgnoreCase("sendMessage")) {
+            String target = request.get("target");
+            String message = request.get("message");
+            Player targetPlayer = Bukkit.getPlayer(target);
+            if (targetPlayer != null && targetPlayer.isOnline()) {
+                targetPlayer.sendMessage(message);
+                response.setStatus("successfully");
+            } else {
+                response.setStatus("not online");
+            }
+        }
         if (request.getType().equalsIgnoreCase("visit")) {
             String player = request.get("player");
             String target = request.get("target");
             PlotAPI plotAPI = new PlotAPI();
-            UUID uuid = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(target, 500);
-            Set<Plot> plots = plotAPI.getPlotSquared().getPlots(uuid);
+            UUID targetUUID = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(target, 30);
+            UUID playerUUID = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(player, 30);
+            Set<Plot> plots = plotAPI.getPlotSquared().getPlots(targetUUID);
             if (plots.size() < 1) {
                 response.setStatus("no plot");
+                return response;
             } else {
                 List<Plot> plotList = new ArrayList<>(plots);
                 Plot plot = plotList.get(0);
-                if (plot.isDenied(uuid)) {
-                    response.setStatus("denied");
-                } else {
+                if (plot.getOwner().equals(playerUUID) || plot.getTrusted().contains(playerUUID)) {
                     visits.put(player, target);
                     response.setStatus("successfully");
+                    return response;
+                } else {
+                    for (UUID aUUID : plot.getDenied()) {
+                        String name = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(aUUID, 30);
+                        if (name.equals(player) || name.equalsIgnoreCase("*")) {
+                            response.setStatus("denied");
+                            return response;
+                        }
+                    }
+                    visits.put(player, target);
+                    response.setStatus("successfully");
+                    return response;
                 }
+
             }
         }
         return response;
@@ -108,7 +131,6 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         ConfigUtils.configOuput("guide.yml");
         ConfigUtils.configOuput("config.yml");
         serverName = ConfigUtils.getConfig("config.yml").getString("serverName");
-        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
 
         new Client(function).register(serverName);
@@ -124,18 +146,14 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         new RemoveDisgustingMob();
         new TeleportSign();
         new RegistRecipe();
-        new Visit();
         new VisitCommand();
+        new IssueCommand();
+        new ParameterCommand();
 
         Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), this);
         Bukkit.getPluginManager().registerEvents(new InventoryCloseListener(), this);
 
-        IssueCommand issueCommand = new IssueCommand();
-        getCommand("issue").setExecutor(issueCommand);
-        getCommand("issue").setTabCompleter(issueCommand);
-        getCommand("sudo").setExecutor(issueCommand);
-        getCommand("sudo").setTabCompleter(issueCommand);
-        getCommand("parameter").setExecutor(new ParameterCommand());
-        getCommand("otherparameter").setExecutor(new OtherCommand());
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
     }
 }
