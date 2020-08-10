@@ -33,15 +33,21 @@ public class NewbieOperation implements Listener {
 
     public void checkNewbie(Player player) {
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            if (!player.isOnline())
+            Bukkit.getLogger().info("Check newbie operation for " + player.getName());
+            if (!player.isOnline()) {
+                Bukkit.getLogger().info("Player is not online. Then exit");
                 return;
+            }
+
             Set<Plot> plots = PlotSquared.get().getPlots(PlotPlayer.wrap(player));
             if (plots.size() == 0) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 4));
+                Bukkit.getLogger().info("Plot size is 0, try to operate...");
+                player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 4));
                 player.performCommand("plot auto");
                 placeItem(player.getInventory());
             }
             if (!player.getInventory().contains(Material.CLOCK)) {
+                Bukkit.getLogger().info("No clock in inventory, try to give...");
                 player.getInventory().addItem(newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
                         List.of("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r", "§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
             }
@@ -51,14 +57,27 @@ public class NewbieOperation implements Listener {
     @EventHandler
     public void onSync(SyncCompleteEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            Bukkit.getLogger().info(event.getPlayer().getName() + " sync completed, start to check server.");
             Request request = new Request("dispatcher", "getParameter");
             request.set("player", event.getPlayer().getName());
             request.set("key", "server");
             Response response = Client.send(request);
+            if (response == null) {
+                Bukkit.getLogger().info("Get server parameter failed, kick player.");
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    event.getPlayer().kickPlayer("[1]获取信息失败, 请重新进入服务器.");
+                });
+
+                return;
+            }
             if (response.getStatus().equalsIgnoreCase("successfully")) {
+                Bukkit.getLogger().info("Get server parameter successfully.");
                 String server = response.get("return");
                 if (server.equalsIgnoreCase(IsletopiaTweakers.getServerName())) {
+                    Bukkit.getLogger().info("Server matched, then start newbiew check.");
                     checkNewbie(event.getPlayer());
+                } else {
+                    Bukkit.getLogger().info("Server not match, skip newbie check.");
                 }
             }
         });
@@ -73,7 +92,10 @@ public class NewbieOperation implements Listener {
     public void onLeft(PlayerQuitEvent event) {
         event.setQuitMessage(null);
         Player player = event.getPlayer();
-        UniversalParameter.setParameter(player.getName(), "lastServer", IsletopiaTweakers.getServerName());
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            UniversalParameter.setParameter(player.getName(), "lastServer", IsletopiaTweakers.getServerName());
+        });
+
     }
 
     public void placeItem(PlayerInventory inventory) {

@@ -41,11 +41,12 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
 
     Function<Request, Response> function = request -> {
         Response response = new Response();
+        Bukkit.getLogger().info("Receive request " + request.getType());
         if (request.getType().equalsIgnoreCase("getPlotNumber")) {
             response.setStatus("successfully");
             String player = request.get("player");
             PlotAPI plotAPI = new PlotAPI();
-            UUID uuid = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(player, 30);
+            UUID uuid = plotAPI.getPlotSquared().getImpromptuUUIDPipeline().getSingle(player, 80);
             if (uuid == null) {
                 response.set("return", 0 + "");
             } else {
@@ -149,11 +150,31 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         new VisitCommand();
         new IssueCommand();
         new ParameterCommand();
+        new TellCommand();
+        new FertilizeFlower();
 
         Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), this);
         Bukkit.getPluginManager().registerEvents(new InventoryCloseListener(), this);
 
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
+    }
+
+    public static List<String> getPlayerNames() {
+        Bukkit.getLogger().info("Try to get server names..");
+        List<String> names = new ArrayList<>();
+        Request request = new Request("dispatcher", "getOnlinePlayers");
+        Response response = Client.send(request);
+        if (response != null) {
+            String[] respondedNames = response.get("players").split(",");
+            for (String respondedName : respondedNames) {
+                if (!respondedName.trim().equalsIgnoreCase("")) {
+                    names.add(respondedName);
+                }
+            }
+        } else {
+            Bukkit.getLogger().severe("Failed get player from dispatcher server.");
+        }
+        return names;
     }
 }

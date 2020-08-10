@@ -2,6 +2,7 @@ package com.molean.isletopia.prompter.prompter;
 
 import com.molean.isletopia.prompter.util.Pair;
 import com.molean.isletopia.prompter.util.PrompterUtils;
+import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -46,30 +47,34 @@ public class ChestPrompter implements Prompter {
     }
 
     public void freshPage() {
-        inventory.clear();
-        for (int i = 0; i < itemStacks.size(); i++) {
-            if (i == 45) break;
-            inventory.setItem(i, itemStacks.get(page * 45 + i).getKey());
-        }
-        //prev page button
-        ItemStack prev = new ItemStack(Material.FEATHER);
-        ItemMeta prevMeta = prev.getItemMeta();
-        prevMeta.setDisplayName("§f<=");
-        prev.setItemMeta(prevMeta);
-        inventory.setItem(9 * 5 + 2, prev);
+        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            inventory.clear();
+            for (int i = 0; i < itemStacks.size(); i++) {
+                if (i == 45) break;
+                inventory.setItem(i, itemStacks.get(page * 45 + i).getKey());
+            }
+            //prev page button
+            ItemStack prev = new ItemStack(Material.FEATHER);
+            ItemMeta prevMeta = prev.getItemMeta();
+            prevMeta.setDisplayName("§f<=");
+            prev.setItemMeta(prevMeta);
+            inventory.setItem(9 * 5 + 2, prev);
 
-        //next page button
-        ItemStack next = new ItemStack(Material.FEATHER);
-        ItemMeta nextMeta = next.getItemMeta();
-        nextMeta.setDisplayName("§f=>");
-        next.setItemMeta(nextMeta);
-        inventory.setItem(9 * 5 + 6, next);
+            //next page button
+            ItemStack next = new ItemStack(Material.FEATHER);
+            ItemMeta nextMeta = next.getItemMeta();
+            nextMeta.setDisplayName("§f=>");
+            next.setItemMeta(nextMeta);
+            inventory.setItem(9 * 5 + 6, next);
+        });
     }
 
     @Override
     public void open() {
-        player.openInventory(inventory);
-        freshPage();
+        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            player.openInventory(inventory);
+            freshPage();
+        });
     }
 
     @Override

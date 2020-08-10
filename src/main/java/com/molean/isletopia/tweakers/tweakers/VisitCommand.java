@@ -10,16 +10,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public class VisitCommand implements CommandExecutor, Listener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class VisitCommand implements CommandExecutor, Listener, TabCompleter {
     public VisitCommand() {
         Bukkit.getPluginCommand("visit").setExecutor(this);
+        Bukkit.getPluginCommand("visit").setTabCompleter(this);
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
@@ -31,6 +37,7 @@ public class VisitCommand implements CommandExecutor, Listener {
             }
         });
     }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player player = (Player) sender;
@@ -46,6 +53,10 @@ public class VisitCommand implements CommandExecutor, Listener {
                 visitRequest.set("player", player.getName());
                 visitRequest.set("target", args[0]);
                 Response visitResponse = Client.send(visitRequest);
+                if (visitResponse == null) {
+                    Bukkit.getLogger().severe("Visited server has no response.");
+                    return;
+                }
                 if (visitResponse.getStatus().equalsIgnoreCase("successfully")) {
                     if (server.equalsIgnoreCase(IsletopiaTweakers.getServerName())) {
                         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
@@ -64,5 +75,16 @@ public class VisitCommand implements CommandExecutor, Listener {
             }
         });
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            List<String> playerNames = IsletopiaTweakers.getPlayerNames();
+            playerNames.removeIf(s -> !s.startsWith(args[0]));
+            return playerNames;
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

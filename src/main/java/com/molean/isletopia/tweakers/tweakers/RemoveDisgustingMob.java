@@ -2,9 +2,7 @@ package com.molean.isletopia.tweakers.tweakers;
 
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.PigZombie;
-import org.bukkit.entity.Zoglin;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
@@ -14,6 +12,7 @@ public class RemoveDisgustingMob implements Listener {
     public RemoveDisgustingMob(){
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
     @EventHandler
     public void onTransfer(EntityTransformEvent event) {
         if (event.getTransformedEntity() instanceof PigZombie) {
@@ -35,5 +34,13 @@ public class RemoveDisgustingMob implements Listener {
         if (EntityType.ZOGLIN.equals(event.getEntity().getType())) {
             event.setCancelled(true);
         }
+        if (EntityType.HOGLIN.equals(event.getEntity().getType())) {
+            event.setCancelled(true);
+        }
+        if (EntityType.PIGLIN.equals(event.getEntity().getType())) {
+            Piglin piglin = (Piglin) event.getEntity();
+            piglin.setImmuneToZombification(true);
+        }
+
     }
 }

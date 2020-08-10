@@ -1,12 +1,17 @@
 package com.molean.isletopia.network;
 
 import com.google.gson.Gson;
+import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 public class Client {
@@ -36,6 +41,8 @@ public class Client {
             byte[] bytes = inputStream.readAllBytes();
             String responseString = new String(bytes);
             response = new Gson().fromJson(responseString, Response.class);
+        } catch (SocketTimeoutException exception) {
+            Bukkit.getLogger().warning("Response timeout.");
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -49,6 +56,9 @@ public class Client {
             return false;
         }
         Request request = new Request();
+        if (thread != null && thread.isAlive()) {
+            thread.interrupt();
+        }
         thread = new Thread(this::listen);
         thread.start();
         request.setType("register");
@@ -59,14 +69,27 @@ public class Client {
         Response response = send(request);
         return response != null && response.getStatus().equalsIgnoreCase("successfully");
     }
+    public static List<String> getRegistrations() {
+        Request request = new Request();
+        request.setType("getRegistrations");
+        request.setTarget("IsletopiaNetwork");
+        Response response = send(request);
+        String rawRegistrations = response.get("return");
+        if (rawRegistrations == null || "".equalsIgnoreCase(rawRegistrations.trim())) {
+            return new ArrayList<>();
+        } else {
+            return Arrays.asList(rawRegistrations.split(","));
+        }
+    }
+
 
     private void listen() {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                socket.setSoTimeout(500);
+                socket.setSoTimeout(100);
                 new Thread(() -> {
-                    try(socket) {
+                    try (socket) {
                         InputStream inputStream = socket.getInputStream();
                         String requestString = new String(inputStream.readAllBytes());
                         Request request = new Gson().fromJson(requestString, Request.class);

@@ -1,6 +1,7 @@
 package com.molean.isletopia.prompter.prompter;
 
 import com.molean.isletopia.prompter.util.StringUtils;
+import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -65,17 +66,20 @@ public class CommandPrompts {
     }
 
     public void complete(String name) {
-        commandArgs[index] = name;
-        StringBuilder cmd = new StringBuilder();
-        for (String arg : commandArgs) {
-            cmd.append(arg).append(" ");
-        }
-        boolean isOp = player.isOp();
-        try {
-            if (sudo) player.setOp(true);
-            Bukkit.getServer().dispatchCommand(player, cmd.toString());
-        } finally {
-            if (sudo) player.setOp(isOp);
-        }
+        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            commandArgs[index] = name;
+            StringBuilder cmd = new StringBuilder();
+            for (String arg : commandArgs) {
+                cmd.append(arg).append(" ");
+            }
+            boolean isOp = player.isOp();
+            try {
+                if (sudo) player.setOp(true);
+                Bukkit.getServer().dispatchCommand(player, cmd.toString());
+                IsletopiaTweakers.getPlugin().getLogger().info(player.getName() + " issued prompter: " + cmd.toString());
+            } finally {
+                if (sudo) player.setOp(isOp);
+            }
+        });
     }
 }

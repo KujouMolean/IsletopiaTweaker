@@ -10,8 +10,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +17,9 @@ import java.util.List;
 public class TellCommand implements CommandExecutor, TabCompleter {
     public TellCommand() {
         Bukkit.getPluginCommand("tell").setExecutor(this);
+        Bukkit.getPluginCommand("tell").setTabCompleter(this);
+        Bukkit.getPluginCommand("msg").setExecutor(this);
+        Bukkit.getPluginCommand("msg").setTabCompleter(this);
     }
 
     @Override
@@ -27,43 +28,35 @@ public class TellCommand implements CommandExecutor, TabCompleter {
         if (args.length < 2)
             return true;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String message = args[1];
+            StringBuilder rawMessage = new StringBuilder();
+            for (int i = 1; i < args.length; i++) {
+                rawMessage.append(args[i]).append(" ");
+            }
+            String message = "§7" + player.getName() + " -> " + args[0] + ": " + rawMessage;
             Request request = new Request("dispatcher", "sendMessage");
             request.set("target", args[0]);
             request.set("message", message);
             Response response = Client.send(request);
-            if (response.getStatus().equalsIgnoreCase("successfully")) {
+            if (response != null && response.getStatus().equalsIgnoreCase("successfully")) {
                 player.sendMessage(message);
             } else {
                 player.sendMessage("§c发送失败, 对方不在线.");
+                Bukkit.getLogger().info(player.getName() + " tells " + args[0] + " failed.");
             }
         });
         return true;
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return getPlayerNames();
+            List<String> playerNames = IsletopiaTweakers.getPlayerNames();
+            playerNames.removeIf(s -> !s.startsWith(args[0]));
+            return playerNames;
         } else {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
     }
 
-    private static List<String> getPlayerNames() {
-        List<String> names = new ArrayList<>();
-        Request request = new Request("dispatcher", "getOnlinePlayers");
-        Response response = Client.send(request);
-        if (response != null) {
-            String[] respondedNames = response.get("players").split(",");
-            for (String respondedName : respondedNames) {
-                if (!respondedName.trim().equalsIgnoreCase("")) {
-                    names.add(respondedName);
-                }
-            }
-        } else {
-            Bukkit.getLogger().severe("Failed get player from dispatcher server.");
-        }
-        return names;
-    }
+
 }
