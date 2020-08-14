@@ -1,6 +1,5 @@
 package com.molean.isletopia.parameter;
 
-import com.molean.isletopia.network.UniversalParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,6 +21,9 @@ public class ParameterCommand implements CommandExecutor {
         String target = null, key = null, value = null;
 
         if (cmd.equalsIgnoreCase("parameterAdmin")) {
+            if (!sender.isOp()) {
+                return false;
+            }
             if (args.length < 2)
                 return false;
 

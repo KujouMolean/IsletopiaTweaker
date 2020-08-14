@@ -1,5 +1,8 @@
 package com.molean.isletopia.tweakers;
 
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.molean.isletopia.network.Client;
 import com.molean.isletopia.network.Request;
 import com.molean.isletopia.network.Response;
@@ -15,11 +18,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.util.*;
 import java.util.function.Function;
 
-public final class IsletopiaTweakers extends JavaPlugin implements Listener {
+import static org.bukkit.Bukkit.getScheduler;
+
+public final class IsletopiaTweakers extends JavaPlugin implements Listener, PluginMessageListener {
 
     private static IsletopiaTweakers isletopiaTweakers;
 
@@ -39,7 +45,15 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         return isletopiaTweakers;
     }
 
-    Function<Request, Response> function = request -> {
+    private static List<String> onlinePlayers;
+
+    public static List<String> getOnlinePlayers() {
+        return onlinePlayers;
+    }
+
+    private static List<String> servers;
+
+    private static Function<Request, Response> function = request -> {
         Response response = new Response();
         Bukkit.getLogger().info("Receive request " + request.getType());
         if (request.getType().equalsIgnoreCase("getPlotNumber")) {
@@ -122,6 +136,8 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         return response;
     };
 
+    private static final Client client = new Client(function);
+
 
     @Override
     public void onEnable() {
@@ -133,8 +149,8 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         ConfigUtils.configOuput("config.yml");
         serverName = ConfigUtils.getConfig("config.yml").getString("serverName");
 
+//        client.register(serverName);
 
-        new Client(function).register(serverName);
         new AddMerchant();
         new AnimalProtect();
         new ClockMenu();
@@ -157,24 +173,69 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(new InventoryCloseListener(), this);
 
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
+
+        getScheduler().runTaskTimerAsynchronously(this, IsletopiaTweakers::updates, 20, 20);
 
     }
 
-    public static List<String> getPlayerNames() {
-        Bukkit.getLogger().info("Try to get server names..");
-        List<String> names = new ArrayList<>();
-        Request request = new Request("dispatcher", "getOnlinePlayers");
-        Response response = Client.send(request);
-        if (response != null) {
-            String[] respondedNames = response.get("players").split(",");
-            for (String respondedName : respondedNames) {
-                if (!respondedName.trim().equalsIgnoreCase("")) {
-                    names.add(respondedName);
-                }
-            }
-        } else {
-            Bukkit.getLogger().severe("Failed get player from dispatcher server.");
+    @Override
+    public void onDisable() {
+        client.unregister(serverName);
+    }
+
+    public static void updates() {
+        updateOnlinePlayers();
+        updateServerName();
+        updateServers();
+    }
+
+    public static void updateOnlinePlayers() {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("PlayerList");
+        out.writeUTF("ALL");
+        out.writeUTF("PlayerList");
+        Bukkit.getServer().sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+    }
+
+    public static void updateServerName() {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("GetServer");
+        out.writeUTF("GetServer");
+        Bukkit.getServer().sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+    }
+
+    public static void updateServers() {
+        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("GetServers");
+        out.writeUTF("GetServers");
+        Bukkit.getServer().sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+    }
+
+    @Override
+    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+        ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        String subchannel = in.readUTF();
+        if (subchannel.equalsIgnoreCase("PlayerList")) {
+            String[] playerList = in.readUTF().split(", ");
+            onlinePlayers.clear();
+            onlinePlayers.addAll(Arrays.asList(playerList));
         }
-        return names;
+        if (subchannel.equalsIgnoreCase("GetServer")) {
+            serverName = in.readUTF();
+        }
+        if (subchannel.equalsIgnoreCase("GetServers")) {
+            String[] serverList = in.readUTF().split(", ");
+            servers.clear();
+            servers.addAll(Arrays.asList(serverList));
+        }
+        if (subchannel.equalsIgnoreCase("GetServers")) {
+            String[] serverList = in.readUTF().split(", ");
+            servers.clear();
+            servers.addAll(Arrays.asList(serverList));
+        }
+        if (subchannel.equalsIgnoreCase("visit")) {
+
+        }
     }
 }

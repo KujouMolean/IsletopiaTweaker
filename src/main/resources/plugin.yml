@@ -1,5 +1,5 @@
 name: IsletopiaTweakers
-version: ${project.version}
+version: 1.0-SNAPSHOT
 main: com.molean.isletopia.tweakers.IsletopiaTweakers
 api-version: 1.13
 softdepend:
@@ -16,3 +16,4 @@ commands:
   parameterAdmin: {}
   tell: {}
   msg: {}
+  w: {}

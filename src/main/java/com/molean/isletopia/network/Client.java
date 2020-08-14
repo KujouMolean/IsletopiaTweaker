@@ -69,6 +69,17 @@ public class Client {
         Response response = send(request);
         return response != null && response.getStatus().equalsIgnoreCase("successfully");
     }
+
+    public boolean unregister(String name) {
+        Request request = new Request();
+        request.setType("unregister");
+        request.setTarget("IsletopiaNetwork");
+        request.getData().put("name", name);
+        Response response = send(request);
+        thread.interrupt();
+        return response != null && response.getStatus().equalsIgnoreCase("successfully");
+    }
+
     public static List<String> getRegistrations() {
         Request request = new Request();
         request.setType("getRegistrations");

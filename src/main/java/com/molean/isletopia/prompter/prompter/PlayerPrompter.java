@@ -2,7 +2,7 @@ package com.molean.isletopia.prompter.prompter;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import com.molean.isletopia.network.UniversalParameter;
+import com.molean.isletopia.parameter.UniversalParameter;
 import com.molean.isletopia.prompter.util.Pair;
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;

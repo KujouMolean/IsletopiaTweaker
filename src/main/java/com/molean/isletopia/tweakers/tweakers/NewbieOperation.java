@@ -1,9 +1,7 @@
 package com.molean.isletopia.tweakers.tweakers;
 
-import com.molean.isletopia.network.Client;
-import com.molean.isletopia.network.Request;
-import com.molean.isletopia.network.Response;
-import com.molean.isletopia.network.UniversalParameter;
+import com.molean.isletopia.parameter.SDBUtils;
+import com.molean.isletopia.parameter.UniversalParameter;
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;
@@ -32,76 +30,61 @@ public class NewbieOperation implements Listener {
     }
 
     public void checkNewbie(Player player) {
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            Bukkit.getLogger().info("Check newbie operation for " + player.getName());
-            if (!player.isOnline()) {
-                Bukkit.getLogger().info("Player is not online. Then exit");
-                return;
-            }
+        Bukkit.getLogger().info("Check newbie operation for " + player.getName());
+        if (!player.isOnline()) {
+            Bukkit.getLogger().info("Player is not online. Then exit");
+            return;
+        }
 
-            Set<Plot> plots = PlotSquared.get().getPlots(PlotPlayer.wrap(player));
-            if (plots.size() == 0) {
-                Bukkit.getLogger().info("Plot size is 0, try to operate...");
+        Set<Plot> plots = PlotSquared.get().getPlots(PlotPlayer.wrap(player));
+        if (plots.size() == 0) {
+            Bukkit.getLogger().info("Plot size is 0, try to operate...");
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 4));
                 player.performCommand("plot auto");
                 placeItem(player.getInventory());
-            }
-            if (!player.getInventory().contains(Material.CLOCK)) {
-                Bukkit.getLogger().info("No clock in inventory, try to give...");
-                player.getInventory().addItem(newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
-                        List.of("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r", "§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
-            }
-        });
+            });
+
+        }
     }
 
     @EventHandler
     public void onSync(SyncCompleteEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            if (!event.getPlayer().getInventory().contains(Material.CLOCK)) {
+                Bukkit.getLogger().info("No clock in inventory, try to give...");
+                event.getPlayer().getInventory().addItem(newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
+                        List.of("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r", "§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
+            }
             Bukkit.getLogger().info(event.getPlayer().getName() + " sync completed, start to check server.");
-            Request request = new Request("dispatcher", "getParameter");
-            request.set("player", event.getPlayer().getName());
-            request.set("key", "server");
-            Response response = Client.send(request);
-            if (response == null) {
-                Bukkit.getLogger().info("Get server parameter failed, kick player.");
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer("[1]获取信息失败, 请重新进入服务器.");
-                });
+            String server = UniversalParameter.getParameter(event.getPlayer().getName(), "server");
+            if (server.equalsIgnoreCase(IsletopiaTweakers.getServerName())) {
+                Bukkit.getLogger().info("Server matched, then start newbiew check.");
+                checkNewbie(event.getPlayer());
+            } else {
+                Bukkit.getLogger().info("Server not match, skip newbie check.");
+            }
 
-                return;
-            }
-            if (response.getStatus().equalsIgnoreCase("successfully")) {
-                Bukkit.getLogger().info("Get server parameter successfully.");
-                String server = response.get("return");
-                if (server.equalsIgnoreCase(IsletopiaTweakers.getServerName())) {
-                    Bukkit.getLogger().info("Server matched, then start newbiew check.");
-                    checkNewbie(event.getPlayer());
-                } else {
-                    Bukkit.getLogger().info("Server not match, skip newbie check.");
-                }
-            }
         });
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+        SDBUtils.updateOnlinePlayers();
         event.setJoinMessage(null);
     }
 
     @EventHandler
     public void onLeft(PlayerQuitEvent event) {
         event.setQuitMessage(null);
+        SDBUtils.updateOnlinePlayers();
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            UniversalParameter.setParameter(player.getName(), "lastServer", IsletopiaTweakers.getServerName());
-        });
-
+        Bukkit.getLogger().info("Player quit, update lastServer.");
+        UniversalParameter.setParameter(player.getName(), "lastServer", IsletopiaTweakers.getServerName());
     }
 
     public void placeItem(PlayerInventory inventory) {
 
-        ItemStack menu = newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
-                List.of("§f[§f左键单击§f]§r §f回到§r §f主岛屿§r", "§f[§7右键单击§f]§r §f打开§r §f主菜单§r"));
         ItemStack helmet = newUnbreakableItem(Material.LEATHER_HELMET, "§f[§d新手帽子§f]§r", List.of());
         ItemStack chestPlate = newUnbreakableItem(Material.LEATHER_CHESTPLATE, "§f[§d新手上衣§f]§r", List.of());
         ItemStack leggings = newUnbreakableItem(Material.LEATHER_LEGGINGS, "§f[§d新手裤子§f]§r", List.of());
@@ -111,15 +94,25 @@ public class NewbieOperation implements Listener {
         ItemStack pickAxe = newUnbreakableItem(Material.WOODEN_PICKAXE, "§f[§d新手木镐§f]§r", List.of());
         ItemStack axe = newUnbreakableItem(Material.WOODEN_AXE, "§f[§d新手木斧§f]§r", List.of());
         ItemStack hoe = newUnbreakableItem(Material.WOODEN_HOE, "§f[§d新手木锄§f]§r", List.of());
+
         ItemStack food = new ItemStack(Material.APPLE, 32);
         ItemStack lavaBucket = new ItemStack(Material.LAVA_BUCKET);
         ItemStack ice = new ItemStack(Material.ICE, 2);
 
-        inventory.setHelmet(helmet);
-        inventory.setChestplate(chestPlate);
-        inventory.setLeggings(leggings);
-        inventory.setBoots(boots);
-        inventory.addItem(menu, food, sword, axe, pickAxe, hoe, shovel, lavaBucket, ice);
+        if (inventory.getHelmet() == null) {
+            inventory.setHelmet(helmet);
+        }
+        if (inventory.getChestplate() == null) {
+            inventory.setChestplate(chestPlate);
+        }
+        if (inventory.getLeggings() == null) {
+            inventory.setLeggings(leggings);
+        }
+        if (inventory.getBoots() == null) {
+            inventory.setBoots(boots);
+        }
+
+        inventory.addItem(food, sword, axe, pickAxe, hoe, shovel, lavaBucket, ice);
     }
 
     public ItemStack newUnbreakableItem(Material material, String name, List<String> lores) {

@@ -20,6 +20,8 @@ public class TellCommand implements CommandExecutor, TabCompleter {
         Bukkit.getPluginCommand("tell").setTabCompleter(this);
         Bukkit.getPluginCommand("msg").setExecutor(this);
         Bukkit.getPluginCommand("msg").setTabCompleter(this);
+        Bukkit.getPluginCommand("w").setTabCompleter(this);
+        Bukkit.getPluginCommand("w").setTabCompleter(this);
     }
 
     @Override
