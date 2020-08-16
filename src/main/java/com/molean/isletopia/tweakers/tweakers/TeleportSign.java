@@ -29,7 +29,7 @@ public class TeleportSign implements Listener {
             return;
         String line = ((Sign) event.getClickedBlock().getState()).getLine(0);
         line = line.replaceAll("§.", "");
-        if (!line.matches("\\[[a-zA-Z0-9].*\\]"))
+        if (!line.matches("\\[[a-zA-Z0-9].*]"))
             return;
         String target = line.substring(1, line.length() - 1);
         String cmd = "visit " + target;
@@ -40,7 +40,7 @@ public class TeleportSign implements Listener {
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         String line = event.getLine(0);
-        if (line.matches("\\[[a-zA-Z0-9].*\\]")) {
+        if (line != null && line.matches("\\[[a-zA-Z0-9].*]")) {
             String target = line.substring(1, line.length() - 1);
             event.setLine(0, "[§b" + target + "§r]");
         }

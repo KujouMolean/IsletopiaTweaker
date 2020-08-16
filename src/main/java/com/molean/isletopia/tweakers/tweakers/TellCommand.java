@@ -1,8 +1,7 @@
 package com.molean.isletopia.tweakers.tweakers;
 
-import com.molean.isletopia.network.Client;
-import com.molean.isletopia.network.Request;
-import com.molean.isletopia.network.Response;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -11,6 +10,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,15 +37,25 @@ public class TellCommand implements CommandExecutor, TabCompleter {
                 rawMessage.append(args[i]).append(" ");
             }
             String message = "§7" + player.getName() + " -> " + args[0] + ": " + rawMessage;
-            Request request = new Request("dispatcher", "sendMessage");
-            request.set("target", args[0]);
-            request.set("message", message);
-            Response response = Client.send(request);
-            if (response != null && response.getStatus().equalsIgnoreCase("successfully")) {
+
+            if (!IsletopiaTweakers.getOnlinePlayers().contains(args[0])) {
+                return;
+            }
+
+            try {
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("ForwardToPlayer");
+                out.writeUTF(args[0]);
+                out.writeUTF("tell");
+                ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+                DataOutputStream msgout = new DataOutputStream(msgbytes);
+                msgout.writeUTF(message);
+                out.writeShort(msgbytes.toByteArray().length);
+                out.write(msgbytes.toByteArray());
+                player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
                 player.sendMessage(message);
-            } else {
-                player.sendMessage("§c发送失败, 对方不在线.");
-                Bukkit.getLogger().info(player.getName() + " tells " + args[0] + " failed.");
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
         });
         return true;
@@ -52,13 +64,11 @@ public class TellCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            List<String> playerNames = IsletopiaTweakers.getPlayerNames();
+            List<String> playerNames = IsletopiaTweakers.getOnlinePlayers();
             playerNames.removeIf(s -> !s.startsWith(args[0]));
             return playerNames;
         } else {
             return new ArrayList<>();
         }
     }
-
-
 }

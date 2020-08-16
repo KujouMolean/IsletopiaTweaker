@@ -14,14 +14,17 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class IssueCommand implements CommandExecutor, TabCompleter {
 
     public IssueCommand() {
-        Bukkit.getPluginCommand("sudo").setExecutor(this);
-        Bukkit.getPluginCommand("sudo").setTabCompleter(this);
-        Bukkit.getPluginCommand("issue").setExecutor(this);
-        Bukkit.getPluginCommand("issue").setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("sudo")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("sudo")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("issue")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("issue")).setTabCompleter(this);
+        Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), IsletopiaTweakers.getPlugin());
+        Bukkit.getPluginManager().registerEvents(new InventoryCloseListener(), IsletopiaTweakers.getPlugin());
     }
 
     private static String parse(String sender, String str) {
@@ -78,8 +81,10 @@ public class IssueCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private static final List<String> empty = new ArrayList<>();
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return new ArrayList<>();
+        return empty;
     }
 }

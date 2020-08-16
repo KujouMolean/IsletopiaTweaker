@@ -1,6 +1,6 @@
-package com.molean.isletopia.parameter;
+package com.molean.isletopia.database;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
+import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,10 +8,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class CommonDao {
-    private static MysqlDataSource dataSource;
+    private static final MysqlConnectionPoolDataSource dataSource;
 
     static {
-        dataSource = new MysqlDataSource();
+        dataSource = new MysqlConnectionPoolDataSource();
         String url = "jdbc:mysql://localhost/minecraft?useSSL=false";
         String username = "molean";
         String password = "123asd";

@@ -35,9 +35,6 @@ public class PlayerPrompter extends ChestPrompter {
                 int finalP = page;
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
                     ItemStack skull = pair.getKey();
-//                    SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-//                    skullMeta.setOwner(pair.getValue());
-//                    skull.setItemMeta(skullMeta);
                     pair.setKey(skull);
                     if (finalP == page) {
                         inventory.setItem(finalI, pair.getKey());

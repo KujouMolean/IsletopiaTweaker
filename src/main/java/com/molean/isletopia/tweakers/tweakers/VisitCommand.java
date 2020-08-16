@@ -2,9 +2,8 @@ package com.molean.isletopia.tweakers.tweakers;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.molean.isletopia.network.Client;
-import com.molean.isletopia.network.Request;
-import com.molean.isletopia.network.Response;
+import com.molean.isletopia.database.PDBUtils;
+import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -12,12 +11,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class VisitCommand implements CommandExecutor, Listener, TabCompleter {
     public VisitCommand() {
@@ -26,52 +27,58 @@ public class VisitCommand implements CommandExecutor, Listener, TabCompleter {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            if (IsletopiaTweakers.getVisits().containsKey(player.getName())) {
-                String target = IsletopiaTweakers.getVisits().get(player.getName());
-                Bukkit.dispatchCommand(player, "plot visit " + target);
-                IsletopiaTweakers.getVisits().remove(player.getName());
-            }
-        });
-    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        Player player = (Player) sender;
+        Player sourcePlayer = (Player) sender;
         if (args.length < 1)
             return true;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            Request request = new Request("dispatcher", "getPlayerServer");
-            request.set("player", args[0]);
-            Response response = Client.send(request);
-            if (response.getStatus().equalsIgnoreCase("successfully")) {
-                String server = response.get("return");
-                Request visitRequest = new Request(server, "visit");
-                visitRequest.set("player", player.getName());
-                visitRequest.set("target", args[0]);
-                Response visitResponse = Client.send(visitRequest);
-                if (visitResponse == null) {
-                    Bukkit.getLogger().severe("Visited server has no response.");
-                    return;
-                }
-                if (visitResponse.getStatus().equalsIgnoreCase("successfully")) {
-                    if (server.equalsIgnoreCase(IsletopiaTweakers.getServerName())) {
-                        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                            Bukkit.dispatchCommand(player, "plot visit " + args[0]);
-                            IsletopiaTweakers.getVisits().remove(player.getName());
-                        });
-                    } else {
-                        ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                        out.writeUTF("Connect");
-                        out.writeUTF(server);
-                        player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
-                    }
-                } else {
-                    player.sendMessage("§8[§3岛屿助手§8] §7对方没有岛屿或拒绝了你的访问.");
-                }
+            String targetServer = PDBUtils.get(args[0], "server");
+            String source = sourcePlayer.getName();
+            String target = args[0];
+            boolean allow = true;
+            UUID sourceUUID = IsletopiaTweakers.getUUID(source);
+            UUID allUUID = PlotDao.getAllUUID();
+            if (PlotDao.getPlotID(targetServer, target) == null) {
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    sourcePlayer.kickPlayer("发生错误, 对方岛屿本应该存在, 但实际不存在.");
+                });
+                return;
+            }
+            List<UUID> denied = PlotDao.getDenied(targetServer, target);
+            List<UUID> trusted = PlotDao.getTrusted(targetServer, target);
+            if (denied.contains(sourceUUID) || denied.contains(allUUID)) {
+                allow = false;
+            }
+            if (trusted.contains(sourceUUID) || target.equalsIgnoreCase(source)||sourcePlayer.isOp()) {
+                allow = true;
+            }
+            if (!allow) {
+                sourcePlayer.sendMessage("§8[§3岛屿助手§8] §7对方没有岛屿或拒绝了你的访问.");
+                return;
+            }
+            try {
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("Forward");
+                out.writeUTF(targetServer);
+                out.writeUTF("visit");
+                ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+                DataOutputStream msgout = new DataOutputStream(msgbytes);
+                msgout.writeUTF(source);
+                msgout.writeUTF(args[0]);
+                out.writeShort(msgbytes.toByteArray().length);
+                out.write(msgbytes.toByteArray());
+                sourcePlayer.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+            if (!targetServer.equalsIgnoreCase(IsletopiaTweakers.getServerName())) {
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("ConnectOther");
+                out.writeUTF(source);
+                out.writeUTF(targetServer);
+                sourcePlayer.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
             }
         });
         return true;
@@ -80,7 +87,7 @@ public class VisitCommand implements CommandExecutor, Listener, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            List<String> playerNames = IsletopiaTweakers.getPlayerNames();
+            List<String> playerNames = IsletopiaTweakers.getOnlinePlayers();
             playerNames.removeIf(s -> !s.startsWith(args[0]));
             return playerNames;
         } else {

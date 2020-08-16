@@ -6,13 +6,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CommandPrompts {
-    private String[] commandArgs;
-    private Player player;
+    private final String[] commandArgs;
+    private final Player player;
     private int index;
-    private boolean sudo;
+    private final boolean sudo;
 
     public CommandPrompts(String[] commandArgs, Player player, boolean sudo) {
         this.commandArgs = commandArgs;
@@ -44,10 +45,7 @@ public class CommandPrompts {
                     case "playerchooser":
                         if (promptArgs.length < 1)
                             return;
-                        List<String> playernames = new ArrayList<>();
-                        for (int j = 1; j < promptArgs.length; j++) {
-                            playernames.add(promptArgs[j]);
-                        }
+                        List<String> playernames = new ArrayList<>(Arrays.asList(promptArgs).subList(1, promptArgs.length));
                         prompter = new PlayerPrompter(player, promptArgs[0], playernames);
                         prompter.onComplete(this::complete);
                         prompter.open();

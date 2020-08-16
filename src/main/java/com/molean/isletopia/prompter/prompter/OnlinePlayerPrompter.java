@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 public class OnlinePlayerPrompter extends PlayerPrompter {
 
     public OnlinePlayerPrompter(Player argPlayer, String argTtile) {
-        super(argPlayer, argTtile, IsletopiaTweakers.getPlayerNames());
+        super(argPlayer, argTtile, IsletopiaTweakers.getOnlinePlayers());
     }
 
 }
