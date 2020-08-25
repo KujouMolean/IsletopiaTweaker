@@ -7,7 +7,9 @@ import com.google.common.io.ByteStreams;
 import com.molean.isletopia.parameter.ParameterCommand;
 import com.molean.isletopia.prompter.IssueCommand;
 import com.molean.isletopia.tweakers.tweakers.*;
-import com.plotsquared.core.plot.flag.implementations.MobCapFlag;
+import com.plotsquared.core.api.PlotAPI;
+import com.plotsquared.core.player.PlotPlayer;
+import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,11 +29,14 @@ import static org.bukkit.Bukkit.getScheduler;
 
 public final class IsletopiaTweakers extends JavaPlugin implements Listener, PluginMessageListener {
 
+
     private static IsletopiaTweakers isletopiaTweakers;
 
     public static IsletopiaTweakers getPlugin() {
         return isletopiaTweakers;
     }
+
+    private static PlotAPI plotAPI;
 
     private static String serverName;
 
@@ -59,12 +64,11 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
         ConfigUtils.setupConfig(this);
         ConfigUtils.configOuput("guide.yml");
         new AddMerchant();
-//        new AnimalProtect();
+        new AnimalProtect();
         new ClockMenu();
         new GuideBook();
         new LavaProtect();
         new NewbieOperation();
-        new ObsidianRecovery();
         new PlayerChatTweaker();
         new PreventCreeperBreak();
         new RemoveDisgustingMob();
@@ -121,6 +125,27 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
 
     public static UUID getUUID(String player) {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static boolean hasCurrentPlotPermission(Player player) {
+        if (plotAPI == null) {
+            plotAPI = new PlotAPI();
+        }
+        PlotPlayer plotPlayer = plotAPI.wrapPlayer(player.getUniqueId());
+        if (plotPlayer == null) {
+            return false;
+        }
+        Plot currentPlot = plotPlayer.getCurrentPlot();
+        if (currentPlot == null) {
+            return false;
+        }
+        List<UUID> builder = new ArrayList<>();
+        UUID owner = currentPlot.getOwner();
+        builder.add(owner);
+        HashSet<UUID> trusted = currentPlot.getTrusted();
+        builder.addAll(trusted);
+        return builder.contains(player.getUniqueId());
+
     }
 
     @EventHandler
