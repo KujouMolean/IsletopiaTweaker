@@ -59,7 +59,7 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
         ConfigUtils.setupConfig(this);
         ConfigUtils.configOuput("guide.yml");
         new AddMerchant();
-        new AnimalProtect();
+//        new AnimalProtect();
         new ClockMenu();
         new GuideBook();
         new LavaProtect();

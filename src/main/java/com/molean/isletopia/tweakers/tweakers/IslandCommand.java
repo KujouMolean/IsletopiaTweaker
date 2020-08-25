@@ -51,34 +51,50 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 home(subject);
                 break;
             case "visit":
+            case "tp":
                 if (args.length < 2) {
                     return true;
                 }
                 visit(subject, object);
                 break;
             case "trust":
+            case "invite":
                 if (args.length < 2) {
                     return true;
                 }
                 trust(subject, object);
                 break;
+            case "kick":
             case "untrust":
                 if (args.length < 2) {
                     return true;
                 }
                 untrust(subject, object);
                 break;
+            case "lock":
             case "denyall":
                 denyall(subject);
                 break;
+            case "unlock":
             case "undenyall":
                 undenyall(subject);
                 break;
             case "help":
                 help(subject);
                 break;
+            case "sethome":
+                sethome(subject);
+                break;
+            case "resethome":
+                resethome(subject);
+                break;
+            case "setbiome":
+                if (args.length < 2) {
+                    return true;
+                }
+                setbiome(subject, object);
+                break;
         }
-
         return true;
     }
 
@@ -87,6 +103,27 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayer(source);
         if (player != null) {
             Bukkit.dispatchCommand(player, "visit " + source);
+        }
+    }
+
+    public void sethome(String source) {
+        Player player = Bukkit.getPlayer(source);
+        if (player != null) {
+            Bukkit.dispatchCommand(player, "plot sethome");
+        }
+    }
+
+    public void resethome(String source) {
+        Player player = Bukkit.getPlayer(source);
+        if (player != null) {
+            Bukkit.dispatchCommand(player, "plot sethome none");
+        }
+    }
+
+    public void setbiome(String source, String target) {
+        Player player = Bukkit.getPlayer(source);
+        if (player != null) {
+            Bukkit.dispatchCommand(player, "plot setbiome " + target);
         }
     }
 
@@ -141,7 +178,8 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 "§7§m§l--------------------------");
     }
 
-    private static final List<String> subcmd = List.of("home", "visit", "trust", "denyall", "undenyall", "help");
+    private static final List<String> subcmd = List.of("home", "visit", "trust", "denyall", "undenyall", "help", "invite", "kick", "lock", "unlock", "sethome", "resethome");
+    private static final List<String> playercmd = List.of("trust", "untrust", "kick", "invite");
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
@@ -154,7 +192,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             }
         }
         if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("trust") || args[0].equalsIgnoreCase("untrust")) {
+            if (playercmd.contains(args[0])) {
                 List<String> onlinePlayers = IsletopiaTweakers.getOnlinePlayers();
                 for (String onlinePlayer : onlinePlayers) {
                     if (args[1].startsWith(onlinePlayer)) {
