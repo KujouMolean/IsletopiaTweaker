@@ -56,6 +56,7 @@ public class ChestPrompter implements Prompter {
             //prev page button
             ItemStack prev = new ItemStack(Material.FEATHER);
             ItemMeta prevMeta = prev.getItemMeta();
+            assert prevMeta != null;
             prevMeta.setDisplayName("§f<=");
             prev.setItemMeta(prevMeta);
             inventory.setItem(9 * 5 + 2, prev);
@@ -63,6 +64,7 @@ public class ChestPrompter implements Prompter {
             //next page button
             ItemStack next = new ItemStack(Material.FEATHER);
             ItemMeta nextMeta = next.getItemMeta();
+            assert nextMeta != null;
             nextMeta.setDisplayName("§f=>");
             next.setItemMeta(nextMeta);
             inventory.setItem(9 * 5 + 6, next);
@@ -101,7 +103,9 @@ public class ChestPrompter implements Prompter {
                     PrompterUtils.getChestPrompterList().remove(this);
                     return;
                 } else {
-                    String name = event.getCurrentItem().getItemMeta().getDisplayName();
+                    ItemMeta itemMeta = event.getCurrentItem().getItemMeta();
+                    assert itemMeta != null;
+                    String name = itemMeta.getDisplayName();
                     if (name.equals("=>")) {
                         nextPage();
                     } else if (name.equals("<=")) {

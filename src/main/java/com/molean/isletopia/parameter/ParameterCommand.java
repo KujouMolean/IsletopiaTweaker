@@ -4,16 +4,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class ParameterCommand implements CommandExecutor {
 
     public ParameterCommand() {
-        Bukkit.getPluginCommand("parameter").setExecutor(this);
-        Bukkit.getPluginCommand("parameterAdmin").setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("parameter")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("parameterAdmin")).setExecutor(this);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 0)
             return false;
         String opt = args[0].toLowerCase();

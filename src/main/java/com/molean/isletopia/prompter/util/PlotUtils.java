@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class PlotUtils {
-    private static PlotAPI plotAPI = new PlotAPI();
+    private static final PlotAPI plotAPI = new PlotAPI();
+
     public static Plot getPlot(Player player){
         PlotPlayer wrap = plotAPI.wrapPlayer(player.getName());
         Set<Plot> playerPlots = plotAPI.getPlayerPlots(wrap);

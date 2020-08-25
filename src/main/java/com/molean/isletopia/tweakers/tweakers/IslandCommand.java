@@ -9,25 +9,27 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class IslandCommand implements CommandExecutor, TabCompleter {
     public IslandCommand() {
-        Bukkit.getPluginCommand("is").setExecutor(this);
-        Bukkit.getPluginCommand("is").setTabCompleter(this);
-        Bukkit.getPluginCommand("island").setExecutor(this);
-        Bukkit.getPluginCommand("island").setTabCompleter(this);
-        Bukkit.getPluginCommand("islet").setExecutor(this);
-        Bukkit.getPluginCommand("islet").setTabCompleter(this);
-        Bukkit.getPluginCommand("isletopia").setExecutor(this);
-        Bukkit.getPluginCommand("isletopia").setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("is")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("is")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("island")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("island")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("islet")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("islet")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("isletopia")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("isletopia")).setTabCompleter(this);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         Player sourcePlayer = (Player) sender;
         String subject = sourcePlayer.getName();
         String verb = null;
@@ -139,10 +141,10 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 "§7§m§l--------------------------");
     }
 
-    private static List<String> subcmd = List.of("home", "visit", "trust", "denyall", "undenyall", "help");
+    private static final List<String> subcmd = List.of("home", "visit", "trust", "denyall", "undenyall", "help");
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         List<String> strings = new ArrayList<>();
         if (args.length == 1) {
             for (String s : subcmd) {

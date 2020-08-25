@@ -36,6 +36,11 @@ public class FertilizeFlower implements Listener {
                             setFlower(relative, Material.SUNFLOWER, Bisected.Half.TOP);
                             item.setAmount(item.getAmount() - 1);
                             event.setCancelled(true);
+                        }else if (clickedBlock.getType().equals(Material.DANDELION)) {
+                            setFlower(clickedBlock, Material.SUNFLOWER, Bisected.Half.BOTTOM);
+                            setFlower(relative, Material.SUNFLOWER, Bisected.Half.TOP);
+                            item.setAmount(item.getAmount() - 1);
+                            event.setCancelled(true);
                         }
                     }
                 }

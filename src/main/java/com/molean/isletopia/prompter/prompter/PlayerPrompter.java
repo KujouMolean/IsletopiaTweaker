@@ -48,6 +48,7 @@ public class PlayerPrompter extends ChestPrompter {
         //prev page button
         ItemStack prev = new ItemStack(Material.FEATHER);
         ItemMeta prevMeta = prev.getItemMeta();
+        assert prevMeta != null;
         prevMeta.setDisplayName("§f<=");
         prev.setItemMeta(prevMeta);
         inventory.setItem(9 * 5 + 2, prev);
@@ -55,6 +56,7 @@ public class PlayerPrompter extends ChestPrompter {
         //next page button
         ItemStack next = new ItemStack(Material.FEATHER);
         ItemMeta nextMeta = next.getItemMeta();
+        assert nextMeta != null;
         nextMeta.setDisplayName("§f=>");
         next.setItemMeta(nextMeta);
         inventory.setItem(9 * 5 + 6, next);
@@ -63,10 +65,6 @@ public class PlayerPrompter extends ChestPrompter {
     public PlayerPrompter(Player argPlayer, String argTtile, List<String> playernames) {
         super(argPlayer, argTtile);
         Collections.sort(playernames);
-        List<String> playerList = new ArrayList<>();
-        Bukkit.getOnlinePlayers().forEach(player1 -> {
-            playerList.add(player1.getName());
-        });
         for (String player : playernames) {
             ItemStack skull;
             skull = getSkull(player);
@@ -77,6 +75,7 @@ public class PlayerPrompter extends ChestPrompter {
     public ItemStack getSkull(String name) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+        assert headMeta != null;
         headMeta.setDisplayName("§f" + name);
         GameProfile profile = new GameProfile(UUID.randomUUID(), null);
         String skinValue = UniversalParameter.getParameter(name, "skinValue");

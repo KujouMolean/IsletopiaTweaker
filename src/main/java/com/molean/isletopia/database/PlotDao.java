@@ -75,7 +75,7 @@ public class PlotDao {
         if (plotID == null)
             return trusted;
         try (Connection connection = getConnection(server)) {
-            String sql = "select user_uuid from plot_trusted where plot_plot_id=?";
+            String sql = "select user_uuid from plot_helpers where plot_plot_id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, plotID);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -88,91 +88,6 @@ public class PlotDao {
         return trusted;
     }
 
-    public static boolean addTrusted(String server, String source, String target) {
-        Integer plotID = getPlotID(server, source);
-        UUID targetUUID = IsletopiaTweakers.getUUID(target);
-        if (plotID == null)
-            return false;
-        if (getTrusted(server, source).contains(targetUUID)) {
-            return false;
-        }
-
-        boolean execute = false;
-        try (Connection connection = getConnection(server)) {
-            String sql = "insert into plot_trusted(plot_plot_id,user_uuid) values(?,?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, plotID);
-            preparedStatement.setString(2, targetUUID.toString());
-            execute = preparedStatement.execute();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return execute;
-    }
-
-    public static boolean removeTrusted(String server, String source, String target) {
-        Integer plotID = getPlotID(server, source);
-        UUID targetUUID = IsletopiaTweakers.getUUID(target);
-        if (plotID == null)
-            return false;
-        boolean execute = false;
-        try (Connection connection = getConnection(server)) {
-            String sql = "delete from plot_trusted where plot_plot_id=? and user_uuid=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, plotID);
-            preparedStatement.setString(2, targetUUID.toString());
-            execute = preparedStatement.execute();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return execute;
-    }
-
-    public static boolean addDenied(String server, String source, String target) {
-        Integer plotID = getPlotID(server, source);
-        UUID targetUUID = IsletopiaTweakers.getUUID(target);
-        if (target.equalsIgnoreCase("*")) {
-            targetUUID = getAllUUID();
-        }
-        if (plotID == null)
-            return false;
-        if (getDenied(server, source).contains(targetUUID)) {
-            return false;
-        }
-
-        boolean execute = false;
-        try (Connection connection = getConnection(server)) {
-            String sql = "insert into plot_denied(plot_plot_id,user_uuid) values(?,?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, plotID);
-            preparedStatement.setString(2, targetUUID.toString());
-            execute = preparedStatement.execute();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return execute;
-    }
-
-    public static boolean removeDenied(String server, String source, String target) {
-        Integer plotID = getPlotID(server, source);
-        UUID targetUUID = IsletopiaTweakers.getUUID(target);
-        if (target.equalsIgnoreCase("*")) {
-            targetUUID = getAllUUID();
-        }
-        if (plotID == null)
-            return false;
-        boolean execute = false;
-        try (Connection connection = getConnection(server)) {
-            String sql = "delete from plot_denied where plot_plot_id=? and user_uuid=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, plotID);
-            preparedStatement.setString(2, targetUUID.toString());
-            execute = preparedStatement.execute();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return execute;
-    }
 
     public static UUID getAllUUID() {
         return UUID.fromString("00000001-0001-0003-0003-000000000007");

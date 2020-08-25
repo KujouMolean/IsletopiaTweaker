@@ -11,25 +11,24 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-public class VisitCommand implements CommandExecutor, Listener, TabCompleter {
+public class VisitCommand implements CommandExecutor, TabCompleter {
     public VisitCommand() {
-        Bukkit.getPluginCommand("visit").setExecutor(this);
-        Bukkit.getPluginCommand("visit").setTabCompleter(this);
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        Objects.requireNonNull(Bukkit.getPluginCommand("visit")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("visit")).setTabCompleter(this);
     }
 
-
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         Player sourcePlayer = (Player) sender;
         if (args.length < 1)
             return true;
@@ -51,7 +50,7 @@ public class VisitCommand implements CommandExecutor, Listener, TabCompleter {
             if (denied.contains(sourceUUID) || denied.contains(allUUID)) {
                 allow = false;
             }
-            if (trusted.contains(sourceUUID) || target.equalsIgnoreCase(source)||sourcePlayer.isOp()) {
+            if (trusted.contains(sourceUUID) || target.equalsIgnoreCase(source) || sourcePlayer.isOp()) {
                 allow = true;
             }
             if (!allow) {
@@ -84,8 +83,9 @@ public class VisitCommand implements CommandExecutor, Listener, TabCompleter {
         return true;
     }
 
+
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         if (args.length == 1) {
             List<String> playerNames = IsletopiaTweakers.getOnlinePlayers();
             playerNames.removeIf(s -> !s.startsWith(args[0]));

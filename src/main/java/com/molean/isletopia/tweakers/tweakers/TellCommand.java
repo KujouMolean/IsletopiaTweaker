@@ -9,25 +9,27 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TellCommand implements CommandExecutor, TabCompleter {
     public TellCommand() {
-        Bukkit.getPluginCommand("tell").setExecutor(this);
-        Bukkit.getPluginCommand("tell").setTabCompleter(this);
-        Bukkit.getPluginCommand("msg").setExecutor(this);
-        Bukkit.getPluginCommand("msg").setTabCompleter(this);
-        Bukkit.getPluginCommand("w").setTabCompleter(this);
-        Bukkit.getPluginCommand("w").setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("tell")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("tell")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("msg")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("msg")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("w")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("w")).setTabCompleter(this);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         Player player = (Player) sender;
         if (args.length < 2)
             return true;
@@ -62,7 +64,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         if (args.length == 1) {
             List<String> playerNames = IsletopiaTweakers.getOnlinePlayers();
             playerNames.removeIf(s -> !s.startsWith(args[0]));

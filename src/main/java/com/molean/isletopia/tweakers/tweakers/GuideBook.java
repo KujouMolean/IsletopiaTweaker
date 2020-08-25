@@ -9,31 +9,39 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class GuideBook implements CommandExecutor {
 
 
-
     public GuideBook() {
-        Bukkit.getPluginCommand("guide").setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("guide")).setExecutor(this);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player))
             return false;
+        String type;
+        if (args.length == 0) {
+            type = "pages";
+        } else {
+            type = args[0];
+        }
         Player player = (Player) sender;
         ItemStack itemStack = new ItemStack(Material.WRITTEN_BOOK);
         BookMeta bookMeta = (BookMeta) itemStack.getItemMeta();
+        assert bookMeta != null;
         bookMeta.setTitle("用户指南");
         bookMeta.setAuthor("Molean");
-        List<String> pages = getPages();
+        List<String> pages = getPages(type);
         for (String page : pages) {
             bookMeta.addPage(page);
         }
@@ -42,11 +50,12 @@ public class GuideBook implements CommandExecutor {
         return true;
     }
 
-    public List<String> getPages() {
+    public List<String> getPages(String type) {
         ConfigUtils.reloadConfig("guide.yml");
         List<String> strings = new ArrayList<>();
         YamlConfiguration config = ConfigUtils.getConfig("guide.yml");
-        ConfigurationSection pages = config.getConfigurationSection("pages");
+        ConfigurationSection pages = config.getConfigurationSection(type);
+        assert pages != null;
         Set<String> keys = pages.getKeys(false);
         for (String key : keys) {
             List<String> list = pages.getStringList(key);

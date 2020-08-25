@@ -57,6 +57,7 @@ public class NewbieOperation implements Listener {
 
         Bukkit.getLogger().info("Plot size is 0, try to operate...");
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 4));
             player.performCommand("plot auto");
             placeItem(player.getInventory());
         });
@@ -66,7 +67,7 @@ public class NewbieOperation implements Listener {
 
     @EventHandler
     public void onSync(SyncCompleteEvent event) {
-        event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 4));
+
 
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 

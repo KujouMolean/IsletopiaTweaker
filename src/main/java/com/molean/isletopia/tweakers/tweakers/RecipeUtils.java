@@ -6,9 +6,11 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.*;
 
+import java.util.UUID;
+
 public class RecipeUtils {
-    public static void registerShaped(String name, ItemStack result, Material... materials) {
-        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), name);
+    public static void registerShaped(ItemStack result, Material... materials) {
+        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), UUID.randomUUID().toString());
         ShapedRecipe shapedRecipe = new ShapedRecipe(namespacedKey, result);
         shapedRecipe.shape("ABC", "DEF", "GHI");
         shapedRecipe.setIngredient('A', materials[0]);
@@ -23,8 +25,8 @@ public class RecipeUtils {
         Bukkit.addRecipe(shapedRecipe);
     }
 
-    public static void registerShapeless(String name, ItemStack result, Material... materials) {
-        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), name);
+    public static void registerShapeless(ItemStack result, Material... materials) {
+        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), UUID.randomUUID().toString());
         ShapelessRecipe shapelessRecipe = new ShapelessRecipe(namespacedKey, result);
         for (Material material : materials) {
             shapelessRecipe.addIngredient(material);
@@ -32,38 +34,38 @@ public class RecipeUtils {
         Bukkit.addRecipe(shapelessRecipe);
     }
 
-    public static void registerStonecutting(String name, ItemStack result, Material source) {
-        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), name);
+    public static void registerStonecutting(ItemStack result, Material source) {
+        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), UUID.randomUUID().toString());
         StonecuttingRecipe stonecuttingRecipe = new StonecuttingRecipe(namespacedKey, result, source);
         Bukkit.addRecipe(stonecuttingRecipe);
     }
 
-    public static void registerSmithingRecipie(String name, ItemStack result, Material source, Material addition) {
-        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), name);
+    public static void registerSmithingRecipie(ItemStack result, Material source, Material addition) {
+        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), UUID.randomUUID().toString());
         SmithingRecipe smithingRecipe = new SmithingRecipe(namespacedKey, result, new RecipeChoice.MaterialChoice(source), new RecipeChoice.MaterialChoice(addition));
         Bukkit.addRecipe(smithingRecipe);
     }
 
-    public static void registerBlasting(String name, ItemStack result, Material source, float exp, int time) {
-        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), name);
+    public static void registerBlasting(ItemStack result, Material source, float exp, int time) {
+        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), UUID.randomUUID().toString());
         BlastingRecipe blastingRecipe = new BlastingRecipe(namespacedKey, result, source, exp, time);
         Bukkit.addRecipe(blastingRecipe);
     }
 
-    public static void registerCampfire(String name, ItemStack result, Material source, float exp, int time) {
-        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), name);
+    public static void registerCampfire(ItemStack result, Material source, float exp, int time) {
+        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), UUID.randomUUID().toString());
         CampfireRecipe campfireRecipe = new CampfireRecipe(namespacedKey, result, source, exp, time);
         Bukkit.addRecipe(campfireRecipe);
     }
 
-    public static void registerFurnace(String name, ItemStack result, Material source, float exp, int time) {
-        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), name);
+    public static void registerFurnace(ItemStack result, Material source, float exp, int time) {
+        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), UUID.randomUUID().toString());
         FurnaceRecipe furnaceRecipe = new FurnaceRecipe(namespacedKey, result, source, exp, time);
         Bukkit.addRecipe(furnaceRecipe);
     }
 
-    public static void registerSmoking(String name, ItemStack result, Material source, float exp, int time) {
-        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), name);
+    public static void registerSmoking(ItemStack result, Material source, float exp, int time) {
+        NamespacedKey namespacedKey = new NamespacedKey(IsletopiaTweakers.getPlugin(), UUID.randomUUID().toString());
         SmokingRecipe smokingRecipe = new SmokingRecipe(namespacedKey, result, source, exp, time);
         Bukkit.addRecipe(smokingRecipe);
     }

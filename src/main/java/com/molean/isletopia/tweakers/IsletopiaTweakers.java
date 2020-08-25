@@ -5,10 +5,9 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.parameter.ParameterCommand;
-import com.molean.isletopia.prompter.InventoryClickListener;
-import com.molean.isletopia.prompter.InventoryCloseListener;
 import com.molean.isletopia.prompter.IssueCommand;
 import com.molean.isletopia.tweakers.tweakers.*;
+import com.plotsquared.core.plot.flag.implementations.MobCapFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -53,7 +53,6 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
 
     private static final Map<String, String> visits = new HashMap<>();
 
-
     @Override
     public void onEnable() {
         isletopiaTweakers = this;
@@ -77,6 +76,9 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
         new TellCommand();
         new FertilizeFlower();
         new IslandCommand();
+        new PlotMobCap();
+
+        getServer().getPluginManager().registerEvents(this, this);
 
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
@@ -131,7 +133,7 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
         if (subChannel.equalsIgnoreCase("PlayerList")) {
@@ -162,15 +164,19 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
                 byte[] msgbytes = new byte[len];
                 in.readFully(msgbytes);
                 DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
+
                 String source = msgin.readUTF();
                 String target = msgin.readUTF();
 
                 Player sourcePlayer = Bukkit.getPlayer(source);
-                if (sourcePlayer == null) {
-                    visits.put(source, target);
+                if (sourcePlayer != null) {
+                    Bukkit.getScheduler().runTask(this, () -> {
+                        Bukkit.dispatchCommand(sourcePlayer, "plot visit " + target);
+                    });
                 } else {
-                    Bukkit.dispatchCommand(sourcePlayer, "plot visit " + target);
+                    visits.put(source, target);
                 }
+
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
