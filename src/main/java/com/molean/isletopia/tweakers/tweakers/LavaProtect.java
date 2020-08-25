@@ -1,9 +1,11 @@
 package com.molean.isletopia.tweakers.tweakers;
 
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
+import com.molean.isletopia.tweakers.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
@@ -35,7 +37,7 @@ public class LavaProtect implements Listener {
         assert event.getClickedBlock() != null;
         if (!Material.OBSIDIAN.equals(event.getClickedBlock().getType()))
             return;
-        if (!IsletopiaTweakers.hasCurrentPlotPermission(event.getPlayer())) {
+        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
             return;
         }
         event.getClickedBlock().setType(Material.LAVA);
@@ -63,7 +65,25 @@ public class LavaProtect implements Listener {
     }
 
     @EventHandler
+    public void onPlaceLava(PlayerBucketEmptyEvent event) {
+        Material bucket = event.getBucket();
+        if (!bucket.equals(Material.LAVA_BUCKET)) {
+            return;
+        }
+        int statistic = event.getPlayer().getStatistic(Statistic.USE_ITEM, Material.LAVA_BUCKET);
+        if (statistic > 1) {
+            return;
+        }
+        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
+            return;
+        }
+        event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆会引起火灾,请务必注意.");
+    }
+
+    @EventHandler
     public void onLavaTransferring(BlockFormEvent event) {
+        if (event.getBlock().getType() != Material.OBSIDIAN)
+            return;
         Location location = event.getBlock().getLocation();
         Collection<Entity> nearbyEntities = event.getBlock().getWorld().getNearbyEntities(location, 32, 32, 32);
         for (Entity nearbyEntity : nearbyEntities) {

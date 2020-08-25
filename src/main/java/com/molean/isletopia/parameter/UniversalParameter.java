@@ -11,6 +11,15 @@ public class UniversalParameter {
         return PDBUtils.get(player, key);
     }
 
+    public static List<String> getParameterAsList(String player, String key) {
+        ArrayList<String> list = new ArrayList<>();
+        String parameter = getParameter(player, key);
+        if (parameter != null && !parameter.trim().equals("")) {
+            list.addAll(Arrays.asList(parameter.split(",")));
+        }
+        return list;
+    }
+
     public static void setParameter(String player, String key, String value) {
         PDBUtils.set(player, key, value);
     }

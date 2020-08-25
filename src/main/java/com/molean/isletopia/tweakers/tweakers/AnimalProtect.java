@@ -1,6 +1,7 @@
 package com.molean.isletopia.tweakers.tweakers;
 
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
+import com.molean.isletopia.tweakers.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +15,7 @@ public class AnimalProtect implements Listener {
 
     @EventHandler
     public void onRaidTrigger(RaidTriggerEvent event) {
-        if (!IsletopiaTweakers.hasCurrentPlotPermission(event.getPlayer()))
+        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer()))
             event.setCancelled(true);
     }
 }

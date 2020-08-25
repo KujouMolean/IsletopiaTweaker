@@ -1,9 +1,11 @@
 package com.molean.isletopia.tweakers.tweakers;
 
+import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.database.PDBUtils;
 import com.molean.isletopia.database.PlotDao;
+import com.molean.isletopia.parameter.UniversalParameter;
 import com.molean.isletopia.tweakers.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -54,9 +56,25 @@ public class VisitCommand implements CommandExecutor, TabCompleter {
                 allow = true;
             }
             if (!allow) {
+                if(!target.equalsIgnoreCase(source)){
+                    if (IsletopiaTweakers.getOnlinePlayers().contains(target)) {
+                        sendMessageToPlayer(target, "§8[§3访客提醒§8] §e" + source + " 请求访问阁下岛屿但被拒绝了.");
+                    }
+                }
+
                 sourcePlayer.sendMessage("§8[§3岛屿助手§8] §7对方没有岛屿或拒绝了你的访问.");
                 return;
             }
+            if(!target.equalsIgnoreCase(source)){
+                if (IsletopiaTweakers.getOnlinePlayers().contains(target)) {
+                    sendMessageToPlayer(target, "§8[§3访客提醒§8] §e" + source + " 刚刚访问了阁下的岛屿.");
+                } else {
+                    if (!UniversalParameter.getParameterAsList(target, "visits").contains(source)) {
+                        UniversalParameter.addParameter(target, "visits", source);
+                    }
+                }
+            }
+
             try {
                 ByteArrayDataOutput out = ByteStreams.newDataOutput();
                 out.writeUTF("Forward");
@@ -92,6 +110,27 @@ public class VisitCommand implements CommandExecutor, TabCompleter {
             return playerNames;
         } else {
             return new ArrayList<>();
+        }
+    }
+
+    public void sendMessageToPlayer(String player, String message) {
+        try {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("ForwardToPlayer");
+            out.writeUTF(player);
+            out.writeUTF("tell");
+            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+            DataOutputStream msgout = new DataOutputStream(msgbytes);
+            msgout.writeUTF(message);
+            out.writeShort(msgbytes.toByteArray().length);
+            out.write(msgbytes.toByteArray());
+            Player first = Iterables.getFirst(Bukkit.getServer().getOnlinePlayers(), null);
+            if (first == null) {
+                return;
+            }
+            first.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 }

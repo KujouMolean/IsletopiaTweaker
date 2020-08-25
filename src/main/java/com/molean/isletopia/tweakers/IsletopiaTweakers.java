@@ -5,6 +5,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.parameter.ParameterCommand;
+import com.molean.isletopia.parameter.UniversalParameter;
 import com.molean.isletopia.prompter.IssueCommand;
 import com.molean.isletopia.tweakers.tweakers.*;
 import com.plotsquared.core.api.PlotAPI;
@@ -36,7 +37,7 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
         return isletopiaTweakers;
     }
 
-    private static PlotAPI plotAPI;
+
 
     private static String serverName;
 
@@ -127,26 +128,8 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8));
     }
 
-    public static boolean hasCurrentPlotPermission(Player player) {
-        if (plotAPI == null) {
-            plotAPI = new PlotAPI();
-        }
-        PlotPlayer plotPlayer = plotAPI.wrapPlayer(player.getUniqueId());
-        if (plotPlayer == null) {
-            return false;
-        }
-        Plot currentPlot = plotPlayer.getCurrentPlot();
-        if (currentPlot == null) {
-            return false;
-        }
-        List<UUID> builder = new ArrayList<>();
-        UUID owner = currentPlot.getOwner();
-        builder.add(owner);
-        HashSet<UUID> trusted = currentPlot.getTrusted();
-        builder.addAll(trusted);
-        return builder.contains(player.getUniqueId());
 
-    }
+
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
@@ -154,6 +137,12 @@ public final class IsletopiaTweakers extends JavaPlugin implements Listener, Plu
         if (visits.containsKey(player.getName())) {
             Bukkit.dispatchCommand(player, "plot visit " + visits.get(player.getName()));
             visits.remove(player.getName());
+        }
+        List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
+        if (visits.size() > 0) {
+            player.sendMessage("§8[§3访客提醒§8] §e离线时的访客有:");
+            player.sendMessage("§7  " + String.join(",", visits));
+            UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
         }
     }
 

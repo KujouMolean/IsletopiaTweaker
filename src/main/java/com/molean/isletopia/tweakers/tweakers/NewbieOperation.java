@@ -109,7 +109,10 @@ public class NewbieOperation implements Listener {
                 }
             }
             if (cnt > 1) {
-                event.getPlayer().kickPlayer("发生错误, 非管理员但拥有多个岛屿.");
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    event.getPlayer().kickPlayer("发生错误, 非管理员但拥有多个岛屿.");
+                });
+
             }
         });
     }

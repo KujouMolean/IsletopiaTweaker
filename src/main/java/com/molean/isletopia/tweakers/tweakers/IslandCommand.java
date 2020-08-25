@@ -53,6 +53,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             case "visit":
             case "tp":
                 if (args.length < 2) {
+                    help(subject);
                     return true;
                 }
                 visit(subject, object);
@@ -60,6 +61,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             case "trust":
             case "invite":
                 if (args.length < 2) {
+                    help(subject);
                     return true;
                 }
                 trust(subject, object);
@@ -67,6 +69,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             case "kick":
             case "untrust":
                 if (args.length < 2) {
+                    help(subject);
                     return true;
                 }
                 untrust(subject, object);
@@ -90,6 +93,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 break;
             case "setbiome":
                 if (args.length < 2) {
+                    help(subject);
                     return true;
                 }
                 setbiome(subject, object);
@@ -173,8 +177,11 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 "§e> 快速回城 /is home\n" +
                 "§e> 访问他人 /is visit [玩家]\n" +
                 "§e> 给予权限 /is trust [玩家]\n" +
-                "§e> 闭关锁岛 /is denyall\n" +
-                "§e> 开放岛屿 /is undenyall\n" +
+                "§e> 取消权限 /is untrust [玩家]\n" +
+                "§e> 闭关锁岛 /is lock\n" +
+                "§e> 开放岛屿 /is unlock\n" +
+                "§e> 修改复活位置 /is sethome\n" +
+                "§e> 重置复活位置 /is resethome\n" +
                 "§7§m§l--------------------------");
     }
 
