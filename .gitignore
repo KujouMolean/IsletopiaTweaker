@@ -110,3 +110,6 @@ buildNumber.properties
 
 # Common working directory
 run/
+server1/
+server2/
+lib/
