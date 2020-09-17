@@ -1,6 +1,6 @@
 package com.molean.isletopia.prompter.prompter;
 
-import com.molean.isletopia.prompter.util.PlotUtils;
+import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.entity.Player;
 

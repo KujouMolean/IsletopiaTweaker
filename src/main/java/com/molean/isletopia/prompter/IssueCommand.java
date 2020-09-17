@@ -2,8 +2,8 @@ package com.molean.isletopia.prompter;
 
 import com.molean.isletopia.parameter.UniversalParameter;
 import com.molean.isletopia.prompter.prompter.CommandPrompts;
-import com.molean.isletopia.prompter.util.StringUtils;
-import com.molean.isletopia.tweakers.IsletopiaTweakers;
+import com.molean.isletopia.utils.StringUtils;
+import com.molean.isletopia.IsletopiaTweakers;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -24,8 +24,7 @@ public class IssueCommand implements CommandExecutor, TabCompleter {
         Objects.requireNonNull(Bukkit.getPluginCommand("sudo")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("issue")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("issue")).setTabCompleter(this);
-        Bukkit.getPluginManager().registerEvents(new InventoryClickListener(), IsletopiaTweakers.getPlugin());
-        Bukkit.getPluginManager().registerEvents(new InventoryCloseListener(), IsletopiaTweakers.getPlugin());
+
     }
 
     private static String parse(String sender, String str) {

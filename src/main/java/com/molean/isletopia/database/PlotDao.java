@@ -1,6 +1,7 @@
 package com.molean.isletopia.database;
 
-import com.molean.isletopia.tweakers.IsletopiaTweakers;
+import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.distribute.system.ServerInfoUpdater;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import java.nio.file.Path;
@@ -34,7 +35,7 @@ public class PlotDao {
 
     public static Integer getPlotID(String server, String name) {
         Integer result = null;
-        UUID uuid = IsletopiaTweakers.getUUID(name);
+        UUID uuid = ServerInfoUpdater.getUUID(name);
         try (Connection connection = getConnection(server)) {
             String sql = "select id from plot where owner=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);

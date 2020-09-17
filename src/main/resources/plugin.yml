@@ -1,6 +1,6 @@
 name: IsletopiaTweakers
 version: 1.0-SNAPSHOT
-main: com.molean.isletopia.tweakers.IsletopiaTweakers
+main: com.molean.isletopia.IsletopiaTweakers
 api-version: 1.13
 softdepend:
   - PlaceholderAPI

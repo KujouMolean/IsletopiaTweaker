@@ -1,7 +1,7 @@
 package com.molean.isletopia.prompter.prompter;
 
-import com.molean.isletopia.prompter.util.StringUtils;
-import com.molean.isletopia.tweakers.IsletopiaTweakers;
+import com.molean.isletopia.utils.StringUtils;
+import com.molean.isletopia.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

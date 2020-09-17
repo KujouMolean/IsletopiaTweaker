@@ -1,8 +1,8 @@
 package com.molean.isletopia.prompter.prompter;
 
-import com.molean.isletopia.prompter.util.Pair;
-import com.molean.isletopia.prompter.util.PrompterUtils;
-import com.molean.isletopia.tweakers.IsletopiaTweakers;
+import com.molean.isletopia.prompter.IsletopiaPrompters;
+import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -20,26 +20,18 @@ import java.util.function.Consumer;
 public class ChestPrompter implements Prompter {
 
 
-    protected Player player;
-    protected List<Pair<ItemStack, String>> itemStacks;
-    protected Inventory inventory;
-    protected Consumer<String> consumer;
-    protected Runnable runnable;
-    protected int page = 0;
+    private final Player player;
+    private final List<Pair<ItemStack, String>> itemStacks;
+    private final Inventory inventory;
+    private Consumer<String> consumer;
+    private Runnable runnable;
+    private int page = 0;
 
     public ChestPrompter(Player player, String title) {
         this.player = player;
         this.itemStacks = new ArrayList<>();
         inventory = Bukkit.createInventory(player, 54, title);
-        PrompterUtils.getChestPrompterList().add(this);
-    }
-
-    public List<Pair<ItemStack, String>> getItemStacks() {
-        return itemStacks;
-    }
-
-    public void setItemStacks(List<Pair<ItemStack, String>> itemStacks) {
-        this.itemStacks = itemStacks;
+        IsletopiaPrompters.getChestPrompterList().add(this);
     }
 
     public void addItemStacks(Pair<ItemStack, String> itemStack) {
@@ -83,7 +75,7 @@ public class ChestPrompter implements Prompter {
     public void handleInventoryCloseEvent(InventoryCloseEvent event) {
         if (!event.getInventory().equals(inventory))
             return;
-        PrompterUtils.getChestPrompterList().remove(this);
+        Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(),() -> IsletopiaPrompters.getChestPrompterList().remove(this),100);
         if (runnable != null) {
             runnable.run();
         }
@@ -94,32 +86,31 @@ public class ChestPrompter implements Prompter {
     public void handleInventoryClickEvent(InventoryClickEvent event) {
         if (!event.getInventory().equals(inventory))
             return;
-        if (event.getClick() == ClickType.LEFT) {
-            if (event.getCurrentItem() != null) {
-                if (event.getCurrentItem().getType() != Material.FEATHER) {
-                    int slot = event.getSlot();
-                    consumer.accept(itemStacks.get(page * 45 + slot).getValue());
-                    player.closeInventory();
-                    PrompterUtils.getChestPrompterList().remove(this);
-                    return;
-                } else {
-                    ItemMeta itemMeta = event.getCurrentItem().getItemMeta();
-                    assert itemMeta != null;
-                    String name = itemMeta.getDisplayName();
-                    if (name.equals("=>")) {
-                        nextPage();
-                    } else if (name.equals("<=")) {
-                        prevPage();
-                    }
-                    event.setCancelled(true);
-                    player.updateInventory();
-                    return;
-                }
-            }
-        }
         event.setCancelled(true);
-        player.updateInventory();
-
+        if (event.getClick() != ClickType.LEFT) {
+            return;
+        }
+        if (event.getCurrentItem() == null) {
+            return;
+        }
+        ItemStack currentItem = event.getCurrentItem();
+        assert currentItem != null;
+        if (currentItem.getType() != Material.FEATHER) {
+            consumer.accept(itemStacks.get(page * 45 + event.getSlot()).getValue());
+            player.closeInventory();
+            Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> IsletopiaPrompters.getChestPrompterList().remove(ChestPrompter.this),100);
+        } else {
+            ItemMeta itemMeta = event.getCurrentItem().getItemMeta();
+            assert itemMeta != null;
+            String name = itemMeta.getDisplayName();
+            if (name.equals("=>")) {
+                nextPage();
+            } else if (name.equals("<=")) {
+                prevPage();
+            }
+            event.setCancelled(true);
+            player.updateInventory();
+        }
     }
 
     protected void nextPage() {
