@@ -1,4 +1,4 @@
-package com.molean.isletopia.prompter;
+package com.molean.isletopia.prompter.command;
 
 import com.molean.isletopia.parameter.UniversalParameter;
 import com.molean.isletopia.prompter.prompter.CommandPrompts;

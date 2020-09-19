@@ -1,8 +1,8 @@
 package com.molean.isletopia.story.action;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.story.PlayerScene;
-import com.molean.isletopia.story.SceneManager;
+import com.molean.isletopia.story.scene.PlayerScene;
+import com.molean.isletopia.story.scene.SceneManager;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;

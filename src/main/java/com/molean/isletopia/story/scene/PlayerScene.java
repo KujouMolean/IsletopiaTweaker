@@ -1,4 +1,4 @@
-package com.molean.isletopia.story;
+package com.molean.isletopia.story.scene;
 
 public class PlayerScene {
     private int id;

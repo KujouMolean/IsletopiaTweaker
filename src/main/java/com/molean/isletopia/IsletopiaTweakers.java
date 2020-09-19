@@ -22,8 +22,6 @@ public final class IsletopiaTweakers extends JavaPlugin {
     public void onEnable() {
         isletopiaTweakers = this;
         ConfigUtils.setupConfig(this);
-
-
         new IsletopiaInfrastructure();
         new IsletopiaModifier();
         new IsletopiaDistributeSystem();

@@ -109,6 +109,7 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
+            assert targetServer != null;
             if (!targetServer.equalsIgnoreCase(ServerInfoUpdater.getServerName())) {
                 ByteArrayDataOutput out = ByteStreams.newDataOutput();
                 out.writeUTF("ConnectOther");

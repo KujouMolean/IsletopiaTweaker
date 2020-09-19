@@ -1,6 +1,6 @@
 package com.molean.isletopia.story.action;
 
-import com.molean.isletopia.story.StoryManager;
+import com.molean.isletopia.story.story.StoryManager;
 import com.molean.isletopia.story.story.Story;
 import com.molean.isletopia.story.story.StoryTask;
 import org.bukkit.entity.Player;

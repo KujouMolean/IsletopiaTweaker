@@ -1,7 +1,7 @@
 package com.molean.isletopia.story.command;
 
-import com.molean.isletopia.story.PlayerScene;
-import com.molean.isletopia.story.SceneManager;
+import com.molean.isletopia.story.scene.PlayerScene;
+import com.molean.isletopia.story.scene.SceneManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;

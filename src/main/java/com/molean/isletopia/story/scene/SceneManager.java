@@ -1,4 +1,4 @@
-package com.molean.isletopia.story;
+package com.molean.isletopia.story.scene;
 
 import com.molean.isletopia.database.SceneDao;
 

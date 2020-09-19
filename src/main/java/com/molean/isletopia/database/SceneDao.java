@@ -1,6 +1,6 @@
 package com.molean.isletopia.database;
 
-import com.molean.isletopia.story.PlayerScene;
+import com.molean.isletopia.story.scene.PlayerScene;
 import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 
 import java.sql.Connection;

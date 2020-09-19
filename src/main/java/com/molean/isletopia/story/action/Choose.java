@@ -1,6 +1,6 @@
 package com.molean.isletopia.story.action;
 
-import com.molean.isletopia.story.StoryManager;
+import com.molean.isletopia.story.story.StoryManager;
 import com.molean.isletopia.story.story.Story;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;

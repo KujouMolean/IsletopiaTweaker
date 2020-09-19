@@ -1,4 +1,4 @@
-package com.molean.isletopia.story;
+package com.molean.isletopia.story.story;
 
 
 import com.molean.isletopia.IsletopiaTweakers;

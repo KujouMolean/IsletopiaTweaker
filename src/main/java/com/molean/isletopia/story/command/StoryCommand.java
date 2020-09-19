@@ -1,7 +1,7 @@
 package com.molean.isletopia.story.command;
 
 
-import com.molean.isletopia.story.StoryManager;
+import com.molean.isletopia.story.story.StoryManager;
 import com.molean.isletopia.story.story.Story;
 import com.molean.isletopia.story.story.StoryTask;
 import com.molean.isletopia.IsletopiaTweakers;
