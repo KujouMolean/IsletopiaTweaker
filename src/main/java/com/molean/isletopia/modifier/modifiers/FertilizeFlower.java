@@ -20,7 +20,7 @@ public class FertilizeFlower implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onInteract(PlayerInteractEvent event) {
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             return;

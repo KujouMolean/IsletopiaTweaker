@@ -14,7 +14,7 @@ public class Story {
     private final List<Action> actions = new ArrayList<>();
 
     public Story(String id, String name) {
-        this.id=id;
+        this.id = id;
         this.name = name;
     }
 
@@ -55,6 +55,8 @@ public class Story {
                     string = ((Integer) value).toString();
                 } else if (value instanceof String) {
                     string = (String) value;
+                } else if (value instanceof Boolean) {
+                    string = ((Boolean) value).toString();
                 }
                 assert string != null;
                 story.getActions().add(Action.parse((String) key, string));

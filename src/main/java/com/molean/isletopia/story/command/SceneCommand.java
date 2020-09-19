@@ -1,5 +1,6 @@
 package com.molean.isletopia.story.command;
 
+import com.molean.isletopia.story.PlayerScene;
 import com.molean.isletopia.story.SceneManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,17 +44,26 @@ public class SceneCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private void set(Player sender, String scene, String nString, @NotNull Location location) {
-        int n = Integer.parseInt(nString);
-        boolean set = SceneManager.setScene(sender.getName(), scene, n, location);
-        if (!set) {
+    private void set(Player sender, String namespace, String name, @NotNull Location location) {
+        PlayerScene playerScene = new PlayerScene();
+        playerScene.setId(0);
+        playerScene.setPlayer(sender.getName());
+        playerScene.setNamespace(namespace);
+        playerScene.setName(name);
+        playerScene.setX(location.getBlockX());
+        playerScene.setY(location.getBlockY());
+        playerScene.setZ(location.getBlockZ());
+        boolean set = SceneManager.setScene(playerScene);
+        if (set) {
+            sender.sendMessage("§设置成功.");
+        }else {
             sender.sendMessage("§设置失败, 请检查参数是否正确.");
         }
     }
 
     private void help(Player player) {
         player.sendMessage("故事场景设置:");
-        player.sendMessage("/story set <故事名称> <场景序号>");
+        player.sendMessage("/story set <名称空间> <场景名称>");
     }
 
     @Override

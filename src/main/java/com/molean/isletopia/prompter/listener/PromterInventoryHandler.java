@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 
 public class PromterInventoryHandler implements Listener {
     public PromterInventoryHandler() {
-        Bukkit.getPluginManager().registerEvents(new PromterInventoryHandler(), IsletopiaTweakers.getPlugin());
+        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
     @EventHandler

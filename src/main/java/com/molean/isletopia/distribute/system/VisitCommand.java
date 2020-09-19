@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.molean.isletopia.database.PDBUtils;
+import com.molean.isletopia.database.ParameterDao;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.parameter.UniversalParameter;
 import com.molean.isletopia.IsletopiaTweakers;
@@ -55,7 +55,7 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
         if (args.length < 1)
             return true;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String targetServer = PDBUtils.get(args[0], "server");
+            String targetServer = ParameterDao.get(args[0], "server");
             String source = sourcePlayer.getName();
             String target = args[0];
             boolean allow = true;

@@ -59,10 +59,8 @@ public class NewbieOperation implements Listener {
 
     }
 
-    @EventHandler
+    @EventHandler()
     public void onSync(SyncCompleteEvent event) {
-
-
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 
             if (!event.getPlayer().getInventory().contains(Material.CLOCK)) {

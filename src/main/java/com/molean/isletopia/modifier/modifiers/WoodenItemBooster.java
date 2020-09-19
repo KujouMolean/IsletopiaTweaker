@@ -13,7 +13,7 @@ public class WoodenItemBooster implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onCraft(PrepareItemCraftEvent event) {
         ItemStack result = event.getInventory().getResult();
         if (result == null)

@@ -7,7 +7,9 @@ softdepend:
 denpend:
   - PlotSquared
 commands:
+  scene: {}
   guide: {}
+  story: {}
   help: {}
   visit: {}
   issue: {}

@@ -1,63 +1,38 @@
 package com.molean.isletopia.story;
 
-import com.molean.isletopia.parameter.UniversalParameter;
-import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
+import com.molean.isletopia.database.SceneDao;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SceneManager {
 
-    private static final Map<String, Integer> scenes = new HashMap<>();
+    private static final Map<String, List<String>> scenes = new HashMap<>();
 
-    public static void registScene(String namespace) {
-        scenes.put(namespace, scenes.getOrDefault(namespace, 1));
+    public static void registerScene(String namespace, String name) {
+        if (!scenes.containsKey(namespace)) {
+            scenes.put(namespace, new ArrayList<>());
+        }
+        scenes.get(namespace).add(name);
     }
 
-    public static boolean hasScene(String scene, int n) {
-        return scenes.getOrDefault(scene, 1) <= n;
-    }
-
-    public static boolean setScene(String player, String namespace, int n, Location location) {
-        if (!hasScene(namespace, n)) {
+    public static boolean hasScene(String namespace, String name) {
+        if (!scenes.containsKey(namespace)) {
             return false;
         }
-        String sceneSet = UniversalParameter.getParameter(player, "sceneSet");
-        YamlConfiguration yamlConfiguration = new YamlConfiguration();
-        if (sceneSet != null) {
-            try {
-                yamlConfiguration.loadFromString(sceneSet);
-            } catch (InvalidConfigurationException e) {
-                return false;
-            }
-        }
-        ConfigurationSection section = yamlConfiguration.createSection(namespace + "_" + n);
-        section.set("x", location.getX());
-        section.set("y", location.getY());
-        section.set("z", location.getZ());
-        UniversalParameter.setParameter(player, "sceneSet", yamlConfiguration.saveToString());
+        return scenes.get(namespace).contains(name);
+    }
+
+    public static boolean setScene(PlayerScene playerScene) {
+        if (!hasScene(playerScene.getNamespace(), playerScene.getName()))
+            return false;
+        SceneDao.setScene(playerScene);
         return true;
     }
 
-    public static Location getScene(String player, String namespace, int n) {
-        String sceneSet = UniversalParameter.getParameter(player, "sceneSet");
-        YamlConfiguration yamlConfiguration = new YamlConfiguration();
-        try {
-            yamlConfiguration.loadFromString(sceneSet);
-        } catch (InvalidConfigurationException e) {
-            return null;
-        }
-        ConfigurationSection configurationSection = yamlConfiguration.getConfigurationSection(namespace + "_" + n);
-        if (configurationSection == null) {
-            return null;
-        }
-        Location location = new Location(null, 0, 0, 0);
-        location.setX(configurationSection.getInt("x"));
-        location.setY(configurationSection.getInt("y"));
-        location.setZ(configurationSection.getInt("z"));
-        return location;
+    public static PlayerScene getScene(String player, String namespace, String name) {
+        return SceneDao.getScene(player, namespace, name);
     }
 }

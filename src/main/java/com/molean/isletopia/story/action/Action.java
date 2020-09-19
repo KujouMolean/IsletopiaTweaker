@@ -1,10 +1,7 @@
 package com.molean.isletopia.story.action;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
-import org.sqlite.SQLiteConfig;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +38,7 @@ public interface Action {
                         Integer.parseInt(parameter.get(4))
                 );
             case "scene":
-                return new Scene(parameter.get(0),parameter.get(1),Integer.parseInt(parameter.get(2)));
+                return new TeleportScene(parameter.get(0), parameter.get(1), parameter.get(2));
             case "choose":
             case "chooseStory":
                 return new Choose(value);
