@@ -1,7 +1,7 @@
 package com.molean.isletopia.database;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.system.ServerInfoUpdater;
+import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import java.nio.file.Path;

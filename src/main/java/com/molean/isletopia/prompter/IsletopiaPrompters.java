@@ -1,10 +1,6 @@
 package com.molean.isletopia.prompter;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.modifier.modifiers.AddMerchant;
-import com.molean.isletopia.modifier.modifiers.FertilizeFlower;
-import com.molean.isletopia.modifier.modifiers.RegistRecipe;
-import com.molean.isletopia.modifier.modifiers.WoodenItemBooster;
 import com.molean.isletopia.prompter.command.IssueCommand;
 import com.molean.isletopia.prompter.listener.PromterInventoryHandler;
 import com.molean.isletopia.prompter.prompter.Prompter;
@@ -30,7 +26,7 @@ public class IsletopiaPrompters {
             exception.printStackTrace();
             logger.severe("Initialize isletopia prompter failed!");
         }
-        logger.info("Load isletopia prompter successfully!");
+        logger.info("Initialize isletopia prompter successfully!");
 
     }
 }

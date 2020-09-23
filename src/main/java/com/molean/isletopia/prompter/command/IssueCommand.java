@@ -1,6 +1,6 @@
 package com.molean.isletopia.prompter.command;
 
-import com.molean.isletopia.parameter.UniversalParameter;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.prompter.prompter.CommandPrompts;
 import com.molean.isletopia.utils.StringUtils;
 import com.molean.isletopia.IsletopiaTweakers;

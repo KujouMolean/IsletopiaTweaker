@@ -1,4 +1,4 @@
-package com.molean.isletopia.protect.protections;
+package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.plotsquared.bukkit.util.BukkitUtil;

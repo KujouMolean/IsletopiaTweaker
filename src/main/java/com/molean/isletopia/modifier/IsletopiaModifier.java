@@ -1,14 +1,10 @@
 package com.molean.isletopia.modifier;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.infrastructure.infrastructures.ClockMenu;
-import com.molean.isletopia.infrastructure.infrastructures.GuideBook;
-import com.molean.isletopia.infrastructure.infrastructures.IslandCommand;
-import com.molean.isletopia.infrastructure.infrastructures.TeleportSign;
-import com.molean.isletopia.modifier.modifiers.AddMerchant;
-import com.molean.isletopia.modifier.modifiers.FertilizeFlower;
-import com.molean.isletopia.modifier.modifiers.RegistRecipe;
-import com.molean.isletopia.modifier.modifiers.WoodenItemBooster;
+import com.molean.isletopia.modifier.individual.AddMerchant;
+import com.molean.isletopia.modifier.individual.FertilizeFlower;
+import com.molean.isletopia.modifier.individual.RegistRecipe;
+import com.molean.isletopia.modifier.individual.WoodenItemBooster;
 
 import java.util.logging.Logger;
 
@@ -24,6 +20,6 @@ public class IsletopiaModifier {
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");
         }
-        logger.info("Load isletopia modifier successfully!");
+        logger.info("Initialize isletopia modifier successfully!");
     }
 }

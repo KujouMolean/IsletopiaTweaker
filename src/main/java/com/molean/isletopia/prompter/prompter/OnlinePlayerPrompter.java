@@ -1,6 +1,6 @@
 package com.molean.isletopia.prompter.prompter;
 
-import com.molean.isletopia.distribute.system.ServerInfoUpdater;
+import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import org.bukkit.entity.Player;
 
 public class OnlinePlayerPrompter extends PlayerPrompter {

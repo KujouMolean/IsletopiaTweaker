@@ -21,6 +21,6 @@ public final class IsletopiaStory {
             exception.printStackTrace();
             logger.severe("Initialize isletopia story failed!");
         }
-        logger.info("Load isletopia story successfully!");
+        logger.info("Initialize isletopia story successfully!");
     }
 }

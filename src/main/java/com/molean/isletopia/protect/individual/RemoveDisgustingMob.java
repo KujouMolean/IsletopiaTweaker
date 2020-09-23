@@ -1,4 +1,4 @@
-package com.molean.isletopia.protect.protections;
+package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import org.bukkit.Bukkit;

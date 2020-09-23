@@ -9,44 +9,34 @@ import java.util.Map;
 
 public class Story {
 
+    private final String namespace;
     private final String name;
-    private final String id;
+    private final String display;
     private final List<Action> actions = new ArrayList<>();
 
-    public Story(String id, String name) {
-        this.id = id;
+    public Story(String namespace, String name, String display) {
+        this.namespace = namespace;
         this.name = name;
+        this.display = display;
     }
 
-
-    public Story(List<Action> actions, String id, String name) {
-        this.id = id;
-        this.name = name;
-        this.actions.addAll(actions);
+    public String getNamespace() {
+        return namespace;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getId() {
-        return id;
-    }
-
     public List<Action> getActions() {
         return actions;
     }
 
-    @Override
-    public String toString() {
-        return "Story{" +
-                "actions=" + actions +
-                '}';
-    }
-
-    public static Story parse(String id, ConfigurationSection section) {
+    public static Story parse(ConfigurationSection section) {
+        String namespace = section.getString("namespace");
         String name = section.getString("name");
-        Story story = new Story(id, name);
+        String display = section.getString("display");
+        Story story = new Story(namespace, name, display);
         List<Map<?, ?>> actions = section.getMapList("actions");
         for (Map<?, ?> action : actions) {
             action.forEach((key, value) -> {

@@ -6,22 +6,25 @@ import com.molean.isletopia.story.story.StoryTask;
 import org.bukkit.entity.Player;
 
 public class PlayStory implements Action {
-    private final String storyID;
+    private final String namespace;
+    private final String name;
 
-    public PlayStory(String storyID) {
-        this.storyID = storyID;
+    public PlayStory(String namespace, String name) {
+        this.namespace = namespace;
+        this.name = name;
     }
 
     @Override
     public String toString() {
         return "PlayStory{" +
-                "storyID='" + storyID + '\'' +
+                "namespace='" + namespace + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 
     @Override
     public void play(Player player) {
-        Story story = StoryManager.getStory(storyID);
+        Story story = StoryManager.getStory(namespace,name);
         new StoryTask(player, story).run();
     }
 }

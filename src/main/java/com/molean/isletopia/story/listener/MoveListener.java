@@ -21,7 +21,6 @@ public class MoveListener implements Listener {
         movables.remove(player);
 
     }
-
     public static Boolean isMovable(String player) {
         return movables.get(player);
     }

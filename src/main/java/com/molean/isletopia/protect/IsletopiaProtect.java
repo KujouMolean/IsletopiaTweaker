@@ -1,11 +1,7 @@
 package com.molean.isletopia.protect;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.modifier.modifiers.AddMerchant;
-import com.molean.isletopia.modifier.modifiers.FertilizeFlower;
-import com.molean.isletopia.modifier.modifiers.RegistRecipe;
-import com.molean.isletopia.modifier.modifiers.WoodenItemBooster;
-import com.molean.isletopia.protect.protections.*;
+import com.molean.isletopia.protect.individual.*;
 
 import java.util.logging.Logger;
 
@@ -24,7 +20,7 @@ public class IsletopiaProtect {
             exception.printStackTrace();
             logger.severe("Initialize isletopia protect failed!");
         }
-        logger.info("Load isletopia protect successfully!");
+        logger.info("Initialize isletopia protect successfully!");
 
     }
 }

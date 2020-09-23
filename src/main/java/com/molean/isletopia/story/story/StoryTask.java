@@ -22,12 +22,11 @@ public class StoryTask implements Runnable {
     @Override
     public void run() {
         if (playerList.contains(player)) {
-            player.sendMessage("你已经在一个故事中, 无法加入更多故事.");
+            player.sendMessage("§c你已经在一个故事中, 无法加入更多故事.");
             return;
-        } else {
-            playerList.add(player);
         }
         try {
+            playerList.add(player);
             for (Action action : story.getActions()) {
                 action.play(player);
             }
@@ -35,10 +34,9 @@ public class StoryTask implements Runnable {
             e.printStackTrace();
         } finally {
             playerList.remove(player);
+            MoveListener.unsetmovable(player.getName());
         }
     }
 
-    public void resetPlayer(Player player) {
-        MoveListener.unsetmovable(player.getName());
-    }
+
 }

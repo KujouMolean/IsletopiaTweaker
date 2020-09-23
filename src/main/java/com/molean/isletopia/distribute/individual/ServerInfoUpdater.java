@@ -1,4 +1,4 @@
-package com.molean.isletopia.distribute.system;
+package com.molean.isletopia.distribute.individual;
 
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;

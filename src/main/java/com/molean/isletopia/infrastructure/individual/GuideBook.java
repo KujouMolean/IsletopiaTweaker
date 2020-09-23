@@ -1,4 +1,4 @@
-package com.molean.isletopia.infrastructure.infrastructures;
+package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.ConfigUtils;
@@ -89,9 +89,38 @@ public class GuideBook implements CommandExecutor {
         for (String s : split) {
             if (hasLeft) {
                 hasLeft = false;
-                TextComponent textComponent = new TextComponent(s);
-                textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/guide " + s));
-                baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
+
+                if (s.contains("#")) {
+                    String[] sSplit = s.split("#");
+                    if (sSplit.length != 3) {
+                        continue;
+                    }
+                    TextComponent textComponent = new TextComponent(sSplit[0]);
+                    switch (sSplit[1]){
+                        case "cmd":
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, sSplit[2]));
+                            break;
+                        case "url":
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, sSplit[2]));
+                            break;
+                        case "page":
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, sSplit[2]));
+                            break;
+                        case "copy":
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, sSplit[2]));
+                            break;
+                        case "file":
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, sSplit[2]));
+                            break;
+                    }
+                    baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
+                } else {
+                    TextComponent textComponent = new TextComponent(s);
+                    s = s.replaceAll("§.", "");
+                    textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,  "/guide " + s));
+                    baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
+                }
+
             } else {
                 hasLeft = true;
                 TextComponent textComponent = new TextComponent(s);

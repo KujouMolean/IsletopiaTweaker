@@ -1,4 +1,4 @@
-package com.molean.isletopia.parameter;
+package com.molean.isletopia.distribute.parameter;
 
 import com.molean.isletopia.database.ParameterDao;
 

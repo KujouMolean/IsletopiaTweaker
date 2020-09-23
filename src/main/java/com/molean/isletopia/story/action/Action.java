@@ -54,6 +54,8 @@ public interface Action {
             case "movable":
             case "setMovable":
                 return new Movable(Boolean.parseBoolean(value));
+            case "sound":
+                return new PlaySound(value);
         }
         return null;
     }

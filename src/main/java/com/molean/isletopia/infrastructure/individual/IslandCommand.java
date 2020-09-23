@@ -1,8 +1,8 @@
-package com.molean.isletopia.infrastructure.infrastructures;
+package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.parameter.UniversalParameter;
-import com.molean.isletopia.distribute.system.ServerInfoUpdater;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

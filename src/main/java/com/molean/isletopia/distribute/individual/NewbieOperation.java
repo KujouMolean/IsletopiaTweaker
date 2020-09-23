@@ -1,7 +1,7 @@
-package com.molean.isletopia.distribute.system;
+package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.parameter.UniversalParameter;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;

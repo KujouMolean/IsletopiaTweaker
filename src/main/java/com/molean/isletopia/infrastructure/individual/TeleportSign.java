@@ -1,4 +1,4 @@
-package com.molean.isletopia.infrastructure.infrastructures;
+package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import org.bukkit.Bukkit;

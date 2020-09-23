@@ -1,7 +1,7 @@
 package com.molean.isletopia.story.action;
 
-import com.molean.isletopia.story.story.StoryManager;
 import com.molean.isletopia.story.story.Story;
+import com.molean.isletopia.story.story.StoryManager;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -25,11 +25,15 @@ public class Choose implements Action {
                 if (hasPos1) {
                     hasPos1 = false;
                     pos2 = i;
-                    String storyId = text.substring(pos1 + 1, pos2);
-
-                    Story story = StoryManager.getStory(storyId);
+                    String storyLoc = text.substring(pos1 + 1, pos2);
+                    String[] split = storyLoc.split(";");
+                    if (split.length < 2) {
+                        player.sendMessage("严重错误, 请务必通知管理员.");
+                        return;
+                    }
+                    Story story = StoryManager.getStory(split[0], split[1]);
                     TextComponent textComponent = new TextComponent(story.getName());
-                    String command = "/story play " + storyId;
+                    String command = "/story play " + split[0] + " " + split[1];
                     textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
                     componentBuilder.append(textComponent);
                 } else {

@@ -1,4 +1,4 @@
-package com.molean.isletopia.distribute.system;
+package com.molean.isletopia.distribute.individual;
 
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
@@ -6,7 +6,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.database.ParameterDao;
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.parameter.UniversalParameter;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;

@@ -1,4 +1,4 @@
-package com.molean.isletopia.infrastructure.infrastructures;
+package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import org.bukkit.Bukkit;
@@ -20,8 +20,10 @@ public class ClockMenu implements Listener {
         Action action = event.getAction();
         if (!material.equals(Material.CLOCK))
             return;
-        if (event.getPlayer().isSneaking() && action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.LEFT_CLICK_BLOCK)) {
-            event.getPlayer().performCommand("issue visit ${island,%player_name%}");
+        if (event.getPlayer().isSneaking()) {
+            if (action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.LEFT_CLICK_BLOCK)) {
+                event.getPlayer().performCommand("issue visit ${island,%player_name%}");
+            }
         }
 
         if (action.equals(Action.RIGHT_CLICK_AIR) || action.equals(Action.RIGHT_CLICK_BLOCK)) {

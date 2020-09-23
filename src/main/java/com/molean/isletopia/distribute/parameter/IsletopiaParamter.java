@@ -1,4 +1,4 @@
-package com.molean.isletopia.parameter;
+package com.molean.isletopia.distribute.parameter;
 
 public class IsletopiaParamter {
     public IsletopiaParamter() {
