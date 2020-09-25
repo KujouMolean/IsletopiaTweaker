@@ -1,4 +1,4 @@
-package com.molean.isletopia.menu;
+package com.molean.isletopia._menu;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -6,18 +6,20 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 
-public class PlainIcon implements ComponentSheet {
+public class FullDisplayIcon implements ComponentSheet {
     private Material material;
     private String display = null;
     private List<String> lores = null;
     private int amount = 1;
     private Map<Enchantment, Integer> enchantments = new HashMap<>();
+    private List<ItemFlag> itemFlags = new ArrayList<>();
+
 
     private void reset() {
         material = null;
@@ -25,6 +27,7 @@ public class PlainIcon implements ComponentSheet {
         lores = null;
         amount = 1;
         enchantments = new HashMap<>();
+        itemFlags = new ArrayList<>();
     }
 
     @Override
@@ -36,6 +39,9 @@ public class PlainIcon implements ComponentSheet {
         itemMeta.setDisplayName(display);
         itemMeta.setLore(lores);
         itemStack.setItemMeta(itemMeta);
+        for (ItemFlag itemFlag : itemFlags) {
+            itemMeta.addItemFlags(itemFlag);
+        }
         for (Enchantment enchantment : enchantments.keySet()) {
             Integer level = enchantments.get(enchantment);
             itemStack.addEnchantment(enchantment, level);
@@ -66,6 +72,13 @@ public class PlainIcon implements ComponentSheet {
 
         if (keys.contains("lores")) {
             this.lores = new ArrayList<>(section.getStringList("lores"));
+        }
+
+        if (keys.contains("flags")) {
+            List<String> flags = section.getStringList("flags");
+            for (String flag : flags) {
+                itemFlags.add(ItemFlag.valueOf(flag));
+            }
         }
 
         if (keys.contains("enchantments")) {

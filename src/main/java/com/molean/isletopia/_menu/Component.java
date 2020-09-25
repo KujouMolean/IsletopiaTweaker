@@ -1,4 +1,4 @@
-package com.molean.isletopia.menu;
+package com.molean.isletopia._menu;
 
 import com.molean.isletopia.utils.Pos;
 import org.bukkit.entity.Player;
