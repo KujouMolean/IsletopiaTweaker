@@ -13,9 +13,9 @@ commands:
   help: {}
   visit: {}
   issue: {}
-  sudo: {}
   parameter: {}
   parameterAdmin: {}
+  menu: {}
   tell: {}
   msg: {}
   w: {}

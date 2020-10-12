@@ -3,6 +3,7 @@ package com.molean.isletopia;
 import com.molean.isletopia.distribute.IsletopiaDistributeSystem;
 import com.molean.isletopia.distribute.parameter.IsletopiaParamter;
 import com.molean.isletopia.infrastructure.IsletopiaInfrastructure;
+import com.molean.isletopia.menu.MenuCommand;
 import com.molean.isletopia.modifier.IsletopiaModifier;
 import com.molean.isletopia.prompter.IsletopiaPrompters;
 import com.molean.isletopia.protect.IsletopiaProtect;
@@ -27,6 +28,7 @@ public final class IsletopiaTweakers extends JavaPlugin {
         new IsletopiaParamter();
         new IsletopiaPrompters();
         new IsletopiaProtect();
+        new MenuCommand();
 //        new IsletopiaStory();
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }

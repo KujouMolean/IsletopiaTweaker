@@ -45,12 +45,8 @@ public class UniversalParameter {
             List<String> strings = Arrays.asList(before.split(","));
             List<String> newStrings = new ArrayList<>(strings);
             newStrings.remove(value);
-            if (newStrings.size() == 0) {
-                ParameterDao.set(player, key, null);
-            } else {
-                String join = String.join(",", newStrings);
-                ParameterDao.set(player, key, join);
-            }
+            String join = String.join(",", newStrings);
+            ParameterDao.set(player, key, join);
 
         }
     }

@@ -1,7 +1,7 @@
 package com.molean.isletopia.prompter.prompter;
 
-import com.molean.isletopia.utils.StringUtils;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -13,12 +13,10 @@ public class CommandPrompts {
     private final String[] commandArgs;
     private final Player player;
     private int index;
-    private final boolean sudo;
 
-    public CommandPrompts(String[] commandArgs, Player player, boolean sudo) {
+    public CommandPrompts(String[] commandArgs, Player player) {
         this.commandArgs = commandArgs;
         this.player = player;
-        this.sudo = sudo;
     }
 
     public void handle() {
@@ -70,14 +68,8 @@ public class CommandPrompts {
             for (String arg : commandArgs) {
                 cmd.append(arg).append(" ");
             }
-            boolean isOp = player.isOp();
-            try {
-                if (sudo) player.setOp(true);
-                Bukkit.getServer().dispatchCommand(player, cmd.toString());
-                IsletopiaTweakers.getPlugin().getLogger().info(player.getName() + " issued prompter: " + cmd.toString());
-            } finally {
-                if (sudo) player.setOp(isOp);
-            }
+            Bukkit.getServer().dispatchCommand(player, cmd.toString());
+            IsletopiaTweakers.getPlugin().getLogger().info(player.getName() + " issued prompter: " + cmd.toString());
         });
     }
 }

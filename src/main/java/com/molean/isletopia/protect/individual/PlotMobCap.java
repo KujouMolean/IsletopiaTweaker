@@ -51,6 +51,10 @@ public class PlotMobCap implements Listener {
         setMobCap(EntityType.TROPICAL_FISH, 30);
         setMobCap(EntityType.SALMON, 30);
 
+        setMobCap(EntityType.VILLAGER, 50);
+
+        setMobCap(EntityType.MUSHROOM_COW, 15);
+
     }
 
     @EventHandler

@@ -1,9 +1,9 @@
 package com.molean.isletopia.prompter.command;
 
+import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.prompter.prompter.CommandPrompts;
 import com.molean.isletopia.utils.StringUtils;
-import com.molean.isletopia.IsletopiaTweakers;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -20,8 +20,6 @@ import java.util.Objects;
 public class IssueCommand implements CommandExecutor, TabCompleter {
 
     public IssueCommand() {
-        Objects.requireNonNull(Bukkit.getPluginCommand("sudo")).setExecutor(this);
-        Objects.requireNonNull(Bukkit.getPluginCommand("sudo")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("issue")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("issue")).setTabCompleter(this);
 
@@ -58,25 +56,13 @@ public class IssueCommand implements CommandExecutor, TabCompleter {
             }
 
             if (cmd.toString().indexOf('@') >= 0) {
-                new CommandPrompts(args, (Player) sender, command.getName().equalsIgnoreCase("sudo")).handle();
+                new CommandPrompts(args, (Player) sender).handle();
                 return;
             }
-            boolean isOp = sender.isOp();
-            try {
-                if (command.getName().equalsIgnoreCase("sudo")) {
-                    if (sender instanceof Player)
-                        sender.setOp(true);
-                }
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    Bukkit.getServer().dispatchCommand(sender, cmd.toString());
-                });
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                Bukkit.getServer().dispatchCommand(sender, cmd.toString());
+            });
 
-            } finally {
-                if (command.getName().equalsIgnoreCase("sudo")) {
-                    if (sender instanceof Player)
-                        sender.setOp(isOp);
-                }
-            }
         });
         return true;
     }

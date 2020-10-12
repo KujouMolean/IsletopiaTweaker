@@ -1,10 +1,7 @@
 package com.molean.isletopia.infrastructure;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.infrastructure.individual.ClockMenu;
-import com.molean.isletopia.infrastructure.individual.GuideBook;
-import com.molean.isletopia.infrastructure.individual.IslandCommand;
-import com.molean.isletopia.infrastructure.individual.TeleportSign;
+import com.molean.isletopia.infrastructure.individual.*;
 
 import java.util.logging.Logger;
 
@@ -17,6 +14,7 @@ public class IsletopiaInfrastructure {
             new TeleportSign();
             new GuideBook();
             new ClockMenu();
+            new RespawnPoint();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

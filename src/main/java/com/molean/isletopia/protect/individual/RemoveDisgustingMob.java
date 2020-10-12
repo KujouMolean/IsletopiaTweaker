@@ -6,6 +6,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.generator.ChunkGenerator;
 
 public class RemoveDisgustingMob implements Listener {
     public RemoveDisgustingMob(){
