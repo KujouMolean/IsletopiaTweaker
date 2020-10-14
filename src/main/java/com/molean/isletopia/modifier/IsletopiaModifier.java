@@ -1,10 +1,7 @@
 package com.molean.isletopia.modifier;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.modifier.individual.AddMerchant;
-import com.molean.isletopia.modifier.individual.FertilizeFlower;
-import com.molean.isletopia.modifier.individual.RegistRecipe;
-import com.molean.isletopia.modifier.individual.WoodenItemBooster;
+import com.molean.isletopia.modifier.individual.*;
 
 import java.util.logging.Logger;
 
@@ -16,6 +13,7 @@ public class IsletopiaModifier {
             new RegistRecipe();
             new WoodenItemBooster();
             new FertilizeFlower();
+            new HungerKeeper();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");

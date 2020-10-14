@@ -67,19 +67,19 @@ public class PlotUtils {
         return names;
     }
 
-    public static void localServerTeleport(Player player, String target) {
+    public static void localServerTeleport(Player source, String target) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            PlotPlayer plotPlayer = plotAPI.wrapPlayer(target);
+            PlotPlayer sourcePlayer = plotAPI.wrapPlayer(source.getUniqueId());
             Plot plot = getPlot(target);
-            plot.teleportPlayer(plotPlayer, TeleportCause.PLUGIN, aBoolean -> {
+            plot.teleportPlayer(sourcePlayer, TeleportCause.PLUGIN, aBoolean -> {
                 PlotId id = plot.getId();
                 String localServerName = getLocalServerName();
                 String title = "§6%1%:%2%,%3%"
                         .replace("%1%", localServerName)
                         .replace("%2%", id.getX() + "")
                         .replace("%3%", id.getY() + "");
-                String subtitle = "§3由 %1% 所有".replace("%1%", player.getName());
-                player.sendTitle(new Title(title, subtitle, 20, 40, 20));
+                String subtitle = "§3由 %1% 所有".replace("%1%", target);
+                source.sendTitle(new Title(title, subtitle, 20, 40, 20));
             });
         });
     }
