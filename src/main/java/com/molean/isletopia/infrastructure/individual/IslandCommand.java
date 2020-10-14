@@ -1,9 +1,15 @@
 package com.molean.isletopia.infrastructure.individual;
 
+import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.menu.settings.biome.BiomeMenu1;
+import com.molean.isletopia.utils.PlotUtils;
+import com.plotsquared.core.PlotSquared;
+import com.plotsquared.core.location.BlockLoc;
+import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -47,6 +53,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
 
         switch (verb) {
+
             case "home":
                 home(subject);
                 break;
@@ -67,36 +74,32 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 trust(subject, object);
                 break;
             case "kick":
-            case "untrust":
+            case "distrust":
                 if (args.length < 2) {
                     help(subject);
                     return true;
                 }
-                untrust(subject, object);
+                distrust(subject, object);
                 break;
             case "lock":
-            case "denyall":
-                denyall(subject);
+                lock(subject);
                 break;
             case "unlock":
-            case "undenyall":
-                undenyall(subject);
+            case "open":
+                unlock(subject);
                 break;
+            default:
             case "help":
                 help(subject);
                 break;
             case "sethome":
-                sethome(subject);
+                setHome(subject);
                 break;
             case "resethome":
-                resethome(subject);
+                resetHome(subject);
                 break;
             case "setbiome":
-                if (args.length < 2) {
-                    help(subject);
-                    return true;
-                }
-                setbiome(subject, object);
+                setBiome(subject);
                 break;
         }
         return true;
@@ -105,101 +108,145 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
     public void home(String source) {
         Player player = Bukkit.getPlayer(source);
-        if (player != null) {
-            Bukkit.dispatchCommand(player, "visit " + source);
-        }
+        assert player != null;
+        visit(source, source);
     }
 
-    public void sethome(String source) {
+    public void setHome(String source) {
         Player player = Bukkit.getPlayer(source);
-        if (player != null) {
-            Bukkit.dispatchCommand(player, "plot sethome");
+        assert player != null;
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
+            return;
         }
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        Location location = player.getLocation();
+        com.plotsquared.core.location.Location bottomAbs = currentPlot.getBottomAbs();
+
+        currentPlot.setHome(new BlockLoc(
+                location.getBlockX() - bottomAbs.getX(),
+                location.getBlockY() - bottomAbs.getY(),
+                location.getBlockZ() - bottomAbs.getZ(),
+                location.getYaw(),
+                location.getPitch()));
+        player.sendMessage("设置成功");
+
     }
 
-    public void resethome(String source) {
+    public void resetHome(String source) {
         Player player = Bukkit.getPlayer(source);
-        if (player != null) {
-            Bukkit.dispatchCommand(player, "plot sethome none");
+        assert player != null;
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
+            return;
         }
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        currentPlot.setHome(null);
+        player.sendMessage("§8[§3岛屿助手§8] §6成功更改重生位置.");
     }
 
-    public void setbiome(String source, String target) {
+    public void setBiome(String source) {
         Player player = Bukkit.getPlayer(source);
-        if (player != null) {
-            Bukkit.dispatchCommand(player, "plot setbiome " + target);
+        assert player != null;
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
+            return;
         }
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            new BiomeMenu1(player).open();
+        });
     }
 
     private void visit(String source, String target) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        Bukkit.dispatchCommand(player, "visit " + target);
+        player.performCommand("visit " + target);
     }
 
     public void trust(String source, String target) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        Bukkit.dispatchCommand(player, "plot trust " + target);
-    }
-
-    public void untrust(String source, String target) {
-        Player player = Bukkit.getPlayer(source);
-        assert player != null;
-        Bukkit.dispatchCommand(player, "plot remove " + target);
-    }
-
-    public void denyall(String source) {
-        Player player = Bukkit.getPlayer(source);
-        assert player != null;
-        Bukkit.dispatchCommand(player, "plot deny *");
-    }
-
-    public void undenyall(String source) {
-        Player player = Bukkit.getPlayer(source);
-        assert player != null;
-        String server = UniversalParameter.getParameter(source, "server");
-        if (server == null) {
-            player.kickPlayer("你的岛屿值为空, 这是一个严重的错误.");
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
-        List<UUID> denied = PlotDao.getDenied(server, source);
-        if (!denied.contains(PlotDao.getAllUUID())) {
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        UUID uuid = ServerInfoUpdater.getUUID(target);
+        currentPlot.addTrusted(uuid);
+        PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(target, uuid);
+        player.sendMessage("§8[§3岛屿助手§8] §6已经添加 %1% 为信任.".replace("%1%", target));
+    }
+
+    public void distrust(String source, String target) {
+        Player player = Bukkit.getPlayer(source);
+        assert player != null;
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
-        Bukkit.dispatchCommand(player, "plot remove *");
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        UUID uuid = ServerInfoUpdater.getUUID(target);
+        currentPlot.removeTrusted(uuid);
+        player.sendMessage("§8[§3岛屿助手§8] §6已经从信任列表中删除 %1% §6.".replace("%1%", target));
+    }
+
+    public void lock(String source) {
+        Player player = Bukkit.getPlayer(source);
+        assert player != null;
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
+            return;
+        }
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        UUID uuid = PlotDao.getAllUUID();
+        currentPlot.addTrusted(uuid);
+        player.sendMessage("§8[§3岛屿助手§8] §6已将岛屿设置为§c锁定§6, 非成员玩家将无法访问.");
+    }
+
+    public void unlock(String source) {
+        Player player = Bukkit.getPlayer(source);
+        assert player != null;
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
+            return;
+        }
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        UUID uuid = PlotDao.getAllUUID();
+        currentPlot.removeTrusted(uuid);
+        player.sendMessage("§8[§3岛屿助手§8] §6已将岛屿设置为§c开放§6, 所有玩家都可以访问.");
     }
 
     public void help(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         player.sendMessage("§7§m§l----------§b梦幻之屿§7§m§l----------\n" +
-                "§e> 快速回城 /is home\n" +
+                "§e> 快速回家 /is home\n" +
                 "§e> 访问他人 /is visit [玩家]\n" +
                 "§e> 给予权限 /is trust [玩家]\n" +
-                "§e> 取消权限 /is untrust [玩家]\n" +
+                "§e> 取消权限 /is distrust [玩家]\n" +
                 "§e> 闭关锁岛 /is lock\n" +
                 "§e> 开放岛屿 /is unlock\n" +
-                "§e> 修改复活位置 /is sethome\n" +
-                "§e> 重置复活位置 /is resethome\n" +
+                "§e> 修改复活位置 /is setHome\n" +
+                "§e> 重置复活位置 /is resetHome\n" +
+                "§e> 修改生物群系 /is biome\n" +
                 "§7§m§l--------------------------");
     }
 
-    private static final List<String> subcmd = List.of("home", "visit", "trust", "denyall", "undenyall", "help", "invite", "kick", "lock", "unlock", "sethome", "resethome");
-    private static final List<String> playercmd = List.of("trust", "untrust", "kick", "invite");
+    private static final List<String> subCommand = List.of("home", "visit", "trust", "distrust", "help", "invite", "kick", "lock", "unlock", "setHome", "resetHome");
+    private static final List<String> playerCommand = List.of("trust", "distrust", "kick", "invite", "visit");
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         List<String> strings = new ArrayList<>();
         if (args.length == 1) {
-            for (String s : subcmd) {
+            for (String s : subCommand) {
                 if (s.startsWith(args[0])) {
                     strings.add(s);
                 }
             }
         }
         if (args.length == 2) {
-            if (playercmd.contains(args[0])) {
+            if (playerCommand.contains(args[0])) {
                 List<String> onlinePlayers = ServerInfoUpdater.getOnlinePlayers();
                 for (String onlinePlayer : onlinePlayers) {
                     if (args[1].startsWith(onlinePlayer)) {

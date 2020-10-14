@@ -25,7 +25,7 @@ public class RecipeListMenu implements Listener {
     public RecipeListMenu(Player player, String fatherCommand) {
         this.player = player;
         this.fatherCommand = fatherCommand;
-        inventory = Bukkit.createInventory(player, 54, "合成表");
+        inventory = Bukkit.createInventory(player, 54, "扩展合成表");
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -34,7 +34,7 @@ public class RecipeListMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "返回");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回");
         inventory.setItem(inventory.getSize() - 1, father.build());
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             int cnt = 0;
@@ -43,6 +43,7 @@ public class RecipeListMenu implements Listener {
                     List<ItemStack> icons = LocalRecipe.localRecipeList.get(i).icons;
                     inventory.setItem(i, icons.get(cnt % icons.size()));
                 }
+                cnt++;
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -69,7 +70,7 @@ public class RecipeListMenu implements Listener {
             player.performCommand(fatherCommand);
             return;
         }
-        if (slot >= LocalRecipe.localRecipeList.size()) {
+        if (slot >= LocalRecipe.localRecipeList.size() || slot < 0) {
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new CraftRecipeMenu(player, LocalRecipe.localRecipeList.get(slot), fatherCommand).open());
@@ -90,6 +91,5 @@ public class RecipeListMenu implements Listener {
         }
         stop = true;
         event.getHandlers().unregister(this);
-
     }
 }

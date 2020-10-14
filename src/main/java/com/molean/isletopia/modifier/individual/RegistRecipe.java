@@ -187,6 +187,140 @@ public class RegistRecipe {
                 DIRT, AIR, BROWN_MUSHROOM,
                 AIR, AIR, AIR);
 
+        //合成红石矿
+        registerShaped(new ItemStack(REDSTONE_ORE),
+                REDSTONE, REDSTONE, REDSTONE,
+                REDSTONE, STONE, REDSTONE,
+                REDSTONE, REDSTONE, REDSTONE);
+        //合成煤矿
+        registerShaped(new ItemStack(COAL_ORE),
+                COAL, COAL, COAL,
+                COAL, STONE, COAL,
+                COAL, COAL, COAL);
+        //合成铁矿
+        registerShaped(new ItemStack(IRON_ORE),
+                IRON_INGOT, IRON_INGOT, IRON_INGOT,
+                IRON_INGOT, STONE, IRON_INGOT,
+                IRON_INGOT, IRON_INGOT, IRON_INGOT);
+        //合成金矿
+        registerShaped(new ItemStack(GOLD_ORE),
+                GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
+                GOLD_INGOT, STONE, GOLD_INGOT,
+                GOLD_INGOT, GOLD_INGOT, GOLD_INGOT);
+
+        //合成下届金矿石
+        registerShaped(new ItemStack(GOLD_ORE),
+                GOLD_NUGGET, GOLD_NUGGET, GOLD_NUGGET,
+                GOLD_NUGGET, NETHERRACK, GOLD_NUGGET,
+                GOLD_NUGGET, GOLD_NUGGET, GOLD_NUGGET);
+        //合成青金石矿
+        registerShaped(new ItemStack(LAPIS_ORE),
+                LAPIS_LAZULI, LAPIS_LAZULI, LAPIS_LAZULI,
+                LAPIS_LAZULI, STONE, LAPIS_LAZULI,
+                LAPIS_LAZULI, LAPIS_LAZULI, LAPIS_LAZULI);
+        //合成青钻石矿
+        registerShaped(new ItemStack(DIAMOND_ORE),
+                DIAMOND, DIAMOND, DIAMOND,
+                DIAMOND, STONE, DIAMOND,
+                DIAMOND, DIAMOND, DIAMOND);
+        //合成绿宝石矿
+        registerShaped(new ItemStack(EMERALD_ORE),
+                EMERALD, EMERALD, EMERALD,
+                EMERALD, STONE, EMERALD,
+                EMERALD, EMERALD, EMERALD);
+        //合成下届石英矿
+        registerShaped(new ItemStack(NETHER_QUARTZ_ORE),
+                QUARTZ, QUARTZ, QUARTZ,
+                QUARTZ, NETHERRACK, QUARTZ,
+                QUARTZ, QUARTZ, QUARTZ);
+
+        {
+            List<ItemStack> icons = new ArrayList<>();
+            List<ItemStack> result = new ArrayList<>();
+            List<ItemStack> types = new ArrayList<>();
+            List<ItemStack[]> sources = new ArrayList<>();
+            List<List<Material>> materials = new ArrayList<>();
+            types.add(new ItemStack(CRAFTING_TABLE));
+
+            icons.add(new ItemStack(REDSTONE_ORE));
+            icons.add(new ItemStack(COAL_ORE));
+            icons.add(new ItemStack(IRON_ORE));
+            icons.add(new ItemStack(GOLD_ORE));
+            icons.add(new ItemStack(NETHER_GOLD_ORE));
+            icons.add(new ItemStack(LAPIS_ORE));
+            icons.add(new ItemStack(DIAMOND_ORE));
+            icons.add(new ItemStack(EMERALD_ORE));
+            icons.add(new ItemStack(NETHER_QUARTZ_ORE));
+
+            result.add(new ItemStack(REDSTONE_ORE));
+            result.add(new ItemStack(COAL_ORE));
+            result.add(new ItemStack(IRON_ORE));
+            result.add(new ItemStack(GOLD_ORE));
+            result.add(new ItemStack(NETHER_GOLD_ORE));
+            result.add(new ItemStack(LAPIS_ORE));
+            result.add(new ItemStack(DIAMOND_ORE));
+            result.add(new ItemStack(EMERALD_ORE));
+            result.add(new ItemStack(NETHER_QUARTZ_ORE));
+            materials.add(List.of(
+                    REDSTONE, REDSTONE, REDSTONE,
+                    REDSTONE, STONE, REDSTONE,
+                    REDSTONE, REDSTONE, REDSTONE
+
+            ));
+            materials.add(List.of(
+
+                    COAL, COAL, COAL,
+                    COAL, STONE, COAL,
+                    COAL, COAL, COAL
+
+            ));
+
+            materials.add(List.of(
+                    IRON_INGOT, IRON_INGOT, IRON_INGOT,
+                    IRON_INGOT, STONE, IRON_INGOT,
+                    IRON_INGOT, IRON_INGOT, IRON_INGOT
+            ));
+            materials.add(List.of(
+                    GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
+                    GOLD_INGOT, STONE, GOLD_INGOT,
+                    GOLD_INGOT, GOLD_INGOT, GOLD_INGOT
+            ));
+            materials.add(List.of(
+                    GOLD_NUGGET, GOLD_NUGGET, GOLD_NUGGET,
+                    GOLD_NUGGET, NETHERRACK, GOLD_NUGGET,
+                    GOLD_NUGGET, GOLD_NUGGET, GOLD_NUGGET
+            ));
+
+            materials.add(List.of(
+                    LAPIS_LAZULI, LAPIS_LAZULI, LAPIS_LAZULI,
+                    LAPIS_LAZULI, STONE, LAPIS_LAZULI,
+                    LAPIS_LAZULI, LAPIS_LAZULI, LAPIS_LAZULI
+            ));
+            materials.add(List.of(
+                    DIAMOND, DIAMOND, DIAMOND,
+                    DIAMOND, STONE, DIAMOND,
+                    DIAMOND, DIAMOND, DIAMOND
+            ));
+            materials.add(List.of(
+                    EMERALD, EMERALD, EMERALD,
+                    EMERALD, STONE, EMERALD,
+                    EMERALD, EMERALD, EMERALD
+            ));
+            materials.add(List.of(
+                    QUARTZ, QUARTZ, QUARTZ,
+                    QUARTZ, NETHERRACK, QUARTZ,
+                    QUARTZ, QUARTZ, QUARTZ
+            ));
+            for (List<Material> materialList : materials) {
+                ItemStack[] itemStacks = new ItemStack[9];
+                for (int i = 0; i < itemStacks.length; i++) {
+                    itemStacks[i] = new ItemStack(materialList.get(i));
+                }
+                sources.add(itemStacks);
+            }
+            LocalRecipe.addRecipe(icons, types, sources, result);
+        }
+
         //合成铁锭
         List<Material> dyeRecipeMaterials = List.of(GOLD_INGOT, IRON_INGOT, NETHERITE_INGOT, BRICK, NETHER_BRICK);
         dyeRecipeMaterials.forEach(material -> {
@@ -213,6 +347,7 @@ public class RegistRecipe {
                 itemStacks[4] = new ItemStack(material);
                 sources.add(itemStacks);
             }
+            result.add(new ItemStack(IRON_INGOT));
 
 
             LocalRecipe.addRecipe(icons, types, sources, result);
@@ -244,7 +379,7 @@ public class RegistRecipe {
                 sources.add(itemStacks);
             }
 
-
+            result.add(new ItemStack(GOLD_INGOT));
             LocalRecipe.addRecipe(icons, types, sources, result);
         }
 
@@ -273,7 +408,7 @@ public class RegistRecipe {
                 itemStacks[4] = new ItemStack(material);
                 sources.add(itemStacks);
             }
-
+            result.add(new ItemStack(NETHERITE_INGOT));
 
             LocalRecipe.addRecipe(icons, types, sources, result);
         }
@@ -303,7 +438,7 @@ public class RegistRecipe {
                 itemStacks[4] = new ItemStack(material);
                 sources.add(itemStacks);
             }
-
+            result.add(new ItemStack(BRICK));
 
             LocalRecipe.addRecipe(icons, types, sources, result);
         }
@@ -333,7 +468,7 @@ public class RegistRecipe {
                 itemStacks[4] = new ItemStack(material);
                 sources.add(itemStacks);
             }
-
+            result.add(new ItemStack(NETHER_BRICK));
 
             LocalRecipe.addRecipe(icons, types, sources, result);
         }
@@ -399,5 +534,6 @@ public class RegistRecipe {
         SmokingRecipe smokingRecipe = new SmokingRecipe(namespacedKey, result, source, exp, time);
         Bukkit.addRecipe(smokingRecipe);
     }
+
 
 }

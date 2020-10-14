@@ -35,7 +35,7 @@ public class FavoriteRemoveMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        collections.addAll(UniversalParameter.getParameterAsList(player.getName(), "collections"));
+        collections.addAll(UniversalParameter.getParameterAsList(player.getName(), "collection"));
         for (int i = 0; i < collections.size() && i < inventory.getSize() - 1; i++) {
             inventory.setItem(i, HeadUtils.getSkull(collections.get(i)));
         }
@@ -62,7 +62,7 @@ public class FavoriteRemoveMenu implements Listener {
             return;
         }
         if (slot < collections.size()) {
-            UniversalParameter.removeParameter(player.getName(), "collections", collections.get(slot));
+            UniversalParameter.removeParameter(player.getName(), "collection", collections.get(slot));
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteRemoveMenu(player).open());
         } else if (slot == inventory.getSize() - 1) {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteMenu(player).open());

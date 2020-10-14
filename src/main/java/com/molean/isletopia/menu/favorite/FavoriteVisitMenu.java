@@ -35,7 +35,7 @@ public class FavoriteVisitMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        collections.addAll(UniversalParameter.getParameterAsList(player.getName(), "collections"));
+        collections.addAll(UniversalParameter.getParameterAsList(player.getName(), "collection"));
         for (int i = 0; i < collections.size() && i < inventory.getSize() - 1; i++) {
             inventory.setItem(i, HeadUtils.getSkull(collections.get(i)));
         }

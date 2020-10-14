@@ -4,10 +4,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.ParameterDao;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -48,7 +49,6 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
             UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
         }
     }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         Player sourcePlayer = (Player) sender;
@@ -170,9 +170,7 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
 
                 Player sourcePlayer = Bukkit.getPlayer(source);
                 if (sourcePlayer != null) {
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        Bukkit.dispatchCommand(sourcePlayer, "plot visit " + target);
-                    });
+                    PlotUtils.localServerTeleport(player, target);
                 } else {
                     visits.put(source, target);
                 }

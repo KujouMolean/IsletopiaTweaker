@@ -24,7 +24,7 @@ public class CraftRecipeMenu implements Listener {
         this.fatherCommand = fatherCommand;
         this.player = player;
         this.localRecipe = localRecipe;
-        inventory = Bukkit.createInventory(player, 36, "合成表");
+        inventory = Bukkit.createInventory(player, 36, "扩展合成表");
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -87,6 +87,7 @@ public class CraftRecipeMenu implements Listener {
                 new RecipeListMenu(player,fatherCommand).open();
             });
         }
+
 
     }
 

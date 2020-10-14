@@ -37,7 +37,7 @@ public class FavoriteAddMenu implements Listener {
             inventory.setItem(i, itemStackSheet.build());
         }
         players.addAll(ServerInfoUpdater.getOnlinePlayers());
-        List<String> collections = UniversalParameter.getParameterAsList(player.getName(), "collections");
+        List<String> collections = UniversalParameter.getParameterAsList(player.getName(), "collection");
         players.removeAll(collections);
         players.remove(player.getName());
         for (int i = 0; i < players.size() && i < inventory.getSize() - 1; i++) {

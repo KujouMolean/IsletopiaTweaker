@@ -102,12 +102,12 @@ public class BiomeMenu1 implements Listener {
         LocalBiome localBiome = biomes.get(slot);
         if (currentPlot.getOwner().equals(player.getUniqueId())) {
             player.sendMessage("§8[§3岛屿助手§8] §7尝试修改岛屿生物群系...");
-            currentPlot.setBiome(new BiomeType(localBiome.name()),() -> {
+            currentPlot.setBiome(new BiomeType(localBiome.name()), () -> {
                 player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + localBiome.getName() + ".");
             });
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
             });
         }
 

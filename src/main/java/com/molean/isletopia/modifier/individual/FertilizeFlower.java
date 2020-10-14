@@ -19,13 +19,59 @@ import java.util.List;
 import java.util.Random;
 
 import static org.bukkit.Material.*;
-import static org.bukkit.Material.GRAVEL;
 
 public class FertilizeFlower implements Listener {
     public FertilizeFlower() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        {
 
+            List<ItemStack> icons = new ArrayList<>();
+            List<ItemStack> result = new ArrayList<>();
+            List<ItemStack> types = new ArrayList<>();
+            List<ItemStack[]> sources = new ArrayList<>();
+            types.add(new ItemStack(BONE_MEAL));
 
+            icons.add(new ItemStack(ROSE_BUSH));
+            icons.add(new ItemStack(SUNFLOWER));
+            icons.add(new ItemStack(LILAC));
+            icons.add(new ItemStack(PEONY));
+
+            result.add(new ItemStack(ROSE_BUSH));
+            result.add(new ItemStack(SUNFLOWER));
+            result.add(new ItemStack(LILAC));
+            result.add(new ItemStack(PEONY));
+
+            ItemStack[] itemStacks = new ItemStack[9];
+            for (int i = 0; i < itemStacks.length; i++) {
+                itemStacks[i] = new ItemStack(AIR);
+            }
+            itemStacks[4] = new ItemStack(POPPY);
+            sources.add(itemStacks);
+
+            LocalRecipe.addRecipe(icons, types, sources, result);
+        }
+        {
+
+            List<ItemStack> icons = new ArrayList<>();
+            List<ItemStack> result = new ArrayList<>();
+            List<ItemStack> types = new ArrayList<>();
+            List<ItemStack[]> sources = new ArrayList<>();
+            types.add(new ItemStack(BONE_MEAL));
+
+            icons.add(new ItemStack(WITHER_ROSE));
+            icons.add(new ItemStack(POPPY));
+            result.add(new ItemStack(WITHER_ROSE));
+            result.add(new ItemStack(POPPY));
+
+            ItemStack[] itemStacks = new ItemStack[9];
+            for (int i = 0; i < itemStacks.length; i++) {
+                itemStacks[i] = new ItemStack(AIR);
+            }
+            itemStacks[4] = new ItemStack(WITHER_SKELETON_SKULL);
+            sources.add(itemStacks);
+
+            LocalRecipe.addRecipe(icons, types, sources, result);
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
