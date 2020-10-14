@@ -1,25 +1,24 @@
 package com.molean.isletopia.utils;
 
-import com.google.common.collect.Iterables;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
+import com.destroystokyo.paper.Title;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.ParameterDao;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.distribute.individual.TellCommand;
+import com.molean.isletopia.distribute.individual.VisitCommand;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.api.PlotAPI;
 import com.plotsquared.core.events.TeleportCause;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
+import com.plotsquared.core.plot.PlotId;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
 
 public class PlotUtils {
     private static final PlotAPI plotAPI = new PlotAPI();
@@ -50,11 +49,13 @@ public class PlotUtils {
     }
 
     public static Plot getPlot(Player player) {
-        PlotPlayer wrap = plotAPI.wrapPlayer(player.getName());
-        Set<Plot> playerPlots = plotAPI.getPlayerPlots(wrap);
-        if (playerPlots.size() < 1)
-            return null;
-        return playerPlots.iterator().next();
+        return getPlot(player.getName());
+    }
+
+    public static Plot getPlot(String player) {
+        String server = ServerInfoUpdater.getServerName();
+        PlotId plotId = PlotDao.getPlotPosition(server, player);
+        return PlotSquared.get().getFirstPlotArea().getPlot(plotId);
     }
 
     public static List<String> getTrusted(Plot plot) {
@@ -67,12 +68,59 @@ public class PlotUtils {
     }
 
     public static void localServerTeleport(Player player, String target) {
-        Set<Plot> playerPlots = plotAPI.getPlayerPlots(plotAPI.wrapPlayer(ServerInfoUpdater.getUUID(target)));
-        Iterator<Plot> iterator = playerPlots.iterator();
-        if (iterator.hasNext()) {
-            Plot first = iterator.next();
-            first.teleportPlayer(plotAPI.wrapPlayer(player.getUniqueId()), TeleportCause.PLUGIN, (b) -> {
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            PlotPlayer plotPlayer = plotAPI.wrapPlayer(target);
+            Plot plot = getPlot(target);
+            plot.teleportPlayer(plotPlayer, TeleportCause.PLUGIN, aBoolean -> {
+                PlotId id = plot.getId();
+                String localServerName = getLocalServerName();
+                String title = "§6%1%:%2%,%3%"
+                        .replace("%1%", localServerName)
+                        .replace("%2%", id.getX() + "")
+                        .replace("%3%", id.getY() + "");
+                String subtitle = "§3由 %1% 所有".replace("%1%", player.getName());
+                player.sendTitle(new Title(title, subtitle, 20, 40, 20));
             });
-        }
+        });
     }
+
+    public static void universalTeleport(Player player, String target) {
+        VisitCommand.visit(player, target);
+    }
+
+    public static void universalMessage(String target, String message) {
+        TellCommand.sendMessageToPlayer(target, message);
+    }
+
+    private static String getLocalServerName() {
+        String localName;
+        switch (ServerInfoUpdater.getServerName()) {
+            case "server1": {
+                localName = "马尔代夫";
+                break;
+            }
+            case "server2": {
+                localName = "东沙群岛";
+                break;
+            }
+            case "server3": {
+                localName = "西沙群岛";
+                break;
+            }
+            case "server4": {
+                localName = "南沙群岛";
+                break;
+            }
+            case "server5": {
+                localName = "夏威夷";
+                break;
+            }
+            default: {
+                localName = "未知";
+                break;
+            }
+        }
+        return localName;
+    }
+
 }

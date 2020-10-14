@@ -6,6 +6,7 @@ import com.molean.isletopia.menu.settings.SettingsMenu;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import com.sk89q.worldedit.world.biome.BiomeType;
+import com.sk89q.worldedit.world.biome.BiomeTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -58,8 +59,8 @@ public class BiomeMenu2 implements Listener {
                 itemStackSheet.addLore(s);
             }
             if (biome.name().equalsIgnoreCase(localBiome.name())) {
-                itemStackSheet.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
                 itemStackSheet.addItemFlag(ItemFlag.HIDE_ENCHANTS);
+                itemStackSheet.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
                 String display = itemStackSheet.getDisplay();
                 itemStackSheet.setDisplay("§f当前所在生物群系: " + display);
             }
@@ -105,7 +106,7 @@ public class BiomeMenu2 implements Listener {
         LocalBiome localBiome = biomes.get(slot + 52);
         if (currentPlot.getOwner().equals(player.getUniqueId())) {
             player.sendMessage("§8[§3岛屿助手§8] §7尝试修改岛屿生物群系...");
-            currentPlot.setBiome(new BiomeType(localBiome.name()), () -> {
+            currentPlot.setBiome(BiomeTypes.get(localBiome.name().toLowerCase()), () -> {
                 player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + localBiome.getName() + ".");
             });
         } else {

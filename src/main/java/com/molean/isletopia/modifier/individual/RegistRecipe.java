@@ -49,6 +49,16 @@ public class RegistRecipe {
                 BLACK_DYE, BLACK_DYE, BLACK_DYE,
                 BLACK_DYE, SKELETON_SKULL, BLACK_DYE,
                 BLACK_DYE, BLACK_DYE, BLACK_DYE);
+        //合成蜘蛛丝
+        registerShaped(new ItemStack(COBWEB),
+                STRING, STRING, STRING,
+                STRING, STRING, STRING,
+                STRING, STRING, STRING);
+
+        LocalRecipe.addRecipe(COBWEB, CRAFTING_TABLE, new ItemStack(COBWEB),
+                STRING, STRING, STRING,
+                STRING, STRING, STRING,
+                STRING, STRING, STRING);
 
 
 //        末地石
@@ -210,14 +220,14 @@ public class RegistRecipe {
 
         //合成下届金矿石
         registerShaped(new ItemStack(GOLD_ORE),
-                GOLD_NUGGET, GOLD_NUGGET, GOLD_NUGGET,
-                GOLD_NUGGET, NETHERRACK, GOLD_NUGGET,
-                GOLD_NUGGET, GOLD_NUGGET, GOLD_NUGGET);
+                GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
+                GOLD_INGOT, NETHERRACK, GOLD_INGOT,
+                GOLD_INGOT, GOLD_INGOT, GOLD_INGOT);
         //合成青金石矿
         registerShaped(new ItemStack(LAPIS_ORE),
-                LAPIS_LAZULI, LAPIS_LAZULI, LAPIS_LAZULI,
-                LAPIS_LAZULI, STONE, LAPIS_LAZULI,
-                LAPIS_LAZULI, LAPIS_LAZULI, LAPIS_LAZULI);
+                LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK,
+                LAPIS_BLOCK, STONE, LAPIS_BLOCK,
+                LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK);
         //合成青钻石矿
         registerShaped(new ItemStack(DIAMOND_ORE),
                 DIAMOND, DIAMOND, DIAMOND,
@@ -286,15 +296,15 @@ public class RegistRecipe {
                     GOLD_INGOT, GOLD_INGOT, GOLD_INGOT
             ));
             materials.add(List.of(
-                    GOLD_NUGGET, GOLD_NUGGET, GOLD_NUGGET,
-                    GOLD_NUGGET, NETHERRACK, GOLD_NUGGET,
-                    GOLD_NUGGET, GOLD_NUGGET, GOLD_NUGGET
+                    GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
+                    GOLD_INGOT, NETHERRACK, GOLD_INGOT,
+                    GOLD_INGOT, GOLD_INGOT, GOLD_INGOT
             ));
 
             materials.add(List.of(
-                    LAPIS_LAZULI, LAPIS_LAZULI, LAPIS_LAZULI,
-                    LAPIS_LAZULI, STONE, LAPIS_LAZULI,
-                    LAPIS_LAZULI, LAPIS_LAZULI, LAPIS_LAZULI
+                    LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK,
+                    LAPIS_BLOCK, STONE, LAPIS_BLOCK,
+                    LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK
             ));
             materials.add(List.of(
                     DIAMOND, DIAMOND, DIAMOND,

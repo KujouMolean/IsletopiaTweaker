@@ -1,6 +1,5 @@
 package com.molean.isletopia.distribute.individual;
 
-import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -39,8 +38,9 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         if (visits.containsKey(player.getName())) {
-            Bukkit.dispatchCommand(player, "plot visit " + visits.get(player.getName()));
+            PlotUtils.localServerTeleport(player, visits.get(player.getName()));
             visits.remove(player.getName());
+
         }
         List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
         if (visits.size() > 0) {
@@ -49,15 +49,24 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
             UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
         }
     }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         Player sourcePlayer = (Player) sender;
         if (args.length < 1)
             return true;
+        String target = args[0];
+        visit(sourcePlayer, target);
+        return true;
+    }
+
+    public static void visit(Player sourcePlayer, String target) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String targetServer = ParameterDao.get(args[0], "server");
             String source = sourcePlayer.getName();
-            String target = args[0];
+            String targetServer = ParameterDao.get(target, "server");
+            if (targetServer == null) {
+                sourcePlayer.sendMessage("§8[§3岛屿助手§8] §7对方没有岛屿.");
+            }
             boolean allow = true;
             UUID sourceUUID = ServerInfoUpdater.getUUID(source);
             UUID allUUID = PlotDao.getAllUUID();
@@ -78,15 +87,15 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
             if (!allow) {
                 if (!sourcePlayer.isOp() && !target.equalsIgnoreCase(source)) {
                     if (ServerInfoUpdater.getOnlinePlayers().contains(target)) {
-                        sendMessageToPlayer(target, "§8[§3访客提醒§8] §e" + source + " 请求访问阁下岛屿但被拒绝了.");
+                        TellCommand.sendMessageToPlayer(target, "§8[§3访客提醒§8] §e" + source + " 请求访问阁下岛屿但被拒绝了.");
                     }
                 }
-                sourcePlayer.sendMessage("§8[§3岛屿助手§8] §7对方没有岛屿或拒绝了你的访问.");
+                sourcePlayer.sendMessage("§8[§3岛屿助手§8] §7对方拒绝了你的访问.");
                 return;
             }
             if (!target.equalsIgnoreCase(source) && !sourcePlayer.isOp()) {
                 if (ServerInfoUpdater.getOnlinePlayers().contains(target)) {
-                    sendMessageToPlayer(target, "§8[§3访客提醒§8] §e" + source + " 刚刚访问了阁下的岛屿.");
+                    TellCommand.sendMessageToPlayer(target, "§8[§3访客提醒§8] §e" + source + " 刚刚访问了阁下的岛屿.");
                 } else {
                     if (!UniversalParameter.getParameterAsList(target, "visits").contains(source)) {
                         UniversalParameter.addParameter(target, "visits", source);
@@ -102,7 +111,7 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
                 ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
                 DataOutputStream msgout = new DataOutputStream(msgbytes);
                 msgout.writeUTF(source);
-                msgout.writeUTF(args[0]);
+                msgout.writeUTF(target);
                 out.writeShort(msgbytes.toByteArray().length);
                 out.write(msgbytes.toByteArray());
                 sourcePlayer.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
@@ -118,7 +127,6 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
                 sourcePlayer.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
             }
         });
-        return true;
     }
 
 
@@ -133,26 +141,6 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
         }
     }
 
-    public void sendMessageToPlayer(String player, String message) {
-        try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("ForwardToPlayer");
-            out.writeUTF(player);
-            out.writeUTF("tell");
-            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
-            DataOutputStream msgout = new DataOutputStream(msgbytes);
-            msgout.writeUTF(message);
-            out.writeShort(msgbytes.toByteArray().length);
-            out.write(msgbytes.toByteArray());
-            Player first = Iterables.getFirst(Bukkit.getServer().getOnlinePlayers(), null);
-            if (first == null) {
-                return;
-            }
-            first.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-    }
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
@@ -167,10 +155,10 @@ public class VisitCommand implements CommandExecutor, TabCompleter, PluginMessag
 
                 String source = msgin.readUTF();
                 String target = msgin.readUTF();
-
                 Player sourcePlayer = Bukkit.getPlayer(source);
+
                 if (sourcePlayer != null) {
-                    PlotUtils.localServerTeleport(player, target);
+                    PlotUtils.localServerTeleport(sourcePlayer, target);
                 } else {
                     visits.put(source, target);
                 }

@@ -56,10 +56,11 @@ public class ItemStackSheet {
         assert itemMeta != null;
         itemMeta.setDisplayName(display);
         itemMeta.setLore(lores);
-        itemStack.setItemMeta(itemMeta);
         for (ItemFlag itemFlag : itemFlags) {
             itemMeta.addItemFlags(itemFlag);
         }
+        itemStack.setItemMeta(itemMeta);
+
         for (Enchantment enchantment : enchantments.keySet()) {
             Integer level = enchantments.get(enchantment);
             itemStack.addUnsafeEnchantment(enchantment, level);

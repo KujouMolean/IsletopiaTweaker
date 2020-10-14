@@ -22,6 +22,8 @@ public class PlayerChatTweaker implements Listener {
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         event.setCancelled(true);
+
+        //send to bungee
         try {
             ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Forward");

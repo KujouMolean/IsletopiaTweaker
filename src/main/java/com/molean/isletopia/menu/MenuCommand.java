@@ -33,7 +33,7 @@ public class MenuCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("recipe")) {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    new RecipeListMenu(player, "menu close").open();
+                    new RecipeListMenu(player, "guide 新合成表").open();
                 });
             }
             if (args[0].equalsIgnoreCase("close")) {

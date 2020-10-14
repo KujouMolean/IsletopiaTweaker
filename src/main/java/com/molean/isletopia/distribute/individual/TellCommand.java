@@ -1,5 +1,6 @@
 package com.molean.isletopia.distribute.individual;
 
+import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -45,24 +46,32 @@ public class TellCommand implements CommandExecutor, TabCompleter, PluginMessage
                 return;
             }
 
-            try {
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("ForwardToPlayer");
-                out.writeUTF(args[0]);
-                out.writeUTF("tell");
-                ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
-                DataOutputStream msgout = new DataOutputStream(msgbytes);
-                msgout.writeUTF(message);
-                out.writeShort(msgbytes.toByteArray().length);
-                out.write(msgbytes.toByteArray());
-                player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
-                player.sendMessage(message);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
+            sendMessageToPlayer(args[0], message);
         });
         return true;
     }
+
+    public static void sendMessageToPlayer(String player, String message) {
+        try {
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("ForwardToPlayer");
+            out.writeUTF(player);
+            out.writeUTF("tell");
+            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+            DataOutputStream msgout = new DataOutputStream(msgbytes);
+            msgout.writeUTF(message);
+            out.writeShort(msgbytes.toByteArray().length);
+            out.write(msgbytes.toByteArray());
+            Player first = Iterables.getFirst(Bukkit.getServer().getOnlinePlayers(), null);
+            if (first == null) {
+                return;
+            }
+            first.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {

@@ -2,6 +2,7 @@ package com.molean.isletopia.database;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.plotsquared.core.plot.PlotId;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import java.nio.file.Path;
@@ -87,6 +88,28 @@ public class PlotDao {
             throwables.printStackTrace();
         }
         return trusted;
+    }
+
+    public static PlotId getPlotPosition(String server, String name) {
+        Integer id = getPlotID(server, name);
+        PlotId plotId = null;
+        if (id != null) {
+            try (Connection connection = getConnection(server)) {
+                String sql = "select plot_id_x,plot_id_z from plot where id=?";
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setInt(1, id);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    int x = resultSet.getInt(1);
+                    int z = resultSet.getInt(2);
+                    plotId = new PlotId(x, z);
+                }
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+        return plotId;
     }
 
 
