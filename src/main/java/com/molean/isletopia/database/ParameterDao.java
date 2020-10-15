@@ -12,7 +12,7 @@ public class ParameterDao {
 
     static {
         dataSource = new MysqlConnectionPoolDataSource();
-        String url = "jdbc:mysql://localhost/minecraft?useSSL=false&characterEncoding=utf8";
+        String url = "jdbc:mysql://localhost/minecraft?useSSL=false&characterEncoding=utf8&serverTimezone=UTC";
         String username = "molean";
         String password = "123asd";
         dataSource.setUrl(url);
