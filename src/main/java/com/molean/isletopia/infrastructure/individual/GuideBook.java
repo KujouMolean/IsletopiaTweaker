@@ -2,6 +2,7 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.ConfigUtils;
+import com.molean.isletopia.utils.I18n;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -18,6 +19,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 public class GuideBook implements CommandExecutor {
@@ -25,6 +29,21 @@ public class GuideBook implements CommandExecutor {
 
     public GuideBook() {
         Objects.requireNonNull(Bukkit.getPluginCommand("guide")).setExecutor(this);
+        List<String> resources = new ArrayList<>();
+        resources.add("guide_en.yml");
+        resources.add("guide_zh.yml");
+        for (String resource : resources) {
+            InputStream inputStream = IsletopiaTweakers.getPlugin().getResource(resource);
+            String file = IsletopiaTweakers.getPlugin().getDataFolder() + "/" + resource;
+            try {
+                FileOutputStream outputStream = new FileOutputStream(file);
+                if (inputStream != null) {
+                    outputStream.write(inputStream.readAllBytes());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -40,13 +59,15 @@ public class GuideBook implements CommandExecutor {
             }
             Player player = (Player) sender;
             ItemStack itemStack = new ItemStack(Material.WRITTEN_BOOK);
+
             BookMeta bookMeta = (BookMeta) itemStack.getItemMeta();
             assert bookMeta != null;
-            bookMeta.setTitle("用户指南");
             bookMeta.setAuthor("Molean");
-            List<List<BaseComponent>> pages = getPages(type);
+            bookMeta.setTitle("Guide");
+
+            List<List<BaseComponent>> pages = getPages(player,type);
             if (pages == null) {
-                sender.sendMessage("§c没有该类型的指南.");
+                sender.sendMessage(I18n.getMessage("error.guide.non-exist", player));
                 return;
             }
             for (List<BaseComponent> page : pages) {
@@ -61,10 +82,16 @@ public class GuideBook implements CommandExecutor {
         return true;
     }
 
-    public List<List<BaseComponent>> getPages(String type) {
-        ConfigUtils.reloadConfig("guide.yml");
+    public List<List<BaseComponent>> getPages(Player player, String type) {
+        String guide;
+        if(player.getLocale().toLowerCase().startsWith("zh")){
+            guide = "guide_zh.yml";
+        }else{
+            guide = "guide_en.yml";
+        }
+        ConfigUtils.reloadConfig(guide);
         List<List<BaseComponent>> strings = new ArrayList<>();
-        YamlConfiguration config = ConfigUtils.getConfig("guide.yml");
+        YamlConfiguration config = ConfigUtils.getConfig(guide);
         ConfigurationSection pages = config.getConfigurationSection(type);
         if (pages == null) {
             return null;
@@ -96,7 +123,7 @@ public class GuideBook implements CommandExecutor {
                         continue;
                     }
                     TextComponent textComponent = new TextComponent(sSplit[0]);
-                    switch (sSplit[1]){
+                    switch (sSplit[1]) {
                         case "cmd":
                             textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, sSplit[2]));
                             break;
@@ -117,7 +144,7 @@ public class GuideBook implements CommandExecutor {
                 } else {
                     TextComponent textComponent = new TextComponent(s);
                     s = s.replaceAll("§.", "");
-                    textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,  "/guide " + s));
+                    textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/guide " + s));
                     baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
                 }
 

@@ -7,6 +7,7 @@ import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.favorite.FavoriteMenu;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.I18n;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
@@ -33,7 +34,7 @@ public class MemberAddMenu implements Listener {
 
     public MemberAddMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, "选择你想授权的玩家");
+        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.settings.member.add.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -47,7 +48,7 @@ public class MemberAddMenu implements Listener {
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         if(!currentPlot.getOwner().equals(player.getUniqueId())){
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer("错误, 非岛主操作岛屿成员.");
+                player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner",player));
             });
             return;
         }
@@ -58,7 +59,7 @@ public class MemberAddMenu implements Listener {
             inventory.setItem(i, HeadUtils.getSkull(players.get(i)));
         }
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回成员");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.member.add.return",player));
         inventory.setItem(inventory.getSize() - 1, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -89,7 +90,7 @@ public class MemberAddMenu implements Listener {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberAddMenu(player).open());
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer("错误, 非岛主操作岛屿成员.");
+                player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner",player));
             });
         }
 

@@ -5,6 +5,7 @@ import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.favorite.FavoriteMenu;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.I18n;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
@@ -32,7 +33,7 @@ public class MemberRemoveMenu implements Listener {
 
     public MemberRemoveMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, "撤销某个玩家的权限:");
+        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.settings.member.remove.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -44,7 +45,7 @@ public class MemberRemoveMenu implements Listener {
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         if (!currentPlot.getOwner().equals(player.getUniqueId())) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer("错误, 非岛主操作岛屿成员.");
+                player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner",player));
             });
             return;
         }
@@ -92,7 +93,7 @@ public class MemberRemoveMenu implements Listener {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player).open());
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer("错误, 非岛主操作岛屿成员.");
+                player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner",player));
             });
         }
 

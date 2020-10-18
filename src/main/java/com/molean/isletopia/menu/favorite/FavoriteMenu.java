@@ -3,6 +3,7 @@ package com.molean.isletopia.menu.favorite;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.utils.I18n;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,7 +22,7 @@ public class FavoriteMenu implements Listener {
 
     public FavoriteMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 9, "<收藏夹>");
+        inventory = Bukkit.createInventory(player, 9, I18n.getMessage("menu.favorite.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -30,16 +31,16 @@ public class FavoriteMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        ItemStackSheet visit = new ItemStackSheet(Material.REDSTONE_TORCH, "§f>> 访问收藏 >>");
+        ItemStackSheet visit = new ItemStackSheet(Material.REDSTONE_TORCH, I18n.getMessage("menu.favorite.visit",player));
         inventory.setItem(0, visit.build());
 
-        ItemStackSheet add = new ItemStackSheet(Material.TORCH, "§f+ 添加收藏 +");
+        ItemStackSheet add = new ItemStackSheet(Material.TORCH, I18n.getMessage("menu.favorite.add",player));
         inventory.setItem(2, add.build());
 
-        ItemStackSheet delete = new ItemStackSheet(Material.LEVER, "§f- 删除收藏 -");
+        ItemStackSheet delete = new ItemStackSheet(Material.LEVER, I18n.getMessage("menu.favorite.remove",player));
         inventory.setItem(4, delete.build());
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f<<返回主菜单<<");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.favorite.return",player));
         inventory.setItem(8, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }

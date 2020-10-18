@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.I18n;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -26,7 +27,7 @@ public class FavoriteVisitMenu implements Listener {
 
     public FavoriteVisitMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, "选择你想访问的岛屿:");
+        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.favorite.visit.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -39,7 +40,7 @@ public class FavoriteVisitMenu implements Listener {
         for (int i = 0; i < collections.size() && i < inventory.getSize() - 1; i++) {
             inventory.setItem(i, HeadUtils.getSkull(collections.get(i)));
         }
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.favorite.visit.return",player));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));

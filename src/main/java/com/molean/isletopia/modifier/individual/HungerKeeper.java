@@ -31,8 +31,10 @@ public class HungerKeeper implements Listener {
         Player player = e.getPlayer();
         Pair<Integer, Float> hunger = hungerMap.get(player.getName());
         if (hunger != null) {
-            player.setFoodLevel(hunger.getKey());
-            player.setSaturation(hunger.getValue());
+            Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
+                player.setFoodLevel(hunger.getKey());
+                player.setSaturation(hunger.getValue());
+            },3L);
         }
     }
 }
