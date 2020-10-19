@@ -3,6 +3,7 @@ package com.molean.isletopia.utils;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.api.PlotAPI;
 import com.plotsquared.core.events.TeleportCause;

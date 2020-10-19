@@ -3,7 +3,7 @@ package com.molean.isletopia.distribute.individual;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.utils.I18n;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
@@ -22,7 +22,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 public class NewbieOperation implements Listener {

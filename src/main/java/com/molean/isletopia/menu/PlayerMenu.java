@@ -5,7 +5,7 @@ import com.molean.isletopia.menu.favorite.FavoriteMenu;
 import com.molean.isletopia.menu.settings.SettingsMenu;
 import com.molean.isletopia.menu.visit.VisitMenu;
 import com.molean.isletopia.utils.HeadUtils;
-import com.molean.isletopia.utils.I18n;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;

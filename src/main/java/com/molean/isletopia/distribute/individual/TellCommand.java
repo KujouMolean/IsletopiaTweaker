@@ -56,7 +56,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         if (args.length == 1) {
             List<String> playerNames = ServerInfoUpdater.getOnlinePlayers();
-            playerNames.removeIf(s -> !s.startsWith(args[0]));
+            playerNames.removeIf(s -> !s.toLowerCase().startsWith(args[0].toLowerCase()));
             return playerNames;
         } else {
             return new ArrayList<>();

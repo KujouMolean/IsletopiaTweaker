@@ -8,7 +8,7 @@ import com.molean.isletopia.menu.MenuCommand;
 import com.molean.isletopia.modifier.IsletopiaModifier;
 import com.molean.isletopia.protect.IsletopiaProtect;
 import com.molean.isletopia.utils.ConfigUtils;
-import com.molean.isletopia.utils.I18n;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IsletopiaTweakers extends JavaPlugin {
@@ -30,7 +30,6 @@ public final class IsletopiaTweakers extends JavaPlugin {
         new IsletopiaProtect();
         new MenuCommand();
         new IsletopiaBungee();
-        new I18n();
 //        new IsletopiaStory();
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }

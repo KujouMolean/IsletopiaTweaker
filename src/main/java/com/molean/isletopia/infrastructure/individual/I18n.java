@@ -1,4 +1,4 @@
-package com.molean.isletopia.utils;
+package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;

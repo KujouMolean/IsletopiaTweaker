@@ -3,19 +3,34 @@ package com.molean.isletopia.bungee.individual;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.utils.I18n;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.List;
 
-public class VisitNotificationHandler implements PluginMessageListener {
+public class VisitNotificationHandler implements PluginMessageListener, Listener {
     public VisitNotificationHandler() {
+        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
+    }
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event){
+        List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
+        if (visits.size() > 0) {
+            event.getPlayer().sendMessage(I18n.getMessage("island.notify.offlineVisitors", event.getPlayer()));
+            event.getPlayer().sendMessage("§7  " + String.join(",", visits));
+            UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
+        }
     }
 
     @Override

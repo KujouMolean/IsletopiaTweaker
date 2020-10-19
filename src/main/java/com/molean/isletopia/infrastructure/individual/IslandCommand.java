@@ -4,7 +4,6 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
-import com.molean.isletopia.utils.I18n;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.location.BlockLoc;
@@ -220,17 +219,17 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public void help(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        player.sendMessage(I18n.getMessage("island.help.1",player));
-        player.sendMessage(I18n.getMessage("island.help.2",player));
-        player.sendMessage(I18n.getMessage("island.help.3",player));
-        player.sendMessage(I18n.getMessage("island.help.4",player));
-        player.sendMessage(I18n.getMessage("island.help.5",player));
-        player.sendMessage(I18n.getMessage("island.help.6",player));
-        player.sendMessage(I18n.getMessage("island.help.7",player));
-        player.sendMessage(I18n.getMessage("island.help.8",player));
-        player.sendMessage(I18n.getMessage("island.help.9",player));
-        player.sendMessage(I18n.getMessage("island.help.10",player));
-        player.sendMessage(I18n.getMessage("island.help.11",player));
+        player.sendMessage(I18n.getMessage("island.help.1", player));
+        player.sendMessage(I18n.getMessage("island.help.2", player));
+        player.sendMessage(I18n.getMessage("island.help.3", player));
+        player.sendMessage(I18n.getMessage("island.help.4", player));
+        player.sendMessage(I18n.getMessage("island.help.5", player));
+        player.sendMessage(I18n.getMessage("island.help.6", player));
+        player.sendMessage(I18n.getMessage("island.help.7", player));
+        player.sendMessage(I18n.getMessage("island.help.8", player));
+        player.sendMessage(I18n.getMessage("island.help.9", player));
+        player.sendMessage(I18n.getMessage("island.help.10", player));
+        player.sendMessage(I18n.getMessage("island.help.11", player));
 
     }
 
@@ -251,7 +250,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             if (playerCommand.contains(args[0])) {
                 List<String> onlinePlayers = ServerInfoUpdater.getOnlinePlayers();
                 for (String onlinePlayer : onlinePlayers) {
-                    if (args[1].startsWith(onlinePlayer)) {
+                    if (onlinePlayer.toLowerCase().startsWith(args[1].toLowerCase())) {
                         strings.add(onlinePlayer);
                     }
                 }

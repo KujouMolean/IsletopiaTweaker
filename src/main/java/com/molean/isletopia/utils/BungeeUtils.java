@@ -4,10 +4,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.ParameterDao;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -85,9 +85,10 @@ public class BungeeUtils {
     public static void universalPlotVisit(Player sourcePlayer, String target) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String source = sourcePlayer.getName();
-            String targetServer = ParameterDao.get(target, "server");
+            String targetServer = UniversalParameter.getParameter(target, "server");
             if (targetServer == null) {
-                sourcePlayer.sendMessage(I18n.getMessage("island.notify.offlineVisitors", sourcePlayer));
+                sourcePlayer.sendMessage(I18n.getMessage("error.visit.noIsland", sourcePlayer));
+                return;
             }
             boolean allow = true;
             UUID sourceUUID = ServerInfoUpdater.getUUID(source);
@@ -140,7 +141,6 @@ public class BungeeUtils {
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
-            assert targetServer != null;
             if (!targetServer.equalsIgnoreCase(ServerInfoUpdater.getServerName())) {
                 ByteArrayDataOutput out = ByteStreams.newDataOutput();
                 out.writeUTF("ConnectOther");
