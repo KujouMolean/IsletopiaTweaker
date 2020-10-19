@@ -5,6 +5,7 @@ import com.molean.isletopia.menu.favorite.FavoriteMenu;
 import com.molean.isletopia.menu.settings.SettingsMenu;
 import com.molean.isletopia.menu.visit.VisitMenu;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
@@ -26,7 +27,7 @@ public class PlayerMenu implements Listener {
 
     public PlayerMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 45, "主菜单");
+        inventory = Bukkit.createInventory(player, 45, I18n.getMessage("menu.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -35,37 +36,37 @@ public class PlayerMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        ItemStackSheet bookShelf = new ItemStackSheet(Material.BOOKSHELF, "§f指南大全");
-        bookShelf.addLore("§7这里写了服务器的所有设定");
-        bookShelf.addLore("§7这里有新人必读的入门教程");
-        bookShelf.addLore("§7这里有常见物资的获取方法");
+        ItemStackSheet bookShelf = new ItemStackSheet(Material.BOOKSHELF, I18n.getMessage("menu.guide",player));
+        bookShelf.addLore(I18n.getMessage("menu.guide.1",player));
+        bookShelf.addLore(I18n.getMessage("menu.guide.2",player));
+        bookShelf.addLore(I18n.getMessage("menu.guide.3",player));
         inventory.setItem(18, bookShelf.build());
-        ItemStackSheet favorite = new ItemStackSheet(Material.NETHER_STAR, "§f收藏夹");
-        favorite.addLore("§7将你喜欢的岛屿添加到收藏夹");
-        favorite.addLore("§7通过收藏夹可以快速访问它们");
+        ItemStackSheet favorite = new ItemStackSheet(Material.NETHER_STAR, I18n.getMessage("menu.favorite",player));
+        favorite.addLore(I18n.getMessage("menu.favorite.1",player));
+        favorite.addLore(I18n.getMessage("menu.favorite.2",player));
         inventory.setItem(20, favorite.build());
-        ItemStackSheet others = new ItemStackSheet(Material.FEATHER, "§f平行世界");
-        others.addLore("§7去看看与你同时发展的其他玩家");
-        others.addLore("§7这里只会显示在线玩家");
+        ItemStackSheet others = new ItemStackSheet(Material.FEATHER, I18n.getMessage("menu.visit",player));
+        others.addLore(I18n.getMessage("menu.visit.1",player));
+        others.addLore(I18n.getMessage("menu.visit.2",player));
         inventory.setItem(22, others.build());
-        ItemStackSheet settings = new ItemStackSheet(Material.LEVER, "§f设置");
-        settings.addLore("§7更改你岛屿的选项");
-        settings.addLore("§7例如添加岛员,更改生物群系");
+        ItemStackSheet settings = new ItemStackSheet(Material.LEVER, I18n.getMessage("menu.settings",player));
+        settings.addLore(I18n.getMessage("menu.settings.1",player));
+        settings.addLore(I18n.getMessage("menu.settings.2",player));
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         if (!currentPlot.getOwner().equals(player.getUniqueId())) {
-            settings.setDisplay("§f§m设置");
-            settings.addLore("§c你只能修改自己的岛屿");
+            settings.setDisplay(I18n.getMessage("menu.settings.non-owner",player));
+            settings.addLore(I18n.getMessage("menu.settings.non-owner.1",player));
         }
         inventory.setItem(24, settings.build());
-        ItemStackSheet projects = new ItemStackSheet(Material.REDSTONE, "§f工程");
-        projects.addLore("§7尚未开放");
+        ItemStackSheet projects = new ItemStackSheet(Material.REDSTONE, I18n.getMessage("menu.project",player));
+        projects.addLore( I18n.getMessage("menu.project.1",player));
         inventory.setItem(26, projects.build());
 
 
         ItemStack skull = HeadUtils.getSkull(player.getName());
         ItemMeta itemMeta = skull.getItemMeta();
         assert itemMeta != null;
-        itemMeta.setDisplayName("§f回城");
+        itemMeta.setDisplayName( I18n.getMessage("menu.home",player));
         skull.setItemMeta(itemMeta);
         inventory.setItem(40, skull);
 

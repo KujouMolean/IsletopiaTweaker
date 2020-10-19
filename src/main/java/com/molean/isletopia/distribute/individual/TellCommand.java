@@ -5,6 +5,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.BungeeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class TellCommand implements CommandExecutor, TabCompleter, PluginMessageListener {
+public class TellCommand implements CommandExecutor, TabCompleter {
     public TellCommand() {
         Objects.requireNonNull(Bukkit.getPluginCommand("tell")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("tell")).setTabCompleter(this);
@@ -27,7 +28,6 @@ public class TellCommand implements CommandExecutor, TabCompleter, PluginMessage
         Objects.requireNonNull(Bukkit.getPluginCommand("msg")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("w")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("w")).setTabCompleter(this);
-        Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
     }
 
     @Override
@@ -41,64 +41,27 @@ public class TellCommand implements CommandExecutor, TabCompleter, PluginMessage
                 rawMessage.append(args[i]).append(" ");
             }
             String message = "§7" + player.getName() + " -> " + args[0] + ": " + rawMessage;
-
             if (!ServerInfoUpdater.getOnlinePlayers().contains(args[0])) {
                 return;
             }
-
-            sendMessageToPlayer(args[0], message);
+            BungeeUtils.sendMessageToPlayer(args[0], message);
         });
         return true;
     }
 
-    public static void sendMessageToPlayer(String player, String message) {
-        try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("ForwardToPlayer");
-            out.writeUTF(player);
-            out.writeUTF("tell");
-            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
-            DataOutputStream msgout = new DataOutputStream(msgbytes);
-            msgout.writeUTF(message);
-            out.writeShort(msgbytes.toByteArray().length);
-            out.write(msgbytes.toByteArray());
-            Player first = Iterables.getFirst(Bukkit.getServer().getOnlinePlayers(), null);
-            if (first == null) {
-                return;
-            }
-            first.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-    }
+
 
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         if (args.length == 1) {
             List<String> playerNames = ServerInfoUpdater.getOnlinePlayers();
-            playerNames.removeIf(s -> !s.startsWith(args[0]));
+            playerNames.removeIf(s -> !s.toLowerCase().startsWith(args[0].toLowerCase()));
             return playerNames;
         } else {
             return new ArrayList<>();
         }
     }
 
-    @Override
-    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-        ByteArrayDataInput in = ByteStreams.newDataInput(message);
-        String subChannel = in.readUTF();
-        if (subChannel.equalsIgnoreCase("tell")) {
-            try {
-                short len = in.readShort();
-                byte[] msgbytes = new byte[len];
-                in.readFully(msgbytes);
-                DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
-                String tellMessage = msgin.readUTF();
-                player.sendMessage(tellMessage);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
-    }
+
 }

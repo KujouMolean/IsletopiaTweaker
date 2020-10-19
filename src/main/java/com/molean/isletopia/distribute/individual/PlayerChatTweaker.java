@@ -4,6 +4,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,24 +24,6 @@ public class PlayerChatTweaker implements Listener {
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         event.setCancelled(true);
-
-        //send to bungee
-        try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("Forward");
-            out.writeUTF("BungeeCord");
-            out.writeUTF("chat");
-            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
-            DataOutputStream msgout = new DataOutputStream(msgbytes);
-            msgout.writeUTF(event.getPlayer().getName());
-            msgout.writeUTF(event.getMessage());
-            out.writeShort(msgbytes.toByteArray().length);
-            out.write(msgbytes.toByteArray());
-            Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
-            if (player != null)
-                player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+        BungeeUtils.universalChat(event.getPlayer(),event.getMessage());
     }
 }

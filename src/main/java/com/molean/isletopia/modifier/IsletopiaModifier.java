@@ -14,6 +14,7 @@ public class IsletopiaModifier {
             new WoodenItemBooster();
             new FertilizeFlower();
             new HungerKeeper();
+            new IronElevator();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");

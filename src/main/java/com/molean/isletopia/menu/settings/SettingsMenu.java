@@ -4,8 +4,9 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
-import com.molean.isletopia.menu.settings.biome.BiomeMenu1;
+import com.molean.isletopia.menu.settings.biome.BiomeMenu;
 import com.molean.isletopia.menu.settings.member.MemberMenu;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.location.BlockLoc;
 import com.plotsquared.core.plot.Plot;
@@ -33,7 +34,7 @@ public class SettingsMenu implements Listener {
 
     public SettingsMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 9, "岛屿设置");
+        inventory = Bukkit.createInventory(player, 9, I18n.getMessage("menu.settings.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -57,12 +58,12 @@ public class SettingsMenu implements Listener {
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         if (!currentPlot.getOwner().equals(player.getUniqueId())) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer("错误, 非岛主更改岛屿设置.");
+                player.kickPlayer( I18n.getMessage("error.menu.settings.non-owner",player));
             });
             return;
         }
         HashSet<UUID> denied = currentPlot.getDenied();
-        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, "§f= 更改生物群系 =");
+        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK,  I18n.getMessage("menu.settings.biome",player));
         inventory.setItem(0, visit.build());
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Random random = new Random();
@@ -81,30 +82,30 @@ public class SettingsMenu implements Listener {
             }
         });
 
-        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, "§f< 添加删除成员 >");
+        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD,  I18n.getMessage("menu.settings.member",player));
         inventory.setItem(2, member.build());
 
-        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, "§f| 更改复活位置 |");
+        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED,  I18n.getMessage("menu.settings.home",player));
         inventory.setItem(4, bed.build());
 
 
         if (denied.contains(PlotDao.getAllUUID())) {
-            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, "§f! 点击开放岛屿 !");
-            cancel.addLore("§7当前岛屿模式: §c锁定");
-            cancel.addLore("§7仅岛屿成员可访问你的岛屿.");
+            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR,  I18n.getMessage("menu.settings.unlock",player));
+            cancel.addLore( I18n.getMessage("menu.settings.unlock.1",player));
+            cancel.addLore( I18n.getMessage("menu.settings.unlock.2",player));
             inventory.setItem(6, cancel.build());
             open = false;
 
         } else {
-            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, "§f! 点击闭关锁岛 !");
-            denyAll.addLore("§7当前岛屿模式: §2开放");
-            denyAll.addLore("§7任何人都可以访问你的岛屿.");
+            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR,  I18n.getMessage("menu.settings.lock",player));
+            denyAll.addLore( I18n.getMessage("menu.settings.lock.1",player));
+            denyAll.addLore( I18n.getMessage("menu.settings.lock.2",player));
             inventory.setItem(6, denyAll.build());
             open = true;
         }
 
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f<<返回主菜单<<");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.return",player));
         inventory.setItem(8, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -124,7 +125,7 @@ public class SettingsMenu implements Listener {
         }
         switch (slot) {
             case 0: {
-                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new BiomeMenu1(player).open());
+                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new BiomeMenu(player).open());
                 break;
             }
             case 2: {
@@ -143,15 +144,15 @@ public class SettingsMenu implements Listener {
                             location.getBlockZ() - bottomAbs.getZ(),
                             location.getYaw(),
                             location.getPitch()));
-                    player.sendMessage("§8[§3岛屿助手§8] §7成功修改重生点为: "
-                            + location.getBlockX() + ","
-                            + location.getBlockY() + ","
-                            + location.getBlockZ()
+                    player.sendMessage( I18n.getMessage("menu.settings.home.ok",player)
+                            .replace("%1%",location.getBlockX()+"")
+                            .replace("%2%",location.getBlockX()+"")
+                            .replace("%3%",location.getBlockZ()+"")
                     );
                     player.closeInventory();
                 } else {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer("错误, 非岛主操作岛屿设置.");
+                        player.kickPlayer( I18n.getMessage("error.menu.settings.non-owner",player));
                     });
                 }
                 break;
@@ -168,7 +169,7 @@ public class SettingsMenu implements Listener {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
                 } else {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer("错误, 非岛主操作岛屿设置.");
+                        player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner",player));
                     });
                 }
                 break;

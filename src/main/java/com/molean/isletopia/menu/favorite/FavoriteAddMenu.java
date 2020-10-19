@@ -5,6 +5,7 @@ import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -27,7 +28,7 @@ public class FavoriteAddMenu implements Listener {
 
     public FavoriteAddMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, "选择你想收藏的岛屿:");
+        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.favorite.add.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -43,7 +44,7 @@ public class FavoriteAddMenu implements Listener {
         for (int i = 0; i < players.size() && i < inventory.getSize() - 1; i++) {
             inventory.setItem(i, HeadUtils.getSkull(players.get(i)));
         }
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.favorite.add.return",player));
         inventory.setItem(inventory.getSize() - 1, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -71,7 +72,7 @@ public class FavoriteAddMenu implements Listener {
         if (slot >= players.size()) {
             return;
         }
-        UniversalParameter.addParameter(player.getName(), "collections", players.get(slot));
+        UniversalParameter.addParameter(player.getName(), "collection", players.get(slot));
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteAddMenu(player).open());
 
 

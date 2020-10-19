@@ -1,11 +1,9 @@
 package com.molean.isletopia.utils;
 
-import com.destroystokyo.paper.Title;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.distribute.individual.TellCommand;
-import com.molean.isletopia.distribute.individual.VisitCommand;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.api.PlotAPI;
 import com.plotsquared.core.events.TeleportCause;
@@ -73,54 +71,17 @@ public class PlotUtils {
             Plot plot = getPlot(target);
             plot.teleportPlayer(sourcePlayer, TeleportCause.PLUGIN, aBoolean -> {
                 PlotId id = plot.getId();
-                String localServerName = getLocalServerName();
+                String localServerName = I18n.getLocalServerName(source);
                 String title = "§6%1%:%2%,%3%"
                         .replace("%1%", localServerName)
                         .replace("%2%", id.getX() + "")
                         .replace("%3%", id.getY() + "");
                 String subtitle = "§3由 %1% 所有".replace("%1%", target);
-                source.sendTitle(new Title(title, subtitle, 20, 40, 20));
+                source.sendTitle(title, subtitle, 20, 40, 20);
             });
         });
     }
 
-    public static void universalTeleport(Player player, String target) {
-        VisitCommand.visit(player, target);
-    }
 
-    public static void universalMessage(String target, String message) {
-        TellCommand.sendMessageToPlayer(target, message);
-    }
-
-    private static String getLocalServerName() {
-        String localName;
-        switch (ServerInfoUpdater.getServerName()) {
-            case "server1": {
-                localName = "马尔代夫";
-                break;
-            }
-            case "server2": {
-                localName = "东沙群岛";
-                break;
-            }
-            case "server3": {
-                localName = "西沙群岛";
-                break;
-            }
-            case "server4": {
-                localName = "南沙群岛";
-                break;
-            }
-            case "server5": {
-                localName = "夏威夷";
-                break;
-            }
-            default: {
-                localName = "未知";
-                break;
-            }
-        }
-        return localName;
-    }
 
 }

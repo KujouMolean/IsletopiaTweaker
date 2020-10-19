@@ -1,6 +1,7 @@
 package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -51,7 +52,7 @@ public class LavaProtect implements Listener {
         String asString = blockData.getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆受到保护,只能用空桶收起.");
+            event.getPlayer().sendMessage(I18n.getMessage("protect.lava",event.getPlayer()));
         }
     }
 
@@ -60,7 +61,7 @@ public class LavaProtect implements Listener {
         String asString = event.getBlock().getBlockData().getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆受到保护,只能用空桶收起.");
+            event.getPlayer().sendMessage(I18n.getMessage("protect.lava",event.getPlayer()));
         }
     }
 
@@ -77,7 +78,7 @@ public class LavaProtect implements Listener {
         if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
             return;
         }
-        event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆会引起火灾,请务必注意.");
+        event.getPlayer().sendMessage(I18n.getMessage("protect.fire",event.getPlayer()));
     }
 
     @EventHandler
@@ -88,7 +89,7 @@ public class LavaProtect implements Listener {
         Collection<Entity> nearbyEntities = event.getBlock().getWorld().getNearbyEntities(location, 32, 32, 32);
         for (Entity nearbyEntity : nearbyEntities) {
             if (nearbyEntity instanceof Player) {
-                nearbyEntity.sendMessage("§8[§3温馨提示§8] §e空桶右键黑曜石可以还原成岩浆.");
+                nearbyEntity.sendMessage(I18n.getMessage("protect.lava.restore", (Player) nearbyEntity));
             }
         }
 
