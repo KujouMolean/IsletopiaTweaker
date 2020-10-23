@@ -3,7 +3,6 @@ package com.molean.isletopia.modifier.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.data.Directional;
 import org.bukkit.event.EventHandler;
@@ -23,12 +22,13 @@ public class AdvancedDispenser implements Listener {
         Block relative = event.getBlock().getRelative(directional.getFacing());
         if (item.getType().isBlock()) {
             if (relative.getType().isAir()) {
-                relative.setType(item.getType());
                 Dispenser dispenser = (Dispenser) event.getBlock().getState();
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                     for (ItemStack stack : dispenser.getInventory().getContents()) {
                         if (stack.isSimilar(item)) {
                             stack.setAmount(stack.getAmount() - 1);
+                            relative.setType(item.getType(), true);
+                            dispenser.update();
                             break;
                         }
                     }
