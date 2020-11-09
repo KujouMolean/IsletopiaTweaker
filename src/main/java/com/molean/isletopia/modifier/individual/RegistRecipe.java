@@ -219,7 +219,7 @@ public class RegistRecipe {
                 GOLD_INGOT, GOLD_INGOT, GOLD_INGOT);
 
         //合成下届金矿石
-        registerShaped(new ItemStack(GOLD_ORE),
+        registerShaped(new ItemStack(NETHER_GOLD_ORE),
                 GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
                 GOLD_INGOT, NETHERRACK, GOLD_INGOT,
                 GOLD_INGOT, GOLD_INGOT, GOLD_INGOT);

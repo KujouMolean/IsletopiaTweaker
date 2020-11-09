@@ -52,7 +52,7 @@ public class LavaProtect implements Listener {
         String asString = blockData.getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(I18n.getMessage("protect.lava",event.getPlayer()));
+            event.getPlayer().sendMessage(I18n.getMessage("protect.lava", event.getPlayer()));
         }
     }
 
@@ -61,7 +61,7 @@ public class LavaProtect implements Listener {
         String asString = event.getBlock().getBlockData().getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(I18n.getMessage("protect.lava",event.getPlayer()));
+            event.getPlayer().sendMessage(I18n.getMessage("protect.lava", event.getPlayer()));
         }
     }
 
@@ -72,13 +72,13 @@ public class LavaProtect implements Listener {
             return;
         }
         int statistic = event.getPlayer().getStatistic(Statistic.USE_ITEM, Material.LAVA_BUCKET);
-        if (statistic > 10) {
+        if (statistic > 3) {
             return;
         }
         if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
             return;
         }
-        event.getPlayer().sendMessage(I18n.getMessage("protect.fire",event.getPlayer()));
+        event.getPlayer().sendMessage(I18n.getMessage("protect.fire", event.getPlayer()));
     }
 
     @EventHandler

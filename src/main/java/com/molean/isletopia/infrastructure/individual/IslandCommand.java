@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
+import com.molean.isletopia.utils.BungeeUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.location.BlockLoc;
@@ -160,7 +161,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private void visit(String source, String target) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        player.performCommand("visit " + target);
+        BungeeUtils.universalPlotVisit(player,target);
     }
 
     public void trust(String source, String target) {
@@ -199,7 +200,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = PlotDao.getAllUUID();
-        currentPlot.addTrusted(uuid);
+        currentPlot.addDenied(uuid);
         player.sendMessage(I18n.getMessage("island.lock", player));
     }
 

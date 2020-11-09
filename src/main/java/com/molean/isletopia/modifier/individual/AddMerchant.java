@@ -37,8 +37,6 @@ public class AddMerchant implements Listener {
 //            甜浆果
             recipes.add(generateMerchant(Material.SWEET_BERRIES, 3, 5));
 //            竹子
-            recipes.add(generateMerchant(Material.MELON_SEEDS, 3, 5));
-//            甜菜根种子
             recipes.add(generateMerchant(Material.BEETROOT_SEEDS, 3, 5));
             wanderingTrader.setRecipes(recipes);
         }
