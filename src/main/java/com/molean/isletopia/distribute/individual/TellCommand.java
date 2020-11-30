@@ -44,13 +44,11 @@ public class TellCommand implements CommandExecutor, TabCompleter {
             if (!ServerInfoUpdater.getOnlinePlayers().contains(args[0])) {
                 return;
             }
+            player.sendMessage(message);
             BungeeUtils.sendMessageToPlayer(args[0], message);
         });
         return true;
     }
-
-
-
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {

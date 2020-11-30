@@ -2,9 +2,9 @@ package com.molean.isletopia.menu.favorite;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
-import com.molean.isletopia.infrastructure.individual.I18n;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,6 +15,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,7 @@ public class FavoriteVisitMenu implements Listener {
 
     public FavoriteVisitMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.favorite.visit.title",player));
+        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.favorite.visit.title", player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -40,7 +42,7 @@ public class FavoriteVisitMenu implements Listener {
         for (int i = 0; i < collections.size() && i < inventory.getSize() - 1; i++) {
             inventory.setItem(i, HeadUtils.getSkull(collections.get(i)));
         }
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.favorite.visit.return",player));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.favorite.visit.return", player));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
@@ -62,6 +64,10 @@ public class FavoriteVisitMenu implements Listener {
             return;
         }
         if (slot < collections.size()) {
+            ItemStack item = inventory.getItem(slot);
+            ItemMeta itemMeta = item.getItemMeta();
+            itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
+            item.setItemMeta(itemMeta);
             player.performCommand("visit " + collections.get(slot));
         } else if (slot == inventory.getSize() - 1) {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteMenu(player).open());

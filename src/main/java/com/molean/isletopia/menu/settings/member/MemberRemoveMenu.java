@@ -50,7 +50,7 @@ public class MemberRemoveMenu implements Listener {
         }
         HashSet<UUID> trusted = currentPlot.getTrusted();
         for (UUID uuid : trusted) {
-            String single = PlotSquared.get().getImpromptuUUIDPipeline().getSingle(uuid, 100);
+            String single = PlotSquared.get().getImpromptuUUIDPipeline().getSingle(uuid, 50000);
             members.add(single);
         }
 

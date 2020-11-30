@@ -1,9 +1,10 @@
 package com.molean.isletopia.distribute.individual;
 
+import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.utils.HeadUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
@@ -21,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -34,6 +36,7 @@ public class NewbieOperation implements Listener {
         if (!player.isOnline()) {
             return;
         }
+
         Set<Plot> plots = PlotSquared.get().getPlots(PlotPlayer.wrap(player));
         if (plots.size() != 0) {
             return;
@@ -51,10 +54,15 @@ public class NewbieOperation implements Listener {
                 return;
             }
         }
+
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 4));
             player.performCommand("plot auto");
             placeItem(player.getInventory());
+            ItemStack clock = newUnbreakableItem(Material.CLOCK, I18n.getMessage("menu.item.title", player),
+                    List.of(I18n.getMessage("menu.item.lore.1", player),
+                            I18n.getMessage("menu.item.lore.2", player)));
+            player.getInventory().addItem(clock);
         });
 
 
@@ -62,25 +70,32 @@ public class NewbieOperation implements Listener {
 
     @EventHandler()
     public void onSync(SyncCompleteEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 
-            if (!event.getPlayer().getInventory().contains(Material.CLOCK)) {
-                event.getPlayer().getInventory().addItem(newUnbreakableItem(Material.CLOCK, I18n.getMessage("menu.item.title",event.getPlayer()),
-                        List.of(I18n.getMessage("menu.item.lore.1",event.getPlayer()),
-                                I18n.getMessage("menu.item.lore.2",event.getPlayer()))));
-            }
+
+        // If server info has not updated, then force update and wait 1 second.
+        // else check immediately.
+        int delay = 0;
+        if (ServerInfoUpdater.getServerName() == null) {
+            ServerInfoUpdater.updates();
+            delay = 20;
+        }
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+
+            // if player has not clock
+
 
             String server = UniversalParameter.getParameter(event.getPlayer().getName(), "server");
             if (server == null) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer(I18n.getMessage("error.island.noIsland",event.getPlayer()));
+                    event.getPlayer().kickPlayer(I18n.getMessage("error.island.noIsland", event.getPlayer()));
                 });
                 return;
             }
             if (server.equalsIgnoreCase(ServerInfoUpdater.getServerName())) {
                 checkNewbie(event.getPlayer());
             }
-        });
+        }, delay);
 
         //check plot number
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
@@ -88,7 +103,8 @@ public class NewbieOperation implements Listener {
                 return;
             }
             int cnt = 0;
-            for (String server : ServerInfoUpdater.getServers()) {
+            List<String> servers = new ArrayList<>(ServerInfoUpdater.getServers());
+            for (String server : servers) {
                 if (server.equalsIgnoreCase("dispatcher"))
                     continue;
                 Integer plotID = PlotDao.getPlotID(server, event.getPlayer().getName());
@@ -98,24 +114,15 @@ public class NewbieOperation implements Listener {
             }
             if (cnt > 1) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer(I18n.getMessage("error.island.more",event.getPlayer()));
+                    event.getPlayer().kickPlayer(I18n.getMessage("error.island.more", event.getPlayer()));
                 });
 
             }
+            HeadUtils.getSkull(event.getPlayer().getName());
         });
     }
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        event.setJoinMessage(null);
-    }
 
-    @EventHandler
-    public void onLeft(PlayerQuitEvent event) {
-        event.setQuitMessage(null);
-        Player player = event.getPlayer();
-        UniversalParameter.setParameter(player.getName(), "lastServer", ServerInfoUpdater.getServerName());
-    }
 
     public void placeItem(PlayerInventory inventory) {
         ItemStack food = new ItemStack(Material.APPLE, 32);

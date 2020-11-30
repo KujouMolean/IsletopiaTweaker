@@ -21,6 +21,10 @@ import java.util.UUID;
 public class PlotUtils {
     private static final PlotAPI plotAPI = new PlotAPI();
 
+    public static void registerListener(Object object) {
+        plotAPI.registerListener(object);
+    }
+
     public static Plot getCurrentPlot(Player player) {
         PlotPlayer plotPlayer = plotAPI.wrapPlayer(player.getUniqueId());
         return plotPlayer.getCurrentPlot();
@@ -70,18 +74,30 @@ public class PlotUtils {
             PlotPlayer sourcePlayer = plotAPI.wrapPlayer(source.getUniqueId());
             Plot plot = getPlot(target);
             plot.teleportPlayer(sourcePlayer, TeleportCause.PLUGIN, aBoolean -> {
-                PlotId id = plot.getId();
                 String localServerName = I18n.getLocalServerName(source);
+                PlotId id = plot.getId();
                 String title = "§6%1%:%2%,%3%"
                         .replace("%1%", localServerName)
                         .replace("%2%", id.getX() + "")
                         .replace("%3%", id.getY() + "");
-                String subtitle = "§3由 %1% 所有".replace("%1%", target);
+                String subtitle = I18n.getMessage("island.subtitle", source).replace("%1%", target);
                 source.sendTitle(title, subtitle, 20, 40, 20);
             });
         });
     }
 
+    public static boolean hasPlot(String player) {
+        List<String> servers = new ArrayList<>(ServerInfoUpdater.getServers());
+        for (String server : servers) {
+            if (!server.startsWith("server"))
+                continue;
+            Integer plotID = PlotDao.getPlotID(server, player);
+            if (plotID != null) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 }

@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.bungee.individual.PlayerMessageHandler;
 import com.molean.isletopia.bungee.individual.UniversalVisitHandler;
 import com.molean.isletopia.bungee.individual.VisitNotificationHandler;
+import org.bukkit.Bukkit;
 
 import java.util.logging.Logger;
 

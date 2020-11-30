@@ -9,17 +9,17 @@ public enum Direction {
     EAST;
 
     public static Direction getDirection(Player player) {
-        float t = (player.getLocation().getYaw() + 180) % 360;
-        if (t <= 45) {
-            return Direction.NORTH;
-        } else if (t <= 135) {
-            return Direction.EAST;
-        } else if (t <= 225) {
+        float t = (player.getLocation().getYaw()+360)%360;
+        if (t <=45 ) {
             return Direction.SOUTH;
-        } else if (t <= 315) {
+        } else if (t <= 135) {
             return Direction.WEST;
-        } else {
+        } else if (t <= 225) {
             return Direction.NORTH;
+        } else if (t <= 315) {
+            return Direction.EAST;
+        } else {
+            return Direction.SOUTH;
         }
     }
 }

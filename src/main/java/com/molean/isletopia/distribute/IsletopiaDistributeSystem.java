@@ -16,6 +16,7 @@ public class IsletopiaDistributeSystem {
             new TellCommand();
             new VisitCommand();
             new ServerInfoUpdater();
+            new LastServerUpdater();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia distribute failed!");

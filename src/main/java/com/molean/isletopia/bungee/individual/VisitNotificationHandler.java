@@ -18,6 +18,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.List;
 
+// Handle visit notification from other server
+
 public class VisitNotificationHandler implements PluginMessageListener, Listener {
     public VisitNotificationHandler() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());

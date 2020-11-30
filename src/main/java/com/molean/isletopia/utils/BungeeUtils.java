@@ -84,8 +84,21 @@ public class BungeeUtils {
 
     public static void universalPlotVisit(Player sourcePlayer, String target) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            long start = System.currentTimeMillis();
+
+            sourcePlayer.sendActionBar("§d§f■■■■■");
             String source = sourcePlayer.getName();
             String targetServer = UniversalParameter.getParameter(target, "server");
+
+            while (System.currentTimeMillis() - start < 500) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            sourcePlayer.sendActionBar("§d■§f■■■■");
+
             if (targetServer == null) {
                 sourcePlayer.sendMessage(I18n.getMessage("error.visit.noIsland", sourcePlayer));
                 return;
@@ -94,12 +107,29 @@ public class BungeeUtils {
             UUID sourceUUID = ServerInfoUpdater.getUUID(source);
             UUID allUUID = PlotDao.getAllUUID();
             if (PlotDao.getPlotID(targetServer, target) == null) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    sourcePlayer.kickPlayer(I18n.getMessage("error.visit.unexpected", sourcePlayer));
-                });
+                sourcePlayer.sendMessage(I18n.getMessage("error.visit.noIsland", sourcePlayer));
                 return;
             }
+
+            while (System.currentTimeMillis() - start < 1000) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            sourcePlayer.sendActionBar("§d■■§f■■■");
             List<UUID> denied = PlotDao.getDenied(targetServer, target);
+
+
+            while (System.currentTimeMillis() - start < 1500) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            sourcePlayer.sendActionBar("§d■■■§f■■");
             List<UUID> trusted = PlotDao.getTrusted(targetServer, target);
             if (denied.contains(sourceUUID) || denied.contains(allUUID)) {
                 allow = false;
@@ -116,6 +146,15 @@ public class BungeeUtils {
                 sourcePlayer.sendMessage(I18n.getMessage("error.visit.refused", sourcePlayer));
                 return;
             }
+
+            while (System.currentTimeMillis() - start < 2000) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            sourcePlayer.sendActionBar("§d■■■■§f■");
             if (!target.equalsIgnoreCase(source) && !sourcePlayer.isOp()) {
                 if (ServerInfoUpdater.getOnlinePlayers().contains(target)) {
                     BungeeUtils.sendVisitNotificationToPlayer(target, source, false);
@@ -125,6 +164,15 @@ public class BungeeUtils {
                     }
                 }
             }
+
+            while (System.currentTimeMillis() - start < 2500) {
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            sourcePlayer.sendActionBar("§d■■■■■§f");
 
             try {
                 ByteArrayDataOutput out = ByteStreams.newDataOutput();

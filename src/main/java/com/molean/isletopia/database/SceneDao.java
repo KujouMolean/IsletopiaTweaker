@@ -8,30 +8,34 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
 public class SceneDao {
-    private static final MysqlConnectionPoolDataSource dataSource;
 
-    static {
-        dataSource = new MysqlConnectionPoolDataSource();
-        String url = "jdbc:mysql://localhost/minecraft?useSSL=false&characterEncoding=utf8&serverTimezone=UTC";
-        String username = "molean";
-        String password = "123asd";
-        dataSource.setUrl(url);
-        dataSource.setUser(username);
-        dataSource.setPassword(password);
-    }
+    public static void checkTable() {
+        try (Connection connection = DataSourceUtils.getConnection()) {
+            String sql = "create table if not exists isletopia_scenes\n" +
+                    "(\n" +
+                    "    id        int auto_increment\n" +
+                    "        primary key,\n" +
+                    "    player    varchar(100) not null,\n" +
+                    "    namespace varchar(100) not null,\n" +
+                    "    name      varchar(100) not null,\n" +
+                    "    x         int          not null,\n" +
+                    "    y         int          not null,\n" +
+                    "    z         int          not null,\n" +
+                    "    constraint uk_scenes\n" +
+                    "        unique (player, namespace, name)\n" +
+                    ");";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.execute();
 
-    public static Connection getConnection() {
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
-        return connection;
     }
+
     public static PlayerScene getScene(String player, String namespace, String name) {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "select id,player,namespace,name,x,y,z from scenes where player=? and namespace=? and name=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, player);
@@ -56,7 +60,7 @@ public class SceneDao {
     }
 
     private static void insertScene(PlayerScene playerScene) {
-        try (Connection connection = getConnection()) {
+        try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "insert into isletopia_scenes(player,namespace,name,x,y,z) values(?,?,?,?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, playerScene.getPlayer());
@@ -75,7 +79,7 @@ public class SceneDao {
         if (getScene(playerScene.getPlayer(), playerScene.getNamespace(), playerScene.getName()) == null) {
             insertScene(playerScene);
         } else {
-            try (Connection connection = getConnection()) {
+            try (Connection connection = DataSourceUtils.getConnection()) {
                 String sql = "update isletopia_scenes set x=?,y=?,z=? where player=? and namespace=? and name=?";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setInt(1, playerScene.getX());

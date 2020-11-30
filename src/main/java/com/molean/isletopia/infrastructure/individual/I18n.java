@@ -12,7 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+
+
+//Why not just use resource bundle ?
+// because you can not edit the configuration in game.
+
 
 public class I18n {
 
@@ -78,11 +84,7 @@ public class I18n {
 
         String loadName = properties.getProperty(biome + ".name");
 
-        if (loadName != null) {
-            name = loadName;
-        } else {
-            name = biome + "(UNKNOWN)";
-        }
+        name = Objects.requireNonNullElseGet(loadName, () -> biome + "(UNKNOWN)");
 
         String loadIcon = properties.getProperty(biome + ".icon");
         if (loadIcon != null) {

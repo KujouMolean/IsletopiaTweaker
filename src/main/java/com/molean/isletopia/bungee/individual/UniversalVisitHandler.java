@@ -3,6 +3,7 @@ package com.molean.isletopia.bungee.individual;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.utils.PlotUtils;
@@ -11,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
+// Handle visit request from other server
 
 public class UniversalVisitHandler implements PluginMessageListener, Listener {
     private static final Map<String, String> visits = new HashMap<>();
@@ -46,6 +49,7 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
                 String target = msgin.readUTF();
                 Player sourcePlayer = Bukkit.getPlayer(source);
 
+                //if the player is not online, save to map and wait her join.
                 if (sourcePlayer != null) {
                     PlotUtils.localServerTeleport(sourcePlayer, target);
                 } else {
@@ -59,21 +63,32 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
     }
 
     @EventHandler
-    public void preJoin(PlayerQuitEvent event){
-    }
-    @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        if (visits.containsKey(player.getName())) {
-            PlotUtils.localServerTeleport(player, visits.get(player.getName()));
-            visits.remove(player.getName());
 
+        // If server info has not updated, then force update and wait 1 second.
+        // else check immediately.
+        int delay = 0;
+        if (ServerInfoUpdater.getServerName() == null) {
+            ServerInfoUpdater.updates();
+            delay = 20;
         }
-        List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
-        if (visits.size() > 0) {
-            player.sendMessage(I18n.getMessage("island.notify.offlineVisitors",event.getPlayer()));
-            player.sendMessage("§7  " + String.join(",", visits));
-            UniversalParameter.setParameter(event.getPlayer().getName(), "visits", "");
-        }
+
+        Bukkit.getScheduler().runTaskLaterAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+
+            // Check if player is going to visit other.
+            Player player = event.getPlayer();
+            if (visits.containsKey(player.getName())) {
+                PlotUtils.localServerTeleport(player, visits.get(player.getName()));
+                visits.remove(player.getName());
+            }
+
+            // If player's island has offline visitor, send the list to her and clear.
+            List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
+            if (visits.size() > 0) {
+                player.sendMessage(I18n.getMessage("island.notify.offlineVisitors", event.getPlayer()));
+                player.sendMessage("§7  " + String.join(",", visits));
+                UniversalParameter.setParameter(event.getPlayer().getName(), "visits", "");
+            }
+        }, delay);
     }
 }

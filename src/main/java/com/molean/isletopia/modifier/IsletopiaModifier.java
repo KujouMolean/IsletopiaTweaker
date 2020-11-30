@@ -15,8 +15,9 @@ public class IsletopiaModifier {
             new FertilizeFlower();
             new HungerKeeper();
             new IronElevator();
+            new RemoveJoinLeftMessage();
 //            new AdvancedDispenser();
-            new HopperFilter();
+//            new HopperFilter();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");

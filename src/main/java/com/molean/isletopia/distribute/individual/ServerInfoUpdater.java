@@ -34,27 +34,27 @@ public class ServerInfoUpdater implements PluginMessageListener {
     private static final List<String> onlinePlayers = new ArrayList<>();
 
     public static List<String> getOnlinePlayers() {
-        return onlinePlayers;
+        return new ArrayList<>(onlinePlayers);
     }
 
     private static final List<String> servers = new ArrayList<>();
 
     public static List<String> getServers() {
-        return servers;
+        return new ArrayList<>(servers);
     }
 
     public ServerInfoUpdater() {
         Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
-        getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), this::updates, 20, 20);
+        getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), ServerInfoUpdater::updates, 20, 20);
     }
 
-    public void updates() {
+    public static void updates() {
         updateOnlinePlayers();
         updateServerName();
         updateServers();
     }
 
-    public void updateOnlinePlayers() {
+    public static void updateOnlinePlayers() {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("PlayerList");
         out.writeUTF("ALL");
@@ -64,7 +64,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
             player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
     }
 
-    public void updateServerName() {
+    public static void updateServerName() {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServer");
         out.writeUTF("GetServer");
@@ -73,7 +73,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
             player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
     }
 
-    public void updateServers() {
+    public static void updateServers() {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServers");
         out.writeUTF("GetServers");

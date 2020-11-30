@@ -16,7 +16,7 @@ public class IsletopiaInfrastructure {
             new ClockMenu();
             new RespawnPoint();
             new I18n();
-        }catch (Exception exception){
+        } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");
         }
