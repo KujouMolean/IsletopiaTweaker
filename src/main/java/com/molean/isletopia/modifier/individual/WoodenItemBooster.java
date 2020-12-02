@@ -18,13 +18,14 @@ public class WoodenItemBooster implements Listener {
         ItemStack result = event.getInventory().getResult();
         if (result == null)
             return;
-        if (result.getType().name().toLowerCase().contains("wooden")) {
-            ItemMeta itemMeta = result.getItemMeta();
-            if (itemMeta == null)
-                return;
-            itemMeta.setUnbreakable(true);
-            result.setItemMeta(itemMeta);
-            event.getInventory().setResult(result);
+        if (!result.getType().name().toLowerCase().contains("wooden")) {
+            return;
         }
+        ItemMeta itemMeta = result.getItemMeta();
+        if (itemMeta == null)
+            return;
+        itemMeta.setUnbreakable(true);
+        result.setItemMeta(itemMeta);
+        event.getInventory().setResult(result);
     }
 }

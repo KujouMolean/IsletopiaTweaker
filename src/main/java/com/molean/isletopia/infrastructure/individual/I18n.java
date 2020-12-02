@@ -44,24 +44,20 @@ public class I18n {
     }
 
     public static String getMessage(String key, Player player) {
-        Properties message = new Properties();
+        try {
+            Properties message = new Properties();
 
-        if (player.getLocale().startsWith("zh")) {
-            try {
+            if (player.getLocale().startsWith("zh")) {
                 FileInputStream fileInputStream = new FileInputStream(IsletopiaTweakers.getPlugin().getDataFolder() + "/message_zh.properties");
 
                 message.load(fileInputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
+            } else {
                 message.load(new FileInputStream(IsletopiaTweakers.getPlugin().getDataFolder() + "/message_en.properties"));
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+            return message.getProperty(key);
+        } catch (IOException e) {
+            return key;
         }
-        return message.getProperty(key);
     }
 
     public static LocalBiome getBiome(String biome, Player player) {

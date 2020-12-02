@@ -14,8 +14,8 @@ public class IsletopiaProtect {
             new AnimalProtect();
             new LavaProtect();
             new PlotMobCap();
-            new PreventCreeperBreak();
-            new RemoveDisgustingMob();
+            new ExlosionProtect();
+            new MobRemover();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia protect failed!");

@@ -25,7 +25,6 @@ public class PlotMobCap implements Listener {
 
     private static final Map<EntityType, Integer> map = new HashMap<>();
 
-
     public static void setMobCap(EntityType entityType, Integer integer) {
         map.put(entityType, integer);
     }

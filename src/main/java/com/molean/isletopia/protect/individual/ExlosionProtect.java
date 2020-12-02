@@ -7,8 +7,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
-public class PreventCreeperBreak implements Listener {
-    public PreventCreeperBreak() {
+public class ExlosionProtect implements Listener {
+    public ExlosionProtect() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 

@@ -1,8 +1,6 @@
 package com.molean.isletopia.database;
 
 import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
-import io.netty.util.internal.ResourcesUtil;
-import net.minecraft.server.v1_16_R2.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;

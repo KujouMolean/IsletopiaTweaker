@@ -13,9 +13,9 @@ import java.util.UUID;
 
 import static org.bukkit.Material.*;
 
-public class RegistRecipe {
+public class MoreRecipe {
 
-    public RegistRecipe() {
+    public MoreRecipe() {
         //萤石
         Bukkit.resetRecipes();
         registerShaped(new ItemStack(Material.GLOWSTONE),

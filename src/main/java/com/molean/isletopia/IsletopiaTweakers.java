@@ -43,6 +43,7 @@ public final class IsletopiaTweakers extends JavaPlugin {
         new MenuCommand();
         new IsletopiaBungee();
         new IsletopiaStatistics();
+
 //        new IsletopiaStory();
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
@@ -65,7 +66,7 @@ public final class IsletopiaTweakers extends JavaPlugin {
 
         // 持续读取文件, 若时间与当前时间相差过大, 则停止服务器, 并在30秒后强制关闭程序, 每两分钟一次.
         // Keep read file per two minutes.
-        // If timestamp difference too big then stop server, and kill program gracefully after 30s.
+        // If timestamp difference too big then stop server, and kill process gracefully after 30s.
         new Thread(() -> {
             while (true) {
 
