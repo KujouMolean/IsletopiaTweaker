@@ -20,7 +20,7 @@ import java.util.UUID;
 public class BungeeUtils {
     public static void sendMessageToPlayer(String player, String message) {
         try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("ForwardToPlayer");
             out.writeUTF(player);
             out.writeUTF("tell");
@@ -41,7 +41,7 @@ public class BungeeUtils {
 
     public static void sendVisitNotificationToPlayer(String player, String visitor, boolean isFailed) {
         try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("ForwardToPlayer");
             out.writeUTF(player);
             if (isFailed) {
@@ -66,7 +66,7 @@ public class BungeeUtils {
 
     public static void universalChat(Player player, String message) {
         try {
-            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Forward");
             out.writeUTF("BungeeCord");
             out.writeUTF("chat");
@@ -81,8 +81,9 @@ public class BungeeUtils {
             exception.printStackTrace();
         }
     }
-
+    @SuppressWarnings("all")
     public static void universalPlotVisit(Player sourcePlayer, String target) {
+
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             long start = System.currentTimeMillis();
 

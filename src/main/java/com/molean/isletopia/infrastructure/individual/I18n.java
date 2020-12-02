@@ -75,8 +75,8 @@ public class I18n {
                 e.printStackTrace();
             }
         }
-        String name = null;
-        Material icon = null;
+        String name;
+        Material icon;
 
         String loadName = properties.getProperty(biome + ".name");
 

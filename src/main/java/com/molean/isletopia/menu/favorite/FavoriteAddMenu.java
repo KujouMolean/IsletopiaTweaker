@@ -75,6 +75,7 @@ public class FavoriteAddMenu implements Listener {
             return;
         }
         ItemStack item = inventory.getItem(slot);
+        assert item != null;
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
         item.setItemMeta(itemMeta);

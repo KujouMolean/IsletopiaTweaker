@@ -25,15 +25,15 @@ public class HeadUtils {
 
         Pair<String, Long> stringLongPair = cache.get(name);
 
-        String skinValue = null;
+        String skinValue;
         if (stringLongPair == null) {
             skinValue = UniversalParameter.getParameter(name, "skinValue");
-            cache.put(name, new Pair<String, Long>(skinValue, System.currentTimeMillis()));
+            cache.put(name, new Pair<>(skinValue, System.currentTimeMillis()));
         } else {
             long t = System.currentTimeMillis() - stringLongPair.getValue();
             if (t > 10 * 1000 * 60) {
                 skinValue = UniversalParameter.getParameter(name, "skinValue");
-                cache.put(name, new Pair<String, Long>(skinValue, System.currentTimeMillis()));
+                cache.put(name, new Pair<>(skinValue, System.currentTimeMillis()));
             } else {
                 skinValue = stringLongPair.getKey();
             }

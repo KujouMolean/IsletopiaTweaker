@@ -24,6 +24,7 @@ public class ConfigUtils {
         return new File(plugin.getDataFolder(), name);
     }
 
+    @SuppressWarnings("all")
     public static void configOuput(String name) {
         try {
             if (!Files.exists(plugin.getDataFolder().toPath())) {
@@ -37,7 +38,7 @@ public class ConfigUtils {
             e.printStackTrace();
         }
     }
-
+    @SuppressWarnings("all")
     public static YamlConfiguration getConfig(String filename) {
         if (configs.containsKey(filename))
             return configs.get(filename);

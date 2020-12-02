@@ -66,6 +66,7 @@ public class FavoriteRemoveMenu implements Listener {
         }
         if (slot < collections.size()) {
             ItemStack item = inventory.getItem(slot);
+            assert item != null;
             ItemMeta itemMeta = item.getItemMeta();
             itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
             item.setItemMeta(itemMeta);

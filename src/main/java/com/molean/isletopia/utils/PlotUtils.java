@@ -21,15 +21,12 @@ import java.util.UUID;
 public class PlotUtils {
     private static final PlotAPI plotAPI = new PlotAPI();
 
-    public static void registerListener(Object object) {
-        plotAPI.registerListener(object);
-    }
-
     public static Plot getCurrentPlot(Player player) {
-        PlotPlayer plotPlayer = plotAPI.wrapPlayer(player.getUniqueId());
+        @SuppressWarnings("all") PlotPlayer plotPlayer = plotAPI.wrapPlayer(player.getUniqueId());
         return plotPlayer.getCurrentPlot();
     }
 
+    @SuppressWarnings("all")
     public static boolean hasCurrentPlotPermission(Player player) {
         Plot currentPlot = getCurrentPlot(player);
         if (currentPlot == null)
@@ -71,7 +68,7 @@ public class PlotUtils {
 
     public static void localServerTeleport(Player source, String target) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            PlotPlayer sourcePlayer = plotAPI.wrapPlayer(source.getUniqueId());
+            @SuppressWarnings("all")PlotPlayer sourcePlayer = plotAPI.wrapPlayer(source.getUniqueId());
             Plot plot = getPlot(target);
             plot.teleportPlayer(sourcePlayer, TeleportCause.PLUGIN, aBoolean -> {
                 String localServerName = I18n.getLocalServerName(source);

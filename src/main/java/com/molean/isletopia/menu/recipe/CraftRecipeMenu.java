@@ -28,7 +28,7 @@ public class CraftRecipeMenu implements Listener {
         inventory = Bukkit.createInventory(player, 36, I18n.getMessage("menu.recipe.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
-
+    @SuppressWarnings("all")
     public void open() {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
@@ -84,9 +84,8 @@ public class CraftRecipeMenu implements Listener {
         }
         int slot = event.getSlot();
         if (slot >= 27) {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                new RecipeListMenu(player,fatherCommand).open();
-            });
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () ->
+                    new RecipeListMenu(player,fatherCommand).open());
         }
 
 

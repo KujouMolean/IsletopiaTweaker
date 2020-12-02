@@ -29,7 +29,7 @@ public class RecipeListMenu implements Listener {
         inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.recipeList.title",player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
-
+    @SuppressWarnings("all")
     public void open() {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");

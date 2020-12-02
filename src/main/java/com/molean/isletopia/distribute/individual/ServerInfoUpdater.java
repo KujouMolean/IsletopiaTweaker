@@ -55,7 +55,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
     }
 
     public static void updateOnlinePlayers() {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("PlayerList");
         out.writeUTF("ALL");
         out.writeUTF("PlayerList");
@@ -65,7 +65,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
     }
 
     public static void updateServerName() {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServer");
         out.writeUTF("GetServer");
         Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
@@ -74,7 +74,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
     }
 
     public static void updateServers() {
-        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServers");
         out.writeUTF("GetServers");
         Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
@@ -89,7 +89,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-        ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        @SuppressWarnings("all")ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
         if (subChannel.equalsIgnoreCase("PlayerList")) {
             String server = in.readUTF();
@@ -105,9 +105,9 @@ public class ServerInfoUpdater implements PluginMessageListener {
         } else if (subChannel.equalsIgnoreCase("updateUUID")) {
             try {
                 short len = in.readShort();
-                byte[] msgbytes = new byte[len];
-                in.readFully(msgbytes);
-                DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
+                byte[] msgBytes = new byte[len];
+                in.readFully(msgBytes);
+                DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgBytes));
                 String name = msgin.readUTF();
                 String uuid = msgin.readUTF();
                 PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(name, UUID.fromString(uuid));

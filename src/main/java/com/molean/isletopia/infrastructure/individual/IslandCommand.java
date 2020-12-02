@@ -39,7 +39,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         Player sourcePlayer = (Player) sender;
         String subject = sourcePlayer.getName();
-        String verb = null;
+        String verb;
         String object = null;
 
         if (args.length == 0) {
@@ -153,9 +153,8 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(I18n.getMessage("error.island.non-owner", player));
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            new BiomeMenu(player).open();
-        });
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(),
+                () -> new BiomeMenu(player).open());
     }
 
     private void visit(String source, String target) {
@@ -214,7 +213,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = PlotDao.getAllUUID();
         currentPlot.removeTrusted(uuid);
-        player.sendMessage(I18n.getMessage("isand.unlock", player));
+        player.sendMessage(I18n.getMessage("island.unlock", player));
     }
 
     public void help(String source) {

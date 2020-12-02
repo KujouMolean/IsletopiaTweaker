@@ -37,7 +37,7 @@ public class VisitNotificationHandler implements PluginMessageListener, Listener
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-        ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        @SuppressWarnings("all")ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
         if (subChannel.equals("visitor")) {
             try {
