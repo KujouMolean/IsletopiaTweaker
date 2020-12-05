@@ -83,15 +83,14 @@ public class LavaProtect implements Listener {
 
     @EventHandler
     public void onLavaTransferring(BlockFormEvent event) {
-        if (event.getBlock().getType() != Material.OBSIDIAN)
+        if (!"minecraft:lava[level=0]".equals(event.getBlock().getBlockData().getAsString()))
             return;
         Location location = event.getBlock().getLocation();
-        Collection<Entity> nearbyEntities = event.getBlock().getWorld().getNearbyEntities(location, 32, 32, 32);
+        Collection<Entity> nearbyEntities = event.getBlock().getWorld().getNearbyEntities(location, 8, 8, 8);
         for (Entity nearbyEntity : nearbyEntities) {
             if (nearbyEntity instanceof Player) {
                 nearbyEntity.sendMessage(I18n.getMessage("protect.lava.restore", (Player) nearbyEntity));
             }
         }
-
     }
 }
