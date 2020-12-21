@@ -65,13 +65,6 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
 
-        // If server info has not updated, then force update and wait 1 second.
-        // else check immediately.
-        int delay = 0;
-        if (ServerInfoUpdater.getServerName() == null) {
-            ServerInfoUpdater.updates();
-            delay = 20;
-        }
 
         Bukkit.getScheduler().runTaskLaterAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 
@@ -89,6 +82,6 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
                 player.sendMessage("§7  " + String.join(",", visits));
                 UniversalParameter.setParameter(event.getPlayer().getName(), "visits", "");
             }
-        }, delay);
+        }, ServerInfoUpdater.getServerName() == null ? 20 : 0);
     }
 }

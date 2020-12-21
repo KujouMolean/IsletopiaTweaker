@@ -212,7 +212,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = PlotDao.getAllUUID();
-        currentPlot.removeTrusted(uuid);
+        currentPlot.removeDenied(uuid);
         player.sendMessage(I18n.getMessage("island.unlock", player));
     }
 

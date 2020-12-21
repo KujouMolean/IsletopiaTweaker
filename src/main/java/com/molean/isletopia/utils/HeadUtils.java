@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -22,7 +23,6 @@ public class HeadUtils {
         assert headMeta != null;
         headMeta.setDisplayName("§f" + name);
         GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-
         Pair<String, Long> stringLongPair = cache.get(name);
 
         String skinValue;

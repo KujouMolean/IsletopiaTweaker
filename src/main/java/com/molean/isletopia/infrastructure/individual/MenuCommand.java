@@ -1,6 +1,7 @@
-package com.molean.isletopia.menu;
+package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.menu.recipe.RecipeListMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;

@@ -1,10 +1,13 @@
 package com.molean.isletopia.bungee;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.admin.individual.UniversalTeleportCommand;
 import com.molean.isletopia.bungee.individual.PlayerMessageHandler;
+import com.molean.isletopia.bungee.individual.UniversalTeleportHandler;
 import com.molean.isletopia.bungee.individual.UniversalVisitHandler;
 import com.molean.isletopia.bungee.individual.VisitNotificationHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 
 import java.util.logging.Logger;
 
@@ -14,6 +17,7 @@ public class IsletopiaBungee {
         try {
             new PlayerMessageHandler();
             new UniversalVisitHandler();
+            new UniversalTeleportHandler();
             new VisitNotificationHandler();
         } catch (Exception exception) {
             exception.printStackTrace();

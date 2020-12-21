@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class BungeeUtils {
@@ -41,7 +42,7 @@ public class BungeeUtils {
 
     public static void sendVisitNotificationToPlayer(String player, String visitor, boolean isFailed) {
         try {
-            @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("ForwardToPlayer");
             out.writeUTF(player);
             if (isFailed) {
@@ -66,7 +67,7 @@ public class BungeeUtils {
 
     public static void universalChat(Player player, String message) {
         try {
-            @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
             out.writeUTF("Forward");
             out.writeUTF("BungeeCord");
             out.writeUTF("chat");
@@ -81,6 +82,47 @@ public class BungeeUtils {
             exception.printStackTrace();
         }
     }
+
+    public static void universalTeleport(Player sourcePlayer, String target) {
+
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            String source = sourcePlayer.getName();
+            String targetServer = null;
+            Map<String, List<String>> playersPerServer = ServerInfoUpdater.getPlayersPerServer();
+            for (String s : playersPerServer.keySet()) {
+                if (playersPerServer.get(s).contains(target)) {
+                    targetServer = s;
+                }
+            }
+            if (targetServer == null) {
+                return;
+            }
+            try {
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("Forward");
+                out.writeUTF(targetServer);
+                out.writeUTF("tp");
+                ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+                DataOutputStream msgout = new DataOutputStream(msgbytes);
+                msgout.writeUTF(source);
+                msgout.writeUTF(target);
+                out.writeShort(msgbytes.toByteArray().length);
+                out.write(msgbytes.toByteArray());
+                sourcePlayer.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+            if (!targetServer.equalsIgnoreCase(ServerInfoUpdater.getServerName())) {
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("ConnectOther");
+                out.writeUTF(source);
+                out.writeUTF(targetServer);
+                sourcePlayer.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+            }
+        });
+
+    }
+
     @SuppressWarnings("all")
     public static void universalPlotVisit(Player sourcePlayer, String target) {
 

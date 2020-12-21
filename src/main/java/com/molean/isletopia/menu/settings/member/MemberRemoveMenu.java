@@ -57,7 +57,7 @@ public class MemberRemoveMenu implements Listener {
         for (int i = 0; i < members.size() && i < inventory.getSize() - 1; i++) {
             inventory.setItem(i, HeadUtils.getSkull(members.get(i)));
         }
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回成员");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.member.remove.return",player));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));

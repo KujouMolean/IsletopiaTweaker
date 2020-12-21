@@ -8,7 +8,6 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.plotsquared.core.PlotSquared;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,10 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.bukkit.Bukkit.getScheduler;
 
@@ -43,6 +39,12 @@ public class ServerInfoUpdater implements PluginMessageListener {
         return new ArrayList<>(servers);
     }
 
+    private static final Map<String, List<String>> playersPerServer = new HashMap<>();
+
+    public static Map<String, List<String>> getPlayersPerServer() {
+        return new HashMap<>(playersPerServer);
+    }
+
     public ServerInfoUpdater() {
         Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
         getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), ServerInfoUpdater::updates, 20, 20);
@@ -54,19 +56,28 @@ public class ServerInfoUpdater implements PluginMessageListener {
         updateServers();
     }
 
+    public static void updateOnlinePlayersPerServer() {
+        for (String server : servers) {
+            @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("PlayerList");
+            out.writeUTF(server);
+            Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
+            if (player != null)
+                player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+        }
+    }
+
     public static void updateOnlinePlayers() {
-        @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("PlayerList");
         out.writeUTF("ALL");
-        out.writeUTF("PlayerList");
         Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (player != null)
             player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
     }
 
     public static void updateServerName() {
-        @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("GetServer");
+        @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServer");
         Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (player != null)
@@ -74,8 +85,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
     }
 
     public static void updateServers() {
-        @SuppressWarnings("all")ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("GetServers");
+        @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("GetServers");
         Player player = Iterables.getFirst(Bukkit.getOnlinePlayers(), null);
         if (player != null)
@@ -86,22 +96,26 @@ public class ServerInfoUpdater implements PluginMessageListener {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8));
     }
 
-
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-        @SuppressWarnings("all")ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        @SuppressWarnings("all") ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
         if (subChannel.equalsIgnoreCase("PlayerList")) {
             String server = in.readUTF();
             String[] playerList = in.readUTF().split(", ");
-            onlinePlayers.clear();
-            onlinePlayers.addAll(Arrays.asList(playerList));
+            if (server.equalsIgnoreCase("all")) {
+                onlinePlayers.clear();
+                onlinePlayers.addAll(Arrays.asList(playerList));
+            } else {
+                playersPerServer.put(server, Arrays.asList(playerList));
+            }
         } else if (subChannel.equalsIgnoreCase("GetServer")) {
             serverName = in.readUTF();
         } else if (subChannel.equalsIgnoreCase("GetServers")) {
             String[] serverList = in.readUTF().split(", ");
             servers.clear();
             servers.addAll(Arrays.asList(serverList));
+            updateOnlinePlayersPerServer();
         } else if (subChannel.equalsIgnoreCase("updateUUID")) {
             try {
                 short len = in.readShort();
