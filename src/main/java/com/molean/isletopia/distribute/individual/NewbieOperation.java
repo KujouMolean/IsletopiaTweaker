@@ -70,21 +70,9 @@ public class NewbieOperation implements Listener {
 
     @EventHandler()
     public void onSync(SyncCompleteEvent event) {
-
-
-        // If server info has not updated, then force update and wait 1 second.
-        // else check immediately.
-        int delay = 0;
-        if (ServerInfoUpdater.getServerName() == null) {
-            ServerInfoUpdater.updates();
-            delay = 20;
-        }
-
-        Bukkit.getScheduler().runTaskLaterAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 
             // if player has not clock
-
-
             String server = UniversalParameter.getParameter(event.getPlayer().getName(), "server");
             if (server == null) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
@@ -95,7 +83,7 @@ public class NewbieOperation implements Listener {
             if (server.equalsIgnoreCase(ServerInfoUpdater.getServerName())) {
                 checkNewbie(event.getPlayer());
             }
-        }, delay);
+        });
 
         //check plot number
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
@@ -105,7 +93,7 @@ public class NewbieOperation implements Listener {
             int cnt = 0;
             List<String> servers = new ArrayList<>(ServerInfoUpdater.getServers());
             for (String server : servers) {
-                if (server.equalsIgnoreCase("dispatcher"))
+                if (!server.startsWith("server"))
                     continue;
                 Integer plotID = PlotDao.getPlotID(server, event.getPlayer().getName());
                 if (plotID != null) {

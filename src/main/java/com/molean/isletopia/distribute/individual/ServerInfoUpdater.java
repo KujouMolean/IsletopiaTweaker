@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -46,6 +47,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
     }
 
     public ServerInfoUpdater() {
+        serverName = new File(System.getProperty("user.dir")).getName();
         Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
         getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), ServerInfoUpdater::updates, 20, 20);
     }

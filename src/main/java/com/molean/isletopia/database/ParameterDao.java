@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class ParameterDao {
     public static void checkTable() {
@@ -25,6 +26,7 @@ public class ParameterDao {
             exception.printStackTrace();
         }
     }
+
     public static String get(String playerName, String key) {
         try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "select p_value from isletopia_parameters where player=? and p_key=?";
@@ -41,7 +43,29 @@ public class ParameterDao {
         return null;
     }
 
+    public static ArrayList<String> keys(String playerName) {
+        ArrayList<String> keyList = new ArrayList<>();
+        try (Connection connection = DataSourceUtils.getConnection()) {
+            String sql = "select p_key from isletopia_parameters where player=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, playerName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                keyList.add(resultSet.getString(1));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return null;
+        }
+        return keyList;
+    }
+
+
     public static void set(String playerName, String key, String value) {
+        if (value == null || value.isEmpty()) {
+            unset(playerName, key);
+            return;
+        }
         if (!exist(playerName, key)) {
             insert(playerName, key, value);
         } else {
@@ -55,6 +79,17 @@ public class ParameterDao {
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
+        }
+    }
+
+    public static void unset(String playerName, String key) {
+        try (Connection connection = DataSourceUtils.getConnection()) {
+            String sql = "delete from isletopia_parameters where player=? and p_key=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, playerName);
+            preparedStatement.setString(2, key);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 

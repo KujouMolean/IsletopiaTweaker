@@ -3,7 +3,6 @@ package com.molean.isletopia.bungee.individual;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.utils.PlotUtils;
@@ -36,7 +35,7 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
-        @SuppressWarnings("all")ByteArrayDataInput in = ByteStreams.newDataInput(message);
+        @SuppressWarnings("all") ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
         if (subChannel.equalsIgnoreCase("visit")) {
             try {
@@ -64,9 +63,7 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-
-
-        Bukkit.getScheduler().runTaskLaterAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 
             // Check if player is going to visit other.
             Player player = event.getPlayer();
@@ -80,8 +77,8 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
             if (visits.size() > 0) {
                 player.sendMessage(I18n.getMessage("island.notify.offlineVisitors", event.getPlayer()));
                 player.sendMessage("§7  " + String.join(",", visits));
-                UniversalParameter.setParameter(event.getPlayer().getName(), "visits", "");
+                UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
             }
-        }, ServerInfoUpdater.getServerName() == null ? 20 : 0);
+        });
     }
 }

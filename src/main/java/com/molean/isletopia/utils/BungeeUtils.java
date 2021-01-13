@@ -19,6 +19,15 @@ import java.util.Map;
 import java.util.UUID;
 
 public class BungeeUtils {
+
+    public static void switchServer(Player player, String server) {
+        @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
+        out.writeUTF("ConnectOther");
+        out.writeUTF(player.getName());
+        out.writeUTF(server);
+        player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+    }
+
     public static void sendMessageToPlayer(String player, String message) {
         try {
             @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();

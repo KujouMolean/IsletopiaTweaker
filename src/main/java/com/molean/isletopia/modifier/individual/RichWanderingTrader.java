@@ -41,7 +41,6 @@ public class RichWanderingTrader implements Listener {
 //            竹子
         recipes.add(generateMerchant(Material.BEETROOT_SEEDS, 3, 5));
         wanderingTrader.setRecipes(recipes);
-
     }
 
     public static MerchantRecipe generateMerchant(Material result, int price, int maxUses) {

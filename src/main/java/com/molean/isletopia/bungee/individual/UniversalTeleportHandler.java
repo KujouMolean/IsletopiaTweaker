@@ -3,7 +3,6 @@ package com.molean.isletopia.bungee.individual;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,7 +28,7 @@ public class UniversalTeleportHandler implements PluginMessageListener, Listener
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             // Check if player is going to visit other.
             Player sourcePlayer = event.getPlayer();
             if (teleports.containsKey(sourcePlayer.getName())) {
@@ -43,7 +42,7 @@ public class UniversalTeleportHandler implements PluginMessageListener, Listener
                     });
                 }
             }
-        }, ServerInfoUpdater.getServerName() == null ? 20 : 0);
+        });
     }
 
     @Override

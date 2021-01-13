@@ -19,6 +19,7 @@ public class RailWay implements Listener {
     public RailWay() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
     @EventHandler
     public void railWay(PlayerToggleSneakEvent event) {
         if (!event.isSneaking())
@@ -428,8 +429,7 @@ public class RailWay implements Listener {
     public Rail.Shape getShape(Block block) {
         if (block.getType().name().toLowerCase().contains("rail")) {
             Rail railData = (Rail) block.getBlockData();
-            Rail.Shape shape = railData.getShape();
-            return shape;
+            return railData.getShape();
         }
         return null;
     }

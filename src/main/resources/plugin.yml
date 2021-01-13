@@ -9,19 +9,25 @@ denpend:
 commands:
   tp:
     permission: isletopia.tp
-  scene: {}
-  guide: {}
-  story: {}
-  help: {}
-  visit: {}
-  issue: {}
-  parameter: {}
-  parameterAdmin: {}
-  menu: {}
-  tell: {}
-  msg: {}
-  w: {}
-  is: {}
-  island: {}
-  islet: {}
-  isletopia: {}
+  gsend:
+    permission: isletopia.gsend
+  gcmd:
+    permission: isletopia.gcmd
+  scene: { }
+  guide: { }
+  story: { }
+  help: { }
+  visit: { }
+  issue: { }
+  parameter: { }
+  parameterAdmin:
+    permission: isletopia.parameteradmin
+  menu: { }
+  tell: { }
+  msg: { }
+  w: { }
+  is: { }
+  island: { }
+  islet: { }
+  isletopia: { }
+  temp: { }
