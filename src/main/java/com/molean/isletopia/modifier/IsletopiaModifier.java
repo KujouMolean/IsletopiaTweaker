@@ -20,6 +20,7 @@ public class IsletopiaModifier {
             new RandomPatrol();
             new DeepOceanGuardian();
             new AntiZombification();
+            new DragonHeadExtractBreath();
 //            new EquipmentWeaker();
 //            new AdvancedDispenser();
 //            new HopperFilter();

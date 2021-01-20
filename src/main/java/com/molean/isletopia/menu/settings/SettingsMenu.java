@@ -2,12 +2,15 @@ package com.molean.isletopia.menu.settings;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
 import com.molean.isletopia.menu.settings.member.MemberMenu;
-import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.utils.PlotUtils;
+import com.molean.isletopia.utils.Sftp;
+import com.plotsquared.core.PlotSquared;
+import com.plotsquared.core.backup.BackupProfile;
 import com.plotsquared.core.location.BlockLoc;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
@@ -23,6 +26,7 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.nio.file.Path;
 import java.util.*;
 
 public class SettingsMenu implements Listener {
@@ -34,7 +38,7 @@ public class SettingsMenu implements Listener {
 
     public SettingsMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 9, I18n.getMessage("menu.settings.title",player));
+        inventory = Bukkit.createInventory(player, 18, I18n.getMessage("menu.settings.title", player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -50,7 +54,7 @@ public class SettingsMenu implements Listener {
     }
 
     public void open() {
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 18; i++) {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
@@ -58,12 +62,12 @@ public class SettingsMenu implements Listener {
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         if (!currentPlot.getOwner().equals(player.getUniqueId())) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer( I18n.getMessage("error.menu.settings.non-owner",player));
+                player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner", player));
             });
             return;
         }
         HashSet<UUID> denied = currentPlot.getDenied();
-        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK,  I18n.getMessage("menu.settings.biome",player));
+        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, I18n.getMessage("menu.settings.biome", player));
         inventory.setItem(0, visit.build());
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Random random = new Random();
@@ -82,31 +86,37 @@ public class SettingsMenu implements Listener {
             }
         });
 
-        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD,  I18n.getMessage("menu.settings.member",player));
+        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, I18n.getMessage("menu.settings.member", player));
         inventory.setItem(2, member.build());
 
-        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED,  I18n.getMessage("menu.settings.home",player));
+        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, I18n.getMessage("menu.settings.home", player));
         inventory.setItem(4, bed.build());
 
 
         if (denied.contains(PlotDao.getAllUUID())) {
-            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR,  I18n.getMessage("menu.settings.unlock",player));
-            cancel.addLore( I18n.getMessage("menu.settings.unlock.1",player));
-            cancel.addLore( I18n.getMessage("menu.settings.unlock.2",player));
+            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, I18n.getMessage("menu.settings.unlock", player));
+            cancel.addLore(I18n.getMessage("menu.settings.unlock.1", player));
+            cancel.addLore(I18n.getMessage("menu.settings.unlock.2", player));
             inventory.setItem(6, cancel.build());
             open = false;
 
         } else {
-            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR,  I18n.getMessage("menu.settings.lock",player));
-            denyAll.addLore( I18n.getMessage("menu.settings.lock.1",player));
-            denyAll.addLore( I18n.getMessage("menu.settings.lock.2",player));
+            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, I18n.getMessage("menu.settings.lock", player));
+            denyAll.addLore(I18n.getMessage("menu.settings.lock.1", player));
+            denyAll.addLore(I18n.getMessage("menu.settings.lock.2", player));
             inventory.setItem(6, denyAll.build());
             open = true;
         }
 
+        ItemStackSheet shield = new ItemStackSheet(Material.SHIELD, I18n.getMessage("menu.settings.backup", player));
+        shield.addLore(I18n.getMessage("menu.settings.backup.1", player));
+        shield.addLore(I18n.getMessage("menu.settings.backup.2", player));
+        shield.addLore(I18n.getMessage("menu.settings.backup.3", player));
+        shield.addLore(I18n.getMessage("menu.settings.backup.4", player));
+        inventory.setItem(8, shield.build());
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.return",player));
-        inventory.setItem(8, father.build());
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.return", player));
+        inventory.setItem(17, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
 
@@ -144,15 +154,15 @@ public class SettingsMenu implements Listener {
                             location.getBlockZ() - bottomAbs.getZ(),
                             location.getYaw(),
                             location.getPitch()));
-                    player.sendMessage( I18n.getMessage("menu.settings.home.ok",player)
-                            .replace("%1%",location.getBlockX()+"")
-                            .replace("%2%",location.getBlockX()+"")
-                            .replace("%3%",location.getBlockZ()+"")
+                    player.sendMessage(I18n.getMessage("menu.settings.home.ok", player)
+                            .replace("%1%", location.getBlockX() + "")
+                            .replace("%2%", location.getBlockX() + "")
+                            .replace("%3%", location.getBlockZ() + "")
                     );
                     player.closeInventory();
                 } else {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer( I18n.getMessage("error.menu.settings.non-owner",player));
+                        player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner", player));
                     });
                 }
                 break;
@@ -169,12 +179,59 @@ public class SettingsMenu implements Listener {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
                 } else {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner",player));
+                        player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner", player));
                     });
                 }
                 break;
             }
             case 8: {
+                player.closeInventory();
+                Plot currentPlot = PlotUtils.getCurrentPlot(player);
+                if (!currentPlot.getOwner().equals(player.getUniqueId())) {
+                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                        player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner", player));
+                    });
+                    return;
+                }
+                if (!player.getInventory().contains(Material.DIAMOND_BLOCK)) {
+                    player.sendMessage(I18n.getMessage("backup.noCost", player));
+                    return;
+                }
+                for (ItemStack itemStack : player.getInventory()) {
+                    if (itemStack != null && itemStack.getType().equals(Material.DIAMOND_BLOCK)) {
+                        itemStack.setAmount(itemStack.getAmount() - 1);
+                        break;
+                    }
+                }
+                player.sendMessage(I18n.getMessage("backup.start.1", player));
+                player.sendMessage(I18n.getMessage("backup.start.2", player));
+                BackupProfile profile = PlotSquared.imp().getBackupManager().getProfile(currentPlot);
+                profile.createBackup().whenComplete((backup, throwable) -> {
+                    if (throwable != null) {
+                        player.sendMessage(I18n.getMessage("backup.failed", player));
+                        return;
+                    }
+                    profile.listBackups().whenComplete((backups, throwable1) -> {
+                        if (backups.size() == 0 || throwable1 != null) {
+                            player.sendMessage(I18n.getMessage("backup.failed", player));
+                            return;
+                        }
+                        Path path = backups.get(0).getFile();
+                        assert path != null;
+                        UUID uuid = UUID.randomUUID();
+                        boolean b = Sftp.uploadFile(path.toString(), "/var/www/skin/schem/" + uuid + ".schem");
+                        if (!b) {
+                            player.sendMessage(I18n.getMessage("backup.failed", player));
+                            return;
+                        }
+                        String url = "http://skin.molean.com/schem/" + uuid + ".schem";
+                        player.sendMessage(I18n.getMessage("backup.success", player).replace("%url%", url));
+                    });
+                });
+                break;
+            }
+
+            case 17: {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerMenu(player).open());
                 break;
             }

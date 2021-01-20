@@ -2,7 +2,6 @@ package com.molean.isletopia.infrastructure;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.infrastructure.individual.*;
-import org.bukkit.entity.Item;
 
 import java.util.logging.Logger;
 
@@ -18,6 +17,7 @@ public class IsletopiaInfrastructure {
             new RespawnPoint();
             new I18n();
             new TempServer();
+            new StaticMap();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

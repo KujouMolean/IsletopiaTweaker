@@ -28,23 +28,35 @@ public class VisitMenu implements Listener {
     private final Player player;
     private final Inventory inventory;
     private final List<String> onlinePlayers = new ArrayList<>();
+    private final int page;
 
     public VisitMenu(Player player) {
-        this.player = player;
+        this(player, ServerInfoUpdater.getOnlinePlayers(), 0);
+    }
+
+    public VisitMenu(Player player, List<String> onlinePlayers, int page) {
         inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.visit.title", player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        this.player = player;
+        this.onlinePlayers.addAll(onlinePlayers);
+        this.onlinePlayers.sort(Comparator.comparing(String::toLowerCase));
+        if (page > onlinePlayers.size() / 52) {
+            page = 0;
+        }
+        this.page = page;
     }
+
 
     public void open() {
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        onlinePlayers.addAll(ServerInfoUpdater.getOnlinePlayers());
-        onlinePlayers.sort(Comparator.comparing(String::toLowerCase));
-        for (int i = 0; i < onlinePlayers.size() && i < inventory.getSize() - 1; i++) {
-            inventory.setItem(i, HeadUtils.getSkull(onlinePlayers.get(i)));
+        for (int i = 0; page * 52 + i < onlinePlayers.size() && i < inventory.getSize() - 2; i++) {
+            inventory.setItem(i, HeadUtils.getSkull(onlinePlayers.get(page * 52 + i)));
         }
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, I18n.getMessage("menu.visit.nextPage", player));
+        inventory.setItem(inventory.getSize() - 2, next.build());
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.visit.return", player));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
@@ -66,14 +78,20 @@ public class VisitMenu implements Listener {
         if (slot < 0) {
             return;
         }
-        if (slot < onlinePlayers.size()) {
+        if (slot == inventory.getSize() - 2) {
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new VisitMenu(player, onlinePlayers, page + 1).open());
+            return;
+        }
+        if (slot == inventory.getSize() - 1) {
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerMenu(player).open());
+            return;
+        }
+        if (slot < 52 && page * 52 + slot < onlinePlayers.size()) {
             ItemStack item = inventory.getItem(slot);
             ItemMeta itemMeta = item.getItemMeta();
             itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
             item.setItemMeta(itemMeta);
-            player.performCommand("visit " + onlinePlayers.get(slot));
-        } else if (slot == inventory.getSize() - 1) {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerMenu(player).open());
+            player.performCommand("visit " + onlinePlayers.get(page * 52 + slot));
         }
 
     }

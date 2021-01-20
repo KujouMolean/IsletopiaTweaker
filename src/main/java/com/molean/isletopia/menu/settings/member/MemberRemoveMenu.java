@@ -2,9 +2,9 @@ package com.molean.isletopia.menu.settings.member;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
-import com.molean.isletopia.infrastructure.individual.I18n;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
@@ -18,22 +18,48 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class MemberRemoveMenu implements Listener {
 
     private final Player player;
     private final Inventory inventory;
     private final List<String> members = new ArrayList<>();
+    private final int page;
+
+    private static List<String> getPlayer(Player player) {
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        HashSet<UUID> trusted = currentPlot.getTrusted();
+        List<String> members = new ArrayList<>();
+        for (UUID uuid : trusted) {
+            String single = PlotSquared.get().getImpromptuUUIDPipeline().getSingle(uuid, 50000);
+            members.add(single);
+        }
+        return members;
+    }
 
     public MemberRemoveMenu(Player player) {
+        this(player, getPlayer(player), 0);
+    }
+
+    public MemberRemoveMenu(Player player, List<String> members, int page) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.settings.member.remove.title",player));
+        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.settings.member.remove.title", player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        this.members.addAll(members);
+        this.members.sort(Comparator.comparing(String::toLowerCase));
+
+        if (page > members.size() / 52) {
+            page = 0;
+        }
+        if (members.size() % 52 == 0 && page == members.size() / 52) {
+            page = 0;
+        }
+        this.page = page;
+
     }
 
     public void open() {
@@ -41,23 +67,13 @@ public class MemberRemoveMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        Plot currentPlot = PlotUtils.getCurrentPlot(player);
-        if (!currentPlot.getOwner().equals(player.getUniqueId())) {
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner",player));
-            });
-            return;
-        }
-        HashSet<UUID> trusted = currentPlot.getTrusted();
-        for (UUID uuid : trusted) {
-            String single = PlotSquared.get().getImpromptuUUIDPipeline().getSingle(uuid, 50000);
-            members.add(single);
-        }
 
-        for (int i = 0; i < members.size() && i < inventory.getSize() - 1; i++) {
-            inventory.setItem(i, HeadUtils.getSkull(members.get(i)));
+        for (int i = 0; i + page * 52 < members.size() && i < inventory.getSize() - 2; i++) {
+            inventory.setItem(i, HeadUtils.getSkull(members.get(i + page * 52)));
         }
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.member.remove.return",player));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, I18n.getMessage("menu.visit.nextPage", player));
+        inventory.setItem(inventory.getSize() - 2, next.build());
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.member.remove.return", player));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
@@ -79,22 +95,32 @@ public class MemberRemoveMenu implements Listener {
         if (slot < 0) {
             return;
         }
+        if (slot == inventory.getSize() - 2) {
+            ItemStack item = inventory.getItem(slot);
+            assert item != null;
+            ItemMeta itemMeta = item.getItemMeta();
+            itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
+            item.setItemMeta(itemMeta);
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player, members, page + 1).open());
+            return;
+        }
         if (slot == inventory.getSize() - 1) {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberMenu(player).open());
             return;
         }
-        if (slot >= members.size()) {
-            return;
+        
+        if (slot < members.size() && slot < 52) {
+            Plot currentPlot = PlotUtils.getCurrentPlot(player);
+            if (currentPlot.getOwner().equals(player.getUniqueId())) {
+                currentPlot.removeTrusted(ServerInfoUpdater.getUUID(members.get(slot + page * 52)));
+                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player).open());
+            } else {
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner", player));
+                });
+            }
         }
-        Plot currentPlot = PlotUtils.getCurrentPlot(player);
-        if (currentPlot.getOwner().equals(player.getUniqueId())) {
-            currentPlot.removeTrusted(ServerInfoUpdater.getUUID(members.get(slot)));
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player).open());
-        } else {
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner",player));
-            });
-        }
+
 
     }
 

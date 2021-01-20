@@ -2,10 +2,7 @@ package com.molean.isletopia.bungee;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.admin.individual.UniversalTeleportCommand;
-import com.molean.isletopia.bungee.individual.PlayerMessageHandler;
-import com.molean.isletopia.bungee.individual.UniversalTeleportHandler;
-import com.molean.isletopia.bungee.individual.UniversalVisitHandler;
-import com.molean.isletopia.bungee.individual.VisitNotificationHandler;
+import com.molean.isletopia.bungee.individual.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
@@ -19,6 +16,7 @@ public class IsletopiaBungee {
             new UniversalVisitHandler();
             new UniversalTeleportHandler();
             new VisitNotificationHandler();
+            new SkinValueHandler();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia bungee failed!");

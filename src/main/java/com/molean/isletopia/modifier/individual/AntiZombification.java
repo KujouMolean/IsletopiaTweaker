@@ -10,9 +10,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
 public class AntiZombification implements Listener {
-    public AntiZombification(){
+    public AntiZombification() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
 
     @EventHandler
     public void MobSpawn(EntitySpawnEvent event) {

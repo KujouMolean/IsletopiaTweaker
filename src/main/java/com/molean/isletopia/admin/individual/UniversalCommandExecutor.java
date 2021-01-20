@@ -30,7 +30,9 @@ public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
             for (String key : keys) {
                 String value = UniversalParameter.getParameter(serverName, key);
                 if (value.startsWith("cmd")) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), value.substring(3));
+                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), value.substring(3));
+                    });
                     UniversalParameter.unsetParameter(serverName, key);
                 }
             }
@@ -48,7 +50,7 @@ public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
         String serverName = args[0];
         StringBuilder cmd = new StringBuilder();
         for (int i = 1; i < args.length; i++) {
-            cmd.append(args[i]);
+            cmd.append(args[i]).append(" ");
         }
         switch (serverName) {
             case "servers": {

@@ -88,6 +88,7 @@ public class ParameterDao {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, playerName);
             preparedStatement.setString(2, key);
+            preparedStatement.executeUpdate();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

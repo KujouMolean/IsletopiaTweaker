@@ -13,24 +13,25 @@ import com.plotsquared.core.plot.PlotId;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PlotUtils {
     private static final PlotAPI plotAPI = new PlotAPI();
 
     public static Plot getCurrentPlot(Player player) {
         @SuppressWarnings("all") PlotPlayer plotPlayer = plotAPI.wrapPlayer(player.getUniqueId());
+        if (plotPlayer == null) return null;
         return plotPlayer.getCurrentPlot();
     }
+
+
 
     @SuppressWarnings("all")
     public static boolean hasCurrentPlotPermission(Player player) {
         Plot currentPlot = getCurrentPlot(player);
-        if (currentPlot == null)
+        if (currentPlot == null) {
             return false;
+        }
         List<UUID> builder = new ArrayList<>();
         UUID owner = currentPlot.getOwner();
         builder.add(owner);
@@ -68,7 +69,7 @@ public class PlotUtils {
 
     public static void localServerTeleport(Player source, String target) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            @SuppressWarnings("all")PlotPlayer sourcePlayer = plotAPI.wrapPlayer(source.getUniqueId());
+            @SuppressWarnings("all") PlotPlayer sourcePlayer = plotAPI.wrapPlayer(source.getUniqueId());
             Plot plot = getPlot(target);
             plot.teleportPlayer(sourcePlayer, TeleportCause.PLUGIN, aBoolean -> {
                 String localServerName = I18n.getLocalServerName(source);

@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class FavoriteVisitMenu implements Listener {
@@ -26,11 +27,27 @@ public class FavoriteVisitMenu implements Listener {
     private final Player player;
     private final Inventory inventory;
     private final List<String> collections = new ArrayList<>();
+    private final int page;
 
     public FavoriteVisitMenu(Player player) {
-        this.player = player;
-        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.favorite.visit.title", player));
+        this(player, UniversalParameter.getParameterAsList(player.getName(), "collection"), 0);
+    }
+
+    public FavoriteVisitMenu(Player player, List<String> collections, int page) {
+
+        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.favorite.remove.title", player));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        this.player = player;
+        this.collections.addAll(collections);
+        this.collections.sort(Comparator.comparing(String::toLowerCase));
+        if (page > collections.size() / 52) {
+            page = 0;
+        }
+        if (collections.size() % 52 == 0 && page == collections.size() / 52) {
+            page = 0;
+        }
+        this.page = page;
+
     }
 
     public void open() {
@@ -38,10 +55,11 @@ public class FavoriteVisitMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        collections.addAll(UniversalParameter.getParameterAsList(player.getName(), "collection"));
-        for (int i = 0; i < collections.size() && i < inventory.getSize() - 1; i++) {
-            inventory.setItem(i, HeadUtils.getSkull(collections.get(i)));
+        for (int i = 0; i+page*52 < collections.size() && i < inventory.getSize() - 2; i++) {
+            inventory.setItem(i, HeadUtils.getSkull(collections.get(i+page*52)));
         }
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, I18n.getMessage("menu.visit.nextPage", player));
+        inventory.setItem(inventory.getSize() - 2, next.build());
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.favorite.visit.return", player));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
@@ -63,15 +81,21 @@ public class FavoriteVisitMenu implements Listener {
         if (slot < 0) {
             return;
         }
-        if (slot < collections.size()) {
+        if (slot == inventory.getSize() - 2) {
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteVisitMenu(player, collections, page + 1).open());
+            return;
+        }
+        if (slot == inventory.getSize() - 1) {
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteMenu(player).open());
+            return;
+        }
+        if (slot < collections.size()&&slot<52) {
             ItemStack item = inventory.getItem(slot);
             assert item != null;
             ItemMeta itemMeta = item.getItemMeta();
             itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
             item.setItemMeta(itemMeta);
-            player.performCommand("visit " + collections.get(slot));
-        } else if (slot == inventory.getSize() - 1) {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteMenu(player).open());
+            player.performCommand("visit " + collections.get(slot + page * 52));
         }
 
     }
