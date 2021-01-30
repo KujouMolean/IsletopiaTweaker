@@ -9,6 +9,7 @@ import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.I18n;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.io.ByteArrayOutputStream;
@@ -84,9 +85,32 @@ public class BungeeUtils {
             DataOutputStream msgout = new DataOutputStream(msgbytes);
             msgout.writeUTF(player.getName());
             msgout.writeUTF(message);
+            msgout.writeUTF("server");
             out.writeShort(msgbytes.toByteArray().length);
             out.write(msgbytes.toByteArray());
             player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public static void sendSoundToPlayer(String target, Sound sound) {
+        try {
+            @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("ForwardToPlayer");
+            out.writeUTF(target);
+            out.writeUTF("sound");
+            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+            DataOutputStream msgout = new DataOutputStream(msgbytes);
+            msgout.writeUTF(target);
+            msgout.writeUTF(sound.name());
+            out.writeShort(msgbytes.toByteArray().length);
+            out.write(msgbytes.toByteArray());
+            Player first = Iterables.getFirst(Bukkit.getServer().getOnlinePlayers(), null);
+            if (first == null) {
+                return;
+            }
+            first.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
         } catch (IOException exception) {
             exception.printStackTrace();
         }

@@ -18,6 +18,7 @@ public class IsletopiaInfrastructure {
             new I18n();
             new TempServer();
             new StaticMap();
+            new AutoShutDown();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

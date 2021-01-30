@@ -26,6 +26,9 @@ public final class IsletopiaTweakers extends JavaPlugin {
     public void onEnable() {
         isletopiaTweakers = this;
         ConfigUtils.setupConfig(this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
+
         new IsletopiaInfrastructure();
         new IsletopiaModifier();
         new IsletopiaDistributeSystem();
@@ -36,8 +39,7 @@ public final class IsletopiaTweakers extends JavaPlugin {
         new IsletopiaStatistics();
         new IsletopiaAdmin();
 
-//        new IsletopiaStory();
-        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
     }
 
     @Override
