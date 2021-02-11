@@ -38,8 +38,6 @@ public final class IsletopiaTweakers extends JavaPlugin {
         new IsletopiaBungee();
         new IsletopiaStatistics();
         new IsletopiaAdmin();
-
-
     }
 
     @Override

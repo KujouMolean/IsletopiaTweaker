@@ -3,16 +3,11 @@ package com.molean.isletopia.bungee.individual;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 
 public class PlaySoundHandler implements PluginMessageListener {
 
@@ -31,8 +26,6 @@ public class PlaySoundHandler implements PluginMessageListener {
             if (target == null) return;
             Sound sound = Sound.valueOf(soundName);
             target.playSound(target.getLocation(), sound, 1.0f, 1.0f);
-
         }
-
     }
 }

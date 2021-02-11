@@ -29,7 +29,6 @@ public class UniversalTeleportHandler implements PluginMessageListener, Listener
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            // Check if player is going to visit other.
             Player sourcePlayer = event.getPlayer();
             if (teleports.containsKey(sourcePlayer.getName())) {
                 String target = teleports.get(sourcePlayer.getName());

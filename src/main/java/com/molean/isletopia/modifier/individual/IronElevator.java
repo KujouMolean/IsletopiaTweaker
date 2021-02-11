@@ -2,17 +2,12 @@ package com.molean.isletopia.modifier.individual;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.utils.Direction;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.Rail;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class IronElevator implements Listener {
 
@@ -36,9 +31,12 @@ public class IronElevator implements Listener {
             Block block = world.getBlockAt(location);
             if (block.getType().equals(Material.IRON_BLOCK)) {
                 location.setY(i + 1);
-                event.getPlayer().teleport(location);
-                world.playSound(location, Sound.ENTITY_IRON_GOLEM_ATTACK, 1.0f, 1.0f);
-                break;
+                Block blockAt = world.getBlockAt(location);
+                if (!blockAt.getType().isSolid() && !blockAt.getRelative(BlockFace.UP).getType().isSolid()) {
+                    event.getPlayer().teleport(location);
+                    world.playSound(location, Sound.ENTITY_IRON_GOLEM_ATTACK, 1.0f, 1.0f);
+                    break;
+                }
             }
         }
     }
@@ -56,9 +54,12 @@ public class IronElevator implements Listener {
             Block block = world.getBlockAt(location);
             if (block.getType().equals(Material.IRON_BLOCK)) {
                 location.setY(i + 1);
-                event.getPlayer().teleport(location);
-                world.playSound(location, Sound.ENTITY_IRON_GOLEM_ATTACK, 1.0f, 1.0f);
-                break;
+                Block blockAt = world.getBlockAt(location);
+                if (!blockAt.getType().isSolid() && !blockAt.getRelative(BlockFace.UP).getType().isSolid()) {
+                    event.getPlayer().teleport(location);
+                    world.playSound(location, Sound.ENTITY_IRON_GOLEM_ATTACK, 1.0f, 1.0f);
+                    break;
+                }
             }
         }
     }

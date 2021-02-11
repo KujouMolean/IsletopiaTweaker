@@ -14,8 +14,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -109,7 +107,6 @@ public class NewbieOperation implements Listener {
             HeadUtils.getSkull(event.getPlayer().getName());
         });
     }
-
 
 
     public void placeItem(PlayerInventory inventory) {

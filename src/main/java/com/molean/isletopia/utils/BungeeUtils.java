@@ -94,6 +94,27 @@ public class BungeeUtils {
         }
     }
 
+    public static void updateIgnores(Player player, String ignores) {
+        if (ignores == null) {
+            ignores = "";
+        }
+        try {
+            @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Forward");
+            out.writeUTF("BungeeCord");
+            out.writeUTF("ignores");
+            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
+            DataOutputStream msgout = new DataOutputStream(msgbytes);
+            msgout.writeUTF(player.getName());
+            msgout.writeUTF(ignores);
+            out.writeShort(msgbytes.toByteArray().length);
+            out.write(msgbytes.toByteArray());
+            player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+
     public static void sendSoundToPlayer(String target, Sound sound) {
         try {
             @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
@@ -117,7 +138,6 @@ public class BungeeUtils {
     }
 
     public static void universalTeleport(Player sourcePlayer, String target) {
-
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String source = sourcePlayer.getName();
             String targetServer = null;

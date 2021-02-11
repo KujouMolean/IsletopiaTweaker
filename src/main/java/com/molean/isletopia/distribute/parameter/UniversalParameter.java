@@ -5,6 +5,7 @@ import com.molean.isletopia.database.ParameterDao;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UniversalParameter {
     public static String getParameter(String player, String key) {
@@ -32,6 +33,7 @@ public class UniversalParameter {
             List<String> strings = Arrays.asList(before.split(","));
             List<String> newStrings = new ArrayList<>(strings);
             newStrings.add(value);
+            newStrings = newStrings.stream().distinct().collect(Collectors.toList());
             String join = String.join(",", newStrings);
             ParameterDao.set(player, key, join);
         }

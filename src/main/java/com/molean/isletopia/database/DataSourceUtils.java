@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 public class DataSourceUtils {
     private static final Map<String, MysqlConnectionPoolDataSource> dataSourceMap = new HashMap<>();
@@ -18,7 +17,8 @@ public class DataSourceUtils {
     public static Connection getConnection() {
         return getConnection("minecraft");
     }
-    public static Connection getConnection(String server)  {
+
+    public static Connection getConnection(String server) {
         if (!dataSourceMap.containsKey(server)) {
             MysqlConnectionPoolDataSource dataSource = new MysqlConnectionPoolDataSource();
             Properties properties = null;
@@ -30,7 +30,7 @@ public class DataSourceUtils {
                 e.printStackTrace();
             }
 
-            String url = properties.getProperty("url").replace("%server%",server);
+            String url = properties.getProperty("url").replace("%server%", server);
             String username = properties.getProperty("username");
             String password = properties.getProperty("password");
             dataSource.setUrl(url);

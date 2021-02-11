@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -49,6 +48,24 @@ public class HeadUtils {
             } catch (IllegalArgumentException | NoSuchFieldException | SecurityException | IllegalAccessException error) {
                 error.printStackTrace();
             }
+        }
+        head.setItemMeta(headMeta);
+        return head;
+    }
+
+    public static ItemStack getSkullFromValue(String name, String value) {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+        assert headMeta != null;
+        headMeta.setDisplayName("§f" + name);
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        profile.getProperties().put("textures", new Property("textures", value));
+        try {
+            Field profileField = headMeta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(headMeta, profile);
+        } catch (IllegalArgumentException | NoSuchFieldException | SecurityException | IllegalAccessException error) {
+            error.printStackTrace();
         }
         head.setItemMeta(headMeta);
         return head;

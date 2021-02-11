@@ -15,11 +15,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class UniversalPlayerSender implements CommandExecutor, TabCompleter {
     public UniversalPlayerSender() {
-        Bukkit.getPluginCommand("gsend").setTabCompleter(this);
-        Bukkit.getPluginCommand("gsend").setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("gsend")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("gsend")).setExecutor(this);
     }
 
     @Override

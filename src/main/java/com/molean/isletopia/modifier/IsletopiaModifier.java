@@ -21,10 +21,12 @@ public class IsletopiaModifier {
             new DeepOceanGuardian();
             new AntiZombification();
             new DragonHeadExtractBreath();
-//            new EquipmentWeaker();
-//            new AdvancedDispenser();
+            new EquipmentWeaker();
+            new PlayerHeadDrop();
+            new PreventRenameHead();
+            new AdvancedDispenser();
 //            new HopperFilter();
-        }catch (Exception exception){
+        } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");
         }

@@ -32,3 +32,5 @@ commands:
   isletopia: { }
   temp: { }
   staticmap: { }
+  ignore: { }
+  mobcap: { }
