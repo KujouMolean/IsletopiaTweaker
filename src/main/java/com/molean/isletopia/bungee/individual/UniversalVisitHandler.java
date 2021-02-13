@@ -52,7 +52,9 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
                 if (sourcePlayer != null) {
                     PlotUtils.localServerTeleport(sourcePlayer, target);
                 } else {
-                    visits.put(source, target);
+                    synchronized (visits) {
+                        visits.put(source, target);
+                    }
                 }
 
             } catch (IOException exception) {
@@ -67,10 +69,13 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
 
             // Check if player is going to visit other.
             Player player = event.getPlayer();
-            if (visits.containsKey(player.getName())) {
-                PlotUtils.localServerTeleport(player, visits.get(player.getName()));
-                visits.remove(player.getName());
+            synchronized (visits) {
+                if (visits.containsKey(player.getName())) {
+                    PlotUtils.localServerTeleport(player, visits.get(player.getName()));
+                    visits.remove(player.getName());
+                }
             }
+
 
             // If player's island has offline visitor, send the list to her and clear.
             List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");

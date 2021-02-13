@@ -11,6 +11,7 @@ import com.molean.isletopia.protect.IsletopiaProtect;
 import com.molean.isletopia.statistics.IsletopiaStatistics;
 import com.molean.isletopia.utils.ConfigUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,8 +28,6 @@ public final class IsletopiaTweakers extends JavaPlugin {
         isletopiaTweakers = this;
         ConfigUtils.setupConfig(this);
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-
-
         new IsletopiaInfrastructure();
         new IsletopiaModifier();
         new IsletopiaDistributeSystem();

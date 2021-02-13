@@ -25,6 +25,7 @@ public class IsletopiaModifier {
             new PlayerHeadDrop();
             new PreventRenameHead();
             new AdvancedDispenser();
+//            new TestListener();
 //            new HopperFilter();
         } catch (Exception exception) {
             exception.printStackTrace();

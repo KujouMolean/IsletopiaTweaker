@@ -30,6 +30,8 @@ import java.util.*;
 public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
 
     private static final Map<EntityType, Integer> map = new HashMap<>();
+    private static final List<EntityType> ignoredType = new ArrayList<>();
+    private static final List<CreatureSpawnEvent.SpawnReason> ignoredReason = new ArrayList<>();
 
     public static void setMobCap(EntityType entityType, Integer integer) {
         map.put(entityType, integer);
@@ -62,6 +64,9 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
 
         setMobCap(EntityType.MUSHROOM_COW, 15);
 
+        ignoredType.add(EntityType.ITEM_FRAME);
+        ignoredReason.add(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
+
     }
 
 
@@ -72,7 +77,11 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         if (plot == null) {
             return;
         }
-        if (event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT)) {
+        if (ignoredReason.contains(event.getSpawnReason())) {
+            return;
+        }
+        if (countEntities(plot, null) >= 512) {
+            event.setCancelled(true);
             return;
         }
         EntityType entityType = event.getEntity().getType();
@@ -83,8 +92,14 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         }
     }
 
-    public static int countEntities(@NotNull Plot plot, @NotNull EntityType entityType) {
-        String typeString = entityType.toString();
+    public static int countEntities(@NotNull Plot plot, @Nullable EntityType entityType) {
+        String typeString;
+        if (entityType != null) {
+            typeString = entityType.toString();
+        } else {
+            typeString = "all";
+        }
+
         Integer prevCount = (Integer) plot.getMeta("Isletopia-Cap-" + typeString);
         Long prevTime = (Long) plot.getMeta("Isletopia-Cap" + typeString + "-Time");
         if (prevTime != null && System.currentTimeMillis() - prevTime < 1e3 && prevCount != null) {
@@ -114,9 +129,16 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
 
         for (Chunk chunk : chunks) {
             for (Entity chunkEntity : chunk.getEntities()) {
-                if (chunkEntity.getType() == entityType) {
-                    count++;
+                if (entityType != null) {
+                    if (chunkEntity.getType() == entityType) {
+                        count++;
+                    }
+                } else {
+                    if (!ignoredType.contains(chunkEntity.getType())) {
+                        count++;
+                    }
                 }
+
             }
         }
         plot.setMeta("Isletopia-Cap-" + typeString, count);
@@ -133,20 +155,29 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         }
         ArrayList<Pair<EntityType, Integer>> pairs = new ArrayList<>();
 
-        int total = 0;
+        int total = countEntities(currentPlot, null);
         for (EntityType entityType : EntityType.values()) {
+            if (ignoredType.contains(entityType)) {
+                continue;
+            }
             int count = countEntities(currentPlot, entityType);
             if (count == 0) {
                 continue;
             }
-            total += count;
             pairs.add(new Pair<>(entityType, count));
         }
+
         pairs.sort((o1, o2) -> o2.getValue() - o1.getValue());
         player.sendMessage(String.format("§a>§e%s §" + (total < 512 ? "a" : "c") + "%s", "总计", total));
         for (int i = 0; i < 10 && i < pairs.size(); i++) {
             Pair<EntityType, Integer> pair = pairs.get(i);
-            String name = LangUtils.get("entity.minecraft." + pair.getKey().name().toLowerCase());
+            String internalName = pair.getKey().getName();
+            String name;
+            if (internalName != null) {
+                name = LangUtils.get("entity.minecraft." + internalName.toLowerCase());
+            } else {
+                name = "未知";
+            }
             String c = (map.get(pair.getKey()) != null && map.get(pair.getKey()) <= pair.getValue()) ? "c" : "a";
             String message = String.format("§a>§e%s §" + c + "%s", name, pair.getValue());
             player.sendMessage(message);

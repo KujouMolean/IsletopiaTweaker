@@ -1,0 +1,83 @@
+{
+  "stats": {
+    "minecraft:killed": {
+      "minecraft:zoglin": 1
+    },
+    "minecraft:killed_by": {
+      "minecraft:zoglin": 3
+    },
+    "minecraft:used": {
+      "minecraft:redstone_torch": 54,
+      "minecraft:sticky_piston": 5,
+      "minecraft:piston": 31,
+      "minecraft:lever": 14,
+      "minecraft:wooden_hoe": 9,
+      "minecraft:diamond_pickaxe": 13,
+      "minecraft:dropper": 1,
+      "minecraft:grass_block": 20,
+      "minecraft:dispenser": 12,
+      "minecraft:redstone": 52,
+      "minecraft:diamond_hoe": 2,
+      "minecraft:map": 2,
+      "minecraft:jungle_log": 1,
+      "minecraft:stone": 64,
+      "minecraft:beacon": 1,
+      "minecraft:soul_sand": 2,
+      "minecraft:bow": 2,
+      "minecraft:hopper": 2,
+      "minecraft:carrot": 1,
+      "minecraft:warped_button": 4
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 336,
+      "minecraft:damage_taken": 780,
+      "minecraft:sprint_one_cm": 48133,
+      "minecraft:inspect_dropper": 25,
+      "minecraft:walk_one_cm": 143677,
+      "minecraft:mob_kills": 1,
+      "minecraft:drop": 1,
+      "minecraft:inspect_hopper": 12,
+      "minecraft:damage_dealt": 368,
+      "minecraft:interact_with_beacon": 9,
+      "minecraft:fly_one_cm": 170320,
+      "minecraft:crouch_one_cm": 2666,
+      "minecraft:play_one_minute": 253809,
+      "minecraft:deaths": 3,
+      "minecraft:sneak_time": 2053,
+      "minecraft:jump": 601,
+      "minecraft:leave_game": 92,
+      "minecraft:time_since_death": 316,
+      "minecraft:fall_one_cm": 211,
+      "minecraft:inspect_dispenser": 165
+    },
+    "minecraft:dropped": {
+      "minecraft:diamond_pickaxe": 1
+    },
+    "minecraft:mined": {
+      "minecraft:stone": 5
+    },
+    "minecraft:picked_up": {
+      "minecraft:cocoa_beans": 2,
+      "minecraft:stone": 767,
+      "minecraft:sweet_berries": 6,
+      "minecraft:brown_mushroom": 4,
+      "minecraft:beacon": 2,
+      "minecraft:potato": 4,
+      "minecraft:warped_button": 2,
+      "minecraft:carrot": 2,
+      "minecraft:redstone": 14,
+      "minecraft:pumpkin_seeds": 1,
+      "minecraft:rotten_flesh": 5,
+      "minecraft:beetroot_seeds": 1,
+      "minecraft:wheat_seeds": 13,
+      "minecraft:lever": 5,
+      "minecraft:rose_bush": 2,
+      "minecraft:redstone_torch": 12,
+      "minecraft:oak_sapling": 746,
+      "minecraft:birch_sapling": 64,
+      "minecraft:cobblestone": 15,
+      "minecraft:diamond_pickaxe": 3
+    }
+  },
+  "DataVersion": 2584
+}
