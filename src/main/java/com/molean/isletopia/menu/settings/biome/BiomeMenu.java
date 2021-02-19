@@ -3,7 +3,7 @@ package com.molean.isletopia.menu.settings.biome;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.settings.SettingsMenu;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import com.sk89q.worldedit.world.biome.BiomeTypes;
@@ -37,7 +37,7 @@ public class BiomeMenu implements Listener {
     public BiomeMenu(Player player, int page) {
         this.player = player;
         this.page = page;
-        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.settings.biome.title", player));
+        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.settings.biome.title"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -50,7 +50,7 @@ public class BiomeMenu implements Listener {
         Biome biome = player.getLocation().getBlock().getBiome();
 
         for (int i = page * 52; i < biomes.size() && i - page * 52 < inventory.getSize() - 2; i++) {
-            LocalBiome localBiome = I18n.getBiome(biomes.get(i).name().toUpperCase(), player);
+            LocalBiome localBiome = MessageUtils.getBiome(biomes.get(i).name().toUpperCase());
             if (localBiome.getName() == null) {
                 localBiome.setName("未知");
             }
@@ -59,25 +59,25 @@ public class BiomeMenu implements Listener {
             }
             ItemStackSheet itemStackSheet = new ItemStackSheet(localBiome.getIcon(), "§f" + localBiome.getName());
             if (!localBiome.getCreatures().isEmpty()) {
-                itemStackSheet.addLore(I18n.getMessage("menu.settings.biome.creature", player) + String.join(", ", localBiome.getCreatures()));
+                itemStackSheet.addLore(MessageUtils.getMessage("menu.settings.biome.creature") + String.join(", ", localBiome.getCreatures()));
             }
             if (!localBiome.getEnvironment().isEmpty()) {
-                itemStackSheet.addLore(I18n.getMessage("menu.settings.biome.environment", player) + String.join(", ", localBiome.getEnvironment()));
+                itemStackSheet.addLore(MessageUtils.getMessage("menu.settings.biome.environment") + String.join(", ", localBiome.getEnvironment()));
             }
             if (biome.name().equalsIgnoreCase(localBiome.getId())) {
                 itemStackSheet.addItemFlag(ItemFlag.HIDE_ENCHANTS);
                 itemStackSheet.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
                 String display = itemStackSheet.getDisplay();
-                itemStackSheet.setDisplay(I18n.getMessage("menu.settings.biome.current", player) + display);
+                itemStackSheet.setDisplay(MessageUtils.getMessage("menu.settings.biome.current") + display);
             }
             inventory.setItem(i - page * 52, itemStackSheet.build());
         }
 
 
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, I18n.getMessage("menu.settings.biome.nextPage", player));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.settings.biome.nextPage"));
         inventory.setItem(inventory.getSize() - 2, next.build());
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.biome.return", player));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.biome.return"));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory), 1);
@@ -113,7 +113,7 @@ public class BiomeMenu implements Listener {
         }
 
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
-        LocalBiome localBiome = I18n.getBiome(biomes.get(slot + page * 52).name().toUpperCase(), player);
+        LocalBiome localBiome = MessageUtils.getBiome(biomes.get(slot + page * 52).name().toUpperCase());
         if (localBiome.getName() == null) {
             localBiome.setName("未知");
         }
@@ -121,13 +121,13 @@ public class BiomeMenu implements Listener {
             localBiome.setIcon(Material.PLAYER_HEAD);
         }
         if (currentPlot.getOwner().equals(player.getUniqueId())) {
-            player.sendMessage(I18n.getMessage("menu.settings.biome.try", player));
+            player.sendMessage(MessageUtils.getMessage("menu.settings.biome.try"));
             currentPlot.setBiome(BiomeTypes.get(localBiome.getId().toLowerCase()), () -> {
-                player.sendMessage(I18n.getMessage("menu.settings.biome.ok", player) + localBiome.getName() + ".");
+                player.sendMessage(MessageUtils.getMessage("menu.settings.biome.ok") + localBiome.getName() + ".");
             });
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner", player));
+                player.kickPlayer(MessageUtils.getMessage("error.menu.settings.member.non-owner"));
             });
         }
         player.closeInventory();

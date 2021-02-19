@@ -18,8 +18,8 @@ import java.util.Objects;
 
 public class UniversalTeleportCommand implements CommandExecutor, TabCompleter, Listener {
     public UniversalTeleportCommand() {
-        Objects.requireNonNull(Bukkit.getPluginCommand("tp")).setExecutor(this);
-        Objects.requireNonNull(Bukkit.getPluginCommand("tp")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("gtp")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("gtp")).setTabCompleter(this);
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 

@@ -3,7 +3,7 @@ package com.molean.isletopia.menu.settings.member;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.settings.SettingsMenu;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -22,7 +22,7 @@ public class MemberMenu implements Listener {
 
     public MemberMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 9, I18n.getMessage("menu.settings.member.title",player));
+        inventory = Bukkit.createInventory(player, 9, MessageUtils.getMessage("menu.settings.member.title"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -32,13 +32,13 @@ public class MemberMenu implements Listener {
             inventory.setItem(i, itemStackSheet.build());
         }
 
-        ItemStackSheet add = new ItemStackSheet(Material.TORCH, I18n.getMessage("menu.settings.member.add",player));
+        ItemStackSheet add = new ItemStackSheet(Material.TORCH, MessageUtils.getMessage("menu.settings.member.add"));
         inventory.setItem(0, add.build());
 
-        ItemStackSheet delete = new ItemStackSheet(Material.LEVER, I18n.getMessage("menu.settings.member.remove",player));
+        ItemStackSheet delete = new ItemStackSheet(Material.LEVER, MessageUtils.getMessage("menu.settings.member.remove"));
         inventory.setItem(2, delete.build());
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.member.return",player));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.member.return"));
         inventory.setItem(8, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }

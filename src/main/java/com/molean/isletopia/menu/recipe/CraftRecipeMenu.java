@@ -2,7 +2,7 @@ package com.molean.isletopia.menu.recipe;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.ItemStackSheet;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ public class CraftRecipeMenu implements Listener {
         this.fatherCommand = fatherCommand;
         this.player = player;
         this.localRecipe = localRecipe;
-        inventory = Bukkit.createInventory(player, 36, I18n.getMessage("menu.recipe.title",player));
+        inventory = Bukkit.createInventory(player, 36, MessageUtils.getMessage("menu.recipe.title"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
     @SuppressWarnings("all")
@@ -34,7 +34,7 @@ public class CraftRecipeMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.recipe.return",player));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.recipe.return"));
         for (int i = 27; i < 36; i++) {
             inventory.setItem(i, father.build());
         }

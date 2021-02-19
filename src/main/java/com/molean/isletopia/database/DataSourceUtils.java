@@ -1,6 +1,6 @@
 package com.molean.isletopia.database;
 
-import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
+import com.alibaba.druid.pool.DruidDataSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class DataSourceUtils {
-    private static final Map<String, MysqlConnectionPoolDataSource> dataSourceMap = new HashMap<>();
+    private static final Map<String, DruidDataSource> dataSourceMap = new HashMap<>();
 
 
     public static Connection getConnection() {
@@ -20,7 +20,7 @@ public class DataSourceUtils {
 
     public static Connection getConnection(String server) {
         if (!dataSourceMap.containsKey(server)) {
-            MysqlConnectionPoolDataSource dataSource = new MysqlConnectionPoolDataSource();
+            DruidDataSource dataSource = new DruidDataSource();
             Properties properties = null;
             try {
                 InputStream inputStream = DataSourceUtils.class.getClassLoader().getResourceAsStream("mysql.properties");
@@ -34,7 +34,7 @@ public class DataSourceUtils {
             String username = properties.getProperty("username");
             String password = properties.getProperty("password");
             dataSource.setUrl(url);
-            dataSource.setUser(username);
+            dataSource.setUsername(username);
             dataSource.setPassword(password);
             dataSourceMap.put(server, dataSource);
         }

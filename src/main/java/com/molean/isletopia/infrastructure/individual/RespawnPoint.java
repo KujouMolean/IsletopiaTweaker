@@ -13,8 +13,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RespawnPoint implements Listener {
 
@@ -23,7 +23,7 @@ public class RespawnPoint implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    public static final Map<PlotId, Location> cache = new HashMap<>();
+    public static final Map<PlotId, Location> cache = new ConcurrentHashMap<>();
 
 
     private static void cacheRespawnPointAsync(Player player) {
@@ -47,7 +47,7 @@ public class RespawnPoint implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), (task) -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), (task) -> {
             if (!player.isOnline()) {
                 task.cancel();
             }
@@ -64,20 +64,14 @@ public class RespawnPoint implements Listener {
     public void onRespawn(PlayerRespawnEvent event) {
         Plot currentPlot = PlotUtils.getCurrentPlot(event.getPlayer());
 
+        assert currentPlot != null;
+
         if (cache.containsKey(currentPlot.getId())) {
             event.setRespawnLocation(cache.get(currentPlot.getId()));
             return;
         }
-
-        com.plotsquared.core.location.Location home = currentPlot.getHomeSynchronous();
-        Location location = new Location(
-                event.getPlayer().getWorld(),
-                home.getX() + 0.5,
-                home.getY(),
-                home.getZ() + 0.5,
-                home.getYaw(),
-                home.getPitch());
-        cache.put(currentPlot.getId(), location);
-        event.setRespawnLocation(location);
+        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            event.getPlayer().performCommand("is");
+        });
     }
 }

@@ -7,8 +7,8 @@ softdepend:
 denpend:
   - PlotSquared
 commands:
-  tp:
-    permission: isletopia.tp
+  gtp:
+    permission: isletopia.gtp
   gsend:
     permission: isletopia.gsend
   gcmd:
@@ -19,9 +19,8 @@ commands:
   help: { }
   visit: { }
   issue: { }
-  parameter: { }
-  parameterAdmin:
-    permission: isletopia.parameteradmin
+  parameter:
+    permission: isletopia.parameter
   menu: { }
   tell: { }
   msg: { }
@@ -33,4 +32,6 @@ commands:
   temp: { }
   staticmap: { }
   ignore: { }
+  unignore: { }
   mobcap: { }
+  import: { }

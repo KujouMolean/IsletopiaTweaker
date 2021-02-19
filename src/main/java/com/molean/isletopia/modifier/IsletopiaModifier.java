@@ -11,7 +11,7 @@ public class IsletopiaModifier {
         try {
             new RichWanderingTrader();
             new MoreRecipe();
-            new WoodenItemBooster();
+            new RemoveUnbreakable();
             new FertilizeFlower();
             new HungerKeeper();
             new IronElevator();
@@ -25,7 +25,9 @@ public class IsletopiaModifier {
             new PlayerHeadDrop();
             new PreventRenameHead();
             new AdvancedDispenser();
-//            new TestListener();
+            new FirstSapling();
+            new TestListener();
+            new NetherPortal();
 //            new HopperFilter();
         } catch (Exception exception) {
             exception.printStackTrace();

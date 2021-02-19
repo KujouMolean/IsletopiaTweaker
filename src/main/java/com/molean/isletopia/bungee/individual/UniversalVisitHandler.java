@@ -4,7 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,21 +17,20 @@ import org.jetbrains.annotations.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 // Handle visit request from other server
 
 public class UniversalVisitHandler implements PluginMessageListener, Listener {
-    private static final Map<String, String> visits = new HashMap<>();
+    private static final Map<String, String> visits = new ConcurrentHashMap<>();
 
     public UniversalVisitHandler() {
         Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
-
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
@@ -52,9 +51,7 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
                 if (sourcePlayer != null) {
                     PlotUtils.localServerTeleport(sourcePlayer, target);
                 } else {
-                    synchronized (visits) {
-                        visits.put(source, target);
-                    }
+                    visits.put(source, target);
                 }
 
             } catch (IOException exception) {
@@ -65,22 +62,17 @@ public class UniversalVisitHandler implements PluginMessageListener, Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+
+
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-
-            // Check if player is going to visit other.
             Player player = event.getPlayer();
-            synchronized (visits) {
-                if (visits.containsKey(player.getName())) {
-                    PlotUtils.localServerTeleport(player, visits.get(player.getName()));
-                    visits.remove(player.getName());
-                }
+            if (visits.containsKey(player.getName())) {
+                PlotUtils.localServerTeleport(player, visits.get(player.getName()));
+                visits.remove(player.getName());
             }
-
-
-            // If player's island has offline visitor, send the list to her and clear.
             List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
             if (visits.size() > 0) {
-                player.sendMessage(I18n.getMessage("island.notify.offlineVisitors", event.getPlayer()));
+                player.sendMessage(MessageUtils.getMessage("island.notify.offlineVisitors"));
                 player.sendMessage("§7  " + String.join(",", visits));
                 UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
             }

@@ -60,11 +60,12 @@ public class AdvancedDispenser implements Listener {
         if (!type.isBlock()) {
             return;
         }
+
+        event.setCancelled(true);
+
         if (!relative.getType().isAir()) {
             return;
         }
-        event.setCancelled(true);
-
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             if (!relative.getType().isAir()) {

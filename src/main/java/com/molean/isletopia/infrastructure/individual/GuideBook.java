@@ -30,7 +30,7 @@ public class GuideBook implements CommandExecutor {
         Objects.requireNonNull(Bukkit.getPluginCommand("guide")).setExecutor(this);
         List<String> resources = new ArrayList<>();
         resources.add("guide_en.yml");
-        resources.add("guide_zh.yml");
+        resources.add("guide.yml");
         for (String resource : resources) {
             InputStream inputStream = IsletopiaTweakers.getPlugin().getResource(resource);
             String file = IsletopiaTweakers.getPlugin().getDataFolder() + "/" + resource;
@@ -66,7 +66,7 @@ public class GuideBook implements CommandExecutor {
 
             List<List<BaseComponent>> pages = getPages(player,type);
             if (pages == null) {
-                sender.sendMessage(I18n.getMessage("error.guide.non-exist", player));
+                sender.sendMessage(MessageUtils.getMessage("error.guide.non-exist"));
                 return;
             }
             for (List<BaseComponent> page : pages) {
@@ -84,7 +84,7 @@ public class GuideBook implements CommandExecutor {
     public List<List<BaseComponent>> getPages(Player player, String type) {
         String guide;
         if(player.getLocale().toLowerCase().startsWith("zh")){
-            guide = "guide_zh.yml";
+            guide = "guide.yml";
         }else{
             guide = "guide_en.yml";
         }

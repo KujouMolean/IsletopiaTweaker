@@ -13,6 +13,7 @@ public class LangUtils {
         Set<String> strings = properties.stringPropertyNames();
 
         for (EntityType value : EntityType.values()) {
+            @SuppressWarnings("deprecation")
             String valueName = value.getName();
             if (valueName!=null&&!strings.contains(valueName.toLowerCase())) {
                 System.out.println(value.name());

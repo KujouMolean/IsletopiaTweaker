@@ -1,61 +1,61 @@
 package com.molean.isletopia.utils;
 
-import net.minecraft.server.v1_16_R3.*;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 public class NMSTagUtils {
-    private static ItemStack append(ItemStack item, String key, NBTBase nbtBase) {
-        net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound compound = (nmsItem.hasTag()) ? nmsItem.getTag() : new NBTTagCompound();
-        assert compound != null;
-        compound.set(key, nbtBase);
-        nmsItem.setTag(compound);
-        return CraftItemStack.asBukkitCopy(nmsItem);
-    }
+    private static Method asNMSCopyMethod ;
+    private static Method asBukkitCopyMethod ;
+    private static Method getTagMethod;
+    private static Method setTagMethod ;
+    private static Method setStringMethod;
+    private static Method getStringMethod ;
+    private static Method hasKey;
 
-    public static ItemStack append(ItemStack item, String key, int value) {
-        return append(item, key, NBTTagInt.a(value));
-    }
-
-    public static ItemStack append(ItemStack item, String key, String value) {
-        return append(item, key, NBTTagString.a(value));
-    }
-
-    public static ItemStack append(ItemStack item, String key, double value) {
-        return append(item, key, NBTTagDouble.a(value));
-    }
-
-    public static NBTBase get(ItemStack item, String key) {
-        net.minecraft.server.v1_16_R3.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound compound = (nmsItem.hasTag()) ? nmsItem.getTag() : null;
-        if (compound == null) {
-            return null;
+    static {
+        try {
+            Class<?> craftItemClass = Class.forName("org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack");
+            Class<?> nbtTagCompoundClass = Class.forName("net.minecraft.server.v1_16_R3.NBTTagCompound");
+            Class<?> nmsItemClass = Class.forName("net.minecraft.server.v1_16_R3.ItemStack");
+            asNMSCopyMethod = craftItemClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
+            asBukkitCopyMethod = nmsItemClass.getDeclaredMethod("asBukkitCopy");
+            getTagMethod = nmsItemClass.getDeclaredMethod("getOrCreateTag");
+            setTagMethod = nmsItemClass.getDeclaredMethod("setTag", nbtTagCompoundClass);
+            setStringMethod = nbtTagCompoundClass.getDeclaredMethod("setString", String.class, String.class);
+            getStringMethod = nbtTagCompoundClass.getDeclaredMethod("getString", String.class);
+            hasKey = nbtTagCompoundClass.getDeclaredMethod("hasKey", String.class);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
-        return compound.get(key);
+
     }
 
-    public static Integer getInt(ItemStack item, String key) {
-        NBTBase nbtBase = get(item, key);
-        if (nbtBase == null) {
-            return null;
+    public static ItemStack set(ItemStack item, String key, String value) {
+        try {
+            Object nmsItem = asNMSCopyMethod.invoke(null, item);
+            Object compound = getTagMethod.invoke(nmsItem);
+            setStringMethod.invoke(compound, key, value);
+            setTagMethod.invoke(nmsItem, compound);
+            return (ItemStack) asBukkitCopyMethod.invoke(nmsItem);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
-        return ((NBTTagInt) nbtBase).asInt();
+        return item;
     }
 
-    public static String getString(ItemStack item, String key) {
-        NBTBase nbtBase = get(item, key);
-        if (nbtBase == null) {
-            return null;
+    public static String get(ItemStack item, String key) {
+        try {
+            Object nmsItem = asNMSCopyMethod.invoke(null, item);
+            Object compound = getTagMethod.invoke(nmsItem);
+            if ((Boolean) hasKey.invoke(compound, key)) {
+                return (String) getStringMethod.invoke(compound, key);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return nbtBase.asString();
-    }
-
-    public static Double getDouble(ItemStack item, String key) {
-        NBTBase nbtBase = get(item, key);
-        if (nbtBase == null) {
-            return null;
-        }
-        return ((NBTTagDouble) nbtBase).asDouble();
+        return null;
     }
 }

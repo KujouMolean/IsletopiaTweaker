@@ -3,17 +3,22 @@ package com.molean.isletopia.utils;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.api.PlotAPI;
 import com.plotsquared.core.events.TeleportCause;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
+import com.plotsquared.core.plot.PlotArea;
 import com.plotsquared.core.plot.PlotId;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
 
 public class PlotUtils {
     private static final PlotAPI plotAPI = new PlotAPI();
@@ -25,21 +30,36 @@ public class PlotUtils {
     }
 
 
+    public static Plot getCurrentPlot(Location location) {
+        String world = location.getWorld().getName();
+        int x = location.getBlockX();
+        int y = location.getBlockY();
+        int z = location.getBlockZ();
+        PlotArea plotArea = plotAPI.getPlotSquared().getFirstPlotArea();
+        return plotArea.getPlot(new com.plotsquared.core.location.Location(world, x, y, z));
+    }
 
-    @SuppressWarnings("all")
-    public static boolean hasCurrentPlotPermission(Player player) {
-        Plot currentPlot = getCurrentPlot(player);
-        if (currentPlot == null) {
+    public static boolean hasPlotPermission(Plot plot, Player player) {
+        if (plot == null) {
             return false;
         }
         List<UUID> builder = new ArrayList<>();
-        UUID owner = currentPlot.getOwner();
+        UUID owner = plot.getOwner();
         builder.add(owner);
-        HashSet<UUID> trusted = currentPlot.getTrusted();
+        HashSet<UUID> trusted = plot.getTrusted();
         builder.addAll(trusted);
         return builder.contains(player.getUniqueId());
     }
 
+
+    @SuppressWarnings("all")
+    public static boolean hasCurrentPlotPermission(Player player) {
+        Plot currentPlot = getCurrentPlot(player);
+        return hasPlotPermission(currentPlot,player);
+
+    }
+
+    @SuppressWarnings("all")
     public static boolean isCurrentPlotOwner(Player player) {
         Plot currentPlot = getCurrentPlot(player);
         if (currentPlot == null)
@@ -72,13 +92,13 @@ public class PlotUtils {
             @SuppressWarnings("all") PlotPlayer sourcePlayer = plotAPI.wrapPlayer(source.getUniqueId());
             Plot plot = getPlot(target);
             plot.teleportPlayer(sourcePlayer, TeleportCause.PLUGIN, aBoolean -> {
-                String localServerName = I18n.getLocalServerName(source);
+                String localServerName = MessageUtils.getLocalServerName();
                 PlotId id = plot.getId();
                 String title = "§6%1%:%2%,%3%"
                         .replace("%1%", localServerName)
                         .replace("%2%", id.getX() + "")
                         .replace("%3%", id.getY() + "");
-                String subtitle = I18n.getMessage("island.subtitle", source).replace("%1%", target);
+                String subtitle = MessageUtils.getMessage("island.subtitle").replace("%1%", target);
                 source.sendTitle(title, subtitle, 20, 40, 20);
             });
         });

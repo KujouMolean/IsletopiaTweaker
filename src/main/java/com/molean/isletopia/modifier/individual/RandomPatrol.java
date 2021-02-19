@@ -34,10 +34,7 @@ public class RandomPatrol implements Listener {
                         break;
                     }
                 }
-
             }
-
         }
-
     }
 }

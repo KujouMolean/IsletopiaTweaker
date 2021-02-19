@@ -2,8 +2,6 @@ package com.molean.isletopia.statistics.individual.vanilla;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.VanillaStatisticsDao;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,7 +10,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class VanillaStatistic implements Listener {
@@ -21,6 +18,20 @@ public class VanillaStatistic implements Listener {
     public VanillaStatistic() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         VanillaStatisticsDao.checkTable();
+
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                complete.put(player.getName(), false);
+                Stats stats = VanillaStatisticsDao.getStatistics(player.getName());
+                if (stats != null) {
+                    stats.apply(player);
+                } else {
+                    VanillaStatisticsDao.setStatistics(player.getName(), Stats.fromPlayer(player));
+                }
+                complete.put(player.getName(), true);
+            }
+        });
+
         Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), (task) -> {
             try {
                 Bukkit.getLogger().info("Saving statistics for online players...");
@@ -46,27 +57,13 @@ public class VanillaStatistic implements Listener {
         Player player = event.getPlayer();
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             complete.put(player.getName(), false);
-            List<String> addedServer = UniversalParameter.getParameterAsList(player.getName(), "StatsAddedServer");
-            String serverName = ServerInfoUpdater.getServerName();
-            if (!addedServer.contains(serverName)) {
-                UniversalParameter.addParameter(player.getName(), "StatsAddedServer", serverName);
-                Stats stats = VanillaStatisticsDao.getStatistics(player.getName());
-                if (stats != null) {
-                    stats.merge(Stats.fromPlayer(player));
-                    VanillaStatisticsDao.setStatistics(player.getName(), stats);
-                    stats.apply(player);
-                } else {
-                    VanillaStatisticsDao.setStatistics(player.getName(), Stats.fromPlayer(player));
-                }
-
+            Stats stats = VanillaStatisticsDao.getStatistics(player.getName());
+            if (stats != null) {
+                stats.apply(player);
             } else {
-                Stats stats = VanillaStatisticsDao.getStatistics(player.getName());
-                if (stats != null) {
-                    stats.apply(player);
-                }
+                VanillaStatisticsDao.setStatistics(player.getName(), Stats.fromPlayer(player));
             }
             complete.put(player.getName(), true);
-
         });
     }
 

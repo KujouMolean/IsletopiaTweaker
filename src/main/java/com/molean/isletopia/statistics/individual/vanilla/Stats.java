@@ -104,7 +104,7 @@ public class Stats {
             }
         }
     }
-
+    @SuppressWarnings("deprecation")
     private static void apply(Player player, String outerKey, String innerKey, Integer value) {
         if (outerKey.equalsIgnoreCase("custom")) {
             player.setStatistic(customReverseMapping.get(innerKey), value);
@@ -122,7 +122,7 @@ public class Stats {
         return gson.fromJson(string, Stats.class);
     }
 
-
+    @SuppressWarnings("deprecation")
     public static Stats fromPlayer(Player player) {
         Stats stats = new Stats();
         stats.stats = new HashMap<>();

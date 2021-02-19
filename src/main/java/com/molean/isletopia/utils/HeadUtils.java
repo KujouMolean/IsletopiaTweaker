@@ -2,6 +2,7 @@ package com.molean.isletopia.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -10,7 +11,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class HeadUtils {
 
@@ -21,7 +21,7 @@ public class HeadUtils {
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         assert headMeta != null;
         headMeta.setDisplayName("§f" + name);
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        GameProfile profile = new GameProfile(ServerInfoUpdater.getUUID(name), null);
         Pair<String, Long> stringLongPair = cache.get(name);
 
         String skinValue;
@@ -58,7 +58,7 @@ public class HeadUtils {
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         assert headMeta != null;
         headMeta.setDisplayName("§f" + name);
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        GameProfile profile = new GameProfile(ServerInfoUpdater.getUUID(name), null);
         profile.getProperties().put("textures", new Property("textures", value));
         try {
             Field profileField = headMeta.getClass().getDeclaredField("profile");

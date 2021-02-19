@@ -7,7 +7,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -186,14 +186,14 @@ public class BungeeUtils {
 
 
             if (targetServer == null) {
-                sourcePlayer.sendMessage(I18n.getMessage("error.visit.noIsland", sourcePlayer));
+                sourcePlayer.sendMessage(MessageUtils.getMessage("error.visit.noIsland"));
                 return;
             }
             boolean allow = true;
             UUID sourceUUID = ServerInfoUpdater.getUUID(source);
             UUID allUUID = PlotDao.getAllUUID();
             if (PlotDao.getPlotID(targetServer, target) == null) {
-                sourcePlayer.sendMessage(I18n.getMessage("error.visit.noIsland", sourcePlayer));
+                sourcePlayer.sendMessage(MessageUtils.getMessage("error.visit.noIsland"));
                 return;
             }
 
@@ -212,7 +212,7 @@ public class BungeeUtils {
                         BungeeUtils.sendVisitNotificationToPlayer(target, source, true);
                     }
                 }
-                sourcePlayer.sendMessage(I18n.getMessage("error.visit.refused", sourcePlayer));
+                sourcePlayer.sendMessage(MessageUtils.getMessage("error.visit.refused"));
                 return;
             }
 

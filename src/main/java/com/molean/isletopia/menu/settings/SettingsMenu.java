@@ -2,7 +2,7 @@ package com.molean.isletopia.menu.settings;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
@@ -38,7 +38,7 @@ public class SettingsMenu implements Listener {
 
     public SettingsMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 18, I18n.getMessage("menu.settings.title", player));
+        inventory = Bukkit.createInventory(player, 18, MessageUtils.getMessage("menu.settings.title"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -62,12 +62,12 @@ public class SettingsMenu implements Listener {
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         if (!currentPlot.getOwner().equals(player.getUniqueId())) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner", player));
+                player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
             });
             return;
         }
         HashSet<UUID> denied = currentPlot.getDenied();
-        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, I18n.getMessage("menu.settings.biome", player));
+        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, MessageUtils.getMessage("menu.settings.biome"));
         inventory.setItem(0, visit.build());
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Random random = new Random();
@@ -86,36 +86,36 @@ public class SettingsMenu implements Listener {
             }
         });
 
-        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, I18n.getMessage("menu.settings.member", player));
+        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, MessageUtils.getMessage("menu.settings.member"));
         inventory.setItem(2, member.build());
 
-        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, I18n.getMessage("menu.settings.home", player));
+        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, MessageUtils.getMessage("menu.settings.home"));
         inventory.setItem(4, bed.build());
 
 
         if (denied.contains(PlotDao.getAllUUID())) {
-            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, I18n.getMessage("menu.settings.unlock", player));
-            cancel.addLore(I18n.getMessage("menu.settings.unlock.1", player));
-            cancel.addLore(I18n.getMessage("menu.settings.unlock.2", player));
+            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, MessageUtils.getMessage("menu.settings.unlock"));
+            cancel.addLore(MessageUtils.getMessage("menu.settings.unlock.1"));
+            cancel.addLore(MessageUtils.getMessage("menu.settings.unlock.2"));
             inventory.setItem(6, cancel.build());
             open = false;
 
         } else {
-            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, I18n.getMessage("menu.settings.lock", player));
-            denyAll.addLore(I18n.getMessage("menu.settings.lock.1", player));
-            denyAll.addLore(I18n.getMessage("menu.settings.lock.2", player));
+            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, MessageUtils.getMessage("menu.settings.lock"));
+            denyAll.addLore(MessageUtils.getMessage("menu.settings.lock.1"));
+            denyAll.addLore(MessageUtils.getMessage("menu.settings.lock.2"));
             inventory.setItem(6, denyAll.build());
             open = true;
         }
 
-        ItemStackSheet shield = new ItemStackSheet(Material.SHIELD, I18n.getMessage("menu.settings.backup", player));
-        shield.addLore(I18n.getMessage("menu.settings.backup.1", player));
-        shield.addLore(I18n.getMessage("menu.settings.backup.2", player));
-        shield.addLore(I18n.getMessage("menu.settings.backup.3", player));
-        shield.addLore(I18n.getMessage("menu.settings.backup.4", player));
+        ItemStackSheet shield = new ItemStackSheet(Material.SHIELD, MessageUtils.getMessage("menu.settings.backup"));
+        shield.addLore(MessageUtils.getMessage("menu.settings.backup.1"));
+        shield.addLore(MessageUtils.getMessage("menu.settings.backup.2"));
+        shield.addLore(MessageUtils.getMessage("menu.settings.backup.3"));
+        shield.addLore(MessageUtils.getMessage("menu.settings.backup.4"));
         inventory.setItem(8, shield.build());
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.return", player));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.return"));
         inventory.setItem(17, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -154,7 +154,7 @@ public class SettingsMenu implements Listener {
                             location.getBlockZ() - bottomAbs.getZ(),
                             location.getYaw(),
                             location.getPitch()));
-                    player.sendMessage(I18n.getMessage("menu.settings.home.ok", player)
+                    player.sendMessage(MessageUtils.getMessage("menu.settings.home.ok")
                             .replace("%1%", location.getBlockX() + "")
                             .replace("%2%", location.getBlockX() + "")
                             .replace("%3%", location.getBlockZ() + "")
@@ -162,7 +162,7 @@ public class SettingsMenu implements Listener {
                     player.closeInventory();
                 } else {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner", player));
+                        player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
                     });
                 }
                 break;
@@ -179,7 +179,7 @@ public class SettingsMenu implements Listener {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
                 } else {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner", player));
+                        player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
                     });
                 }
                 break;
@@ -189,12 +189,12 @@ public class SettingsMenu implements Listener {
                 Plot currentPlot = PlotUtils.getCurrentPlot(player);
                 if (!currentPlot.getOwner().equals(player.getUniqueId())) {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer(I18n.getMessage("error.menu.settings.non-owner", player));
+                        player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
                     });
                     return;
                 }
                 if (!player.getInventory().contains(Material.DIAMOND_BLOCK)) {
-                    player.sendMessage(I18n.getMessage("backup.noCost", player));
+                    player.sendMessage(MessageUtils.getMessage("backup.noCost"));
                     return;
                 }
                 for (ItemStack itemStack : player.getInventory()) {
@@ -203,17 +203,17 @@ public class SettingsMenu implements Listener {
                         break;
                     }
                 }
-                player.sendMessage(I18n.getMessage("backup.start.1", player));
-                player.sendMessage(I18n.getMessage("backup.start.2", player));
+                player.sendMessage(MessageUtils.getMessage("backup.start.1"));
+                player.sendMessage(MessageUtils.getMessage("backup.start.2"));
                 BackupProfile profile = PlotSquared.imp().getBackupManager().getProfile(currentPlot);
                 profile.createBackup().whenComplete((backup, throwable) -> {
                     if (throwable != null) {
-                        player.sendMessage(I18n.getMessage("backup.failed", player));
+                        player.sendMessage(MessageUtils.getMessage("backup.failed"));
                         return;
                     }
                     profile.listBackups().whenComplete((backups, throwable1) -> {
                         if (backups.size() == 0 || throwable1 != null) {
-                            player.sendMessage(I18n.getMessage("backup.failed", player));
+                            player.sendMessage(MessageUtils.getMessage("backup.failed"));
                             return;
                         }
                         Path path = backups.get(0).getFile();
@@ -221,11 +221,11 @@ public class SettingsMenu implements Listener {
                         UUID uuid = UUID.randomUUID();
                         boolean b = Sftp.uploadFile(path.toString(), "/var/www/skin/schem/" + uuid + ".schem");
                         if (!b) {
-                            player.sendMessage(I18n.getMessage("backup.failed", player));
+                            player.sendMessage(MessageUtils.getMessage("backup.failed"));
                             return;
                         }
                         String url = "http://skin.molean.com/schem/" + uuid + ".schem";
-                        player.sendMessage(I18n.getMessage("backup.success", player).replace("%url%", url));
+                        player.sendMessage(MessageUtils.getMessage("backup.success").replace("%url%", url));
                     });
                 });
                 break;

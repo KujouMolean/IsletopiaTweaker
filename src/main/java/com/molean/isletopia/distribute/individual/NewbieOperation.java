@@ -3,7 +3,7 @@ package com.molean.isletopia.distribute.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.utils.HeadUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;
@@ -47,7 +47,7 @@ public class NewbieOperation implements Listener {
             Integer plotID = PlotDao.getPlotID(server, player.getName());
             if (plotID != null) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    player.kickPlayer(I18n.getMessage("error.island.mismatch", player));
+                    player.kickPlayer(MessageUtils.getMessage("error.island.mismatch"));
                 });
                 return;
             }
@@ -57,9 +57,9 @@ public class NewbieOperation implements Listener {
             player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 4));
             player.performCommand("plot auto");
             placeItem(player.getInventory());
-            ItemStack clock = newUnbreakableItem(Material.CLOCK, I18n.getMessage("menu.item.title", player),
-                    List.of(I18n.getMessage("menu.item.lore.1", player),
-                            I18n.getMessage("menu.item.lore.2", player)));
+            ItemStack clock = newUnbreakableItem(Material.CLOCK, MessageUtils.getMessage("menu.item.title"),
+                    List.of(MessageUtils.getMessage("menu.item.lore.1"),
+                            MessageUtils.getMessage("menu.item.lore.2")));
             player.getInventory().addItem(clock);
         });
 
@@ -74,7 +74,7 @@ public class NewbieOperation implements Listener {
             String server = UniversalParameter.getParameter(event.getPlayer().getName(), "server");
             if (server == null) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer(I18n.getMessage("error.island.noIsland", event.getPlayer()));
+                    event.getPlayer().kickPlayer(MessageUtils.getMessage("error.island.noIsland"));
                 });
                 return;
             }
@@ -100,7 +100,7 @@ public class NewbieOperation implements Listener {
             }
             if (cnt > 1) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer(I18n.getMessage("error.island.more", event.getPlayer()));
+                    event.getPlayer().kickPlayer(MessageUtils.getMessage("error.island.more"));
                 });
 
             }
@@ -112,8 +112,9 @@ public class NewbieOperation implements Listener {
     public void placeItem(PlayerInventory inventory) {
         ItemStack food = new ItemStack(Material.APPLE, 32);
         ItemStack lavaBucket = new ItemStack(Material.LAVA_BUCKET);
-        ItemStack ice = new ItemStack(Material.ICE, 2);
-        inventory.addItem(food, lavaBucket, ice);
+        ItemStack waterBucket1 = new ItemStack(Material.WATER_BUCKET, 1);
+        ItemStack waterBucket2 = new ItemStack(Material.WATER_BUCKET, 1);
+        inventory.addItem(food, lavaBucket, waterBucket1,waterBucket2);
     }
 
     public ItemStack newUnbreakableItem(Material material, String name, List<String> lores) {

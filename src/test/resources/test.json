@@ -1,83 +1,742 @@
 {
-  "stats": {
-    "minecraft:killed": {
-      "minecraft:zoglin": 1
+  "type": "CompoundTag",
+  "value": {
+    "Brain": {
+      "type": "CompoundTag",
+      "value": {
+        "memories": {
+          "type": "CompoundTag",
+          "value": {}
+        }
+      }
     },
-    "minecraft:killed_by": {
-      "minecraft:zoglin": 3
+    "HurtByTimestamp": {
+      "type": "IntTag",
+      "value": 381351
     },
-    "minecraft:used": {
-      "minecraft:redstone_torch": 54,
-      "minecraft:sticky_piston": 5,
-      "minecraft:piston": 31,
-      "minecraft:lever": 14,
-      "minecraft:wooden_hoe": 9,
-      "minecraft:diamond_pickaxe": 13,
-      "minecraft:dropper": 1,
-      "minecraft:grass_block": 20,
-      "minecraft:dispenser": 12,
-      "minecraft:redstone": 52,
-      "minecraft:diamond_hoe": 2,
-      "minecraft:map": 2,
-      "minecraft:jungle_log": 1,
-      "minecraft:stone": 64,
-      "minecraft:beacon": 1,
-      "minecraft:soul_sand": 2,
-      "minecraft:bow": 2,
-      "minecraft:hopper": 2,
-      "minecraft:carrot": 1,
-      "minecraft:warped_button": 4
+    "bukkit": {
+      "type": "CompoundTag",
+      "value": {
+        "newLevel": {
+          "type": "IntTag",
+          "value": 0
+        },
+        "newTotalExp": {
+          "type": "IntTag",
+          "value": 0
+        },
+        "newExp": {
+          "type": "IntTag",
+          "value": 0
+        },
+        "firstPlayed": {
+          "type": "LongTag",
+          "value": 1611166394680
+        },
+        "lastKnownName": {
+          "type": "StringTag",
+          "value": "Molean"
+        },
+        "keepLevel": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "expToDrop": {
+          "type": "IntTag",
+          "value": 0
+        },
+        "lastPlayed": {
+          "type": "LongTag",
+          "value": 1613314798075
+        }
+      }
     },
-    "minecraft:custom": {
-      "minecraft:time_since_rest": 336,
-      "minecraft:damage_taken": 780,
-      "minecraft:sprint_one_cm": 48133,
-      "minecraft:inspect_dropper": 25,
-      "minecraft:walk_one_cm": 143677,
-      "minecraft:mob_kills": 1,
-      "minecraft:drop": 1,
-      "minecraft:inspect_hopper": 12,
-      "minecraft:damage_dealt": 368,
-      "minecraft:interact_with_beacon": 9,
-      "minecraft:fly_one_cm": 170320,
-      "minecraft:crouch_one_cm": 2666,
-      "minecraft:play_one_minute": 253809,
-      "minecraft:deaths": 3,
-      "minecraft:sneak_time": 2053,
-      "minecraft:jump": 601,
-      "minecraft:leave_game": 92,
-      "minecraft:time_since_death": 316,
-      "minecraft:fall_one_cm": 211,
-      "minecraft:inspect_dispenser": 165
+    "SleepTimer": {
+      "type": "ShortTag",
+      "value": 0
     },
-    "minecraft:dropped": {
-      "minecraft:diamond_pickaxe": 1
+    "Attributes": {
+      "type": "ListTag",
+      "value": {
+        "type": "CompoundTag",
+        "list": [
+          {
+            "Base": {
+              "type": "DoubleTag",
+              "value": 0.10000000149011612
+            },
+            "Name": {
+              "type": "StringTag",
+              "value": "minecraft:generic.movement_speed"
+            }
+          },
+          {
+            "Base": {
+              "type": "DoubleTag",
+              "value": 0.0
+            },
+            "Name": {
+              "type": "StringTag",
+              "value": "minecraft:generic.armor_toughness"
+            }
+          },
+          {
+            "Base": {
+              "type": "DoubleTag",
+              "value": 4.0
+            },
+            "Name": {
+              "type": "StringTag",
+              "value": "minecraft:generic.attack_speed"
+            }
+          },
+          {
+            "Base": {
+              "type": "DoubleTag",
+              "value": 1.0
+            },
+            "Name": {
+              "type": "StringTag",
+              "value": "minecraft:generic.attack_damage"
+            }
+          },
+          {
+            "Base": {
+              "type": "DoubleTag",
+              "value": 20.0
+            },
+            "Name": {
+              "type": "StringTag",
+              "value": "minecraft:generic.max_health"
+            }
+          },
+          {
+            "Base": {
+              "type": "DoubleTag",
+              "value": 0.0
+            },
+            "Name": {
+              "type": "StringTag",
+              "value": "minecraft:generic.armor"
+            }
+          }
+        ]
+      }
     },
-    "minecraft:mined": {
-      "minecraft:stone": 5
+    "Invulnerable": {
+      "type": "ByteTag",
+      "value": 0
     },
-    "minecraft:picked_up": {
-      "minecraft:cocoa_beans": 2,
-      "minecraft:stone": 767,
-      "minecraft:sweet_berries": 6,
-      "minecraft:brown_mushroom": 4,
-      "minecraft:beacon": 2,
-      "minecraft:potato": 4,
-      "minecraft:warped_button": 2,
-      "minecraft:carrot": 2,
-      "minecraft:redstone": 14,
-      "minecraft:pumpkin_seeds": 1,
-      "minecraft:rotten_flesh": 5,
-      "minecraft:beetroot_seeds": 1,
-      "minecraft:wheat_seeds": 13,
-      "minecraft:lever": 5,
-      "minecraft:rose_bush": 2,
-      "minecraft:redstone_torch": 12,
-      "minecraft:oak_sapling": 746,
-      "minecraft:birch_sapling": 64,
-      "minecraft:cobblestone": 15,
-      "minecraft:diamond_pickaxe": 3
+    "FallFlying": {
+      "type": "ByteTag",
+      "value": 0
+    },
+    "AbsorptionAmount": {
+      "type": "FloatTag",
+      "value": 0.0
+    },
+    "PortalCooldown": {
+      "type": "IntTag",
+      "value": 0
+    },
+    "abilities": {
+      "type": "CompoundTag",
+      "value": {
+        "walkSpeed": {
+          "type": "FloatTag",
+          "value": 0.1
+        },
+        "instabuild": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "mayfly": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "invulnerable": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "mayBuild": {
+          "type": "ByteTag",
+          "value": 1
+        },
+        "flying": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "flySpeed": {
+          "type": "FloatTag",
+          "value": 0.05
+        }
+      }
+    },
+    "FallDistance": {
+      "type": "FloatTag",
+      "value": 0.0
+    },
+    "recipeBook": {
+      "type": "CompoundTag",
+      "value": {
+        "recipes": {
+          "type": "ListTag",
+          "value": {
+            "type": "StringTag",
+            "list": [
+              "minecraft:chest",
+              "minecraft:piston",
+              "minecraft:red_dye_from_rose_bush",
+              "minecraft:stone",
+              "minecraft:yellow_wool",
+              "minecraft:wooden_pickaxe",
+              "minecraft:magenta_dye_from_lilac",
+              "minecraft:charcoal",
+              "minecraft:wooden_sword",
+              "minecraft:baked_potato_from_campfire_cooking",
+              "minecraft:stone_hoe",
+              "minecraft:stone_brick_stairs_from_stone_stonecutting",
+              "minecraft:lime_wool",
+              "minecraft:light_gray_wool",
+              "minecraft:white_banner",
+              "minecraft:lever",
+              "minecraft:purple_wool",
+              "minecraft:red_wool",
+              "minecraft:red_nether_bricks",
+              "minecraft:stone_button",
+              "minecraft:stonecutter",
+              "minecraft:baked_potato_from_smoking",
+              "minecraft:stone_pickaxe",
+              "minecraft:soul_torch",
+              "minecraft:cooked_mutton_from_campfire_cooking",
+              "minecraft:crossbow",
+              "minecraft:dispenser",
+              "minecraft:wooden_axe",
+              "minecraft:chiseled_stone_bricks_stone_from_stonecutting",
+              "minecraft:pink_dye_from_pink_tulip",
+              "minecraft:carrot_on_a_stick",
+              "minecraft:white_carpet",
+              "minecraft:brown_wool",
+              "minecraft:stone_bricks",
+              "minecraft:bowl",
+              "minecraft:wooden_shovel",
+              "minecraft:baked_potato",
+              "minecraft:cooked_mutton_from_smoking",
+              "minecraft:brown_dye",
+              "minecraft:repeater",
+              "minecraft:soul_campfire",
+              "minecraft:cobblestone_stairs_from_cobblestone_stonecutting",
+              "minecraft:painting",
+              "minecraft:ladder",
+              "minecraft:smooth_stone",
+              "minecraft:cooked_mutton",
+              "minecraft:nether_wart_block",
+              "minecraft:redstone_torch",
+              "minecraft:stone_stairs_from_stone_stonecutting",
+              "minecraft:cobblestone_stairs",
+              "minecraft:stone_shovel",
+              "minecraft:cobblestone_wall_from_cobblestone_stonecutting",
+              "minecraft:pink_wool",
+              "minecraft:stone_stairs",
+              "minecraft:cookie",
+              "minecraft:cobblestone_wall",
+              "minecraft:target",
+              "minecraft:magenta_wool",
+              "minecraft:gray_wool",
+              "minecraft:stone_slab_from_stone_stonecutting",
+              "minecraft:green_wool",
+              "minecraft:wooden_hoe",
+              "minecraft:red_dye_from_poppy",
+              "minecraft:redstone_block",
+              "minecraft:light_blue_wool",
+              "minecraft:stone_pressure_plate",
+              "minecraft:orange_wool",
+              "minecraft:stone_sword",
+              "minecraft:campfire",
+              "minecraft:dropper",
+              "minecraft:black_wool",
+              "minecraft:stone_brick_slab_from_stone_stonecutting",
+              "minecraft:cyan_wool",
+              "minecraft:cobblestone_slab",
+              "minecraft:jungle_wood",
+              "minecraft:furnace",
+              "minecraft:white_bed",
+              "minecraft:blue_wool",
+              "minecraft:stone_slab",
+              "minecraft:note_block",
+              "minecraft:pink_dye_from_peony",
+              "minecraft:jungle_planks",
+              "minecraft:mushroom_stew",
+              "minecraft:stone_brick_walls_from_stone_stonecutting",
+              "minecraft:stone_bricks_from_stone_stonecutting",
+              "minecraft:clock",
+              "minecraft:cobblestone_slab_from_cobblestone_stonecutting",
+              "minecraft:stone_axe",
+              "minecraft:compass"
+            ]
+          }
+        },
+        "isBlastingFurnaceFilteringCraftable": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "isSmokerGuiOpen": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "isFilteringCraftable": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "toBeDisplayed": {
+          "type": "ListTag",
+          "value": {
+            "type": "StringTag",
+            "list": [
+              "minecraft:chest",
+              "minecraft:piston",
+              "minecraft:red_dye_from_rose_bush",
+              "minecraft:stone",
+              "minecraft:yellow_wool",
+              "minecraft:wooden_pickaxe",
+              "minecraft:magenta_dye_from_lilac",
+              "minecraft:charcoal",
+              "minecraft:wooden_sword",
+              "minecraft:baked_potato_from_campfire_cooking",
+              "minecraft:stone_hoe",
+              "minecraft:stone_brick_stairs_from_stone_stonecutting",
+              "minecraft:lime_wool",
+              "minecraft:light_gray_wool",
+              "minecraft:white_banner",
+              "minecraft:lever",
+              "minecraft:purple_wool",
+              "minecraft:red_wool",
+              "minecraft:red_nether_bricks",
+              "minecraft:stone_button",
+              "minecraft:stonecutter",
+              "minecraft:baked_potato_from_smoking",
+              "minecraft:stone_pickaxe",
+              "minecraft:soul_torch",
+              "minecraft:cooked_mutton_from_campfire_cooking",
+              "minecraft:crossbow",
+              "minecraft:dispenser",
+              "minecraft:wooden_axe",
+              "minecraft:chiseled_stone_bricks_stone_from_stonecutting",
+              "minecraft:pink_dye_from_pink_tulip",
+              "minecraft:carrot_on_a_stick",
+              "minecraft:white_carpet",
+              "minecraft:brown_wool",
+              "minecraft:stone_bricks",
+              "minecraft:bowl",
+              "minecraft:wooden_shovel",
+              "minecraft:baked_potato",
+              "minecraft:cooked_mutton_from_smoking",
+              "minecraft:brown_dye",
+              "minecraft:repeater",
+              "minecraft:soul_campfire",
+              "minecraft:cobblestone_stairs_from_cobblestone_stonecutting",
+              "minecraft:painting",
+              "minecraft:ladder",
+              "minecraft:smooth_stone",
+              "minecraft:cooked_mutton",
+              "minecraft:nether_wart_block",
+              "minecraft:redstone_torch",
+              "minecraft:stone_stairs_from_stone_stonecutting",
+              "minecraft:cobblestone_stairs",
+              "minecraft:stone_shovel",
+              "minecraft:cobblestone_wall_from_cobblestone_stonecutting",
+              "minecraft:pink_wool",
+              "minecraft:stone_stairs",
+              "minecraft:cookie",
+              "minecraft:cobblestone_wall",
+              "minecraft:target",
+              "minecraft:magenta_wool",
+              "minecraft:gray_wool",
+              "minecraft:stone_slab_from_stone_stonecutting",
+              "minecraft:green_wool",
+              "minecraft:wooden_hoe",
+              "minecraft:red_dye_from_poppy",
+              "minecraft:redstone_block",
+              "minecraft:light_blue_wool",
+              "minecraft:stone_pressure_plate",
+              "minecraft:orange_wool",
+              "minecraft:stone_sword",
+              "minecraft:campfire",
+              "minecraft:dropper",
+              "minecraft:black_wool",
+              "minecraft:stone_brick_slab_from_stone_stonecutting",
+              "minecraft:cyan_wool",
+              "minecraft:cobblestone_slab",
+              "minecraft:jungle_wood",
+              "minecraft:furnace",
+              "minecraft:white_bed",
+              "minecraft:blue_wool",
+              "minecraft:stone_slab",
+              "minecraft:note_block",
+              "minecraft:pink_dye_from_peony",
+              "minecraft:jungle_planks",
+              "minecraft:mushroom_stew",
+              "minecraft:stone_brick_walls_from_stone_stonecutting",
+              "minecraft:stone_bricks_from_stone_stonecutting",
+              "minecraft:clock",
+              "minecraft:cobblestone_slab_from_cobblestone_stonecutting",
+              "minecraft:stone_axe",
+              "minecraft:compass"
+            ]
+          }
+        },
+        "isFurnaceGuiOpen": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "isGuiOpen": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "isFurnaceFilteringCraftable": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "isBlastingFurnaceGuiOpen": {
+          "type": "ByteTag",
+          "value": 0
+        },
+        "isSmokerFilteringCraftable": {
+          "type": "ByteTag",
+          "value": 0
+        }
+      }
+    },
+    "DeathTime": {
+      "type": "ShortTag",
+      "value": 0
+    },
+    "XpSeed": {
+      "type": "IntTag",
+      "value": 2120218787
+    },
+    "WorldUUIDMost": {
+      "type": "LongTag",
+      "value": 4065874597023140407
+    },
+    "XpTotal": {
+      "type": "IntTag",
+      "value": 0
+    },
+    "Spigot.ticksLived": {
+      "type": "IntTag",
+      "value": 381391
+    },
+    "playerGameType": {
+      "type": "IntTag",
+      "value": 0
+    },
+    "UUID": {
+      "type": "IntArrayTag",
+      "value": [
+        155817358,
+        -1912457738,
+        -1899627871,
+        -1372972026
+      ]
+    },
+    "seenCredits": {
+      "type": "ByteTag",
+      "value": 0
+    },
+    "Motion": {
+      "type": "ListTag",
+      "value": {
+        "type": "DoubleTag",
+        "list": [
+          0.0,
+          -0.0784000015258789,
+          0.0
+        ]
+      }
+    },
+    "Health": {
+      "type": "FloatTag",
+      "value": 20.0
+    },
+    "Bukkit.updateLevel": {
+      "type": "IntTag",
+      "value": 2
+    },
+    "foodSaturationLevel": {
+      "type": "FloatTag",
+      "value": 2.0
+    },
+    "Paper.SpawnReason": {
+      "type": "StringTag",
+      "value": "DEFAULT"
+    },
+    "OnGround": {
+      "type": "ByteTag",
+      "value": 1
+    },
+    "Dimension": {
+      "type": "StringTag",
+      "value": "minecraft:overworld"
+    },
+    "Air": {
+      "type": "ShortTag",
+      "value": 300
+    },
+    "Rotation": {
+      "type": "ListTag",
+      "value": {
+        "type": "FloatTag",
+        "list": [
+          -0.45000005,
+          0.6000001
+        ]
+      }
+    },
+    "XpLevel": {
+      "type": "IntTag",
+      "value": 0
+    },
+    "Score": {
+      "type": "IntTag",
+      "value": 7
+    },
+    "Pos": {
+      "type": "ListTag",
+      "value": {
+        "type": "DoubleTag",
+        "list": [
+          4863.5,
+          155.0,
+          4863.5
+        ]
+      }
+    },
+    "previousPlayerGameType": {
+      "type": "IntTag",
+      "value": 1
+    },
+    "Fire": {
+      "type": "ShortTag",
+      "value": -20
+    },
+    "EnderItems": {
+      "type": "ListTag",
+      "value": {
+        "type": "CompoundTag",
+        "list": [
+          {
+            "Slot": {
+              "type": "ByteTag",
+              "value": 0
+            },
+            "id": {
+              "type": "StringTag",
+              "value": "minecraft:filled_map"
+            },
+            "tag": {
+              "type": "CompoundTag",
+              "value": {
+                "map": {
+                  "type": "IntTag",
+                  "value": 7
+                }
+              }
+            },
+            "Count": {
+              "type": "ByteTag",
+              "value": 64
+            }
+          },
+          {
+            "Slot": {
+              "type": "ByteTag",
+              "value": 1
+            },
+            "id": {
+              "type": "StringTag",
+              "value": "minecraft:filled_map"
+            },
+            "tag": {
+              "type": "CompoundTag",
+              "value": {
+                "map": {
+                  "type": "IntTag",
+                  "value": 8
+                }
+              }
+            },
+            "Count": {
+              "type": "ByteTag",
+              "value": 64
+            }
+          }
+        ]
+      }
+    },
+    "XpP": {
+      "type": "FloatTag",
+      "value": 0.0
+    },
+    "Paper": {
+      "type": "CompoundTag",
+      "value": {
+        "LastSeen": {
+          "type": "LongTag",
+          "value": 1613314798075
+        },
+        "LastLogin": {
+          "type": "LongTag",
+          "value": 1613314740573
+        }
+      }
+    },
+    "foodLevel": {
+      "type": "IntTag",
+      "value": 20
+    },
+    "DataVersion": {
+      "type": "IntTag",
+      "value": 2584
+    },
+    "foodExhaustionLevel": {
+      "type": "FloatTag",
+      "value": 0.0
+    },
+    "SelectedItemSlot": {
+      "type": "IntTag",
+      "value": 0
+    },
+    "HurtTime": {
+      "type": "ShortTag",
+      "value": 0
+    },
+    "Inventory": {
+      "type": "ListTag",
+      "value": {
+        "type": "CompoundTag",
+        "list": [
+          {
+            "Slot": {
+              "type": "ByteTag",
+              "value": 0
+            },
+            "id": {
+              "type": "StringTag",
+              "value": "minecraft:oak_sapling"
+            },
+            "Count": {
+              "type": "ByteTag",
+              "value": 2
+            }
+          },
+          {
+            "Slot": {
+              "type": "ByteTag",
+              "value": 1
+            },
+            "id": {
+              "type": "StringTag",
+              "value": "minecraft:mutton"
+            },
+            "Count": {
+              "type": "ByteTag",
+              "value": 2
+            }
+          },
+          {
+            "Slot": {
+              "type": "ByteTag",
+              "value": 2
+            },
+            "id": {
+              "type": "StringTag",
+              "value": "minecraft:stick"
+            },
+            "Count": {
+              "type": "ByteTag",
+              "value": 2
+            }
+          }
+        ]
+      }
+    },
+    "WorldUUIDLeast": {
+      "type": "LongTag",
+      "value": -5601966106499885313
+    },
+    "foodTickTimer": {
+      "type": "IntTag",
+      "value": 0
+    },
+    "Paper.Origin": {
+      "type": "ListTag",
+      "value": {
+        "type": "DoubleTag",
+        "list": [
+          -255.5,
+          155.0,
+          -256.5
+        ]
+      }
     }
-  },
-  "DataVersion": 2584
+  }
+}
+{
+  "type": "CompoundTag",
+  "value": {
+    "Float": {
+      "type": "FloatTag",
+      "value": 0.0
+    },
+    "IntArray": {
+      "type": "IntArrayTag",
+      "value": [
+        155817358,
+        -1912457738,
+        -1899627871,
+        -1372972026
+      ]
+    },
+    "Byte": {
+      "type": "ByteTag",
+      "value": 1
+    },
+    "Long": {
+      "type": "LongTag",
+      "value": -5601966106499885313
+    },
+    "Compound": {
+      "type": "CompoundTag",
+      "value": {
+        "Long": {
+          "type": "LongTag",
+          "value": 1613314740573
+        }
+      }
+    },
+    "List": {
+      "type": "ListTag",
+      "value": {
+        "type": "DoubleTag",
+        "list": [
+          -255.5,
+          155.0,
+          -256.5
+        ]
+      }
+    },
+    "String": {
+      "type": "StringTag",
+      "value": "minecraft:overworld"
+    },
+    "Int": {
+      "type": "IntTag",
+      "value": 0
+    },
+    "Short": {
+      "type": "ShortTag",
+      "value": 0
+    }
+  }
 }

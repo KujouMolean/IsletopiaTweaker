@@ -12,7 +12,6 @@ public class ParameterCommand implements CommandExecutor {
 
     public ParameterCommand() {
         Objects.requireNonNull(Bukkit.getPluginCommand("parameter")).setExecutor(this);
-        Objects.requireNonNull(Bukkit.getPluginCommand("parameterAdmin")).setExecutor(this);
     }
 
     @Override
@@ -22,29 +21,18 @@ public class ParameterCommand implements CommandExecutor {
         String opt = args[0].toLowerCase();
         String cmd = command.getName().toLowerCase();
         String target = null, key = null, value = null;
+        if (!sender.isOp()) {
+            return false;
+        }
+        if (args.length < 2)
+            return false;
 
-        if (cmd.equalsIgnoreCase("parameterAdmin")) {
-            if (!sender.isOp()) {
-                return false;
-            }
-            if (args.length < 2)
-                return false;
-
-            target = args[1];
-            if (args.length >= 3) {
-                key = args[2];
-            }
-            if (args.length >= 4) {
-                value = args[3];
-            }
-        } else if (cmd.equalsIgnoreCase("parameter")) {
-            target = sender.getName();
-            if (args.length >= 2) {
-                key = args[1];
-            }
-            if (args.length >= 3) {
-                value = args[2];
-            }
+        target = args[1];
+        if (args.length >= 3) {
+            key = args[2];
+        }
+        if (args.length >= 4) {
+            value = args[3];
         }
 
         switch (opt) {

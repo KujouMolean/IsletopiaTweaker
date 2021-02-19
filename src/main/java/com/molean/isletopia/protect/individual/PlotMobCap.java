@@ -171,6 +171,7 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         player.sendMessage(String.format("§a>§e%s §" + (total < 512 ? "a" : "c") + "%s", "总计", total));
         for (int i = 0; i < 10 && i < pairs.size(); i++) {
             Pair<EntityType, Integer> pair = pairs.get(i);
+            @SuppressWarnings("deprecation")
             String internalName = pair.getKey().getName();
             String name;
             if (internalName != null) {

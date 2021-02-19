@@ -11,7 +11,7 @@ import java.util.List;
 
 public class MyTest {
     public static void main(String[] args) {
-        String names = "lanstudy";
+        String names = "5888" ;
         String[] split = names.split("\n");
         for (String name : split) {
             List<String> servers = new ArrayList<>();

@@ -3,7 +3,7 @@ package com.molean.isletopia.menu.favorite;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
 import org.bukkit.Bukkit;
@@ -44,7 +44,7 @@ public class FavoriteAddMenu implements Listener {
 
     public FavoriteAddMenu(Player player, List<String> onlinePlayers, int page) {
 
-        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.favorite.add.title", player));
+        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.favorite.add.title"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
         this.players.addAll(onlinePlayers);
@@ -67,9 +67,9 @@ public class FavoriteAddMenu implements Listener {
         for (int i = 0; i + page * 52 < players.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkull(players.get(i + page * 52)));
         }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, I18n.getMessage("menu.visit.nextPage", player));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.visit.nextPage"));
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.favorite.add.return", player));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.favorite.add.return"));
         inventory.setItem(inventory.getSize() - 1, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -92,7 +92,7 @@ public class FavoriteAddMenu implements Listener {
             ItemStack item = inventory.getItem(slot);
             assert item != null;
             ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
+            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
             item.setItemMeta(itemMeta);
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteAddMenu(player, players, page + 1).open());
             return;
@@ -106,7 +106,7 @@ public class FavoriteAddMenu implements Listener {
             ItemStack item = inventory.getItem(slot);
             assert item != null;
             ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
+            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
             item.setItemMeta(itemMeta);
 
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {

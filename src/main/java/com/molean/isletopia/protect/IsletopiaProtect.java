@@ -17,6 +17,7 @@ public class IsletopiaProtect {
             new ExlosionProtect();
             new MobRemover();
             new ElytraLimiter();
+            new OtherProtect();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia protect failed!");

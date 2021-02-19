@@ -13,7 +13,7 @@ public class VanillaStatisticsDao {
         try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "create table if not exists vanilla_statistics(\n" +
                     "    id int auto_increment primary key,\n" +
-                    "    player varchar(100) not null ,\n" +
+                    "    player varchar(100) not null unique,\n" +
                     "    stats longtext not null \n" +
                     ");";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -22,21 +22,6 @@ public class VanillaStatisticsDao {
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-    }
-
-    private static boolean exist(String player) {
-        try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "select * from vanilla_statistics where player=?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, player);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next())
-                return true;
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        return false;
-
     }
 
     private static void insert(String player, String stats) {
@@ -79,7 +64,7 @@ public class VanillaStatisticsDao {
     }
 
     public static void setStatistics(String player, Stats stats) {
-        if (exist(player)) {
+        if (query(player) != null) {
             update(player, stats.toString());
         } else {
             insert(player, stats.toString());
@@ -88,7 +73,7 @@ public class VanillaStatisticsDao {
 
 
     public static Stats getStatistics(String player) {
-        if (exist(player)) {
+        if (query(player) != null) {
             return Stats.fromJson(query(player));
         } else {
             return null;

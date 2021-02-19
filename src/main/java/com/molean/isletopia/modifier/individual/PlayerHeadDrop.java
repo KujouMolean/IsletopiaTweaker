@@ -1,16 +1,21 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.LangUtils;
-import com.molean.isletopia.utils.NMSTagUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.*;
+import org.bukkit.Material;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.io.IOException;
@@ -37,6 +42,29 @@ public class PlayerHeadDrop implements Listener {
             drops.put(EntityType.valueOf(key), value);
         }
 
+        ItemStack icon = new ItemStack(Material.PLAYER_HEAD);
+        ItemMeta itemMeta = icon.getItemMeta();
+        itemMeta.setDisplayName("§f玩家头颅");
+        icon.setItemMeta(itemMeta);
+
+        ItemStack type = new ItemStack(Material.CREEPER_HEAD);
+        ItemMeta typeMeta = type.getItemMeta();
+        typeMeta.setDisplayName("§f闪电苦力怕");
+        type.setItemMeta(typeMeta);
+
+        ItemStack[] source = new ItemStack[9];
+        for (int i = 0; i < source.length; i++) {
+            source[i] = new ItemStack(Material.AIR);
+        }
+        source[4] = new ItemStack(Material.PLAYER_HEAD);
+        ItemMeta source4Meta = source[4].getItemMeta();
+        source4Meta.setDisplayName("任意种类的生物被炸死");
+        source[4].setItemMeta(source4Meta);
+
+        ItemStack result = icon.clone();
+        LocalRecipe.addRecipe(icon, type, source, result);
+
+
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -50,26 +78,26 @@ public class PlayerHeadDrop implements Listener {
             return;
         }
         Entity entity = event.getEntity();
-        if (!(entity instanceof Creature)) {
+        if (!(entity instanceof LivingEntity)) {
             return;
         }
-        Creature creature = (Creature) entity;
-        if (creature.getHealth() > event.getFinalDamage()) {
+        LivingEntity livingEntity = (LivingEntity) entity;
+        if (livingEntity.getHealth() > event.getFinalDamage()) {
             return;
         }
         if (creeper.hasMetadata("player-head")) {
             event.setCancelled(true);
-        } else if (creature instanceof Player) {
-            ItemStack skull = HeadUtils.getSkull(creature.getName());
-            creature.getWorld().dropItem(creature.getLocation(), skull);
-        } else if (drops.containsKey(creature.getType())) {
-            String name = LangUtils.get("entity.minecraft." + creature.getType().name().toLowerCase());
-            ItemStack skullFromValue = HeadUtils.getSkullFromValue(name, drops.get(creature.getType()));
-            creature.getWorld().dropItem(creature.getLocation(), skullFromValue);
+        } else if (livingEntity.getType().equals(EntityType.PLAYER)) {
+            ItemStack skull = HeadUtils.getSkull(livingEntity.getName());
+            livingEntity.getWorld().dropItem(livingEntity.getLocation(), skull);
+        } else if (drops.containsKey(livingEntity.getType())) {
+            String name = LangUtils.get("entity.minecraft." + livingEntity.getType().name().toLowerCase());
+            ItemStack skullFromValue = HeadUtils.getSkullFromValue(name, drops.get(livingEntity.getType()));
+            livingEntity.getWorld().dropItem(livingEntity.getLocation(), skullFromValue);
         } else {
             return;
         }
-        creature.setHealth(0);
+        livingEntity.setHealth(0);
         creeper.setMetadata("player-head", new FixedMetadataValue(IsletopiaTweakers.getPlugin(), "true"));
     }
 

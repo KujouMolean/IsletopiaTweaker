@@ -2,7 +2,7 @@ package com.molean.isletopia.menu.settings.member;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.PlotUtils;
@@ -47,7 +47,7 @@ public class MemberRemoveMenu implements Listener {
 
     public MemberRemoveMenu(Player player, List<String> members, int page) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.settings.member.remove.title", player));
+        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.settings.member.remove.title"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.members.addAll(members);
         this.members.sort(Comparator.comparing(String::toLowerCase));
@@ -71,9 +71,9 @@ public class MemberRemoveMenu implements Listener {
         for (int i = 0; i + page * 52 < members.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkull(members.get(i + page * 52)));
         }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, I18n.getMessage("menu.visit.nextPage", player));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.visit.nextPage"));
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.settings.member.remove.return", player));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.member.remove.return"));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
@@ -99,7 +99,7 @@ public class MemberRemoveMenu implements Listener {
             ItemStack item = inventory.getItem(slot);
             assert item != null;
             ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
+            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
             item.setItemMeta(itemMeta);
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player, members, page + 1).open());
             return;
@@ -116,7 +116,7 @@ public class MemberRemoveMenu implements Listener {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player).open());
             } else {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    player.kickPlayer(I18n.getMessage("error.menu.settings.member.non-owner", player));
+                    player.kickPlayer(MessageUtils.getMessage("error.menu.settings.member.non-owner"));
                 });
             }
         }

@@ -15,11 +15,11 @@ public class IsletopiaInfrastructure {
             new GuideBook();
             new ClockMenu();
             new RespawnPoint();
-            new I18n();
+            new MessageUtils();
             new TempServer();
             new StaticMap();
-            new AutoShutDown();
             new IgnoreCommand();
+            new UnignoreCommand();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

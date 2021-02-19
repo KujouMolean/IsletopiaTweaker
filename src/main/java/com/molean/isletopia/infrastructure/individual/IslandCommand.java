@@ -117,7 +117,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(I18n.getMessage("error.island.non-owner", player));
+            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
@@ -138,19 +138,19 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(I18n.getMessage("error.island.non-owner", player));
+            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         currentPlot.setHome(null);
-        player.sendMessage(I18n.getMessage("island.setHome", player));
+        player.sendMessage(MessageUtils.getMessage("island.setHome"));
     }
 
     public void setBiome(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(I18n.getMessage("error.island.non-owner", player));
+            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(),
@@ -167,69 +167,69 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(I18n.getMessage("error.island.non-owner", player));
+            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = ServerInfoUpdater.getUUID(target);
         currentPlot.addTrusted(uuid);
         PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(target, uuid);
-        player.sendMessage(I18n.getMessage("island.addTrust", player).replace("%1%", target));
+        player.sendMessage(MessageUtils.getMessage("island.addTrust").replace("%1%", target));
     }
 
     public void distrust(String source, String target) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(I18n.getMessage("error.island.non-owner", player));
+            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = ServerInfoUpdater.getUUID(target);
         currentPlot.removeTrusted(uuid);
-        player.sendMessage(I18n.getMessage("island.removeTrust", player).replace("%1%", target));
+        player.sendMessage(MessageUtils.getMessage("island.removeTrust").replace("%1%", target));
     }
 
     public void lock(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(I18n.getMessage("error.island.non-owner", player));
+            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = PlotDao.getAllUUID();
         currentPlot.addDenied(uuid);
-        player.sendMessage(I18n.getMessage("island.lock", player));
+        player.sendMessage(MessageUtils.getMessage("island.lock"));
     }
 
     public void unlock(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(I18n.getMessage("error.island.non-owner", player));
+            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = PlotDao.getAllUUID();
         currentPlot.removeDenied(uuid);
-        player.sendMessage(I18n.getMessage("island.unlock", player));
+        player.sendMessage(MessageUtils.getMessage("island.unlock"));
     }
 
     public void help(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        player.sendMessage(I18n.getMessage("island.help.1", player));
-        player.sendMessage(I18n.getMessage("island.help.2", player));
-        player.sendMessage(I18n.getMessage("island.help.3", player));
-        player.sendMessage(I18n.getMessage("island.help.4", player));
-        player.sendMessage(I18n.getMessage("island.help.5", player));
-        player.sendMessage(I18n.getMessage("island.help.6", player));
-        player.sendMessage(I18n.getMessage("island.help.7", player));
-        player.sendMessage(I18n.getMessage("island.help.8", player));
-        player.sendMessage(I18n.getMessage("island.help.9", player));
-        player.sendMessage(I18n.getMessage("island.help.10", player));
-        player.sendMessage(I18n.getMessage("island.help.11", player));
+        player.sendMessage(MessageUtils.getMessage("island.help.1"));
+        player.sendMessage(MessageUtils.getMessage("island.help.2"));
+        player.sendMessage(MessageUtils.getMessage("island.help.3"));
+        player.sendMessage(MessageUtils.getMessage("island.help.4"));
+        player.sendMessage(MessageUtils.getMessage("island.help.5"));
+        player.sendMessage(MessageUtils.getMessage("island.help.6"));
+        player.sendMessage(MessageUtils.getMessage("island.help.7"));
+        player.sendMessage(MessageUtils.getMessage("island.help.8"));
+        player.sendMessage(MessageUtils.getMessage("island.help.9"));
+        player.sendMessage(MessageUtils.getMessage("island.help.10"));
+        player.sendMessage(MessageUtils.getMessage("island.help.11"));
 
     }
 

@@ -2,7 +2,7 @@ package com.molean.isletopia.menu.visit;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.utils.HeadUtils;
@@ -35,7 +35,7 @@ public class VisitMenu implements Listener {
     }
 
     public VisitMenu(Player player, List<String> onlinePlayers, int page) {
-        inventory = Bukkit.createInventory(player, 54, I18n.getMessage("menu.visit.title", player));
+        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.visit.title"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
         this.onlinePlayers.addAll(onlinePlayers);
@@ -55,9 +55,9 @@ public class VisitMenu implements Listener {
         for (int i = 0; page * 52 + i < onlinePlayers.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkull(onlinePlayers.get(page * 52 + i)));
         }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, I18n.getMessage("menu.visit.nextPage", player));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.visit.nextPage"));
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, I18n.getMessage("menu.visit.return", player));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.visit.return"));
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory), 1);
@@ -89,7 +89,7 @@ public class VisitMenu implements Listener {
         if (slot < 52 && page * 52 + slot < onlinePlayers.size()) {
             ItemStack item = inventory.getItem(slot);
             ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(I18n.getMessage("menu.wait", player));
+            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
             item.setItemMeta(itemMeta);
             player.performCommand("visit " + onlinePlayers.get(page * 52 + slot));
         }

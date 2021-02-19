@@ -1,7 +1,7 @@
 package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.infrastructure.individual.I18n;
+import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -52,7 +52,7 @@ public class LavaProtect implements Listener {
         String asString = blockData.getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(I18n.getMessage("protect.lava", event.getPlayer()));
+            event.getPlayer().sendMessage(MessageUtils.getMessage("protect.lava"));
         }
     }
 
@@ -61,7 +61,7 @@ public class LavaProtect implements Listener {
         String asString = event.getBlock().getBlockData().getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(I18n.getMessage("protect.lava", event.getPlayer()));
+            event.getPlayer().sendMessage(MessageUtils.getMessage("protect.lava"));
         }
     }
 
@@ -78,7 +78,7 @@ public class LavaProtect implements Listener {
         if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
             return;
         }
-        event.getPlayer().sendMessage(I18n.getMessage("protect.fire", event.getPlayer()));
+        event.getPlayer().sendMessage(MessageUtils.getMessage("protect.fire"));
     }
 
     @EventHandler
@@ -89,7 +89,7 @@ public class LavaProtect implements Listener {
         Collection<Entity> nearbyEntities = event.getBlock().getWorld().getNearbyEntities(location, 8, 8, 8);
         for (Entity nearbyEntity : nearbyEntities) {
             if (nearbyEntity instanceof Player) {
-                nearbyEntity.sendMessage(I18n.getMessage("protect.lava.restore", (Player) nearbyEntity));
+                nearbyEntity.sendMessage(MessageUtils.getMessage("protect.lava.restore"));
             }
         }
     }
