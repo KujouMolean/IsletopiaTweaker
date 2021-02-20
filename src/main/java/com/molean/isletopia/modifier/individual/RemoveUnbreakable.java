@@ -3,7 +3,6 @@ package com.molean.isletopia.modifier.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,8 +19,8 @@ public class RemoveUnbreakable implements Listener {
     @EventHandler
     public void on(EntityDamageEvent event) {
         Entity entity = event.getEntity();
-        if (entity.getType().equals(EntityType.PLAYER)) {
-            Player player = (Player) event;
+        if (entity instanceof Player) {
+            Player player = (Player) entity;
             for (ItemStack armorContent : player.getInventory().getArmorContents()) {
                 if (armorContent == null) {
                     continue;

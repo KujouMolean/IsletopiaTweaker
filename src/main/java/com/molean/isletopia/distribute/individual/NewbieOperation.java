@@ -114,7 +114,7 @@ public class NewbieOperation implements Listener {
         ItemStack lavaBucket = new ItemStack(Material.LAVA_BUCKET);
         ItemStack waterBucket1 = new ItemStack(Material.WATER_BUCKET, 1);
         ItemStack waterBucket2 = new ItemStack(Material.WATER_BUCKET, 1);
-        inventory.addItem(food, lavaBucket, waterBucket1,waterBucket2);
+        inventory.addItem(food, lavaBucket, waterBucket1, waterBucket2);
     }
 
     public ItemStack newUnbreakableItem(Material material, String name, List<String> lores) {

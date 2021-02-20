@@ -7,6 +7,7 @@ import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.bukkit.util.BukkitUtil;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.location.Location;
+import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotArea;
 import org.bukkit.Bukkit;
@@ -18,10 +19,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,6 +72,36 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
 
     }
 
+    private static final Map<Plot, Long> lastNotifyTimeMap = new HashMap<>();
+
+    private static void warn(Plot currentPlot) {
+        Long lastNotifyTime = lastNotifyTimeMap.getOrDefault(currentPlot, 0L);
+        if (System.currentTimeMillis() - lastNotifyTime > 15000) {
+            lastNotifyTimeMap.put(currentPlot, System.currentTimeMillis());
+            List<PlotPlayer<?>> playersInPlot = currentPlot.getPlayersInPlot();
+            for (PlotPlayer<?> plotPlayer : playersInPlot) {
+                Player player = Bukkit.getPlayer(plotPlayer.getUUID());
+                if (player == null || !PlotUtils.hasCurrentPlotPermission(player)) {
+                    continue;
+                }
+                player.sendMessage("§8[§c危险警告§8] §e此岛屿实体已达上限, 实体无法再继续生成, 掉落物品可能会消失.");
+            }
+        }
+    }
+
+    @EventHandler
+    public void onItem(ItemSpawnEvent event) {
+        Item entity = event.getEntity();
+        org.bukkit.Location location = entity.getLocation();
+        Plot currentPlot = PlotUtils.getCurrentPlot(location);
+        if (countEntities(currentPlot, null) >= 1024) {
+            event.setCancelled(true);
+        }
+        if (countEntities(currentPlot, null) >= 512) {
+            warn(currentPlot);
+        }
+    }
+
 
     @EventHandler
     public void onMobSpawn(CreatureSpawnEvent event) {
@@ -81,6 +114,7 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
             return;
         }
         if (countEntities(plot, null) >= 512) {
+            warn(plot);
             event.setCancelled(true);
             return;
         }
