@@ -17,9 +17,9 @@ public class NMSTagUtils {
 
     static {
         try {
-            Class<?> craftItemClass = Class.forName("org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack");
-            Class<?> nbtTagCompoundClass = Class.forName("net.minecraft.server.v1_16_R3.NBTTagCompound");
-            Class<?> nmsItemClass = Class.forName("net.minecraft.server.v1_16_R3.ItemStack");
+            Class<?> craftItemClass = NMSUtils.getNMSClass("inventory.CraftItemStack");
+            Class<?> nbtTagCompoundClass = NMSUtils.getNMSClass("NBTTagCompound");
+            Class<?> nmsItemClass = NMSUtils.getNMSClass("ItemStack");
             asNMSCopyMethod = craftItemClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
             asBukkitCopyMethod = nmsItemClass.getDeclaredMethod("asBukkitCopy");
             getTagMethod = nmsItemClass.getDeclaredMethod("getOrCreateTag");

@@ -20,6 +20,7 @@ public class IsletopiaInfrastructure {
             new StaticMap();
             new IgnoreCommand();
             new UnignoreCommand();
+            new MoreChairs();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");
