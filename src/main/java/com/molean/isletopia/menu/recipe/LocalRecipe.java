@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocalRecipe {
-    static List<LocalRecipe> localRecipeList = new ArrayList<>();
+    public static List<LocalRecipe> localRecipeList = new ArrayList<>();
 
     public static void addRecipe(List<ItemStack> icons, List<ItemStack> types, List<ItemStack[]> sources, List<ItemStack> results) {
         localRecipeList.add(new LocalRecipe(icons, types, sources, results));
@@ -46,10 +46,10 @@ public class LocalRecipe {
     }
 
 
-    List<ItemStack> icons;
-    List<ItemStack> types;
-    List<ItemStack[]> sources;
-    List<ItemStack> results;
+    public List<ItemStack> icons;
+    public List<ItemStack> types;
+    public List<ItemStack[]> sources;
+    public List<ItemStack> results;
 
     public LocalRecipe(List<ItemStack> icons, List<ItemStack> types, List<ItemStack[]> sources, List<ItemStack> results) {
         this.icons = icons;
@@ -57,5 +57,6 @@ public class LocalRecipe {
         this.sources = sources;
         this.results = results;
     }
+
 
 }

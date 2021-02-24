@@ -2,6 +2,8 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.menu.recipe.CraftRecipeMenu;
+import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.menu.recipe.RecipeListMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -9,6 +11,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +42,20 @@ public class MenuCommand implements CommandExecutor, TabCompleter {
             }
             if (args[0].equalsIgnoreCase("close")) {
                 player.closeInventory();
+            }
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("recipe")) {
+                for (LocalRecipe localRecipe : LocalRecipe.localRecipeList) {
+                    for (ItemStack result : localRecipe.results) {
+                        if (result.getType().name().equalsIgnoreCase(args[1])) {
+                            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+                                new CraftRecipeMenu(player, localRecipe, "guide 新合成表").open();
+                            });
+                        }
+                    }
+
+                }
+
             }
         }
         return true;

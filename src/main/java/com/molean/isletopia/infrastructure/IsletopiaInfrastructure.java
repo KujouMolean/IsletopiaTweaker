@@ -21,6 +21,7 @@ public class IsletopiaInfrastructure {
             new IgnoreCommand();
             new UnignoreCommand();
             new MoreChairs();
+            new DropItemNotify();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");
