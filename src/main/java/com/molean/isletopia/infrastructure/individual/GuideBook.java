@@ -24,8 +24,6 @@ import java.io.InputStream;
 import java.util.*;
 
 public class GuideBook implements CommandExecutor {
-
-
     public GuideBook() {
         Objects.requireNonNull(Bukkit.getPluginCommand("guide")).setExecutor(this);
         List<String> resources = new ArrayList<>();

@@ -8,6 +8,8 @@ import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
+import com.molean.isletopia.message.core.ServerMessageManager;
+import com.molean.isletopia.message.obj.VisitRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -176,78 +178,20 @@ public class BungeeUtils {
 
     }
 
-    @SuppressWarnings("all")
-    public static void universalPlotVisit(Player sourcePlayer, String target) {
+
+    public static void universalPlotVisitByMessage(Player sourcePlayer, String target) {
 
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 
             String source = sourcePlayer.getName();
             String targetServer = UniversalParameter.getParameter(target, "server");
-
-
             if (targetServer == null) {
                 sourcePlayer.sendMessage(MessageUtils.getMessage("error.visit.noIsland"));
                 return;
             }
-            boolean allow = true;
-            UUID sourceUUID = ServerInfoUpdater.getUUID(source);
-            UUID allUUID = PlotDao.getAllUUID();
-            if (PlotDao.getPlotID(targetServer, target) == null) {
-                sourcePlayer.sendMessage(MessageUtils.getMessage("error.visit.noIsland"));
-                return;
-            }
 
-            List<UUID> denied = PlotDao.getDenied(targetServer, target);
-
-            List<UUID> trusted = PlotDao.getTrusted(targetServer, target);
-            if (denied.contains(sourceUUID) || denied.contains(allUUID)) {
-                allow = false;
-            }
-            if (trusted.contains(sourceUUID) || target.equalsIgnoreCase(source) || sourcePlayer.isOp()) {
-                allow = true;
-            }
-            if (!allow) {
-                if (!sourcePlayer.isOp() && !target.equalsIgnoreCase(source)) {
-                    if (ServerInfoUpdater.getOnlinePlayers().contains(target)) {
-                        BungeeUtils.sendVisitNotificationToPlayer(target, source, true);
-                    }
-                }
-                sourcePlayer.sendMessage(MessageUtils.getMessage("error.visit.refused"));
-                return;
-            }
-
-            if (!target.equalsIgnoreCase(source) && !sourcePlayer.isOp()) {
-                if (ServerInfoUpdater.getOnlinePlayers().contains(target)) {
-                    BungeeUtils.sendVisitNotificationToPlayer(target, source, false);
-                } else {
-                    if (!UniversalParameter.getParameterAsList(target, "visits").contains(source)) {
-                        UniversalParameter.addParameter(target, "visits", source);
-                    }
-                }
-            }
-
-            try {
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("Forward");
-                out.writeUTF(targetServer);
-                out.writeUTF("visit");
-                ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
-                DataOutputStream msgout = new DataOutputStream(msgbytes);
-                msgout.writeUTF(source);
-                msgout.writeUTF(target);
-                out.writeShort(msgbytes.toByteArray().length);
-                out.write(msgbytes.toByteArray());
-                sourcePlayer.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-            if (!targetServer.equalsIgnoreCase(ServerInfoUpdater.getServerName())) {
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("ConnectOther");
-                out.writeUTF(source);
-                out.writeUTF(targetServer);
-                sourcePlayer.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
-            }
+            VisitRequest visitRequest = new VisitRequest(source, target);
+            ServerMessageManager.sendMessage(targetServer, "VisitRequest", visitRequest);
         });
     }
 }

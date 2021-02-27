@@ -1,9 +1,7 @@
 package com.molean.isletopia.database;
 
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 import com.plotsquared.core.plot.PlotId;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

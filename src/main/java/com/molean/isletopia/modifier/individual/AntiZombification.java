@@ -14,7 +14,6 @@ public class AntiZombification implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-
     @EventHandler
     public void MobSpawn(EntitySpawnEvent event) {
         if (EntityType.HOGLIN.equals(event.getEntity().getType())) {

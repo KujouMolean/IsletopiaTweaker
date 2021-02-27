@@ -12,6 +12,7 @@ import com.molean.isletopia.utils.Sftp;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.backup.BackupProfile;
 import com.plotsquared.core.location.BlockLoc;
+import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,7 +39,7 @@ public class SettingsMenu implements Listener {
 
     public SettingsMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 18, MessageUtils.getMessage("menu.settings.title"));
+        inventory = Bukkit.createInventory(player, 9, MessageUtils.getMessage("menu.settings.title"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -54,12 +55,13 @@ public class SettingsMenu implements Listener {
     }
 
     public void open() {
-        for (int i = 0; i < 18; i++) {
+        for (int i = 0; i < 9; i++) {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
 
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        assert currentPlot != null;
         if (!currentPlot.getOwner().equals(player.getUniqueId())) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                 player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
@@ -108,15 +110,8 @@ public class SettingsMenu implements Listener {
             open = true;
         }
 
-        ItemStackSheet shield = new ItemStackSheet(Material.SHIELD, MessageUtils.getMessage("menu.settings.backup"));
-        shield.addLore(MessageUtils.getMessage("menu.settings.backup.1"));
-        shield.addLore(MessageUtils.getMessage("menu.settings.backup.2"));
-        shield.addLore(MessageUtils.getMessage("menu.settings.backup.3"));
-        shield.addLore(MessageUtils.getMessage("menu.settings.backup.4"));
-        inventory.setItem(8, shield.build());
-
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.return"));
-        inventory.setItem(17, father.build());
+        inventory.setItem(8, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
 
@@ -144,6 +139,7 @@ public class SettingsMenu implements Listener {
             }
             case 4: {
                 Plot currentPlot = PlotUtils.getCurrentPlot(player);
+                assert currentPlot != null;
                 if (currentPlot.getOwner().equals(player.getUniqueId())) {
                     Location location = player.getLocation();
                     com.plotsquared.core.location.Location bottomAbs = currentPlot.getBottomAbs();
@@ -170,9 +166,20 @@ public class SettingsMenu implements Listener {
 
             case 6: {
                 Plot currentPlot = PlotUtils.getCurrentPlot(player);
+                assert currentPlot != null;
                 if (currentPlot.getOwner().equals(player.getUniqueId())) {
                     if (open) {
                         currentPlot.addDenied(PlotDao.getAllUUID());
+                        List<PlotPlayer<?>> playersInPlot = currentPlot.getPlayersInPlot();
+                        for (PlotPlayer<?> plotPlayer : playersInPlot) {
+                            Player player = Bukkit.getPlayer(plotPlayer.getUUID());
+                            if (player == null) {
+                                continue;
+                            }
+                            if (!PlotUtils.hasCurrentPlotPermission(player)) {
+                                player.performCommand("is");
+                            }
+                        }
                     } else {
                         currentPlot.removeDenied(PlotDao.getAllUUID());
                     }
@@ -185,53 +192,6 @@ public class SettingsMenu implements Listener {
                 break;
             }
             case 8: {
-                player.closeInventory();
-                Plot currentPlot = PlotUtils.getCurrentPlot(player);
-                if (!currentPlot.getOwner().equals(player.getUniqueId())) {
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
-                    });
-                    return;
-                }
-                if (!player.getInventory().contains(Material.DIAMOND_BLOCK)) {
-                    player.sendMessage(MessageUtils.getMessage("backup.noCost"));
-                    return;
-                }
-                for (ItemStack itemStack : player.getInventory()) {
-                    if (itemStack != null && itemStack.getType().equals(Material.DIAMOND_BLOCK)) {
-                        itemStack.setAmount(itemStack.getAmount() - 1);
-                        break;
-                    }
-                }
-                player.sendMessage(MessageUtils.getMessage("backup.start.1"));
-                player.sendMessage(MessageUtils.getMessage("backup.start.2"));
-                BackupProfile profile = PlotSquared.imp().getBackupManager().getProfile(currentPlot);
-                profile.createBackup().whenComplete((backup, throwable) -> {
-                    if (throwable != null) {
-                        player.sendMessage(MessageUtils.getMessage("backup.failed"));
-                        return;
-                    }
-                    profile.listBackups().whenComplete((backups, throwable1) -> {
-                        if (backups.size() == 0 || throwable1 != null) {
-                            player.sendMessage(MessageUtils.getMessage("backup.failed"));
-                            return;
-                        }
-                        Path path = backups.get(0).getFile();
-                        assert path != null;
-                        UUID uuid = UUID.randomUUID();
-                        boolean b = Sftp.uploadFile(path.toString(), "/var/www/skin/schem/" + uuid + ".schem");
-                        if (!b) {
-                            player.sendMessage(MessageUtils.getMessage("backup.failed"));
-                            return;
-                        }
-                        String url = "http://skin.molean.com/schem/" + uuid + ".schem";
-                        player.sendMessage(MessageUtils.getMessage("backup.success").replace("%url%", url));
-                    });
-                });
-                break;
-            }
-
-            case 17: {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerMenu(player).open());
                 break;
             }

@@ -13,7 +13,6 @@ import java.util.Properties;
 public class DataSourceUtils {
     private static final Map<String, DruidDataSource> dataSourceMap = new HashMap<>();
 
-
     public static Connection getConnection() {
         return getConnection("minecraft");
     }

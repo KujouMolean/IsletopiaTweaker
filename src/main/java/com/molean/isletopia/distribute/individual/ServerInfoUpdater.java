@@ -22,7 +22,7 @@ import static org.bukkit.Bukkit.getScheduler;
 
 public class ServerInfoUpdater implements PluginMessageListener {
 
-    private static String serverName;
+    private static String serverName = new File(System.getProperty("user.dir")).getName();
 
     public static String getServerName() {
         return serverName;
@@ -47,7 +47,6 @@ public class ServerInfoUpdater implements PluginMessageListener {
     }
 
     public ServerInfoUpdater() {
-        serverName = new File(System.getProperty("user.dir")).getName();
         Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
         getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), ServerInfoUpdater::updates, 20, 20);
     }

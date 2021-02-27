@@ -160,7 +160,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private void visit(String source, String target) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        BungeeUtils.universalPlotVisit(player,target);
+        BungeeUtils.universalPlotVisitByMessage(player,target);
     }
 
     public void trust(String source, String target) {

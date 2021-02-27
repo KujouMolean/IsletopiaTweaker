@@ -26,7 +26,7 @@ public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
         if (args.length < 1)
             return true;
         String target = args[0];
-        BungeeUtils.universalPlotVisit(sourcePlayer, target);
+        BungeeUtils.universalPlotVisitByMessage(sourcePlayer, target);
         return true;
     }
 

@@ -31,7 +31,6 @@ public class DropItemNotify implements Listener {
     private final Map<Player, DropData> dropDataMap = new HashMap<>();
 
     @EventHandler
-
     public void on(PlayerDropItemEvent event) {
         if (PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
             return;
@@ -45,8 +44,6 @@ public class DropItemNotify implements Listener {
             dropData.lastTime = System.currentTimeMillis();
             dropData.amount += itemStack.getAmount();
         }
-
-
         if (dropData.amount > 128) {
             event.getPlayer().sendMessage("§8[§3温馨提示§8] §e请不要过度帮助新人, 否则会破坏游戏体验.");
             dropData.lastTime = 0L;

@@ -11,13 +11,14 @@ public class IsletopiaDistributeSystem {
 
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try {
+
             new NewbieOperation();
             new PlayerChatTweaker();
             new TellCommand();
             new VisitCommand();
             new ServerInfoUpdater();
             new LastServerUpdater();
-        }catch (Exception exception){
+        } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia distribute failed!");
         }

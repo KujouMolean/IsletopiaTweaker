@@ -74,7 +74,7 @@ public class NewbieOperation implements Listener {
             String server = UniversalParameter.getParameter(event.getPlayer().getName(), "server");
             if (server == null) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer(MessageUtils.getMessage("error.island.noIsland"));
+                    event.getPlayer().kickPlayer((MessageUtils.getMessage("error.island.noIsland")));
                 });
                 return;
             }
@@ -100,7 +100,7 @@ public class NewbieOperation implements Listener {
             }
             if (cnt > 1) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer(MessageUtils.getMessage("error.island.more"));
+                    event.getPlayer().kickPlayer((MessageUtils.getMessage("error.island.more")));
                 });
 
             }

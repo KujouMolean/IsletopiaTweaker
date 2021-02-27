@@ -34,4 +34,6 @@ commands:
   ignore: { }
   unignore: { }
   mobcap: { }
-  import: { }
+  backup: { }
+  download:
+    permission: isletopia.gcmd
