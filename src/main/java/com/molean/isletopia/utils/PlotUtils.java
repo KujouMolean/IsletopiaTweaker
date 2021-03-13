@@ -13,8 +13,10 @@ import com.plotsquared.core.plot.PlotArea;
 import com.plotsquared.core.plot.PlotId;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +39,14 @@ public class PlotUtils {
         int z = location.getBlockZ();
         PlotArea plotArea = plotAPI.getPlotSquared().getFirstPlotArea();
         return plotArea.getPlot(new com.plotsquared.core.location.Location(world, x, y, z));
+    }
+
+    public static File getPlotRegionFile(Plot plot) {
+        World world = (World)Bukkit.getWorlds().get(0);
+        File worldFolder = world.getWorldFolder();
+        int mcaX = plot.getId().getX() - 1;
+        int mcaY = plot.getId().getY() - 1;
+        return new File(worldFolder + String.format("/region/r.%d.%d.mca", mcaX, mcaY));
     }
 
     public static boolean hasPlotPermission(Plot plot, Player player) {

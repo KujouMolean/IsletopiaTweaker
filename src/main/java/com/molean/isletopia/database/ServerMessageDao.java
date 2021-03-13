@@ -31,8 +31,9 @@ public class ServerMessageDao {
     }
 
     public static void addMessage(ServerMessage serverMessage) {
+        removeExpire();
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "insert into isletopia_message(source, target, channel, message, status, time) " +
+            String sql = "insert into minecraft.isletopia_message(source, target, channel, message, status, time) " +
                     "VALUES (?,?,?,?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, serverMessage.getSource());
@@ -46,11 +47,22 @@ public class ServerMessageDao {
             exception.printStackTrace();
         }
     }
+    public static void removeExpire() {
+        try (Connection connection = DataSourceUtils.getConnection()) {
+            String sql = "delete from minecraft.isletopia_message where time < ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setLong(1, System.currentTimeMillis() - 1000 * 10 * 60L);
+            preparedStatement.execute();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
 
     public static Set<ServerMessage> fetchMessage() {
+
         Set<ServerMessage> serverMessages = new HashSet<>();
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "select id, source, target, channel, message, status, time from isletopia_message\n" +
+            String sql = "select id, source, target, channel, message, status, time from minecraft.isletopia_message\n" +
                     "where target=? and status!='expire' and status!='done' and status!='invalid'";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, ServerInfoUpdater.getServerName());
@@ -73,9 +85,8 @@ public class ServerMessageDao {
     }
 
     public static void updateStatus(int messageId, String status) {
-
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "update isletopia_message set status=? where id=?";
+            String sql = "update minecraft.isletopia_message set status=? where id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, status);
             preparedStatement.setInt(2, messageId);

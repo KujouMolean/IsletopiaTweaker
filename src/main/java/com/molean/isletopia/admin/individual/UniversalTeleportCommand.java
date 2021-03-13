@@ -29,7 +29,7 @@ public class UniversalTeleportCommand implements CommandExecutor, TabCompleter, 
         if (args.length < 1)
             return true;
         String target = args[0];
-        BungeeUtils.universalTeleport(sourcePlayer, target);
+        BungeeUtils.universalPlotVisitByMessage(sourcePlayer, target);
         return true;
     }
 
