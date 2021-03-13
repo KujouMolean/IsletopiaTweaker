@@ -44,7 +44,7 @@ public class VisitRequestHandler implements ServerMessageListener, Listener {
     public void handleMessage(ServerMessage serverMessage) {
         serverMessage.setStatus("done");
         Gson gson = new Gson();
-        VisitRequest visitRequest = (VisitRequest)gson.fromJson(serverMessage.getMessage(), VisitRequest.class);
+        VisitRequest visitRequest = gson.fromJson(serverMessage.getMessage(), VisitRequest.class);
         String sourcePlayer = visitRequest.getSourcePlayer();
         String targetPlayer = visitRequest.getTargetPlayer();
         VisitResponse visitResponse = new VisitResponse();
@@ -58,7 +58,7 @@ public class VisitRequestHandler implements ServerMessageListener, Listener {
             visitResponse.setResponseMessage("§8[§3岛屿助手§8] §7对方没有岛屿.");
             ServerMessageManager.sendMessage(serverMessage.getSource(), "VisitResponse", visitResponse);
         } else {
-            Plot plot = (Plot)plots.iterator().next();
+            Plot plot = plots.iterator().next();
             UUID allUUID = PlotDao.getAllUUID();
             HashSet<UUID> denied = plot.getDenied();
             HashSet<UUID> trusted = plot.getTrusted();
@@ -114,7 +114,7 @@ public class VisitRequestHandler implements ServerMessageListener, Listener {
     @EventHandler
     public void on(PlayerJoinEvent event) {
         String name = event.getPlayer().getName();
-        Location location = (Location)this.locationMap.get(name);
+        Location location = this.locationMap.get(name);
         if (location != null) {
             if (System.currentTimeMillis() - (Long)this.expire.getOrDefault(name, 0L) < 10000L) {
                 event.getPlayer().teleport(location);

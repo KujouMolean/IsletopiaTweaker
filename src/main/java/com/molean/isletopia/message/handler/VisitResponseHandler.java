@@ -24,7 +24,7 @@ public class VisitResponseHandler implements ServerMessageListener {
     public void handleMessage(ServerMessage serverMessage) {
         serverMessage.setStatus("done");
         String message = serverMessage.getMessage();
-        VisitResponse visitResponse = (VisitResponse)(new Gson()).fromJson(message, VisitResponse.class);
+        VisitResponse visitResponse = (new Gson()).fromJson(message, VisitResponse.class);
         Player player = Bukkit.getPlayer(visitResponse.getTarget());
         if (player != null) {
             if (!Objects.equals("accepted", visitResponse.getResponse())) {

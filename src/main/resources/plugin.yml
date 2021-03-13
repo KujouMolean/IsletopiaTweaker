@@ -35,5 +35,4 @@ commands:
   unignore: { }
   mobcap: { }
   backup: { }
-  download:
-    permission: isletopia.gcmd
+  download: { }

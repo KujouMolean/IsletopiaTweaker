@@ -22,7 +22,7 @@ public class TeleportResponseHandler implements ServerMessageListener {
     public void handleMessage(ServerMessage serverMessage) {
         serverMessage.setStatus("done");
         Gson gson = new Gson();
-        TeleportResponse teleportResponse = (TeleportResponse)gson.fromJson(serverMessage.getMessage(), TeleportResponse.class);
+        TeleportResponse teleportResponse = gson.fromJson(serverMessage.getMessage(), TeleportResponse.class);
         String target = teleportResponse.getTarget();
         Player player = Bukkit.getPlayer(target);
         if (player != null) {

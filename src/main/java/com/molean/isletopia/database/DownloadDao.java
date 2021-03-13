@@ -4,6 +4,8 @@ package com.molean.isletopia.database;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.utils.PlotUtils;
 import com.molean.isletopia.utils.SaveUtils;
 import com.plotsquared.core.PlotSquared;
@@ -51,17 +53,21 @@ public class DownloadDao {
     }
 
     public static UUID getOnlineUUID(String player) throws IOException {
-        URL url = new URL("https://api.mojang.com/users/profiles/minecraft/" + player);
-        InputStream inputStream = url.openStream();
-        byte[] bytes = inputStream.readAllBytes();
-        JsonParser jsonParser = new JsonParser();
-        JsonElement parse = jsonParser.parse(new String(bytes));
-        JsonObject asJsonObject = parse.getAsJsonObject();
-        JsonElement id = asJsonObject.get("id");
-        String asString = id.getAsString();
-        return UUID.fromString(asString.replaceFirst(
-                "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)",
-                "$1-$2-$3-$4-$5"));
+        try {
+            URL url = new URL("https://api.mojang.com/users/profiles/minecraft/" + player);
+            InputStream inputStream = url.openStream();
+            byte[] bytes = inputStream.readAllBytes();
+            JsonParser jsonParser = new JsonParser();
+            JsonElement parse = jsonParser.parse(new String(bytes));
+            JsonObject asJsonObject = parse.getAsJsonObject();
+            JsonElement id = asJsonObject.get("id");
+            String asString = id.getAsString();
+            return UUID.fromString(asString.replaceFirst(
+                    "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)",
+                    "$1-$2-$3-$4-$5"));
+        } catch (Exception e) {
+            return ServerInfoUpdater.getUUID(player);
+        }
     }
 
     public static String uploadSave(Plot plot) throws IOException {
@@ -104,10 +110,17 @@ public class DownloadDao {
         zipOutputStream.write(playerStatsBytes);
         zipOutputStream.putNextEntry(new ZipEntry("/playerdata/" + playerDataFile.getName()));
         zipOutputStream.write(playerDataBytes);
-        zipOutputStream.putNextEntry(new ZipEntry("/stats/" + onlineUUID.toString() + ".json"));
-        zipOutputStream.write(playerStatsBytes);
-        zipOutputStream.putNextEntry(new ZipEntry("/playerdata/" + onlineUUID.toString() + ".dat"));
-        zipOutputStream.write(playerDataBytes);
+
+        try {
+            zipOutputStream.putNextEntry(new ZipEntry("/stats/" + onlineUUID.toString() + ".json"));
+            zipOutputStream.write(playerStatsBytes);
+            zipOutputStream.putNextEntry(new ZipEntry("/playerdata/" + onlineUUID.toString() + ".dat"));
+            zipOutputStream.write(playerDataBytes);
+        } catch (IOException e) {
+
+        }
+
+
         zipOutputStream.close();
         byte[] data = outputStream.toByteArray();
         String token = UUID.randomUUID().toString().substring(0, 8);

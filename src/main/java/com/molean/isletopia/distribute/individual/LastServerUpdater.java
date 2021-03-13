@@ -15,6 +15,9 @@ public class LastServerUpdater implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        UniversalParameter.setParameter(event.getPlayer().getName(), "lastServer", ServerInfoUpdater.getServerName());
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            UniversalParameter.setParameter(event.getPlayer().getName(), "lastServer", ServerInfoUpdater.getServerName());
+
+        });
     }
 }
