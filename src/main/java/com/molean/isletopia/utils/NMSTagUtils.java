@@ -17,7 +17,7 @@ public class NMSTagUtils {
 
     static {
         try {
-            Class<?> craftItemClass = NMSUtils.getNMSClass("inventory.CraftItemStack");
+            Class<?> craftItemClass = NMSUtils.getBukkitClass("inventory.CraftItemStack");
             Class<?> nbtTagCompoundClass = NMSUtils.getNMSClass("NBTTagCompound");
             Class<?> nmsItemClass = NMSUtils.getNMSClass("ItemStack");
             asNMSCopyMethod = craftItemClass.getDeclaredMethod("asNMSCopy", ItemStack.class);

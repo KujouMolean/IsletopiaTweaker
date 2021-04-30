@@ -36,3 +36,5 @@ commands:
   mobcap: { }
   backup: { }
   download: { }
+  redstone: { }
+  bumpreward: { }

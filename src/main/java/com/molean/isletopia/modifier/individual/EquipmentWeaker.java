@@ -2,8 +2,6 @@ package com.molean.isletopia.modifier.individual;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.molean.isletopia.IsletopiaTweakers;
-import net.craftersland.data.bridge.PD;
-import net.craftersland.data.bridge.api.API;
 import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

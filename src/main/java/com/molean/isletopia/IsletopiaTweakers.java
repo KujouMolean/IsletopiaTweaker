@@ -63,7 +63,6 @@ public final class IsletopiaTweakers extends JavaPlugin {
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         new IsletopiaMessage();
-
         new IsletopiaInfrastructure();
         new IsletopiaModifier();
         new IsletopiaDistributeSystem();

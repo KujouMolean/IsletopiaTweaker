@@ -3,7 +3,6 @@ package com.molean.isletopia.protect.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.raid.RaidTriggerEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -65,6 +65,13 @@ public class AnimalProtect implements Listener {
             if (!PlotUtils.hasCurrentPlotPermission((Player) event.getDamager())) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onItemDrop(PlayerDropItemEvent event) {
+        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
+            event.setCancelled(true);
         }
     }
 }

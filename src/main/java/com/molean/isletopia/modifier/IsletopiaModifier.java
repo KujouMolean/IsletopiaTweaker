@@ -24,7 +24,7 @@ public class IsletopiaModifier {
             new EquipmentWeaker();
             new PlayerHeadDrop();
             new PreventRenameHead();
-            new AdvancedDispenser();
+//            new AdvancedDispenser();
             new FirstSapling();
             new TestListener();
             new NetherPortal();
