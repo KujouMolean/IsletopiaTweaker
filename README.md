@@ -64,19 +64,19 @@ Waterfall 是反向代理服务器，让玩家无需手动切换服务器。
 它们所在的目录名分别为server1、server2、server3......server8，它们都放在同一个目录下(必须，后续会提到)。
 
 大致结构为：
-/servers/
-.../dispatcher/
-.../server1/
-....../plugins/
-........./IsletopiaTweakers.jar
-....../server.properties
-.../server2/
-.../server3/
-.../server4/
-.../server5/
-.../server6/
-.../server7/
-.../server8/
+/servers/  
+.../dispatcher/  
+.../server1/  
+....../plugins/  
+........./IsletopiaTweakers.jar  
+....../server.properties  
+.../server2/  
+.../server3/  
+.../server4/  
+.../server5/  
+.../server6/   
+.../server7/  
+.../server8/  
 
 这些目录中仅有以下不同：
 1. server.properties 中的端口不同
