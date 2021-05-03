@@ -8,7 +8,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,11 +71,10 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                 sender.sendMessage("例如 /bumpreward Molean");
                 return;
             }
+
             if (System.currentTimeMillis() - lastUpdate > 1000 * 30) {
                 updateInformation();
             }
-
-
 
             String lastBumpReward = UniversalParameter.getParameter(args[0], "lastBumpReward");
             if (lastBumpReward != null && !lastBumpReward.isEmpty()) {
@@ -87,11 +86,25 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
             }
 
             for (BumpInfo bumpInfo : bumpInfos) {
-                if (bumpInfo.dateTime.toLocalDate().isEqual(LocalDate.now())&&bumpInfo.username.equalsIgnoreCase(args[0])) {
+                if (bumpInfo.dateTime.toLocalDate().isEqual(LocalDate.now()) && bumpInfo.username.equalsIgnoreCase(args[0])) {
                     String format = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     UniversalParameter.setParameter(sender.getName(), "lastBumpReward", format);
                     Player player = (Player) sender;
                     player.getInventory().addItem(new ItemStack(Material.SHULKER_BOX, 1));
+
+
+                    Random random = new Random();
+                    if (random.nextInt(100) < 10) {
+                        player.getInventory().addItem(new ItemStack(Material.BEACON, 1));
+                    }
+                    if (random.nextInt(100) < 10) {
+                        player.getInventory().addItem(new ItemStack(Material.HEART_OF_THE_SEA, 1));
+                    }
+                    if (random.nextInt(100) == 0) {
+                        player.getInventory().addItem(new ItemStack(Material.ELYTRA, 1));
+                        UniversalParameter.addParameter("Molean", "elytra",player.getName());
+                    }
+
                     return;
                 }
             }
