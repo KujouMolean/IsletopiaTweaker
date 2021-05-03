@@ -110,7 +110,5 @@ buildNumber.properties
 
 # Common working directory
 run/
-server9/
-server10/
 lib/
 release/
