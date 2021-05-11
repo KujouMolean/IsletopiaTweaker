@@ -1,5 +1,6 @@
 package com.molean.isletopia.protect.individual;
 
+import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
@@ -67,6 +68,16 @@ public class AnimalProtect implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onPlayer(EntityKnockbackByEntityEvent event){
+        if(event.getHitBy() instanceof Player){
+            if (!PlotUtils.hasCurrentPlotPermission((Player) event.getHitBy())) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
 
     @EventHandler
     public void onItemDrop(PlayerDropItemEvent event) {

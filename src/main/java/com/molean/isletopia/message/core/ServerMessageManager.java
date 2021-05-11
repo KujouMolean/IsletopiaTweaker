@@ -21,7 +21,6 @@ public class ServerMessageManager {
         Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Set<ServerMessage> serverMessages = ServerMessageDao.fetchMessage();
             for (ServerMessage serverMessage : serverMessages) {
-
                 String channel = serverMessage.getChannel();
                 Set<ServerMessageListener> serverMessageListeners = listeners.get(channel);
                 if (serverMessageListeners == null) {

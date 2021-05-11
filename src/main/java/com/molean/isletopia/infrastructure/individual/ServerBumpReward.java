@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -86,6 +87,9 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
             }
 
             for (BumpInfo bumpInfo : bumpInfos) {
+                if (args[0].equalsIgnoreCase("debug")) {
+                    System.out.println(bumpInfo);
+                }
                 if (bumpInfo.dateTime.toLocalDate().isEqual(LocalDate.now()) && bumpInfo.username.equalsIgnoreCase(args[0])) {
                     String format = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     UniversalParameter.setParameter(sender.getName(), "lastBumpReward", format);
@@ -102,7 +106,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                     }
                     if (random.nextInt(100) == 0) {
                         player.getInventory().addItem(new ItemStack(Material.ELYTRA, 1));
-                        UniversalParameter.addParameter("Molean", "elytra",player.getName());
+                        UniversalParameter.addParameter("Molean", "elytra", player.getName());
                     }
 
                     return;
@@ -135,18 +139,10 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String source = new String(bytes);
+        String source = new String(bytes, StandardCharsets.UTF_8);
 
-        Pattern pattern1 = Pattern.compile("<td><a " +
-                "href=\"home.php\\?mod=space&amp;uid=(.{3,30})\" " +
-                "target=\"_blank\">(.{3,30})</a></td>\n" +
-                "<td>(.{3,30})</td>\n" +
-                "<td >提升\\(服务器提升卡\\)</td>");
-        Pattern pattern2 = Pattern.compile("<td><a " +
-                "href=\"home.php\\?mod=space&amp;uid=(.{3,30})\" " +
-                "target=\"_blank\">(.{3,30})</a></td>\n" +
-                "<td><span title=\"(.{3,30})\">.{1,20}</span></td>\n" +
-                "<td >提升\\(服务器提升卡\\)</td>");
+        Pattern pattern1 = Pattern.compile("uid=(.{1,10})\" target=.{5,10}>(.{3,30})</a></td>\\n.{0,2}<td>(.{10,20})</td>\\n.{1,10}服务器提升卡");
+        Pattern pattern2 = Pattern.compile("uid=(.{1,10})\" target=.{5,10}>(.{3,30})</a></td>\\n.{0,2}<td><span title=\"(.{10,20})\">.{1,20}</span></td>\\n.{1,10}服务器提升卡");
 
         Matcher matcher1 = pattern1.matcher(source);
         Matcher matcher2 = pattern2.matcher(source);
