@@ -9,6 +9,7 @@ import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -47,7 +48,7 @@ public class NewbieOperation implements Listener {
             Integer plotID = PlotDao.getPlotID(server, player.getName());
             if (plotID != null) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    player.kickPlayer(MessageUtils.getMessage("error.island.mismatch"));
+                    player.kick(Component.text("严重错误, 在其他服务器拥有岛屿, 但位置与数据库不匹配."));
                 });
                 return;
             }
@@ -57,9 +58,9 @@ public class NewbieOperation implements Listener {
             player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 4));
             player.performCommand("plot auto");
             placeItem(player.getInventory());
-            ItemStack clock = newUnbreakableItem(Material.CLOCK, MessageUtils.getMessage("menu.item.title"),
-                    List.of(MessageUtils.getMessage("menu.item.lore.1"),
-                            MessageUtils.getMessage("menu.item.lore.2")));
+            ItemStack clock = newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
+                    List.of("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r",
+                            "§f[§7右键单击§f]§r §f打开§r §f主菜单§r"));
             player.getInventory().addItem(clock);
         });
 
@@ -74,7 +75,7 @@ public class NewbieOperation implements Listener {
             String server = UniversalParameter.getParameter(event.getPlayer().getName(), "server");
             if (server == null) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer((MessageUtils.getMessage("error.island.noIsland")));
+                    event.getPlayer().kick(Component.text("严重错误, 已加入服务器, 但未被分配岛屿."));
                 });
                 return;
             }
@@ -100,7 +101,7 @@ public class NewbieOperation implements Listener {
             }
             if (cnt > 1) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kickPlayer((MessageUtils.getMessage("error.island.more")));
+                    event.getPlayer().kick(Component.text("发生错误, 非管理员但拥有多个岛屿."));
                 });
 
             }
@@ -122,7 +123,7 @@ public class NewbieOperation implements Listener {
         ItemMeta itemMeta = itemStack.getItemMeta();
         assert itemMeta != null;
         itemMeta.setUnbreakable(true);
-        itemMeta.setDisplayName(name);
+        itemMeta.setLocalizedName(name);
         itemMeta.setLore(lores);
         itemStack.setItemMeta(itemMeta);
         return itemStack;

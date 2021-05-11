@@ -27,6 +27,7 @@ public class IsletopiaInfrastructure {
             new OfflineVisitorNotify();
             new SaveDownload();
             new ServerBumpReward();
+            new MenuCommand();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

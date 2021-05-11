@@ -5,6 +5,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.database.DataSourceUtils;
 import com.plotsquared.core.PlotSquared;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,6 +17,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.util.*;
 
 import static org.bukkit.Bukkit.getScheduler;
@@ -49,6 +51,7 @@ public class ServerInfoUpdater implements PluginMessageListener {
     public ServerInfoUpdater() {
         Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
         getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), ServerInfoUpdater::updates, 20, 20);
+
     }
 
     public static void updates() {

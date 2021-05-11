@@ -64,7 +64,7 @@ public class GuideBook implements CommandExecutor {
 
             List<List<BaseComponent>> pages = getPages(player,type);
             if (pages == null) {
-                sender.sendMessage(MessageUtils.getMessage("error.guide.non-exist"));
+                sender.sendMessage("§c没有该类型的指南.");
                 return;
             }
             for (List<BaseComponent> page : pages) {

@@ -118,7 +118,7 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
         Player player = (Player) sender;
         ItemStack itemStack = player.getInventory().getItemInMainHand();
         if (!itemStack.getType().equals(Material.FILLED_MAP)) {
-            player.sendMessage(MessageUtils.getMessage("staticmap.notMap"));
+            player.sendMessage("你手上的不是静态地图");
             return true;
         }
         String colors = NMSTagUtils.get(itemStack, "static-map");

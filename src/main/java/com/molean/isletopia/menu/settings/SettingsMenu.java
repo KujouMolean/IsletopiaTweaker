@@ -39,7 +39,7 @@ public class SettingsMenu implements Listener {
 
     public SettingsMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 9, MessageUtils.getMessage("menu.settings.title"));
+        inventory = Bukkit.createInventory(player, 9, "岛屿设置");
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -64,12 +64,12 @@ public class SettingsMenu implements Listener {
         assert currentPlot != null;
         if (!currentPlot.getOwner().equals(player.getUniqueId())) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
+                player.kickPlayer("错误, 非岛主更改岛屿设置.");
             });
             return;
         }
         HashSet<UUID> denied = currentPlot.getDenied();
-        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, MessageUtils.getMessage("menu.settings.biome"));
+        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, "§f= 更改生物群系 =");
         inventory.setItem(0, visit.build());
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Random random = new Random();
@@ -88,29 +88,29 @@ public class SettingsMenu implements Listener {
             }
         });
 
-        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, MessageUtils.getMessage("menu.settings.member"));
+        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, "§f< 添加删除成员 >");
         inventory.setItem(2, member.build());
 
-        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, MessageUtils.getMessage("menu.settings.home"));
+        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED,"§f| 更改复活位置 |");
         inventory.setItem(4, bed.build());
 
 
         if (denied.contains(PlotDao.getAllUUID())) {
-            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, MessageUtils.getMessage("menu.settings.unlock"));
-            cancel.addLore(MessageUtils.getMessage("menu.settings.unlock.1"));
-            cancel.addLore(MessageUtils.getMessage("menu.settings.unlock.2"));
+            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, "§f! 点击开放岛屿 !");
+            cancel.addLore("§7当前岛屿模式: §c锁定");
+            cancel.addLore("§7仅岛屿成员可访问你的岛屿.");
             inventory.setItem(6, cancel.build());
             open = false;
 
         } else {
-            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, MessageUtils.getMessage("menu.settings.lock"));
-            denyAll.addLore(MessageUtils.getMessage("menu.settings.lock.1"));
-            denyAll.addLore(MessageUtils.getMessage("menu.settings.lock.2"));
+            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, "§f! 点击闭关锁岛 !");
+            denyAll.addLore("§7当前岛屿模式: §2开放");
+            denyAll.addLore("§7任何人都可以访问你的岛屿.");
             inventory.setItem(6, denyAll.build());
             open = true;
         }
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f<<返回主菜单<<");
         inventory.setItem(8, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -150,7 +150,7 @@ public class SettingsMenu implements Listener {
                             location.getBlockZ() - bottomAbs.getZ(),
                             location.getYaw(),
                             location.getPitch()));
-                    player.sendMessage(MessageUtils.getMessage("menu.settings.home.ok")
+                    player.sendMessage("§8[§3岛屿助手§8] §7成功修改重生点为: %1%,%2%,%3%"
                             .replace("%1%", location.getBlockX() + "")
                             .replace("%2%", location.getBlockX() + "")
                             .replace("%3%", location.getBlockZ() + "")
@@ -158,7 +158,7 @@ public class SettingsMenu implements Listener {
                     player.closeInventory();
                 } else {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
+                        player.kickPlayer("错误, 非岛主更改岛屿设置.");
                     });
                 }
                 break;
@@ -186,7 +186,7 @@ public class SettingsMenu implements Listener {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
                 } else {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kickPlayer(MessageUtils.getMessage("error.menu.settings.non-owner"));
+                        player.kickPlayer("错误, 非岛主更改岛屿设置.");
                     });
                 }
                 break;

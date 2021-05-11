@@ -22,7 +22,7 @@ public class OfflineVisitorNotify implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
             if (visits.size() > 0) {
-                player.sendMessage(MessageUtils.getMessage("island.notify.offlineVisitors"));
+                player.sendMessage("§8[§3访客提醒§8] §e离线时的访客有:");
                 player.sendMessage("§7  " + String.join(",", visits));
                 UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
             }

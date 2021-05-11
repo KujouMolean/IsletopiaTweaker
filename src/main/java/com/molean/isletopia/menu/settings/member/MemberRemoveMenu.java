@@ -47,7 +47,7 @@ public class MemberRemoveMenu implements Listener {
 
     public MemberRemoveMenu(Player player, List<String> members, int page) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.settings.member.remove.title"));
+        inventory = Bukkit.createInventory(player, 54, "撤销某个玩家的权限:");
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.members.addAll(members);
         this.members.sort(Comparator.comparing(String::toLowerCase));
@@ -71,9 +71,9 @@ public class MemberRemoveMenu implements Listener {
         for (int i = 0; i + page * 52 < members.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkull(members.get(i + page * 52)));
         }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.visit.nextPage"));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.member.remove.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回成员");
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
@@ -96,11 +96,6 @@ public class MemberRemoveMenu implements Listener {
             return;
         }
         if (slot == inventory.getSize() - 2) {
-            ItemStack item = inventory.getItem(slot);
-            assert item != null;
-            ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-            item.setItemMeta(itemMeta);
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player, members, page + 1).open());
             return;
         }
@@ -116,7 +111,7 @@ public class MemberRemoveMenu implements Listener {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player).open());
             } else {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    player.kickPlayer(MessageUtils.getMessage("error.menu.settings.member.non-owner"));
+                    player.kickPlayer("错误, 非岛主操作岛屿成员.");
                 });
             }
         }

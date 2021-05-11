@@ -117,7 +117,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
@@ -138,19 +138,19 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         currentPlot.setHome(null);
-        player.sendMessage(MessageUtils.getMessage("island.setHome"));
+        player.sendMessage("§8[§3岛屿助手§8] §6成功更改重生位置.");
     }
 
     public void setBiome(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(),
@@ -167,69 +167,72 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = ServerInfoUpdater.getUUID(target);
+        assert currentPlot != null;
         currentPlot.addTrusted(uuid);
         PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(target, uuid);
-        player.sendMessage(MessageUtils.getMessage("island.addTrust").replace("%1%", target));
+        player.sendMessage("§8[§3岛屿助手§8] §6已经添加 "+target+" 为信任.");
     }
 
     public void distrust(String source, String target) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = ServerInfoUpdater.getUUID(target);
+        assert currentPlot != null;
         currentPlot.removeTrusted(uuid);
-        player.sendMessage(MessageUtils.getMessage("island.removeTrust").replace("%1%", target));
+        player.sendMessage("§8[§3岛屿助手§8] §6已经从信任列表中删除 %1%.".replace("%1%", target));
     }
 
     public void lock(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
+
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = PlotDao.getAllUUID();
         currentPlot.addDenied(uuid);
-        player.sendMessage(MessageUtils.getMessage("island.lock"));
+        player.sendMessage("§8[§3岛屿助手§8] §6已将岛屿设置为§c锁定§6, 非成员玩家将无法访问.");
     }
 
     public void unlock(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         if (!PlotUtils.isCurrentPlotOwner(player)) {
-            player.sendMessage(MessageUtils.getMessage("error.island.non-owner"));
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         UUID uuid = PlotDao.getAllUUID();
         currentPlot.removeDenied(uuid);
-        player.sendMessage(MessageUtils.getMessage("island.unlock"));
+        player.sendMessage("§8[§3岛屿助手§8] §6已将岛屿设置为§c开放§6, 所有玩家都可以访问.");
     }
 
     public void help(String source) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        player.sendMessage(MessageUtils.getMessage("island.help.1"));
-        player.sendMessage(MessageUtils.getMessage("island.help.2"));
-        player.sendMessage(MessageUtils.getMessage("island.help.3"));
-        player.sendMessage(MessageUtils.getMessage("island.help.4"));
-        player.sendMessage(MessageUtils.getMessage("island.help.5"));
-        player.sendMessage(MessageUtils.getMessage("island.help.6"));
-        player.sendMessage(MessageUtils.getMessage("island.help.7"));
-        player.sendMessage(MessageUtils.getMessage("island.help.8"));
-        player.sendMessage(MessageUtils.getMessage("island.help.9"));
-        player.sendMessage(MessageUtils.getMessage("island.help.10"));
-        player.sendMessage(MessageUtils.getMessage("island.help.11"));
+        player.sendMessage("§7§m§l----------§b梦幻之屿§7§m§l----------");
+        player.sendMessage("§e> 快速回家 /is home");
+        player.sendMessage("§e> 访问他人 /is visit [玩家]");
+        player.sendMessage("§e> 给予权限 /is trust [玩家]");
+        player.sendMessage("§e> 取消权限 /is distrust [玩家]");
+        player.sendMessage("§e> 闭关锁岛 /is lock");
+        player.sendMessage("§e> 开放岛屿 /is unlock");
+        player.sendMessage("§e> 修改复活位置 /is setHome");
+        player.sendMessage("§e> 重置复活位置 /is resetHome");
+        player.sendMessage("§e> 修改生物群系 /is setBiome");
+        player.sendMessage("§7§m§l--------------------------");
 
     }
 

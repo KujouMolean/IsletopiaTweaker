@@ -43,7 +43,7 @@ public class MemberAddMenu implements Listener {
     }
 
     public MemberAddMenu(Player player, List<String> players, int page) {
-        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.settings.member.add.title"));
+        inventory = Bukkit.createInventory(player, 54, "选择你想授权的玩家");
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
         this.players.addAll(players);
@@ -67,9 +67,9 @@ public class MemberAddMenu implements Listener {
         for (int i = 0; i + page * 52 < players.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkull(players.get(i + page * 52)));
         }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.visit.nextPage"));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.member.add.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回成员");
         inventory.setItem(inventory.getSize() - 1, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -88,11 +88,6 @@ public class MemberAddMenu implements Listener {
             return;
         }
         if (slot == inventory.getSize() - 2) {
-            ItemStack item = inventory.getItem(slot);
-            assert item != null;
-            ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-            item.setItemMeta(itemMeta);
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberAddMenu(player, players, page + 1).open());
             return;
         }
@@ -107,7 +102,7 @@ public class MemberAddMenu implements Listener {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberAddMenu(player).open());
             } else {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    player.kickPlayer(MessageUtils.getMessage("error.menu.settings.member.non-owner"));
+                    player.kickPlayer("错误, 非岛主操作岛屿成员.");
                 });
             }
         }

@@ -168,7 +168,7 @@ public class BungeeUtils {
             String source = sourcePlayer.getName();
             String targetServer = UniversalParameter.getParameter(target, "server");
             if (targetServer == null) {
-                sourcePlayer.sendMessage(MessageUtils.getMessage("error.visit.noIsland"));
+                sourcePlayer.sendMessage("§8[§3岛屿助手§8] §6已将岛屿设置为§c开放§6, 所有玩家都可以访问.");
                 return;
             }
 

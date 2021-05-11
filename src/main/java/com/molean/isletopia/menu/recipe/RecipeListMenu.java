@@ -26,7 +26,7 @@ public class RecipeListMenu implements Listener {
     public RecipeListMenu(Player player, String fatherCommand) {
         this.player = player;
         this.fatherCommand = fatherCommand;
-        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.recipeList.title"));
+        inventory = Bukkit.createInventory(player, 54, "扩展合成表");
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
     @SuppressWarnings("all")
@@ -35,7 +35,7 @@ public class RecipeListMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.recipeList.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回");
         inventory.setItem(inventory.getSize() - 1, father.build());
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             int cnt = 0;
