@@ -2,10 +2,8 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.ConfigUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -62,33 +60,25 @@ public class GuideBook implements CommandExecutor {
             bookMeta.setAuthor("Molean");
             bookMeta.setTitle("Guide");
 
-            List<List<BaseComponent>> pages = getPages(player,type);
+            List<List<Component>> pages = getPages(player, type);
             if (pages == null) {
                 sender.sendMessage("§c没有该类型的指南.");
                 return;
             }
-            for (List<BaseComponent> page : pages) {
-                bookMeta.spigot().addPage(page.toArray(new BaseComponent[0]));
+            for (List<Component> page : pages) {
+                bookMeta.addPages(page.toArray(new Component[0]));
 
             }
             itemStack.setItemMeta(bookMeta);
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.openBook(itemStack);
-            });
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openBook(itemStack));
         });
         return true;
     }
 
-    public List<List<BaseComponent>> getPages(Player player, String type) {
-        String guide;
-        if(player.getLocale().toLowerCase().startsWith("zh")){
-            guide = "guide.yml";
-        }else{
-            guide = "guide_en.yml";
-        }
-        ConfigUtils.reloadConfig(guide);
-        List<List<BaseComponent>> strings = new ArrayList<>();
-        YamlConfiguration config = ConfigUtils.getConfig(guide);
+    public List<List<Component>> getPages(Player player, String type) {
+        ConfigUtils.reloadConfig("guide.yml");
+        List<List<Component>> strings = new ArrayList<>();
+        YamlConfiguration config = ConfigUtils.getConfig("guide.yml");
         ConfigurationSection pages = config.getConfigurationSection(type);
         if (pages == null) {
             return null;
@@ -105,9 +95,9 @@ public class GuideBook implements CommandExecutor {
         return strings;
     }
 
-    public List<BaseComponent> parsePage(String text) {
+    public List<Component> parsePage(String text) {
         String[] split = text.split("%");
-        List<BaseComponent> baseComponents = new ArrayList<>();
+        List<Component> components = new ArrayList<>();
 
         boolean hasLeft = false;
         for (String s : split) {
@@ -119,39 +109,39 @@ public class GuideBook implements CommandExecutor {
                     if (sSplit.length != 3) {
                         continue;
                     }
-                    TextComponent textComponent = new TextComponent(sSplit[0]);
+                    Component textComponent = Component.text(sSplit[0]);
                     switch (sSplit[1]) {
                         case "cmd":
-                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, sSplit[2]));
+                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, sSplit[2]));
                             break;
                         case "url":
-                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, sSplit[2]));
+                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, sSplit[2]));
                             break;
                         case "page":
-                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, sSplit[2]));
+                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.CHANGE_PAGE, sSplit[2]));
                             break;
                         case "copy":
-                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, sSplit[2]));
+                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, sSplit[2]));
                             break;
                         case "file":
-                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, sSplit[2]));
+                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_FILE, sSplit[2]));
                             break;
                     }
-                    baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
+                    components.add(textComponent);
                 } else {
-                    TextComponent textComponent = new TextComponent(s);
+                    Component textComponent = Component.text(s);
                     s = s.replaceAll("§.", "");
-                    textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/guide " + s));
-                    baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
+                    textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/guide " + s));
+                    components.add(textComponent);
                 }
 
             } else {
                 hasLeft = true;
-                TextComponent textComponent = new TextComponent(s);
-                textComponent.setClickEvent(null);
-                baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
+                Component textComponent = Component.text(s);
+                textComponent = textComponent.clickEvent(null);
+                components.add(textComponent);
             }
         }
-        return baseComponents;
+        return components;
     }
 }

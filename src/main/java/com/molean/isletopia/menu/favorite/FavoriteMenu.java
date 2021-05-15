@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ public class FavoriteMenu implements Listener {
 
     public FavoriteMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 9, "<收藏夹>");
+        inventory = Bukkit.createInventory(player, 9, Component.text("<收藏夹>"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 

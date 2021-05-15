@@ -29,9 +29,9 @@ import java.util.regex.Pattern;
 public class ServerBumpReward implements CommandExecutor, TabCompleter {
 
     public static class BumpInfo {
-        private int uid;
-        private String username;
-        private LocalDateTime dateTime;
+        private final int uid;
+        private final String username;
+        private final LocalDateTime dateTime;
 
         public BumpInfo(int uid, String username, LocalDateTime dateTime) {
             this.uid = uid;
@@ -88,7 +88,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
             for (BumpInfo bumpInfo : bumpInfos) {
                 if (bumpInfo.dateTime.toLocalDate().isEqual(LocalDate.now()) && bumpInfo.username.equalsIgnoreCase(args[0])) {
                     String format = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    UniversalParameter.setParameter(sender.getName(), "lastBumpReward", format);
+                    UniversalParameter.setParameter(args[0], "lastBumpReward", format);
                     Player player = (Player) sender;
                     player.getInventory().addItem(new ItemStack(Material.SHULKER_BOX, 1));
 
@@ -104,16 +104,12 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                         player.getInventory().addItem(new ItemStack(Material.ELYTRA, 1));
                         UniversalParameter.addParameter("Molean", "elytra",player.getName());
                     }
-
                     return;
                 }
             }
-
             sender.sendMessage("你还没有顶帖，或者ID输入错误，请查证后重新领取。");
         });
-
         return true;
-
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.molean.isletopia.menu.visit.VisitMenu;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ public class PlayerMenu implements Listener {
 
     public PlayerMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 45,"主菜单");
+        inventory = Bukkit.createInventory(player, 45, Component.text("主菜单"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -54,6 +55,7 @@ public class PlayerMenu implements Listener {
         settings.addLore("§7更改你岛屿的选项");
         settings.addLore("§7例如添加岛员,更改生物群系");
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        assert currentPlot != null;
         if (!player.getUniqueId().equals(currentPlot.getOwner())) {
             settings.setDisplay("§f§m设置");
             settings.addLore("§c你只能修改自己的岛屿");
@@ -68,7 +70,7 @@ public class PlayerMenu implements Listener {
 
         SkullMeta itemMeta = (SkullMeta) skull.getItemMeta();
         assert itemMeta != null;
-        itemMeta.setDisplayName("§f回城");
+        itemMeta.displayName(Component.text("§f回城"));
         skull.setItemMeta(itemMeta);
         inventory.setItem(40, skull);
 
@@ -97,6 +99,7 @@ public class PlayerMenu implements Listener {
                 break;
             case 24:
                 Plot currentPlot = PlotUtils.getCurrentPlot(player);
+                assert currentPlot != null;
                 if (currentPlot.getOwner().equals(player.getUniqueId())) {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
                 }

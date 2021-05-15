@@ -5,6 +5,7 @@ import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.MapUtils;
 import com.molean.isletopia.utils.NMSTagUtils;
 import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -41,8 +42,8 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         ItemStack icon = new ItemStack(Material.FILLED_MAP);
         ItemMeta itemMeta = icon.getItemMeta();
-        itemMeta.setDisplayName("§f跨区地图");
-        itemMeta.setLore(List.of("§dStatic Map"));
+        itemMeta.displayName(Component.text("§f跨区地图"));
+        itemMeta.lore(List.of(Component.text("§dStatic Map")));
         icon.setItemMeta(itemMeta);
         ItemStack type = new ItemStack(Material.ANVIL);
         ItemStack[] source = new ItemStack[9];
@@ -51,7 +52,7 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
         }
         source[4] = new ItemStack(Material.FILLED_MAP);
         ItemMeta itemMeta1 = source[4].getItemMeta();
-        itemMeta1.setDisplayName("§f任意普通地图");
+        itemMeta1.displayName(Component.text("§f任意普通地图"));
         source[4].setItemMeta(itemMeta1);
         ItemStack result = icon.clone();
 
@@ -104,11 +105,11 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
         MapMeta mapMeta = (MapMeta) firstItem.getItemMeta();
         String colors = MapUtils.getColors(mapMeta);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(event.getInventory().getRenameText());
-        itemMeta.setLore(List.of("Static Map"));
+        itemMeta.displayName(Component.text(Objects.requireNonNull(event.getInventory().getRenameText())));
+        itemMeta.lore(List.of(Component.text("Static Map")));
         itemStack.setItemMeta(itemMeta);
         assert colors != null;
-        itemStack = NMSTagUtils.set(itemStack, "static-map", colors.toString());
+        itemStack = NMSTagUtils.set(itemStack, "static-map", colors);
         event.getInventory().setRepairCost(10);
         event.setResult(itemStack);
     }
@@ -163,7 +164,7 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
             String url = args[3];
             final String finalColor = colors;
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                BufferedImage read = null;
+                BufferedImage read;
                 try {
                     read = ImageIO.read(new URL(url));
                 } catch (IOException e) {

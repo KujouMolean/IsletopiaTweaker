@@ -7,6 +7,7 @@ import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import com.sk89q.worldedit.world.biome.BiomeTypes;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -37,7 +38,7 @@ public class BiomeMenu implements Listener {
     public BiomeMenu(Player player, int page) {
         this.player = player;
         this.page = page;
-        inventory = Bukkit.createInventory(player, 54, "选择想要切换的生物群系:");
+        inventory = Bukkit.createInventory(player, 54, Component.text("选择想要切换的生物群系:"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -120,16 +121,15 @@ public class BiomeMenu implements Listener {
         if (localBiome.getIcon() == null) {
             localBiome.setIcon(Material.PLAYER_HEAD);
         }
+        assert currentPlot != null;
         if (currentPlot.getOwner().equals(player.getUniqueId())) {
             player.sendMessage("§8[§3岛屿助手§8] §7尝试修改岛屿生物群系...");
 
-            currentPlot.setBiome(BiomeTypes.get(localBiome.getId().toLowerCase()), () -> {
-                player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + localBiome.getName() + ".");
-            });
+            currentPlot.setBiome(BiomeTypes.get(localBiome.getId().toLowerCase()), () ->
+                    player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + localBiome.getName() + "."));
         } else {
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer("错误, 非岛主操作岛屿成员.");
-            });
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
+                    player.kick(Component.text("错误, 非岛主操作岛屿成员.")));
         }
         player.closeInventory();
 

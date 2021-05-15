@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -20,7 +21,7 @@ public class HeadUtils {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         assert headMeta != null;
-        headMeta.setDisplayName("§f" + name);
+        headMeta.displayName(Component.text("§f" + name));
         GameProfile profile = new GameProfile(ServerInfoUpdater.getUUID(name), null);
         Pair<String, Long> stringLongPair = cache.get(name);
 
@@ -57,7 +58,7 @@ public class HeadUtils {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         assert headMeta != null;
-        headMeta.setDisplayName("§f" + name);
+        headMeta.displayName(Component.text("§f" + name));
         GameProfile profile = new GameProfile(ServerInfoUpdater.getUUID(name), null);
         profile.getProperties().put("textures", new Property("textures", value));
         try {

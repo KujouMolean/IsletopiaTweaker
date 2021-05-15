@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.settings.SettingsMenu;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -22,7 +23,7 @@ public class MemberMenu implements Listener {
 
     public MemberMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 9, "<岛屿成员>");
+        inventory = Bukkit.createInventory(player, 9, Component.text("<岛屿成员>"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 

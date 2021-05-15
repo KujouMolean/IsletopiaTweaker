@@ -89,7 +89,7 @@ world-settings:
     ender-dragons-death-always-places-dragon-egg: false
     max-leash-distance: 10.0
     only-players-collide: false
-    allow-vehicle-collisions: true
+    allow-vehicle-collisions: false
     portal-search-vanilla-dimension-scaling: true
     fix-climbing-bypassing-cramming-rule: false
     should-remove-dragon: false

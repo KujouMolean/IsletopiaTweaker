@@ -5,7 +5,6 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.DataSourceUtils;
 import com.plotsquared.core.PlotSquared;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,7 +16,6 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
 import java.util.*;
 
 import static org.bukkit.Bukkit.getScheduler;
@@ -44,8 +42,14 @@ public class ServerInfoUpdater implements PluginMessageListener {
 
     private static final Map<String, List<String>> playersPerServer = new HashMap<>();
 
+    private static final Map<String, String> playerServerMap = new HashMap<>();
+
     public static Map<String, List<String>> getPlayersPerServer() {
         return new HashMap<>(playersPerServer);
+    }
+
+    public static Map<String, String> getPlayerServerMap() {
+        return playerServerMap;
     }
 
     public ServerInfoUpdater() {
@@ -112,6 +116,9 @@ public class ServerInfoUpdater implements PluginMessageListener {
                 onlinePlayers.addAll(Arrays.asList(playerList));
             } else {
                 playersPerServer.put(server, Arrays.asList(playerList));
+                for (String s : playerList) {
+                    playerServerMap.put(s, server);
+                }
             }
         } else if (subChannel.equalsIgnoreCase("GetServer")) {
             serverName = in.readUTF();

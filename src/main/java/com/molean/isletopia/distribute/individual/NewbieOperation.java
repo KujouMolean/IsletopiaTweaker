@@ -47,9 +47,8 @@ public class NewbieOperation implements Listener {
                 continue;
             Integer plotID = PlotDao.getPlotID(server, player.getName());
             if (plotID != null) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    player.kick(Component.text("严重错误, 在其他服务器拥有岛屿, 但位置与数据库不匹配."));
-                });
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
+                        player.kick(Component.text("严重错误, 在其他服务器拥有岛屿, 但位置与数据库不匹配.")));
                 return;
             }
         }
@@ -59,8 +58,8 @@ public class NewbieOperation implements Listener {
             player.performCommand("plot auto");
             placeItem(player.getInventory());
             ItemStack clock = newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
-                    List.of("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r",
-                            "§f[§7右键单击§f]§r §f打开§r §f主菜单§r"));
+                    List.of(Component.text("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r"),
+                            Component.text("§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
             player.getInventory().addItem(clock);
         });
 
@@ -74,9 +73,8 @@ public class NewbieOperation implements Listener {
             // if player has not clock
             String server = UniversalParameter.getParameter(event.getPlayer().getName(), "server");
             if (server == null) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kick(Component.text("严重错误, 已加入服务器, 但未被分配岛屿."));
-                });
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
+                        event.getPlayer().kick(Component.text("严重错误, 已加入服务器, 但未被分配岛屿.")));
                 return;
             }
             if (server.equalsIgnoreCase(ServerInfoUpdater.getServerName())) {
@@ -100,9 +98,8 @@ public class NewbieOperation implements Listener {
                 }
             }
             if (cnt > 1) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    event.getPlayer().kick(Component.text("发生错误, 非管理员但拥有多个岛屿."));
-                });
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
+                        event.getPlayer().kick(Component.text("发生错误, 非管理员但拥有多个岛屿.")));
 
             }
             HeadUtils.getSkull(event.getPlayer().getName());
@@ -118,13 +115,13 @@ public class NewbieOperation implements Listener {
         inventory.addItem(food, lavaBucket, waterBucket1, waterBucket2);
     }
 
-    public ItemStack newUnbreakableItem(Material material, String name, List<String> lores) {
+    public ItemStack newUnbreakableItem(Material material, String name, List<Component> lores) {
         ItemStack itemStack = new ItemStack(material);
         ItemMeta itemMeta = itemStack.getItemMeta();
         assert itemMeta != null;
         itemMeta.setUnbreakable(true);
         itemMeta.setLocalizedName(name);
-        itemMeta.setLore(lores);
+        itemStack.lore(lores);
         itemStack.setItemMeta(itemMeta);
         return itemStack;
     }

@@ -5,6 +5,7 @@ import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -35,7 +36,7 @@ public class FavoriteRemoveMenu implements Listener {
 
     public FavoriteRemoveMenu(Player player, List<String> collections, int page) {
 
-        inventory = Bukkit.createInventory(player, 54,"选择你不再想收藏的岛屿:");
+        inventory = Bukkit.createInventory(player, 54, Component.text("选择你不再想收藏的岛屿:"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
         this.collections.addAll(collections);
