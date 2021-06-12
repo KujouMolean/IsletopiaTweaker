@@ -92,7 +92,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                 }
                 if (bumpInfo.dateTime.toLocalDate().isEqual(LocalDate.now()) && bumpInfo.username.equalsIgnoreCase(args[0])) {
                     String format = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    UniversalParameter.setParameter(sender.getName(), "lastBumpReward", format);
+                    UniversalParameter.setParameter(args[0], "lastBumpReward", format);
                     Player player = (Player) sender;
                     player.getInventory().addItem(new ItemStack(Material.SHULKER_BOX, 1));
 
@@ -141,8 +141,8 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
         }
         String source = new String(bytes, StandardCharsets.UTF_8);
 
-        Pattern pattern1 = Pattern.compile("uid=(.{1,10})\" target=.{5,10}>(.{3,30})</a></td>\\n.{0,2}<td>(.{10,20})</td>\\n.{1,10}服务器提升卡");
-        Pattern pattern2 = Pattern.compile("uid=(.{1,10})\" target=.{5,10}>(.{3,30})</a></td>\\n.{0,2}<td><span title=\"(.{10,20})\">.{1,20}</span></td>\\n.{1,10}服务器提升卡");
+        Pattern pattern1 = Pattern.compile("uid=(.{1,10})\" target=.{5,10}>(.{2,30})</a></td>\\n.{0,2}<td>(.{10,20})</td>\\n.{1,10}服务器提升卡");
+        Pattern pattern2 = Pattern.compile("uid=(.{1,10})\" target=.{5,10}>(.{2,30})</a></td>\\n.{0,2}<td><span title=\"(.{10,20})\">.{1,20}</span></td>\\n.{1,10}服务器提升卡");
 
         Matcher matcher1 = pattern1.matcher(source);
         Matcher matcher2 = pattern2.matcher(source);

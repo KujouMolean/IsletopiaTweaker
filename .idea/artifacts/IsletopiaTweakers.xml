@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="IsletopiaTweakers">
+    <output-path>$PROJECT_DIR$/release</output-path>
+    <root id="archive" name="IsletopiaTweakers.jar">
+      <element id="module-output" name="IsletopiaTweaker" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/alibaba/druid/1.1.22/druid-1.1.22.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/mysql/mysql-connector-java/8.0.20/mysql-connector-java-8.0.20.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

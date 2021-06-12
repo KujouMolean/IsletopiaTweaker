@@ -13,14 +13,12 @@ commands:
     permission: isletopia.gsend
   gcmd:
     permission: isletopia.gcmd
-  scene: { }
+  parameter:
+    permission: isletopia.parameter
   guide: { }
-  story: { }
   help: { }
   visit: { }
   issue: { }
-  parameter:
-    permission: isletopia.parameter
   menu: { }
   tell: { }
   msg: { }
