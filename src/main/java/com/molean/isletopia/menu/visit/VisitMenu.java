@@ -6,6 +6,7 @@ import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.utils.HeadUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -35,7 +36,7 @@ public class VisitMenu implements Listener {
     }
 
     public VisitMenu(Player player, List<String> onlinePlayers, int page) {
-        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.visit.title"));
+        inventory = Bukkit.createInventory(player, 54, Component.text("选择你想访问的岛屿:"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
         this.onlinePlayers.addAll(onlinePlayers);
@@ -55,9 +56,9 @@ public class VisitMenu implements Listener {
         for (int i = 0; page * 52 + i < onlinePlayers.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkull(onlinePlayers.get(page * 52 + i)));
         }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.visit.nextPage"));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.visit.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory), 1);
@@ -87,10 +88,6 @@ public class VisitMenu implements Listener {
             return;
         }
         if (slot < 52 && page * 52 + slot < onlinePlayers.size()) {
-            ItemStack item = inventory.getItem(slot);
-            ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-            item.setItemMeta(itemMeta);
             player.performCommand("visit " + onlinePlayers.get(page * 52 + slot));
         }
 

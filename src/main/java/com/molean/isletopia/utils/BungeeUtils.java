@@ -4,11 +4,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.message.core.ServerMessageManager;
+import com.molean.isletopia.message.obj.PlaySoundRequest;
 import com.molean.isletopia.message.obj.TeleportRequest;
 import com.molean.isletopia.message.obj.VisitRequest;
 import org.bukkit.Bukkit;
@@ -18,10 +17,7 @@ import org.bukkit.entity.Player;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class BungeeUtils {
 
@@ -123,52 +119,39 @@ public class BungeeUtils {
     }
 
     public static void sendSoundToPlayer(String target, Sound sound) {
-        try {
-            @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
-            out.writeUTF("ForwardToPlayer");
-            out.writeUTF(target);
-            out.writeUTF("sound");
-            ByteArrayOutputStream msgbytes = new ByteArrayOutputStream();
-            DataOutputStream msgout = new DataOutputStream(msgbytes);
-            msgout.writeUTF(target);
-            msgout.writeUTF(sound.name());
-            out.writeShort(msgbytes.toByteArray().length);
-            out.write(msgbytes.toByteArray());
-            Player first = Iterables.getFirst(Bukkit.getServer().getOnlinePlayers(), null);
-            if (first == null) {
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            Map<String, String> playerServerMap = ServerInfoUpdater.getPlayerServerMap();
+            String server = playerServerMap.getOrDefault(target,null);
+            if(server==null){
                 return;
             }
-            first.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+            PlaySoundRequest playSoundRequest = new PlaySoundRequest();
+            playSoundRequest.setTargetPlayer(target);
+            playSoundRequest.setSoundName(sound.name());
+            ServerMessageManager.sendMessage(server, "TeleportRequest", playSoundRequest);
+        });
     }
 
     public static void universalTeleport(Player sourcePlayer, String target) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            Map<String, List<String>> playersPerServer = ServerInfoUpdater.getPlayersPerServer();
-            for (String s : playersPerServer.keySet()) {
-                if(playersPerServer.get(s).contains(target)){
-                    TeleportRequest teleportRequest = new TeleportRequest();
-                    teleportRequest.setSourcePlayer(sourcePlayer.getName());
-                    teleportRequest.setTargetPlayer(target);
-                    ServerMessageManager.sendMessage(s, "TeleportRequest", teleportRequest);
-                    break;
-                }
+            Map<String, String> playerServerMap = ServerInfoUpdater.getPlayerServerMap();
+            String server = playerServerMap.getOrDefault(target,null);
+            if(server==null){
+                return;
             }
-
-
+            TeleportRequest teleportRequest = new TeleportRequest();
+            teleportRequest.setSourcePlayer(sourcePlayer.getName());
+            teleportRequest.setTargetPlayer(target);
+            ServerMessageManager.sendMessage(server, "TeleportRequest", teleportRequest);
         });
     }
 
     public static void universalPlotVisitByMessage(Player sourcePlayer, String target) {
-
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-
             String source = sourcePlayer.getName();
             String targetServer = UniversalParameter.getParameter(target, "server");
             if (targetServer == null) {
-                sourcePlayer.sendMessage(MessageUtils.getMessage("error.visit.noIsland"));
+                sourcePlayer.sendMessage("§8[§3岛屿助手§8] §6已将岛屿设置为§c开放§6, 所有玩家都可以访问.");
                 return;
             }
 

@@ -24,7 +24,6 @@ public class MessageUtils {
     public MessageUtils() {
         List<String> resources = new ArrayList<>();
         resources.add("biome.properties");
-        resources.add("message.properties");
         for (String resource : resources) {
             InputStream inputStream = IsletopiaTweakers.getPlugin().getResource(resource);
             String file = IsletopiaTweakers.getPlugin().getDataFolder() + "/" + resource;
@@ -40,16 +39,16 @@ public class MessageUtils {
 
     }
 
-    public static String getMessage(String key) {
-        try {
-            Properties message = new Properties();
-
-            message.load(new FileInputStream(IsletopiaTweakers.getPlugin().getDataFolder() + "/message.properties"));
-            return message.getProperty(key);
-        } catch (IOException e) {
-            return key;
-        }
-    }
+//    public static String getMessage(String key) {
+//        try {
+//            Properties message = new Properties();
+//
+//            message.load(new FileInputStream(IsletopiaTweakers.getPlugin().getDataFolder() + "/message.properties"));
+//            return message.getProperty(key);
+//        } catch (IOException e) {
+//            return key;
+//        }
+//    }
 
     public static LocalBiome getBiome(String biome) {
         Properties properties = new Properties();
@@ -88,7 +87,25 @@ public class MessageUtils {
     }
 
     public static String getLocalServerName() {
-        return MessageUtils.getMessage(ServerInfoUpdater.getServerName());
+        switch (ServerInfoUpdater.getServerName()){
+            case "server1":
+                return "马尔代夫";
+            case "server2":
+                return "东沙群岛";
+            case "server3":
+                return "西沙群岛";
+            case "server4":
+                return "南沙群岛";
+            case "server5":
+                return "夏威夷";
+            case "server6":
+                return "钓鱼群岛";
+            case "server7":
+                return "格陵兰岛";
+            case "server8":
+                return "不列颠群岛";
+        }
+        return "未知";
     }
 
 }

@@ -112,3 +112,5 @@ buildNumber.properties
 run/
 lib/
 release/
+server1/
+server2

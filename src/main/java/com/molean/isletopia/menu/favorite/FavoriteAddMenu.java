@@ -6,6 +6,7 @@ import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -44,7 +45,7 @@ public class FavoriteAddMenu implements Listener {
 
     public FavoriteAddMenu(Player player, List<String> onlinePlayers, int page) {
 
-        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.favorite.add.title"));
+        inventory = Bukkit.createInventory(player, 54, Component.text("选择你想收藏的岛屿:"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
         this.players.addAll(onlinePlayers);
@@ -67,9 +68,9 @@ public class FavoriteAddMenu implements Listener {
         for (int i = 0; i + page * 52 < players.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkull(players.get(i + page * 52)));
         }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.visit.nextPage"));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.favorite.add.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
         inventory.setItem(inventory.getSize() - 1, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -89,11 +90,6 @@ public class FavoriteAddMenu implements Listener {
             return;
         }
         if (slot == inventory.getSize() - 2) {
-            ItemStack item = inventory.getItem(slot);
-            assert item != null;
-            ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-            item.setItemMeta(itemMeta);
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteAddMenu(player, players, page + 1).open());
             return;
         }
@@ -103,11 +99,6 @@ public class FavoriteAddMenu implements Listener {
         }
 
         if (slot < players.size() && slot < 52) {
-            ItemStack item = inventory.getItem(slot);
-            assert item != null;
-            ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-            item.setItemMeta(itemMeta);
 
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
                 UniversalParameter.addParameter(player.getName(), "collection", players.get(slot + page * 52));

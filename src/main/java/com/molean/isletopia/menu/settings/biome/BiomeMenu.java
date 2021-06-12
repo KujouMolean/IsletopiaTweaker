@@ -7,6 +7,7 @@ import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import com.sk89q.worldedit.world.biome.BiomeTypes;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -37,7 +38,7 @@ public class BiomeMenu implements Listener {
     public BiomeMenu(Player player, int page) {
         this.player = player;
         this.page = page;
-        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.settings.biome.title"));
+        inventory = Bukkit.createInventory(player, 54, Component.text("选择想要切换的生物群系:"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -59,25 +60,25 @@ public class BiomeMenu implements Listener {
             }
             ItemStackSheet itemStackSheet = new ItemStackSheet(localBiome.getIcon(), "§f" + localBiome.getName());
             if (!localBiome.getCreatures().isEmpty()) {
-                itemStackSheet.addLore(MessageUtils.getMessage("menu.settings.biome.creature") + String.join(", ", localBiome.getCreatures()));
+                itemStackSheet.addLore("§f生物: " + String.join(", ", localBiome.getCreatures()));
             }
             if (!localBiome.getEnvironment().isEmpty()) {
-                itemStackSheet.addLore(MessageUtils.getMessage("menu.settings.biome.environment") + String.join(", ", localBiome.getEnvironment()));
+                itemStackSheet.addLore("§f环境: " + String.join(", ", localBiome.getEnvironment()));
             }
             if (biome.name().equalsIgnoreCase(localBiome.getId())) {
                 itemStackSheet.addItemFlag(ItemFlag.HIDE_ENCHANTS);
                 itemStackSheet.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
                 String display = itemStackSheet.getDisplay();
-                itemStackSheet.setDisplay(MessageUtils.getMessage("menu.settings.biome.current") + display);
+                itemStackSheet.setDisplay("§f当前所在生物群系: " + display);
             }
             inventory.setItem(i - page * 52, itemStackSheet.build());
         }
 
 
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.settings.biome.nextPage"));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.biome.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory), 1);
@@ -120,15 +121,15 @@ public class BiomeMenu implements Listener {
         if (localBiome.getIcon() == null) {
             localBiome.setIcon(Material.PLAYER_HEAD);
         }
+        assert currentPlot != null;
         if (currentPlot.getOwner().equals(player.getUniqueId())) {
-            player.sendMessage(MessageUtils.getMessage("menu.settings.biome.try"));
-            currentPlot.setBiome(BiomeTypes.get(localBiome.getId().toLowerCase()), () -> {
-                player.sendMessage(MessageUtils.getMessage("menu.settings.biome.ok") + localBiome.getName() + ".");
-            });
+            player.sendMessage("§8[§3岛屿助手§8] §7尝试修改岛屿生物群系...");
+
+            currentPlot.setBiome(BiomeTypes.get(localBiome.getId().toLowerCase()), () ->
+                    player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + localBiome.getName() + "."));
         } else {
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.kickPlayer(MessageUtils.getMessage("error.menu.settings.member.non-owner"));
-            });
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
+                    player.kick(Component.text("错误, 非岛主操作岛屿成员.")));
         }
         player.closeInventory();
 

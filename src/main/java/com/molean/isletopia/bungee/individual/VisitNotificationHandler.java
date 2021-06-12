@@ -29,7 +29,7 @@ public class VisitNotificationHandler implements PluginMessageListener, Listener
     public void onJoin(PlayerJoinEvent event){
         List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
         if (visits.size() > 0) {
-            event.getPlayer().sendMessage(MessageUtils.getMessage("island.notify.offlineVisitors"));
+            event.getPlayer().sendMessage("§8[§3访客提醒§8] §e离线时的访客有:");
             event.getPlayer().sendMessage("§7  " + String.join(",", visits));
             UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
         }
@@ -46,7 +46,7 @@ public class VisitNotificationHandler implements PluginMessageListener, Listener
                 in.readFully(msgbytes);
                 DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
                 String visitor = msgin.readUTF();
-                player.sendMessage(MessageUtils.getMessage("notification.visitor").replace("%1%", visitor));
+                player.sendMessage("§8[§3访客提醒§8] §e %1% 刚刚访问了阁下的岛屿.".replace("%1%", visitor));
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
@@ -57,7 +57,8 @@ public class VisitNotificationHandler implements PluginMessageListener, Listener
                 in.readFully(msgbytes);
                 DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
                 String visitor = msgin.readUTF();
-                player.sendMessage(MessageUtils.getMessage("notification.failedVisitor").replace("%1%", visitor));
+                player.sendMessage("§8[§3访客提醒§8] §e %1% 请求访问阁下岛屿但被拒绝了.".replace("%1%", visitor));
+
             } catch (IOException exception) {
                 exception.printStackTrace();
             }

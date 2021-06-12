@@ -1,5 +1,7 @@
 package com.molean.isletopia.menu;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.generator.ChunkGenerator;
@@ -15,7 +17,7 @@ import java.util.Map;
 public class ItemStackSheet {
     private final Material material;
     private String display = null;
-    private List<String> lores = null;
+    private List<Component> lores = null;
     private int amount = 1;
     private final Map<Enchantment, Integer> enchantments = new HashMap<>();
     private final List<ItemFlag> itemFlags = new ArrayList<>();
@@ -39,7 +41,7 @@ public class ItemStackSheet {
         if(lores == null){
             lores = new ArrayList<>();
         }
-        lores.add(lore);
+        lores.add(Component.text(lore));
     }
 
     public void addEnchantment(Enchantment enchantment, int level) {
@@ -54,8 +56,8 @@ public class ItemStackSheet {
         ItemStack itemStack = new ItemStack(material, amount);
         ItemMeta itemMeta = itemStack.getItemMeta();
         assert itemMeta != null;
-        itemMeta.setDisplayName(display);
-        itemMeta.setLore(lores);
+        itemMeta.displayName(Component.text(display));
+        itemMeta.lore(lores);
         for (ItemFlag itemFlag : itemFlags) {
             itemMeta.addItemFlags(itemFlag);
         }

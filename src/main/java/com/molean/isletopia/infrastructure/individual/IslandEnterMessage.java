@@ -41,7 +41,7 @@ public class IslandEnterMessage implements Listener {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(owner);
             String ownerName = offlinePlayer.getName();
             ownerName = ownerName == null ? "未知" : ownerName;
-            String subtitle = MessageUtils.getMessage("island.subtitle").replace("%1%", ownerName);
+            String subtitle = "§3由 %1% 所有".replace("%1%", ownerName);
             event.getPlayer().sendTitle(title, subtitle, 20, 40, 20);
         }
     }

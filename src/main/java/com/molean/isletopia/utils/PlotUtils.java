@@ -108,7 +108,7 @@ public class PlotUtils {
                         .replace("%1%", localServerName)
                         .replace("%2%", id.getX() + "")
                         .replace("%3%", id.getY() + "");
-                String subtitle = MessageUtils.getMessage("island.subtitle").replace("%1%", target);
+                String subtitle = "§3由 %1% 所有".replace("%1%", target);
                 source.sendTitle(title, subtitle, 20, 40, 20);
             });
         });

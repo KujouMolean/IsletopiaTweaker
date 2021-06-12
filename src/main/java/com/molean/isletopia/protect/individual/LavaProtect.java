@@ -52,7 +52,7 @@ public class LavaProtect implements Listener {
         String asString = blockData.getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(MessageUtils.getMessage("protect.lava"));
+            event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆受到保护,只能用空桶收起.");
         }
     }
 
@@ -61,7 +61,7 @@ public class LavaProtect implements Listener {
         String asString = event.getBlock().getBlockData().getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(MessageUtils.getMessage("protect.lava"));
+            event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆受到保护,只能用空桶收起.");
         }
     }
 
@@ -78,7 +78,7 @@ public class LavaProtect implements Listener {
         if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
             return;
         }
-        event.getPlayer().sendMessage(MessageUtils.getMessage("protect.fire"));
+        event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆会引起火灾,请务必注意.");
     }
 
     @EventHandler
@@ -89,7 +89,7 @@ public class LavaProtect implements Listener {
         Collection<Entity> nearbyEntities = event.getBlock().getWorld().getNearbyEntities(location, 8, 8, 8);
         for (Entity nearbyEntity : nearbyEntities) {
             if (nearbyEntity instanceof Player) {
-                nearbyEntity.sendMessage(MessageUtils.getMessage("protect.lava.restore"));
+                nearbyEntity.sendMessage("§8[§3温馨提示§8] §e空桶右键黑曜石可以还原成岩浆.");
             }
         }
     }

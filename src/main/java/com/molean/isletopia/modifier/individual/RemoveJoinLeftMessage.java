@@ -13,11 +13,11 @@ public class RemoveJoinLeftMessage implements Listener {
     }
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        event.setJoinMessage(null);
+        event.joinMessage(null);
     }
 
     @EventHandler
     public void onLeft(PlayerQuitEvent event) {
-        event.setQuitMessage(null);
+        event.quitMessage(null);
     }
 }

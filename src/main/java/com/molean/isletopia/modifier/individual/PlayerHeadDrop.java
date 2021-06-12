@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.LangUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Creeper;
@@ -44,12 +45,12 @@ public class PlayerHeadDrop implements Listener {
 
         ItemStack icon = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta itemMeta = icon.getItemMeta();
-        itemMeta.setDisplayName("§f玩家头颅");
+        itemMeta.displayName(Component.text("§f玩家头颅"));
         icon.setItemMeta(itemMeta);
 
         ItemStack type = new ItemStack(Material.CREEPER_HEAD);
         ItemMeta typeMeta = type.getItemMeta();
-        typeMeta.setDisplayName("§f闪电苦力怕");
+        typeMeta.displayName(Component.text("§f闪电苦力怕"));
         type.setItemMeta(typeMeta);
 
         ItemStack[] source = new ItemStack[9];
@@ -58,7 +59,7 @@ public class PlayerHeadDrop implements Listener {
         }
         source[4] = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta source4Meta = source[4].getItemMeta();
-        source4Meta.setDisplayName("任意种类的生物被炸死");
+        source4Meta.displayName(Component.text("任意种类的生物被炸死"));
         source[4].setItemMeta(source4Meta);
 
         ItemStack result = icon.clone();

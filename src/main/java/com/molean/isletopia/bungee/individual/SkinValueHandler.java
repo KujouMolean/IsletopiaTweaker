@@ -16,16 +16,14 @@ public class SkinValueHandler implements PluginMessageListener {
     }
 
     @Override
-    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, @NotNull byte[] message) {
+    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         @SuppressWarnings("all") ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subChannel = in.readUTF();
         if (subChannel.equalsIgnoreCase("SkinValue")) {
             String target = in.readUTF();
             String skinValue = in.readUTF();
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                UniversalParameter.setParameter(target, "SkinValue", skinValue);
-            });
-
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () ->
+                    UniversalParameter.setParameter(target, "SkinValue", skinValue));
         }
     }
 }

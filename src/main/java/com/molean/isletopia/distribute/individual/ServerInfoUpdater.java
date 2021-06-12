@@ -42,13 +42,20 @@ public class ServerInfoUpdater implements PluginMessageListener {
 
     private static final Map<String, List<String>> playersPerServer = new HashMap<>();
 
+    private static final Map<String, String> playerServerMap = new HashMap<>();
+
     public static Map<String, List<String>> getPlayersPerServer() {
         return new HashMap<>(playersPerServer);
+    }
+
+    public static Map<String, String> getPlayerServerMap() {
+        return playerServerMap;
     }
 
     public ServerInfoUpdater() {
         Bukkit.getMessenger().registerIncomingPluginChannel(IsletopiaTweakers.getPlugin(), "BungeeCord", this);
         getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), ServerInfoUpdater::updates, 20, 20);
+
     }
 
     public static void updates() {
@@ -109,6 +116,9 @@ public class ServerInfoUpdater implements PluginMessageListener {
                 onlinePlayers.addAll(Arrays.asList(playerList));
             } else {
                 playersPerServer.put(server, Arrays.asList(playerList));
+                for (String s : playerList) {
+                    playerServerMap.put(s, server);
+                }
             }
         } else if (subChannel.equalsIgnoreCase("GetServer")) {
             serverName = in.readUTF();

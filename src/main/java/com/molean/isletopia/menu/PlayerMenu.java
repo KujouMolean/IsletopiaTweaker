@@ -8,6 +8,7 @@ import com.molean.isletopia.menu.visit.VisitMenu;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ public class PlayerMenu implements Listener {
 
     public PlayerMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 45, MessageUtils.getMessage("menu.title"));
+        inventory = Bukkit.createInventory(player, 45, Component.text("主菜单"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -37,30 +38,31 @@ public class PlayerMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        ItemStackSheet bookShelf = new ItemStackSheet(Material.BOOKSHELF, MessageUtils.getMessage("menu.guide"));
-        bookShelf.addLore(MessageUtils.getMessage("menu.guide.1"));
-        bookShelf.addLore(MessageUtils.getMessage("menu.guide.2"));
-        bookShelf.addLore(MessageUtils.getMessage("menu.guide.3"));
+        ItemStackSheet bookShelf = new ItemStackSheet(Material.BOOKSHELF, "§f指南大全");
+        bookShelf.addLore("§7这里写了服务器的所有设定");
+        bookShelf.addLore("§7这里有新人必读的入门教程");
+        bookShelf.addLore("§7这里有常见物资的获取方法");
         inventory.setItem(18, bookShelf.build());
-        ItemStackSheet favorite = new ItemStackSheet(Material.NETHER_STAR, MessageUtils.getMessage("menu.favorite"));
-        favorite.addLore(MessageUtils.getMessage("menu.favorite.1"));
-        favorite.addLore(MessageUtils.getMessage("menu.favorite.2"));
+        ItemStackSheet favorite = new ItemStackSheet(Material.NETHER_STAR, "§f收藏夹");
+        favorite.addLore("§7将你喜欢的岛屿添加到收藏夹");
+        favorite.addLore("§7通过收藏夹可以快速访问它们");
         inventory.setItem(20, favorite.build());
-        ItemStackSheet others = new ItemStackSheet(Material.FEATHER, MessageUtils.getMessage("menu.visit"));
-        others.addLore(MessageUtils.getMessage("menu.visit.1"));
-        others.addLore(MessageUtils.getMessage("menu.visit.2"));
+        ItemStackSheet others = new ItemStackSheet(Material.FEATHER, "§f平行世界");
+        others.addLore("§7去看看与你同时发展的其他玩家");
+        others.addLore("§7这里只会显示在线玩家");
         inventory.setItem(22, others.build());
-        ItemStackSheet settings = new ItemStackSheet(Material.LEVER, MessageUtils.getMessage("menu.settings"));
-        settings.addLore(MessageUtils.getMessage("menu.settings.1"));
-        settings.addLore(MessageUtils.getMessage("menu.settings.2"));
+        ItemStackSheet settings = new ItemStackSheet(Material.LEVER, "§f设置");
+        settings.addLore("§7更改你岛屿的选项");
+        settings.addLore("§7例如添加岛员,更改生物群系");
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        assert currentPlot != null;
         if (!player.getUniqueId().equals(currentPlot.getOwner())) {
-            settings.setDisplay(MessageUtils.getMessage("menu.settings.non-owner"));
-            settings.addLore(MessageUtils.getMessage("menu.settings.non-owner.1"));
+            settings.setDisplay("§f§m设置");
+            settings.addLore("§c你只能修改自己的岛屿");
         }
         inventory.setItem(24, settings.build());
-        ItemStackSheet projects = new ItemStackSheet(Material.REDSTONE, MessageUtils.getMessage("menu.project"));
-        projects.addLore(MessageUtils.getMessage("menu.project.1"));
+        ItemStackSheet projects = new ItemStackSheet(Material.REDSTONE, "§f工程");
+        projects.addLore("§7尚未开放");
         inventory.setItem(26, projects.build());
 
 
@@ -68,7 +70,7 @@ public class PlayerMenu implements Listener {
 
         SkullMeta itemMeta = (SkullMeta) skull.getItemMeta();
         assert itemMeta != null;
-        itemMeta.setDisplayName(MessageUtils.getMessage("menu.home"));
+        itemMeta.displayName(Component.text("§f回城"));
         skull.setItemMeta(itemMeta);
         inventory.setItem(40, skull);
 
@@ -93,14 +95,11 @@ public class PlayerMenu implements Listener {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteMenu(player).open());
                 break;
             case 22:
-                ItemStack item = inventory.getItem(slot);
-                ItemMeta itemMeta = item.getItemMeta();
-                itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-                item.setItemMeta(itemMeta);
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new VisitMenu(player).open());
                 break;
             case 24:
                 Plot currentPlot = PlotUtils.getCurrentPlot(player);
+                assert currentPlot != null;
                 if (currentPlot.getOwner().equals(player.getUniqueId())) {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
                 }

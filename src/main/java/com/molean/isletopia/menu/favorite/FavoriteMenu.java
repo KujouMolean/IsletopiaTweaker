@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ public class FavoriteMenu implements Listener {
 
     public FavoriteMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 9, MessageUtils.getMessage("menu.favorite.title"));
+        inventory = Bukkit.createInventory(player, 9, Component.text("<收藏夹>"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -33,16 +34,16 @@ public class FavoriteMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        ItemStackSheet visit = new ItemStackSheet(Material.REDSTONE_TORCH, MessageUtils.getMessage("menu.favorite.visit"));
+        ItemStackSheet visit = new ItemStackSheet(Material.REDSTONE_TORCH, "§f>> 访问收藏 >>");
         inventory.setItem(0, visit.build());
 
-        ItemStackSheet add = new ItemStackSheet(Material.TORCH, MessageUtils.getMessage("menu.favorite.add"));
+        ItemStackSheet add = new ItemStackSheet(Material.TORCH,"§f+ 添加收藏 +");
         inventory.setItem(2, add.build());
 
-        ItemStackSheet delete = new ItemStackSheet(Material.LEVER, MessageUtils.getMessage("menu.favorite.remove"));
+        ItemStackSheet delete = new ItemStackSheet(Material.LEVER, "§f- 删除收藏 -");
         inventory.setItem(4, delete.build());
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.favorite.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f<<返回主菜单<<");
         inventory.setItem(8, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -63,29 +64,17 @@ public class FavoriteMenu implements Listener {
 
         switch (slot) {
             case 0: {
-                ItemStack item = inventory.getItem(slot);
-                assert item != null;
-                ItemMeta itemMeta = item.getItemMeta();
-                itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-                item.setItemMeta(itemMeta);
+
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteVisitMenu(player).open());
                 break;
             }
             case 2: {
-                ItemStack item = inventory.getItem(slot);
-                assert item != null;
-                ItemMeta itemMeta = item.getItemMeta();
-                itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-                item.setItemMeta(itemMeta);
+
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteAddMenu(player).open());
                 break;
             }
             case 4: {
-                ItemStack item = inventory.getItem(slot);
-                assert item != null;
-                ItemMeta itemMeta = item.getItemMeta();
-                itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-                item.setItemMeta(itemMeta);
+
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteRemoveMenu(player).open());
                 break;
             }

@@ -10,7 +10,6 @@ public class IsletopiaBungee {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try {
             new PlayerMessageHandler();
-            new UniversalTeleportHandler();
             new VisitNotificationHandler();
             new SkinValueHandler();
             new PlaySoundHandler();

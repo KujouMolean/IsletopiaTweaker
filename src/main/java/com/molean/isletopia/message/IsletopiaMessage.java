@@ -2,10 +2,7 @@ package com.molean.isletopia.message;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.message.core.ServerMessageManager;
-import com.molean.isletopia.message.handler.TeleportRequestHandler;
-import com.molean.isletopia.message.handler.TeleportResponseHandler;
-import com.molean.isletopia.message.handler.VisitRequestHandler;
-import com.molean.isletopia.message.handler.VisitResponseHandler;
+import com.molean.isletopia.message.handler.*;
 
 import java.util.logging.Logger;
 
@@ -18,6 +15,7 @@ public class IsletopiaMessage {
             new VisitResponseHandler();
             new TeleportRequestHandler();
             new TeleportResponseHandler();
+            new PlaySoundRequestHandler();
 
         } catch (Exception exception) {
             exception.printStackTrace();

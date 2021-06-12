@@ -7,6 +7,7 @@ import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,6 +34,7 @@ public class MemberAddMenu implements Listener {
         List<String> players = ServerInfoUpdater.getOnlinePlayers();
         players.remove(player.getName());
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        assert currentPlot != null;
         HashSet<UUID> trusted = currentPlot.getTrusted();
         players.removeIf(s -> trusted.contains(ServerInfoUpdater.getUUID(s)));
         return players;
@@ -43,7 +45,7 @@ public class MemberAddMenu implements Listener {
     }
 
     public MemberAddMenu(Player player, List<String> players, int page) {
-        inventory = Bukkit.createInventory(player, 54, MessageUtils.getMessage("menu.settings.member.add.title"));
+        inventory = Bukkit.createInventory(player, 54, Component.text("选择你想授权的玩家"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
         this.players.addAll(players);
@@ -55,7 +57,6 @@ public class MemberAddMenu implements Listener {
             page = 0;
         }
         this.page = page;
-
     }
 
     public void open() {
@@ -67,9 +68,9 @@ public class MemberAddMenu implements Listener {
         for (int i = 0; i + page * 52 < players.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkull(players.get(i + page * 52)));
         }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, MessageUtils.getMessage("menu.visit.nextPage"));
+        ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage("menu.settings.member.add.return"));
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回成员");
         inventory.setItem(inventory.getSize() - 1, father.build());
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }
@@ -88,11 +89,6 @@ public class MemberAddMenu implements Listener {
             return;
         }
         if (slot == inventory.getSize() - 2) {
-            ItemStack item = inventory.getItem(slot);
-            assert item != null;
-            ItemMeta itemMeta = item.getItemMeta();
-            itemMeta.setDisplayName(MessageUtils.getMessage("menu.wait"));
-            item.setItemMeta(itemMeta);
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberAddMenu(player, players, page + 1).open());
             return;
         }
@@ -102,13 +98,12 @@ public class MemberAddMenu implements Listener {
         }
         if (slot < players.size() && slot < 52) {
             Plot currentPlot = PlotUtils.getCurrentPlot(player);
+            assert currentPlot != null;
             if (currentPlot.getOwner().equals(player.getUniqueId())) {
                 currentPlot.addTrusted(ServerInfoUpdater.getUUID(players.get(slot + page * 52)));
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberAddMenu(player).open());
             } else {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    player.kickPlayer(MessageUtils.getMessage("error.menu.settings.member.non-owner"));
-                });
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.kick(Component.text("错误, 非岛主操作岛屿成员.")));
             }
         }
 

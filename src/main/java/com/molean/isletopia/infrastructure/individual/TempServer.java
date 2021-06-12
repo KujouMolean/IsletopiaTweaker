@@ -29,6 +29,7 @@ public class TempServer implements CommandExecutor, TabCompleter {
             return true;
         }
         Player player = (Player) sender;
+        @SuppressWarnings("all")
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
         out.writeUTF("ConnectOther");
         out.writeUTF(player.getName());

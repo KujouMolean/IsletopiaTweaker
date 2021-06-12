@@ -2,6 +2,7 @@ package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.BungeeUtils;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -15,8 +16,8 @@ public class PlayerChatTweaker implements Listener {
     }
 
     @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
+    public void onPlayerChat(AsyncChatEvent event) {
         event.setCancelled(true);
-        BungeeUtils.universalChat(event.getPlayer(), event.getMessage());
+        BungeeUtils.universalChat(event.getPlayer(), event.message().toString());
     }
 }
