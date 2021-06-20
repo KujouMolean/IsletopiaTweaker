@@ -82,29 +82,29 @@ public class RedStoneLimiter implements Listener, CommandExecutor, TabCompleter 
         redStoneDataMap.put(currentPlot, redStoneData);
     }
 
-    //dispenser
-    @EventHandler
-    public void on(BlockDispenseEvent event) {
-        //todo
-    }
+//    //dispenser
+//    @EventHandler
+//    public void on(BlockDispenseEvent event) {
+//        //todo
+//    }
+//
+//
+//    //piston
+//    @EventHandler
+//    public void on(BlockPistonEvent event) {
+//        //todo
+//    }
 
 
-    //piston
-    @EventHandler
-    public void on(BlockPistonEvent event) {
-        //todo
-    }
-
-
-    //hopper
-    @EventHandler
-    public void on(InventoryMoveItemEvent event) {
-        if (!event.getInitiator().equals(event.getDestination())) {
-            return;
-        }
-        if (!event.getInitiator().getType().equals(InventoryType.HOPPER)) {
-            return;
-        }
-        //todo
-    }
+//    //hopper
+//    @EventHandler
+//    public void on(InventoryMoveItemEvent event) {
+//        if (!event.getInitiator().equals(event.getDestination())) {
+//            return;
+//        }
+//        if (!event.getInitiator().getType().equals(InventoryType.HOPPER)) {
+//            return;
+//        }
+//        //todo
+//    }
 }

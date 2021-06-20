@@ -18,8 +18,8 @@ public class NMSTagUtils {
     static {
         try {
             Class<?> craftItemClass = NMSUtils.getBukkitClass("inventory.CraftItemStack");
-            Class<?> nbtTagCompoundClass = NMSUtils.getNMSClass("NBTTagCompound");
-            Class<?> nmsItemClass = NMSUtils.getNMSClass("ItemStack");
+            Class<?> nbtTagCompoundClass = NMSUtils.getNMSClass("nbt.NBTTagCompound");
+            Class<?> nmsItemClass = NMSUtils.getNMSClass("world.item.ItemStack");
             asNMSCopyMethod = craftItemClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
             asBukkitCopyMethod = nmsItemClass.getDeclaredMethod("asBukkitCopy");
             getTagMethod = nmsItemClass.getDeclaredMethod("getOrCreateTag");

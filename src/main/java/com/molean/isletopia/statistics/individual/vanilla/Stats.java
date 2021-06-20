@@ -104,10 +104,13 @@ public class Stats {
             }
         }
     }
+
     @SuppressWarnings("deprecation")
     private static void apply(Player player, String outerKey, String innerKey, Integer value) {
         if (outerKey.equalsIgnoreCase("custom")) {
-            player.setStatistic(customReverseMapping.get(innerKey), value);
+            Statistic statistic = customReverseMapping.get(innerKey);
+            if (statistic != null)
+                player.setStatistic(statistic, value);
         } else {
             Statistic statistic = typeReverseMapping.get(outerKey);
             if (statistic.getType().equals(Statistic.Type.ENTITY)) {

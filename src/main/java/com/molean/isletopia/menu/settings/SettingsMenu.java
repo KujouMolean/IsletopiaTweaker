@@ -2,15 +2,11 @@ package com.molean.isletopia.menu.settings;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
 import com.molean.isletopia.menu.settings.member.MemberMenu;
 import com.molean.isletopia.utils.PlotUtils;
-import com.molean.isletopia.utils.Sftp;
-import com.plotsquared.core.PlotSquared;
-import com.plotsquared.core.backup.BackupProfile;
 import com.plotsquared.core.location.BlockLoc;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
@@ -28,7 +24,6 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.nio.file.Path;
 import java.util.*;
 
 public class SettingsMenu implements Listener {

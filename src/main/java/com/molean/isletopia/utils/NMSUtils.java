@@ -11,7 +11,7 @@ public class NMSUtils {
     }
 
     public static Class<?> getNMSClass(String name) throws ClassNotFoundException {
-        return Class.forName("net.minecraft.server." + VERSION + "." + name);
+        return Class.forName("net.minecraft."+ name);
     }
 
     public static Class<?> getBukkitClass(String name) throws ClassNotFoundException {

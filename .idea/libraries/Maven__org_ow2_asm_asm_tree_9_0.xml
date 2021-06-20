@@ -1,13 +1,13 @@
 <component name="libraryTable">
-  <library name="Maven: org.ow2.asm:asm-tree:9.0">
+  <library name="Maven: com.mojang:authlib:1.5.25">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/ow2/asm/asm-tree/9.0/asm-tree-9.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/mojang/authlib/1.5.25/authlib-1.5.25.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/org/ow2/asm/asm-tree/9.0/asm-tree-9.0-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/mojang/authlib/1.5.25/authlib-1.5.25-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/org/ow2/asm/asm-tree/9.0/asm-tree-9.0-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/mojang/authlib/1.5.25/authlib-1.5.25-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

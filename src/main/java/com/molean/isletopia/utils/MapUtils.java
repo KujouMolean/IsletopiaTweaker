@@ -1,5 +1,6 @@
 package com.molean.isletopia.utils;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.MapMeta;
@@ -155,7 +156,7 @@ public class MapUtils {
             Field worldMapField = renderer.getClass().getDeclaredField("worldMap");
             worldMapField.setAccessible(true);
             Object worldMap = worldMapField.get(renderer);
-            Field worldMapColorsField = worldMap.getClass().getDeclaredField("colors");
+            Field worldMapColorsField = worldMap.getClass().getDeclaredField("g");
             worldMapColorsField.setAccessible(true);
             byte[] bytes = (byte[]) worldMapColorsField.get(worldMap);
             for (int y = 0; y < 128; y++) {
