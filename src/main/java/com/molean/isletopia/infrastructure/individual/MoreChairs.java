@@ -101,6 +101,9 @@ public class MoreChairs implements Listener {
         if (dismounted.getType().equals(EntityType.ARMOR_STAND)) {
             if (event.getEntity() instanceof Player) {
                 Player player = (Player) event.getEntity();
+                Location location = player.getLocation();
+                location.setY(location.getY() + 0.5);
+                player.teleport(location);
                 map.remove(player);
                 dismounted.remove();
             }

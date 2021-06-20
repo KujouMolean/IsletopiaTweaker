@@ -29,8 +29,7 @@ public class TeleportSign implements Listener {
             return;
         if (!(event.getClickedBlock().getState() instanceof Sign))
             return;
-        TextComponent textComponent = (TextComponent) (((Sign) event.getClickedBlock().getState()).line(0));
-        String line = textComponent.content();
+        String line = ((Sign) event.getClickedBlock().getState()).getLine(0);
         line = line.replaceAll("§.", "");
         if (!line.matches("\\[[a-zA-Z0-9].*]"))
             return;
@@ -42,9 +41,9 @@ public class TeleportSign implements Listener {
 
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
-        TextComponent component = (TextComponent) event.line(0);
-        if (component != null && component.content().matches("\\[[a-zA-Z0-9].*]")) {
-            String target = component.content().substring(1, component.content().length() - 1);
+        String line = event.getLine(0);
+        if (line != null && line.matches("\\[[a-zA-Z0-9].*]")) {
+            String target = line.substring(1, line.length() - 1);
             event.line(0, Component.text("[§b" + target + "§r]"));
         }
     }

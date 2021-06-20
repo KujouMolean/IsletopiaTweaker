@@ -2,8 +2,10 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.ConfigUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -22,10 +24,11 @@ import java.io.InputStream;
 import java.util.*;
 
 public class GuideBook implements CommandExecutor {
+
+
     public GuideBook() {
         Objects.requireNonNull(Bukkit.getPluginCommand("guide")).setExecutor(this);
         List<String> resources = new ArrayList<>();
-        resources.add("guide_en.yml");
         resources.add("guide.yml");
         for (String resource : resources) {
             InputStream inputStream = IsletopiaTweakers.getPlugin().getResource(resource);
@@ -60,31 +63,36 @@ public class GuideBook implements CommandExecutor {
             bookMeta.setAuthor("Molean");
             bookMeta.setTitle("Guide");
 
-            List<List<Component>> pages = getPages(player, type);
+            List<List<BaseComponent>> pages = getPages(player, type);
             if (pages == null) {
-                sender.sendMessage("§c没有该类型的指南.");
+                sender.sendMessage("§c该类型指南不存在");
                 return;
             }
-            for (List<Component> page : pages) {
-                bookMeta.addPages(page.toArray(new Component[0]));
+            for (List<BaseComponent> page : pages) {
+                bookMeta.spigot().addPage(page.toArray(new BaseComponent[0]));
 
             }
             itemStack.setItemMeta(bookMeta);
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openBook(itemStack));
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                player.openBook(itemStack);
+            });
         });
         return true;
     }
 
-    public List<List<Component>> getPages(Player player, String type) {
-        ConfigUtils.reloadConfig("guide.yml");
-        List<List<Component>> strings = new ArrayList<>();
-        YamlConfiguration config = ConfigUtils.getConfig("guide.yml");
+    public List<List<BaseComponent>> getPages(Player player, String type) {
+        String guide = "guide.yml";
+        ConfigUtils.reloadConfig(guide);
+        List<List<BaseComponent>> strings = new ArrayList<>();
+        YamlConfiguration config = ConfigUtils.getConfig(guide);
         ConfigurationSection pages = config.getConfigurationSection(type);
         if (pages == null) {
             return null;
         }
+
         Set<String> keys = pages.getKeys(false);
-        for (String key : keys) {
+        for (
+                String key : keys) {
             List<String> list = pages.getStringList(key);
             StringBuilder stringBuilder = new StringBuilder();
             for (String s : list) {
@@ -95,9 +103,9 @@ public class GuideBook implements CommandExecutor {
         return strings;
     }
 
-    public List<Component> parsePage(String text) {
+    public List<BaseComponent> parsePage(String text) {
         String[] split = text.split("%");
-        List<Component> components = new ArrayList<>();
+        List<BaseComponent> baseComponents = new ArrayList<>();
 
         boolean hasLeft = false;
         for (String s : split) {
@@ -109,39 +117,39 @@ public class GuideBook implements CommandExecutor {
                     if (sSplit.length != 3) {
                         continue;
                     }
-                    Component textComponent = Component.text(sSplit[0]);
+                    TextComponent textComponent = new TextComponent(sSplit[0]);
                     switch (sSplit[1]) {
                         case "cmd":
-                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, sSplit[2]));
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, sSplit[2]));
                             break;
                         case "url":
-                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_URL, sSplit[2]));
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, sSplit[2]));
                             break;
                         case "page":
-                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.CHANGE_PAGE, sSplit[2]));
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE, sSplit[2]));
                             break;
                         case "copy":
-                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, sSplit[2]));
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, sSplit[2]));
                             break;
                         case "file":
-                            textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.OPEN_FILE, sSplit[2]));
+                            textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, sSplit[2]));
                             break;
                     }
-                    components.add(textComponent);
+                    baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
                 } else {
-                    Component textComponent = Component.text(s);
+                    TextComponent textComponent = new TextComponent(s);
                     s = s.replaceAll("§.", "");
-                    textComponent = textComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/guide " + s));
-                    components.add(textComponent);
+                    textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/guide " + s));
+                    baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
                 }
 
             } else {
                 hasLeft = true;
-                Component textComponent = Component.text(s);
-                textComponent = textComponent.clickEvent(null);
-                components.add(textComponent);
+                TextComponent textComponent = new TextComponent(s);
+                textComponent.setClickEvent(null);
+                baseComponents.addAll(Arrays.asList(new ComponentBuilder(textComponent).create()));
             }
         }
-        return components;
+        return baseComponents;
     }
 }
