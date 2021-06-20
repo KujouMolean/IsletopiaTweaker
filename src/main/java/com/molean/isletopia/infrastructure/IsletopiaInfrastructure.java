@@ -28,6 +28,7 @@ public class IsletopiaInfrastructure {
             new SaveDownload();
             new ServerBumpReward();
             new MenuCommand();
+            new PreventPlayerJoinIfShutDown();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

@@ -116,7 +116,10 @@ public class Stats {
             if (statistic.getType().equals(Statistic.Type.ENTITY)) {
                 player.setStatistic(statistic, Objects.requireNonNull(EntityType.fromName(innerKey)), value);
             } else {
-                player.setStatistic(statistic, Material.valueOf(innerKey.toUpperCase()), value);
+                try {
+                    player.setStatistic(statistic, Material.valueOf(innerKey.toUpperCase()), value);
+                } catch (IllegalArgumentException ignore) {
+                }
             }
         }
     }
