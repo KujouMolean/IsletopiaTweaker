@@ -16,8 +16,62 @@ import static org.bukkit.Material.*;
 public class MoreRecipe {
 
     public MoreRecipe() {
-        //萤石
         Bukkit.resetRecipes();
+        //紫水晶
+        registerShaped(new ItemStack(AMETHYST_SHARD),
+                PURPLE_DYE, QUARTZ, PURPLE_DYE,
+                QUARTZ,     QUARTZ, QUARTZ,
+                PURPLE_DYE, QUARTZ, PURPLE_DYE);
+
+        LocalRecipe.addRecipe(AMETHYST_SHARD, CRAFTING_TABLE, new ItemStack(AMETHYST_SHARD),
+                PURPLE_DYE, QUARTZ, PURPLE_DYE,
+                QUARTZ,     QUARTZ, QUARTZ,
+                PURPLE_DYE, QUARTZ, PURPLE_DYE);
+
+        //远古残骸
+        registerShaped(new ItemStack(ANCIENT_DEBRIS),
+                BONE_BLOCK, BONE_BLOCK, BONE_BLOCK,
+                BONE_BLOCK,     NETHERITE_BLOCK, BONE_BLOCK,
+                BONE_BLOCK, BONE_BLOCK, BONE_BLOCK);
+
+        LocalRecipe.addRecipe(ANCIENT_DEBRIS, CRAFTING_TABLE, new ItemStack(ANCIENT_DEBRIS),
+                BONE_BLOCK, BONE_BLOCK, BONE_BLOCK,
+                BONE_BLOCK,     NETHERITE_BLOCK, BONE_BLOCK,
+                BONE_BLOCK, BONE_BLOCK, BONE_BLOCK);
+
+        //深板岩
+        registerSmithingRecipie(new ItemStack(DEEPSLATE), STONE_BRICKS, COAL);
+        LocalRecipe.addRecipe(DEEPSLATE, SMITHING_TABLE,
+                AIR, AIR, AIR,
+                STONE_BRICKS, AIR, COAL,
+                AIR, AIR, AIR);
+
+        //枯萎灌木
+
+        List<Material> saplings = List.of(OAK_SAPLING, SPRUCE_SAPLING, BIRCH_SAPLING, JUNGLE_SAPLING, ACACIA_SAPLING, DARK_OAK_SAPLING);
+        for (Material sapling : saplings) {
+            registerSmoking(new ItemStack(DEAD_BUSH),sapling,0,150);
+        }
+        {
+
+            List<ItemStack> icons = new ArrayList<>();
+            List<ItemStack> result = new ArrayList<>();
+            List<ItemStack> types = new ArrayList<>();
+            types.add(new ItemStack(SMOKER));
+            icons.add(new ItemStack(DEAD_BUSH));
+            List<ItemStack[]> sources = new ArrayList<>();
+            for (Material material : saplings) {
+                ItemStack[] itemStacks = new ItemStack[9];
+                itemStacks[4] = new ItemStack(material);
+                sources.add(itemStacks);
+            }
+            result.add(new ItemStack(DEAD_BUSH));
+            LocalRecipe.addRecipe(icons, types, sources, result);
+        }
+
+
+
+        //萤石
         registerShaped(new ItemStack(Material.GLOWSTONE),
                 TORCH, TORCH, TORCH,
                 TORCH, STONE, TORCH,
@@ -144,6 +198,7 @@ public class MoreRecipe {
                 AIR, AIR, AIR,
                 AIR, REDSTONE, AIR,
                 AIR, AIR, AIR);
+
         //转换树苗
         registerShapeless(new ItemStack(OAK_SAPLING), DARK_OAK_SAPLING);
         registerShapeless(new ItemStack(SPRUCE_SAPLING), OAK_SAPLING);
@@ -331,8 +386,9 @@ public class MoreRecipe {
             LocalRecipe.addRecipe(icons, types, sources, result);
         }
 
+
+        List<Material> dyeRecipeMaterials = List.of(GOLD_INGOT, IRON_INGOT, NETHERITE_INGOT, BRICK, NETHER_BRICK,COPPER_INGOT);
         //合成铁锭
-        List<Material> dyeRecipeMaterials = List.of(GOLD_INGOT, IRON_INGOT, NETHERITE_INGOT, BRICK, NETHER_BRICK);
         dyeRecipeMaterials.forEach(material -> {
             registerShaped(new ItemStack(IRON_INGOT),
                     WHITE_DYE, WHITE_DYE, WHITE_DYE,
@@ -479,6 +535,36 @@ public class MoreRecipe {
                 sources.add(itemStacks);
             }
             result.add(new ItemStack(NETHER_BRICK));
+
+            LocalRecipe.addRecipe(icons, types, sources, result);
+        }
+
+        //合成铜
+        dyeRecipeMaterials.forEach(material -> {
+            registerShaped(new ItemStack(COPPER_INGOT),
+                    ORANGE_DYE, ORANGE_DYE, ORANGE_DYE,
+                    ORANGE_DYE, material, ORANGE_DYE,
+                    ORANGE_DYE, ORANGE_DYE, ORANGE_DYE);
+        });
+
+        {
+
+            List<ItemStack> icons = new ArrayList<>();
+            List<ItemStack> result = new ArrayList<>();
+            List<ItemStack> types = new ArrayList<>();
+            types.add(new ItemStack(CRAFTING_TABLE));
+            icons.add(new ItemStack(COPPER_INGOT));
+            icons.add(new ItemStack(COPPER_INGOT));
+            List<ItemStack[]> sources = new ArrayList<>();
+            for (Material material : dyeRecipeMaterials) {
+                ItemStack[] itemStacks = new ItemStack[9];
+                for (int i = 0; i < itemStacks.length; i++) {
+                    itemStacks[i] = new ItemStack(ORANGE_DYE);
+                }
+                itemStacks[4] = new ItemStack(material);
+                sources.add(itemStacks);
+            }
+            result.add(new ItemStack(COPPER_INGOT));
 
             LocalRecipe.addRecipe(icons, types, sources, result);
         }

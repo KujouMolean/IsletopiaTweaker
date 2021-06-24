@@ -1,6 +1,7 @@
 package com.molean.isletopia.database;
 
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.PlotId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -80,7 +81,8 @@ public class PlotDao {
                 if (resultSet.next()) {
                     int x = resultSet.getInt(1);
                     int z = resultSet.getInt(2);
-                    plotId = new PlotId(x, z);
+                    plotId = PlotId.of(x,z);
+
                 }
 
             } catch (SQLException throwables) {

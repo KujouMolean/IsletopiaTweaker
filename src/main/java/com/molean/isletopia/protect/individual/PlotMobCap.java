@@ -2,7 +2,6 @@ package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.LangUtils;
-import com.molean.isletopia.utils.Pair;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.bukkit.util.BukkitUtil;
 import com.plotsquared.core.PlotSquared;
@@ -10,8 +9,8 @@ import com.plotsquared.core.location.Location;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotArea;
+import com.plotsquared.core.plot.world.PlotAreaManager;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -25,6 +24,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -105,8 +105,9 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
 
     @EventHandler
     public void onMobSpawn(CreatureSpawnEvent event) {
-        PlotArea plotAreaAbs = PlotSquared.get().getPlotAreaAbs(BukkitUtil.getLocation(event.getLocation()));
-        Plot plot = plotAreaAbs.getPlotAbs(BukkitUtil.getLocation(event.getLocation()));
+        PlotAreaManager plotAreaManager = PlotSquared.get().getPlotAreaManager();
+        PlotArea plotArea = plotAreaManager.getPlotArea(PlotUtils.fromBukkitLocation(event.getLocation()));
+        Plot plot = plotArea.getPlot(PlotUtils.fromBukkitLocation(event.getLocation()));
         if (plot == null) {
             return;
         }
@@ -133,52 +134,36 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         } else {
             typeString = "all";
         }
-
         Integer prevCount = (Integer) plot.getMeta("Isletopia-Cap-" + typeString);
         Long prevTime = (Long) plot.getMeta("Isletopia-Cap" + typeString + "-Time");
         if (prevTime != null && System.currentTimeMillis() - prevTime < 1e3 && prevCount != null) {
             return prevCount;
         }
-
         int count = 0;
         PlotArea area = plot.getArea();
+        assert area != null;
         World world = BukkitUtil.getWorld(area.getWorldName());
-
+        assert world != null;
         Location bot = plot.getBottomAbs();
         Location top = plot.getTopAbs();
-        int bx = bot.getX() >> 4;
-        int bz = bot.getZ() >> 4;
-
-        int tx = top.getX() >> 4;
-        int tz = top.getZ() >> 4;
-
-        Set<Chunk> chunks = new HashSet<>();
-        for (int X = bx; X <= tx; X++) {
-            for (int Z = bz; Z <= tz; Z++) {
-                if (world.isChunkLoaded(X, Z)) {
-                    chunks.add(world.getChunkAt(X, Z));
+        BoundingBox boundingBox = new BoundingBox(bot.getX(), bot.getY(), bot.getZ(), top.getX(), top.getY(), top.getZ());
+        Collection<Entity> nearbyEntities = world.getNearbyEntities(boundingBox);
+        for (Entity chunkEntity : nearbyEntities) {
+            if (entityType != null) {
+                if (chunkEntity.getType() == entityType) {
+                    count++;
                 }
-            }
-        }
-
-        for (Chunk chunk : chunks) {
-            for (Entity chunkEntity : chunk.getEntities()) {
-                if (entityType != null) {
-                    if (chunkEntity.getType() == entityType) {
-                        count++;
-                    }
-                } else {
-                    if (!ignoredType.contains(chunkEntity.getType())) {
-                        count++;
-                    }
+            } else {
+                if (!ignoredType.contains(chunkEntity.getType())) {
+                    count++;
                 }
-
             }
         }
         plot.setMeta("Isletopia-Cap-" + typeString, count);
         plot.setMeta("Isletopia-Cap" + typeString + "-Time", System.currentTimeMillis());
         return count;
     }
+
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -187,36 +172,43 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         if (currentPlot == null) {
             return true;
         }
-        ArrayList<Pair<EntityType, Integer>> pairs = new ArrayList<>();
 
-        int total = countEntities(currentPlot, null);
-        for (EntityType entityType : EntityType.values()) {
-            if (ignoredType.contains(entityType)) {
+        Location bot = currentPlot.getBottomAbs();
+        Location top = currentPlot.getTopAbs();
+        BoundingBox boundingBox = new BoundingBox(bot.getX(), bot.getY(), bot.getZ(), top.getX(), top.getY(), top.getZ());
+        Collection<Entity> nearbyEntities = player.getWorld().getNearbyEntities(boundingBox);
+
+
+        Map<EntityType, Integer> map = new HashMap<>();
+
+        int total = nearbyEntities.size();
+
+        for (Entity nearbyEntity : nearbyEntities) {
+            EntityType type = nearbyEntity.getType();
+            if (ignoredType.contains(type)) {
                 continue;
             }
-            int count = countEntities(currentPlot, entityType);
-            if (count == 0) {
-                continue;
-            }
-            pairs.add(new Pair<>(entityType, count));
+            map.put(type, map.getOrDefault(type, 0) + 1);
         }
 
-        pairs.sort((o1, o2) -> o2.getValue() - o1.getValue());
+        ArrayList<EntityType> keys = new ArrayList<>(map.keySet());
+
+        keys.sort((o1, o2) -> map.getOrDefault(o2, 0) - map.getOrDefault(o1, 0));
         player.sendMessage(String.format("§a>§e%s §" + (total < 512 ? "a" : "c") + "%s", "总计", total));
-        for (int i = 0; i < 10 && i < pairs.size(); i++) {
-            Pair<EntityType, Integer> pair = pairs.get(i);
+        for (int i = 0; i < 10 && i < keys.size(); i++) {
             @SuppressWarnings("deprecation")
-            String internalName = pair.getKey().getName();
+            String internalName = keys.get(i).getName();
             String name;
             if (internalName != null) {
                 name = LangUtils.get("entity.minecraft." + internalName.toLowerCase());
             } else {
                 name = "未知";
             }
-            String c = (map.get(pair.getKey()) != null && map.get(pair.getKey()) <= pair.getValue()) ? "c" : "a";
-            String message = String.format("§a>§e%s §" + c + "%s", name, pair.getValue());
+            String c = (PlotMobCap.map.get(keys.get(i)) != null && PlotMobCap.map.get(keys.get(i)) <= map.get(keys.get(i))) ? "c" : "a";
+            String message = String.format("§a>§e%s §" + c + "%s", name, map.get(keys.get(i)));
             player.sendMessage(message);
         }
+
         return true;
     }
 

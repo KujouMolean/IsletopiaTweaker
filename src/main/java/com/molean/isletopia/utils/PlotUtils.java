@@ -5,7 +5,7 @@ import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.plotsquared.core.PlotSquared;
-import com.plotsquared.core.api.PlotAPI;
+import com.plotsquared.core.PlotAPI;
 import com.plotsquared.core.events.TeleportCause;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,6 +26,21 @@ import java.util.UUID;
 public class PlotUtils {
     private static final PlotAPI plotAPI = new PlotAPI();
 
+    public static PlotAPI getPlotAPI() {
+        return plotAPI;
+    }
+
+    public static @NonNull PlotArea getFirstPlotArea(){
+        return PlotSquared.get().getPlotAreaManager().getAllPlotAreas()[0];
+    }
+
+    public static com.plotsquared.core.location.Location fromBukkitLocation(Location location){
+        String name = location.getWorld().getName();
+        return com.plotsquared.core.location.Location.at(location.getWorld().getName(),
+                location.getBlockX(), location.getBlockY(), location.getBlockZ());
+
+    }
+
     public static Plot getCurrentPlot(Player player) {
         @SuppressWarnings("all") PlotPlayer plotPlayer = plotAPI.wrapPlayer(player.getUniqueId());
         if (plotPlayer == null) return null;
@@ -33,12 +49,8 @@ public class PlotUtils {
 
 
     public static Plot getCurrentPlot(Location location) {
-        String world = location.getWorld().getName();
-        int x = location.getBlockX();
-        int y = location.getBlockY();
-        int z = location.getBlockZ();
-        PlotArea plotArea = plotAPI.getPlotSquared().getFirstPlotArea();
-        return plotArea.getPlot(new com.plotsquared.core.location.Location(world, x, y, z));
+        PlotArea plotArea = PlotUtils.getFirstPlotArea();
+        return plotArea.getPlot(fromBukkitLocation(location));
     }
 
     public static File getPlotRegionFile(Plot plot) {
@@ -85,7 +97,7 @@ public class PlotUtils {
     public static Plot getPlot(String player) {
         String server = ServerInfoUpdater.getServerName();
         PlotId plotId = PlotDao.getPlotPosition(server, player);
-        return PlotSquared.get().getFirstPlotArea().getPlot(plotId);
+        return PlotUtils.getFirstPlotArea().getPlot(plotId);
     }
 
     public static List<String> getTrusted(Plot plot) {

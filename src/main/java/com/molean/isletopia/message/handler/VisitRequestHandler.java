@@ -52,7 +52,8 @@ public class VisitRequestHandler implements ServerMessageListener, Listener {
         boolean allow = true;
         UUID sourceUUID = ServerInfoUpdater.getUUID(sourcePlayer);
         UUID targetUUID = ServerInfoUpdater.getUUID(targetPlayer);
-        Set<Plot> plots = PlotSquared.get().getFirstPlotArea().getPlots(targetUUID);
+
+        Set<Plot> plots =PlotSquared.get().getPlotAreaManager().getAllPlotAreas()[0].getPlots(targetUUID);
         if (plots.isEmpty()) {
             visitResponse.setResponse("invalid");
             visitResponse.setResponseMessage("§8[§3岛屿助手§8] §7对方没有岛屿.");
@@ -89,7 +90,7 @@ public class VisitRequestHandler implements ServerMessageListener, Listener {
                 }
 
                 plot.getHome((location) -> {
-                    World world = Bukkit.getWorld(location.getWorld());
+                    World world = Bukkit.getWorld(location.getWorldName());
                     int x = location.getX();
                     int y = location.getY();
                     int z = location.getZ();

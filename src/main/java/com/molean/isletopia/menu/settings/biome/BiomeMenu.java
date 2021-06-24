@@ -125,7 +125,7 @@ public class BiomeMenu implements Listener {
         if (currentPlot.getOwner().equals(player.getUniqueId())) {
             player.sendMessage("§8[§3岛屿助手§8] §7尝试修改岛屿生物群系...");
 
-            currentPlot.setBiome(BiomeTypes.get(localBiome.getId().toLowerCase()), () ->
+            currentPlot.getPlotModificationManager().setBiome(BiomeTypes.get(localBiome.getId().toLowerCase()), () ->
                     player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + localBiome.getName() + "."));
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->

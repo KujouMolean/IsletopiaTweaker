@@ -29,6 +29,8 @@ public class IsletopiaModifier {
             new TestListener();
             new NetherPortal();
 //            new HopperFilter();
+            new ShulkerRespawn();
+            new TestListener();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");

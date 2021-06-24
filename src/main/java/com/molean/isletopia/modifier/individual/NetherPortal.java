@@ -38,7 +38,7 @@ public class NetherPortal implements Listener {
                 map.put(event.getEntity().getUniqueId(), System.currentTimeMillis());
             } else if (System.currentTimeMillis() - map.get(event.getEntity().getUniqueId()) > 4000) {
                 ((Player) event.getEntity()).setHealth(0);
-                event.getEntity().sendMessage("§8[§3温馨提示§8] §e下届已被关闭, 如需地狱生物, 请切换到地狱生物群系.");
+                event.getEntity().sendMessage("§8[§3温馨提示§8] §e下界已被关闭, 如需地狱生物, 请切换到地狱生物群系.");
                 map.remove(event.getEntity().getUniqueId());
             }
         }

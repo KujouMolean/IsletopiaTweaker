@@ -33,7 +33,7 @@ public class RespawnPoint implements Listener {
         }
         currentPlot.getHome(home -> {
             Location location = new Location(
-                    Bukkit.getWorld(home.getWorld()),
+                    Bukkit.getWorld(home.getWorldName()),
                     home.getX() + 0.5,
                     home.getY(),
                     home.getZ() + 0.5,

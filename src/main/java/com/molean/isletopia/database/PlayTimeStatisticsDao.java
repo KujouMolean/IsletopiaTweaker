@@ -1,7 +1,5 @@
 package com.molean.isletopia.database;
 
-import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

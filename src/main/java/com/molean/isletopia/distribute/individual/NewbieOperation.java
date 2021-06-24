@@ -5,7 +5,9 @@ import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
+import com.plotsquared.core.api.PlotAPI;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
@@ -23,6 +25,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class NewbieOperation implements Listener {
@@ -36,7 +39,9 @@ public class NewbieOperation implements Listener {
             return;
         }
 
-        Set<Plot> plots = PlotSquared.get().getPlots(PlotPlayer.wrap(player));
+
+
+        Set<Plot> plots =  PlotUtils.getPlotAPI().getPlayerPlots(Objects.requireNonNull(PlotUtils.getPlotAPI().wrapPlayer(player.getUniqueId())));
         if (plots.size() != 0) {
             return;
         }

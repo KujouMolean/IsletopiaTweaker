@@ -5,6 +5,8 @@ import com.molean.isletopia.statistics.individual.vanilla.Stats;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class VanillaStatisticsDao {
@@ -61,6 +63,21 @@ public class VanillaStatisticsDao {
             exception.printStackTrace();
         }
         return null;
+    }
+
+    public static List<String> players(){
+        List<String> list = new ArrayList<>();
+        try (Connection connection = DataSourceUtils.getConnection()) {
+            String sql = "select player from vanilla_statistics where true";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                list.add(resultSet.getString(1));
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return list;
     }
 
     public static void setStatistics(String player, Stats stats) {

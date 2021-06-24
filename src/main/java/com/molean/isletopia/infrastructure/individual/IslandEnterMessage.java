@@ -1,6 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotId;
@@ -29,7 +30,7 @@ public class IslandEnterMessage implements Listener {
         int toPlotX = Math.floorDiv(to.getBlockX(), 512);
         int toPlotZ = Math.floorDiv(to.getBlockZ(), 512);
         if (fromPlotX != toPlotX || fromPlotZ != toPlotZ) {
-            Plot plot = PlotSquared.get().getFirstPlotArea().getPlot(new PlotId(toPlotX + 1, toPlotZ + 1));
+            Plot plot = PlotUtils.getFirstPlotArea().getPlot( PlotId.of(toPlotX + 1, toPlotZ + 1));
             if (plot == null) {
                 return;
             }

@@ -74,7 +74,7 @@ public class RedStoneLimiter implements Listener, CommandExecutor, TabCompleter 
                 for (PlotPlayer<?> plotPlayer : currentPlot.getPlayersInPlot()) {
                     Player player = Bukkit.getPlayer(plotPlayer.getName());
                     if (PlotUtils.hasCurrentPlotPermission(player)) {
-                        plotPlayer.sendMessage("§c所在岛屿单位时间激活了太多的红石，请减少使用量。");
+                        player.sendMessage("§c所在岛屿单位时间激活了太多的红石，请减少使用量。");
                     }
                 }
             }

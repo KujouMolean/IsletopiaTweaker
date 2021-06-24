@@ -30,6 +30,7 @@ public class MoreChairs implements Listener {
     }
 
     private static final Map<Player, ArmorStand> map = new HashMap<>();
+    private static final Map<Player, Location> originLocation = new HashMap<>();
     private static final Map<Player, Long> sneakTime = new HashMap<>();
 
     @SuppressWarnings("deprecation")
@@ -73,6 +74,7 @@ public class MoreChairs implements Listener {
         Location location = event.getPlayer().getLocation().add(0, -1.7, 0);
         Entity entity = event.getPlayer().getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
         ArmorStand armorStand = (ArmorStand) entity;
+        originLocation.put(event.getPlayer(), event.getPlayer().getLocation());
         armorStand.addPassenger(event.getPlayer());
         armorStand.setGravity(false);
         armorStand.setCanMove(false);
@@ -80,6 +82,7 @@ public class MoreChairs implements Listener {
         armorStand.setAI(false);
         armorStand.setVisible(false);
         map.put(event.getPlayer(), armorStand);
+
 
     }
 
@@ -101,8 +104,9 @@ public class MoreChairs implements Listener {
         if (dismounted.getType().equals(EntityType.ARMOR_STAND)) {
             if (event.getEntity() instanceof Player) {
                 Player player = (Player) event.getEntity();
+                Location origin = originLocation.get(player);
                 Location location = player.getLocation();
-                location.setY(location.getY() + 0.5);
+                location.set(origin.getX(), origin.getY(), origin.getZ());
                 player.teleport(location);
                 map.remove(player);
                 dismounted.remove();
