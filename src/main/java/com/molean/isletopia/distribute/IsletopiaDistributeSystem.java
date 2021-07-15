@@ -1,6 +1,7 @@
 package com.molean.isletopia.distribute;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.individual.*;
 
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ public class IsletopiaDistributeSystem {
             new VisitCommand();
             new ServerInfoUpdater();
             new LastServerUpdater();
+            new ClubServer();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia distribute failed!");

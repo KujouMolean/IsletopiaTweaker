@@ -1,9 +1,8 @@
 package com.molean.isletopia.admin.individual;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.ParameterDao;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.message.core.ServerMessageManager;
+import com.molean.isletopia.message.obj.CommandExecuteRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,28 +14,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
     public UniversalCommandExecutor() {
         Objects.requireNonNull(Bukkit.getPluginCommand("gcmd")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("gcmd")).setTabCompleter(this);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String serverName = ServerInfoUpdater.getServerName();
-            ArrayList<String> keys = ParameterDao.keys(serverName);
-            if (keys == null || keys.isEmpty()) {
-                return;
-            }
-            for (String key : keys) {
-                String value = UniversalParameter.getParameter(serverName, key);
-                if (value.startsWith("cmd")) {
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), value.substring(3));
-                    });
-                    UniversalParameter.unsetParameter(serverName, key);
-                }
-            }
-        }, 0, 100);
     }
 
     @Override
@@ -52,35 +34,41 @@ public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
         for (int i = 1; i < args.length; i++) {
             cmd.append(args[i]).append(" ");
         }
+        CommandExecuteRequest obj = new CommandExecuteRequest(cmd.toString());
         switch (serverName) {
             case "servers": {
                 for (String server : ServerInfoUpdater.getServers()) {
-                    if (server.startsWith("server")) {
-                        UniversalParameter.addParameter(server, UUID.randomUUID().toString(), "cmd" + cmd.toString());
+                    if(server.startsWith("server")){
+                        ServerMessageManager.sendMessage(server,"command",obj);
                     }
+
                 }
                 break;
             }
             case "all": {
                 for (String server : ServerInfoUpdater.getServers()) {
-                    UniversalParameter.addParameter(server, UUID.randomUUID().toString(), "cmd" + cmd.toString());
+                    ServerMessageManager.sendMessage(server,"command",obj);
                 }
                 break;
             }
             default:
-                UniversalParameter.addParameter(serverName, UUID.randomUUID().toString(), "cmd" + cmd.toString());
+                ServerMessageManager.sendMessage(serverName, "command", obj);
         }
         return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        ArrayList<String> strings = new ArrayList<>();
         if (args.length == 1) {
+            ArrayList<String> strings = new ArrayList<>();
             strings.add("all");
             strings.add("servers");
             strings.addAll(ServerInfoUpdater.getServers());
+            strings.removeIf(s -> !s.startsWith(args[0]));
+            return strings;
+        }else{
+            return new ArrayList<>();
         }
-        return strings;
+
     }
 }

@@ -2,9 +2,9 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.utils.ServerMessageUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.location.BlockLoc;
@@ -58,6 +58,14 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             case "home":
                 home(subject);
                 break;
+            case "name":
+                if (args.length < 2) {
+                    name(subject);
+                } else {
+                    name(subject, object);
+                }
+
+                break;
             case "visit":
             case "tp":
                 if (args.length < 2) {
@@ -106,6 +114,32 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private void name(String subject) {
+        Player player = Bukkit.getPlayer(subject);
+        assert player != null;
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
+            return;
+        }
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        assert currentPlot != null;
+        currentPlot.setAlias("");
+        player.sendMessage("§8[§3岛屿助手§8] §c设置成功.");
+    }
+
+    private void name(String subject, String object) {
+        Player player = Bukkit.getPlayer(subject);
+        assert player != null;
+        if (!PlotUtils.isCurrentPlotOwner(player)) {
+            player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
+            return;
+        }
+        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        assert currentPlot != null;
+        currentPlot.setAlias(object);
+        player.sendMessage("§8[§3岛屿助手§8] §c设置成功.");
+    }
+
 
     public void home(String source) {
         Player player = Bukkit.getPlayer(source);
@@ -130,8 +164,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 location.getBlockZ() - bottomAbs.getZ(),
                 location.getYaw(),
                 location.getPitch()));
-        player.sendMessage("设置成功");
-
+        player.sendMessage("§8[§3岛屿助手§8] §c设置成功.");
     }
 
     public void resetHome(String source) {
@@ -160,7 +193,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private void visit(String source, String target) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        BungeeUtils.universalPlotVisitByMessage(player,target);
+        ServerMessageUtils.universalPlotVisitByMessage(player, target);
     }
 
     public void trust(String source, String target) {
@@ -175,7 +208,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert currentPlot != null;
         currentPlot.addTrusted(uuid);
         PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(target, uuid);
-        player.sendMessage("§8[§3岛屿助手§8] §6已经添加 "+target+" 为信任.");
+        player.sendMessage("§8[§3岛屿助手§8] §6已经添加 " + target + " 为信任.");
     }
 
     public void distrust(String source, String target) {

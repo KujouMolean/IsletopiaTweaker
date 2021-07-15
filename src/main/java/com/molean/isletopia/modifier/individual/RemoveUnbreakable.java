@@ -22,12 +22,12 @@ public class RemoveUnbreakable implements Listener {
         if (entity instanceof Player) {
             Player player = (Player) entity;
             for (ItemStack armorContent : player.getInventory().getArmorContents()) {
-                if (armorContent == null) {
-                    continue;
+                if(armorContent!=null){
+                    ItemMeta itemMeta = armorContent.getItemMeta();
+                    itemMeta.setUnbreakable(false);
+                    armorContent.setItemMeta(itemMeta);
                 }
-                ItemMeta itemMeta = armorContent.getItemMeta();
-                itemMeta.setUnbreakable(false);
-                armorContent.setItemMeta(itemMeta);
+
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -17,7 +18,6 @@ public class LastServerUpdater implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             UniversalParameter.setParameter(event.getPlayer().getName(), "lastServer", ServerInfoUpdater.getServerName());
-
         });
     }
 }

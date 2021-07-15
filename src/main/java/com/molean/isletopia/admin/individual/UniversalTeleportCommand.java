@@ -1,8 +1,8 @@
 package com.molean.isletopia.admin.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.utils.ServerMessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,7 +29,7 @@ public class UniversalTeleportCommand implements CommandExecutor, TabCompleter, 
         if (args.length < 1)
             return true;
         String target = args[0];
-        BungeeUtils.universalTeleport(sourcePlayer, target);
+        ServerMessageUtils.universalTeleport(sourcePlayer, target);
         return true;
     }
 

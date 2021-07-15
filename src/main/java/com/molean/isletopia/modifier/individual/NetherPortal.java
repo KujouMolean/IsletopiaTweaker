@@ -18,7 +18,7 @@ public class NetherPortal implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    private static Map<UUID, Long> map = new HashMap<>();
+    private static final Map<UUID, Long> map = new HashMap<>();
 
     @EventHandler
     public void onMob(EntityPortalEnterEvent event) {

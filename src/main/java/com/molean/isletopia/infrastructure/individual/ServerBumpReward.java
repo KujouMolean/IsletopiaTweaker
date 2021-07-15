@@ -1,7 +1,10 @@
 package com.molean.isletopia.infrastructure.individual;
 
+import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.bungee.ServerBumpObject;
+import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -96,18 +99,34 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                     Player player = (Player) sender;
                     player.getInventory().addItem(new ItemStack(Material.SHULKER_BOX, 1));
 
+                    ServerBumpObject serverBumpObject = new ServerBumpObject();
+                    serverBumpObject.setPlayer(sender.getName());
+                    serverBumpObject.setUser(args[0]);
+                    serverBumpObject.setItems(new ArrayList<>());
+                    serverBumpObject.getItems().add("潜影盒");
 
                     Random random = new Random();
                     if (random.nextInt(100) < 10) {
                         player.getInventory().addItem(new ItemStack(Material.BEACON, 1));
+                        serverBumpObject.getItems().add("信标");
+                        UniversalParameter.addParameter("Molean", "beacon", player.getName());
+                        UniversalParameter.setParameter( player.getName(), "beaconReason", "顶贴");
+                    }
+                    if (random.nextInt(100) < 5) {
+                        player.getInventory().addItem(new ItemStack(Material.BUNDLE, 1));
+                        serverBumpObject.getItems().add("收纳袋");
                     }
                     if (random.nextInt(100) < 10) {
                         player.getInventory().addItem(new ItemStack(Material.HEART_OF_THE_SEA, 1));
+                        serverBumpObject.getItems().add("海洋之心");
                     }
                     if (random.nextInt(100) == 0) {
                         player.getInventory().addItem(new ItemStack(Material.ELYTRA, 1));
+                        serverBumpObject.getItems().add("鞘翅");
                         UniversalParameter.addParameter("Molean", "elytra", player.getName());
+                        UniversalParameter.setParameter( player.getName(), "elytraReason", "顶贴");
                     }
+                    BukkitBungeeUtils.sendBungeeMessage(player, "ServerBump",serverBumpObject);
                     return;
                 }
             }

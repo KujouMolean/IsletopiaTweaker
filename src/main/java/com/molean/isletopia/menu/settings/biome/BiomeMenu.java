@@ -22,7 +22,10 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 public class BiomeMenu implements Listener {
 
@@ -51,21 +54,29 @@ public class BiomeMenu implements Listener {
         Biome biome = player.getLocation().getBlock().getBiome();
 
         for (int i = page * 52; i < biomes.size() && i - page * 52 < inventory.getSize() - 2; i++) {
-            LocalBiome localBiome = MessageUtils.getBiome(biomes.get(i).name().toUpperCase());
-            if (localBiome.getName() == null) {
-                localBiome.setName("未知");
+            String name = "未知";
+            Material icon = Material.PLAYER_HEAD;
+            List<String> creatures = new ArrayList<>();
+            List<String> environments = new ArrayList<>();
+            String id = biomes.get(i).name();
+            try {
+                LocalBiome localBiome = LocalBiome.valueOf(biomes.get(i).name().toUpperCase());
+                name = localBiome.getName();
+                icon = localBiome.getIcon();
+                creatures.addAll(localBiome.getCreatures());
+                creatures.removeIf(String::isEmpty);
+                environments.addAll(localBiome.getEnvironment());
+                environments.removeIf(String::isEmpty);
+            } catch (IllegalArgumentException ignore) {
             }
-            if (localBiome.getIcon() == null) {
-                localBiome.setIcon(Material.PLAYER_HEAD);
+            ItemStackSheet itemStackSheet = new ItemStackSheet(icon, "§f" + name);
+            if (!creatures.isEmpty()) {
+                itemStackSheet.addLore("§f生物: " + String.join(", ", creatures));
             }
-            ItemStackSheet itemStackSheet = new ItemStackSheet(localBiome.getIcon(), "§f" + localBiome.getName());
-            if (!localBiome.getCreatures().isEmpty()) {
-                itemStackSheet.addLore("§f生物: " + String.join(", ", localBiome.getCreatures()));
+            if (!environments.isEmpty()) {
+                itemStackSheet.addLore("§f环境: " + String.join(", ", environments));
             }
-            if (!localBiome.getEnvironment().isEmpty()) {
-                itemStackSheet.addLore("§f环境: " + String.join(", ", localBiome.getEnvironment()));
-            }
-            if (biome.name().equalsIgnoreCase(localBiome.getId())) {
+            if (biome.name().equalsIgnoreCase(id)) {
                 itemStackSheet.addItemFlag(ItemFlag.HIDE_ENCHANTS);
                 itemStackSheet.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
                 String display = itemStackSheet.getDisplay();
@@ -73,8 +84,6 @@ public class BiomeMenu implements Listener {
             }
             inventory.setItem(i - page * 52, itemStackSheet.build());
         }
-
-
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
 
@@ -82,7 +91,6 @@ public class BiomeMenu implements Listener {
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory), 1);
-
     }
 
     @EventHandler
@@ -109,30 +117,28 @@ public class BiomeMenu implements Listener {
             } else {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new BiomeMenu(player, 0).open());
             }
-
             return;
         }
 
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
-        LocalBiome localBiome = MessageUtils.getBiome(biomes.get(slot + page * 52).name().toUpperCase());
-        if (localBiome.getName() == null) {
-            localBiome.setName("未知");
-        }
-        if (localBiome.getIcon() == null) {
-            localBiome.setIcon(Material.PLAYER_HEAD);
+
+        String biomeName = biomes.get(slot + page * 52).name();
+        String name = "未知";
+        try {
+            name = LocalBiome.valueOf(biomeName.toUpperCase()).getName();
+        } catch (IllegalArgumentException ignore) {
         }
         assert currentPlot != null;
-        if (currentPlot.getOwner().equals(player.getUniqueId())) {
+        if (Objects.equals(currentPlot.getOwner(), player.getUniqueId())) {
             player.sendMessage("§8[§3岛屿助手§8] §7尝试修改岛屿生物群系...");
-
-            currentPlot.getPlotModificationManager().setBiome(BiomeTypes.get(localBiome.getId().toLowerCase()), () ->
-                    player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + localBiome.getName() + "."));
+            String finalName = name;
+            currentPlot.getPlotModificationManager().setBiome(BiomeTypes.get(biomeName.toLowerCase(Locale.ROOT)), () ->
+                    player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + finalName + "."));
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
                     player.kick(Component.text("错误, 非岛主操作岛屿成员.")));
         }
         player.closeInventory();
-
     }
 
     @EventHandler

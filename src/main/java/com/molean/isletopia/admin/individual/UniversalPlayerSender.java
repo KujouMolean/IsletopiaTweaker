@@ -3,7 +3,7 @@ package com.molean.isletopia.admin.individual;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -48,9 +48,11 @@ public class UniversalPlayerSender implements CommandExecutor, TabCompleter {
         ArrayList<String> strings = new ArrayList<>();
         if (args.length == 1) {
             strings.addAll(ServerInfoUpdater.getOnlinePlayers());
+            strings.removeIf(s -> !s.startsWith(args[0]));
         }
         if (args.length == 2) {
             strings.addAll(ServerInfoUpdater.getServers());
+            strings.removeIf(s -> !s.startsWith(args[1]));
         }
         return strings;
     }

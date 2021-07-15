@@ -1,7 +1,6 @@
 package com.molean.isletopia.database;
 
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.plotsquared.core.PlotSquared;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import com.plotsquared.core.plot.PlotId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

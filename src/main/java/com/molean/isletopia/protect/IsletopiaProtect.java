@@ -1,6 +1,7 @@
 package com.molean.isletopia.protect;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.protect.individual.BeaconIslandOption;
 import com.molean.isletopia.protect.individual.*;
 
 import java.util.logging.Logger;
@@ -14,11 +15,14 @@ public class IsletopiaProtect {
             new AnimalProtect();
             new LavaProtect();
             new PlotMobCap();
-            new ExlosionProtect();
+            new ExplosionProtect();
             new MobRemover();
             new ElytraLimiter();
             new OtherProtect();
             new RedStoneLimiter();
+            new BeaconLimiter();
+            new BucketUsageProtect();
+            new BeaconIslandOption();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia protect failed!");

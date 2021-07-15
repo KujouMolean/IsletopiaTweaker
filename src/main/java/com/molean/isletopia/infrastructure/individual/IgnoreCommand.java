@@ -2,7 +2,7 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,8 +29,8 @@ public class IgnoreCommand implements CommandExecutor, TabCompleter, Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String ignores = UniversalParameter.getParameter(event.getPlayer().getName(), "ignores");
-            BungeeUtils.updateIgnores(event.getPlayer(), ignores);
+            List<String> ignores = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "ignores");
+            BukkitBungeeUtils.updateIgnores(event.getPlayer(), ignores);
         });
     }
 
@@ -43,8 +43,8 @@ public class IgnoreCommand implements CommandExecutor, TabCompleter, Listener {
         }
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             UniversalParameter.addParameter(player.getName(), "ignores", args[0]);
-            String ignores = UniversalParameter.getParameter(player.getName(), "ignores");
-            BungeeUtils.updateIgnores(player, ignores);
+            List<String> ignores = UniversalParameter.getParameterAsList(player.getName(), "ignores");
+            BukkitBungeeUtils.updateIgnores(player, ignores);
             player.sendMessage("已屏蔽 " + args[0] + " 的发言");
         });
         return true;

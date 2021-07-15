@@ -29,7 +29,7 @@ public class LavaProtect implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void onBucketFillObsidian(PlayerInteractEvent event) {
         if (Action.RIGHT_CLICK_BLOCK != event.getAction())
             return;
@@ -45,8 +45,11 @@ public class LavaProtect implements Listener {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void onLavaReplacing(BlockPlaceEvent event) {
+        if(event.getPlayer().isOp()){
+            return;
+        }
         BlockState blockReplacedState = event.getBlockReplacedState();
         BlockData blockData = blockReplacedState.getBlockData();
         String asString = blockData.getAsString();
@@ -58,6 +61,9 @@ public class LavaProtect implements Listener {
 
     @EventHandler
     public void onWateringLava(PlayerBucketEmptyEvent event) {
+        if(event.getPlayer().isOp()){
+            return;
+        }
         String asString = event.getBlock().getBlockData().getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);

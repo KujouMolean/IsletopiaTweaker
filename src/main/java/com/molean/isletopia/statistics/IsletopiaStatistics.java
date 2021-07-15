@@ -1,8 +1,9 @@
 package com.molean.isletopia.statistics;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.statistics.individual.IslandEnvironment;
 import com.molean.isletopia.statistics.individual.PlayTime;
-import com.molean.isletopia.statistics.individual.vanilla.VanillaStatistic;
+import com.molean.isletopia.statistics.vanilla.VanillaStatistic;
 
 import java.util.logging.Logger;
 
@@ -12,6 +13,7 @@ public final class IsletopiaStatistics {
         try {
             new PlayTime();
             new VanillaStatistic();
+            new IslandEnvironment();
 
         } catch (Exception exception) {
             exception.printStackTrace();

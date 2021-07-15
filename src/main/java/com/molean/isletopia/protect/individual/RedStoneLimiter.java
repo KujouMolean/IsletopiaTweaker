@@ -1,5 +1,6 @@
 package com.molean.isletopia.protect.individual;
 
+import com.destroystokyo.paper.event.block.TNTPrimeEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.player.PlotPlayer;
@@ -18,6 +19,7 @@ import org.bukkit.event.block.BlockPistonEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +61,28 @@ public class RedStoneLimiter implements Listener, CommandExecutor, TabCompleter 
         Objects.requireNonNull(Bukkit.getPluginCommand("redstone")).setTabCompleter(this);
     }
 
-    //redstone
+
+    Map<Long, Integer> chunkLoadTime = new HashMap<>();
+
+    @EventHandler
+    public void onChunk(ChunkLoadEvent event){
+        long chunkKey = event.getChunk().getChunkKey();
+        int currentTick = Bukkit.getCurrentTick();
+        chunkLoadTime.put(chunkKey, currentTick);
+    }
+
+    @EventHandler
+    public void on(TNTPrimeEvent event){
+        Integer loadTime = chunkLoadTime.get(event.getBlock().getChunk().getChunkKey());
+        if (loadTime == null) {
+            chunkLoadTime.put(event.getBlock().getChunk().getChunkKey(), Bukkit.getCurrentTick());
+            loadTime = Bukkit.getCurrentTick();
+        }
+        if(Bukkit.getCurrentTick() - loadTime < 50){
+            event.setCancelled(true);
+        }
+    }
+
     @EventHandler
     public void on(BlockRedstoneEvent event) {
         Plot currentPlot = PlotUtils.getCurrentPlot(event.getBlock().getLocation());
@@ -70,7 +93,6 @@ public class RedStoneLimiter implements Listener, CommandExecutor, TabCompleter 
         } else {
             redStoneData.count++;
             if (redStoneData.count > 5000) {
-//                currentPlot.setFlag(RedstoneFlag.REDSTONE_FALSE);
                 for (PlotPlayer<?> plotPlayer : currentPlot.getPlayersInPlot()) {
                     Player player = Bukkit.getPlayer(plotPlayer.getName());
                     if (PlotUtils.hasCurrentPlotPermission(player)) {
@@ -81,30 +103,4 @@ public class RedStoneLimiter implements Listener, CommandExecutor, TabCompleter 
         }
         redStoneDataMap.put(currentPlot, redStoneData);
     }
-
-//    //dispenser
-//    @EventHandler
-//    public void on(BlockDispenseEvent event) {
-//        //todo
-//    }
-//
-//
-//    //piston
-//    @EventHandler
-//    public void on(BlockPistonEvent event) {
-//        //todo
-//    }
-
-
-//    //hopper
-//    @EventHandler
-//    public void on(InventoryMoveItemEvent event) {
-//        if (!event.getInitiator().equals(event.getDestination())) {
-//            return;
-//        }
-//        if (!event.getInitiator().getType().equals(InventoryType.HOPPER)) {
-//            return;
-//        }
-//        //todo
-//    }
 }

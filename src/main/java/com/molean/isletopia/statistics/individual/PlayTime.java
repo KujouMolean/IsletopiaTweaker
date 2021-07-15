@@ -2,13 +2,12 @@ package com.molean.isletopia.statistics.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlayTimeStatisticsDao;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.PluginDisableEvent;
 
 import java.util.Calendar;
 import java.util.HashMap;

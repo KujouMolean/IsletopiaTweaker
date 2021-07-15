@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class PlayerHeadDrop implements Listener {
-    private static final Map<EntityType, String> drops = new HashMap<>();
+    public static final Map<EntityType, String> drops = new HashMap<>();
 
     public PlayerHeadDrop() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());

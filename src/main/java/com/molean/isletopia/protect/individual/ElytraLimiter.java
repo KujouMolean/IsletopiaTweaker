@@ -19,7 +19,6 @@ public class ElytraLimiter implements Listener {
 
     public ElytraLimiter() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-
     }
 
     @EventHandler

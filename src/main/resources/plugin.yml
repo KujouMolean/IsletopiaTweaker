@@ -2,11 +2,15 @@ name: IsletopiaTweakers
 version: 1.0-SNAPSHOT
 main: com.molean.isletopia.IsletopiaTweakers
 api-version: 1.13
-softdepend:
-  - PlaceholderAPI
 denpend:
   - PlotSquared
 commands:
+  clubrealm: { }
+
+  getup: { }
+  consume: { }
+  firework:
+    permission: isletopia.firework
   gtp:
     permission: isletopia.gtp
   gsend:
@@ -36,3 +40,6 @@ commands:
   download: { }
   redstone: { }
   bumpreward: { }
+  luckycolor: { }
+  clock: { }
+  test: { }

@@ -1,7 +1,8 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.utils.ServerMessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,7 +27,7 @@ public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
         if (args.length < 1)
             return true;
         String target = args[0];
-        BungeeUtils.universalPlotVisitByMessage(sourcePlayer, target);
+        ServerMessageUtils.universalPlotVisitByMessage(sourcePlayer, target);
         return true;
     }
 

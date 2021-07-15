@@ -71,6 +71,8 @@ settings:
       title: 8192
       author: 8192
       page: 16384
+  loggers:
+    deobfuscate-stacktraces: true
 timings:
   enabled: true
   verbose: true

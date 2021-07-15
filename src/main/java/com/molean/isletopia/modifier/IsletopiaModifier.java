@@ -9,6 +9,7 @@ public class IsletopiaModifier {
     public IsletopiaModifier() {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try {
+            new PlayerHeadDrop();
             new RichWanderingTrader();
             new MoreRecipe();
             new RemoveUnbreakable();
@@ -22,15 +23,17 @@ public class IsletopiaModifier {
             new AntiZombification();
             new DragonHeadExtractBreath();
             new EquipmentWeaker();
-            new PlayerHeadDrop();
+
             new PreventRenameHead();
 //            new AdvancedDispenser();
             new FirstSapling();
             new TestListener();
             new NetherPortal();
-//            new HopperFilter();
             new ShulkerRespawn();
             new TestListener();
+            new LuckyColor();
+            new RichPiglin();
+            new SleepAnyTime();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");

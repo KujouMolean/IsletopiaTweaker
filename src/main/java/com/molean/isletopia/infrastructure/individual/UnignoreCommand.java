@@ -2,7 +2,7 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,14 +26,6 @@ public class UnignoreCommand implements CommandExecutor, TabCompleter, Listener 
         Objects.requireNonNull(Bukkit.getPluginCommand("unignore")).setTabCompleter(this);
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String ignores = UniversalParameter.getParameter(event.getPlayer().getName(), "ignores");
-            BungeeUtils.updateIgnores(event.getPlayer(), ignores);
-        });
-    }
-
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
@@ -44,8 +36,8 @@ public class UnignoreCommand implements CommandExecutor, TabCompleter, Listener 
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             if (UniversalParameter.getParameterAsList(player.getName(), "ignores").contains(args[0])) {
                 UniversalParameter.removeParameter(player.getName(), "ignores", args[0]);
-                String ignores = UniversalParameter.getParameter(player.getName(), "ignores");
-                BungeeUtils.updateIgnores(player, ignores);
+                List<String> ignores = UniversalParameter.getParameterAsList(player.getName(), "ignores");
+                BukkitBungeeUtils.updateIgnores(player, ignores);
                 player.sendMessage("取消对 " + args[0] + " 的屏蔽");
             } else {
                 player.sendMessage("你没有屏蔽该玩家");

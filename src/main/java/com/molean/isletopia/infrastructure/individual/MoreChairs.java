@@ -1,7 +1,10 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -9,14 +12,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.Plugin;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class MoreChairs implements Listener {
 
@@ -32,6 +41,7 @@ public class MoreChairs implements Listener {
     private static final Map<Player, ArmorStand> map = new HashMap<>();
     private static final Map<Player, Location> originLocation = new HashMap<>();
     private static final Map<Player, Long> sneakTime = new HashMap<>();
+
 
     @SuppressWarnings("deprecation")
     @EventHandler
@@ -71,19 +81,21 @@ public class MoreChairs implements Listener {
             return;
         }
 
-        Location location = event.getPlayer().getLocation().add(0, -1.7, 0);
-        Entity entity = event.getPlayer().getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
-        ArmorStand armorStand = (ArmorStand) entity;
-        originLocation.put(event.getPlayer(), event.getPlayer().getLocation());
-        armorStand.addPassenger(event.getPlayer());
-        armorStand.setGravity(false);
-        armorStand.setCanMove(false);
-        armorStand.setInvulnerable(true);
-        armorStand.setAI(false);
-        armorStand.setVisible(false);
-        map.put(event.getPlayer(), armorStand);
-
-
+            Location location = event.getPlayer().getLocation().add(0, -1.7, 0);
+            Entity entity = event.getPlayer().getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+            ArmorStand armorStand = (ArmorStand) entity;
+            originLocation.put(event.getPlayer(), event.getPlayer().getLocation());
+            armorStand.addPassenger(event.getPlayer());
+            armorStand.setGravity(false);
+            armorStand.setCanMove(false);
+            armorStand.setInvulnerable(true);
+            armorStand.setAI(false);
+            armorStand.setArms(false);
+            armorStand.setCanTick(false);
+            armorStand.setVisualFire(false);
+            armorStand.setDisabledSlots(EquipmentSlot.values());
+            armorStand.setVisible(false);
+            map.put(event.getPlayer(), armorStand);
     }
 
     @EventHandler
@@ -131,6 +143,18 @@ public class MoreChairs implements Listener {
             vehicle.eject();
             vehicle.remove();
             map.remove(event.getPlayer());
+        }
+    }
+
+    @EventHandler
+    public void on(PluginDisableEvent event) {
+        Plugin plugin = event.getPlugin();
+        if (plugin instanceof IsletopiaTweakers) {
+            for (Player player : map.keySet()) {
+                ArmorStand armorStand = map.get(player);
+                armorStand.eject();
+                armorStand.remove();
+            }
         }
     }
 }

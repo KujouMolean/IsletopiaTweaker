@@ -24,7 +24,6 @@ public class FertilizeFlower implements Listener {
     public FertilizeFlower() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         {
-
             List<ItemStack> icons = new ArrayList<>();
             List<ItemStack> result = new ArrayList<>();
             List<ItemStack> types = new ArrayList<>();

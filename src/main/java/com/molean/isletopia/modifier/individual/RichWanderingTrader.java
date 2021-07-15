@@ -1,6 +1,8 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.menu.recipe.LocalRecipe;
+import com.molean.isletopia.utils.HeadUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -14,9 +16,43 @@ import org.bukkit.inventory.MerchantRecipe;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bukkit.Material.*;
+
 public class RichWanderingTrader implements Listener {
+    private static final List<Material> additions = new ArrayList<>();
     public RichWanderingTrader() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+
+        additions.add(COCOA_BEANS);
+        additions.add(CHORUS_FLOWER);
+        additions.add(NETHER_WART);
+        additions.add(CRIMSON_FUNGUS);
+        additions.add(WARPED_FUNGUS);
+        additions.add(SWEET_BERRIES);
+        additions.add(BEETROOT_SEEDS);
+        additions.add(GLOW_LICHEN);
+        additions.add(SPORE_BLOSSOM);
+        {
+            List<ItemStack> icons = new ArrayList<>();
+            List<ItemStack> result = new ArrayList<>();
+            List<ItemStack> types = new ArrayList<>();
+            types.add(HeadUtils.getSkullFromValue("流浪商人", PlayerHeadDrop.drops.get(EntityType.WANDERING_TRADER)));
+            for (Material addition : additions) {
+                icons.add(new ItemStack(addition));
+                result.add(new ItemStack(addition));
+            }
+
+            List<ItemStack[]> sources = new ArrayList<>();
+            ItemStack[] itemStacks = new ItemStack[9];
+            for (int i = 0; i < itemStacks.length; i++) {
+                itemStacks[i] = new ItemStack(AIR);
+            }
+            itemStacks[4] = new ItemStack(Material.EMERALD, 3);
+
+            sources.add(itemStacks);
+
+            LocalRecipe.addRecipe(icons, types, sources, result);
+        }
     }
 
     @EventHandler
@@ -26,20 +62,9 @@ public class RichWanderingTrader implements Listener {
         }
         WanderingTrader wanderingTrader = (WanderingTrader) event.getEntity();
         List<MerchantRecipe> recipes = new ArrayList<>(wanderingTrader.getRecipes());
-//            可可豆
-        recipes.add(generateMerchant(Material.COCOA_BEANS, 3, 5));
-//            紫颂花
-        recipes.add(generateMerchant(Material.CHORUS_FLOWER, 3, 5));
-//            地狱疣
-        recipes.add(generateMerchant(Material.NETHER_WART, 3, 5));
-//            诡异菌
-        recipes.add(generateMerchant(Material.CRIMSON_FUNGUS, 3, 5));
-//            绯红菌
-        recipes.add(generateMerchant(Material.WARPED_FUNGUS, 3, 5));
-//            甜浆果
-        recipes.add(generateMerchant(Material.SWEET_BERRIES, 3, 5));
-//            竹子
-        recipes.add(generateMerchant(Material.BEETROOT_SEEDS, 3, 5));
+        for (Material addition : additions) {
+            recipes.add(generateMerchant(addition, 3, 5));
+        }
         wanderingTrader.setRecipes(recipes);
     }
 

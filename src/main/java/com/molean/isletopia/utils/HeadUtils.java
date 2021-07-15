@@ -2,8 +2,9 @@ package com.molean.isletopia.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.utils.Pair;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

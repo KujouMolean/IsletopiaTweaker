@@ -17,26 +17,73 @@ public class MoreRecipe {
 
     public MoreRecipe() {
         Bukkit.resetRecipes();
+
+        //发光浆果
+        registerSmithingRecipie(new ItemStack(GLOW_BERRIES), SWEET_BERRIES, GLOWSTONE_DUST);
+        LocalRecipe.addRecipe(GLOW_BERRIES, SMITHING_TABLE,
+                AIR, AIR, AIR,
+                SWEET_BERRIES, AIR, GLOWSTONE_DUST,
+                AIR, AIR, AIR);
+
+        //方解石
+        registerFurnace(new ItemStack(CALCITE), DIORITE, 1.0F, 150);
+
+        LocalRecipe.addRecipe(CALCITE, FURNACE,
+                AIR, AIR, AIR,
+                AIR, DIORITE, AIR,
+                AIR, AIR, AIR);
+
+
+        //凝灰岩
+        registerStonecutting(new ItemStack(TUFF), BASALT);
+
+        LocalRecipe.addRecipe(TUFF, STONECUTTER,
+                AIR, AIR, AIR,
+                AIR, BASALT, AIR,
+                AIR, AIR, AIR);
+
+        //潜声传感器
+        registerShaped(new ItemStack(SCULK_SENSOR),
+                GRASS_BLOCK, GRASS_BLOCK, GRASS_BLOCK,
+                CRYING_OBSIDIAN, COMPARATOR, CRYING_OBSIDIAN,
+                AIR, DAYLIGHT_DETECTOR, AIR);
+
+        LocalRecipe.addRecipe(SCULK_SENSOR, CRAFTING_TABLE, new ItemStack(SCULK_SENSOR),
+                GRASS_BLOCK, GRASS_BLOCK, GRASS_BLOCK,
+                CRYING_OBSIDIAN, COMPARATOR, CRYING_OBSIDIAN,
+                AIR, DAYLIGHT_DETECTOR, AIR);
+        //海绵
+        registerShaped(new ItemStack(SPONGE),
+                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS,
+                PRISMARINE_SHARD, HEART_OF_THE_SEA, PRISMARINE_SHARD,
+                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS);
+
+        LocalRecipe.addRecipe(SPONGE, CRAFTING_TABLE, new ItemStack(SPONGE),
+                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS,
+                PRISMARINE_SHARD, HEART_OF_THE_SEA, PRISMARINE_SHARD,
+                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS);
+
+
         //紫水晶
         registerShaped(new ItemStack(AMETHYST_SHARD),
                 PURPLE_DYE, QUARTZ, PURPLE_DYE,
-                QUARTZ,     QUARTZ, QUARTZ,
+                QUARTZ, QUARTZ, QUARTZ,
                 PURPLE_DYE, QUARTZ, PURPLE_DYE);
 
         LocalRecipe.addRecipe(AMETHYST_SHARD, CRAFTING_TABLE, new ItemStack(AMETHYST_SHARD),
                 PURPLE_DYE, QUARTZ, PURPLE_DYE,
-                QUARTZ,     QUARTZ, QUARTZ,
+                QUARTZ, QUARTZ, QUARTZ,
                 PURPLE_DYE, QUARTZ, PURPLE_DYE);
 
         //远古残骸
         registerShaped(new ItemStack(ANCIENT_DEBRIS),
                 BONE_BLOCK, BONE_BLOCK, BONE_BLOCK,
-                BONE_BLOCK,     NETHERITE_BLOCK, BONE_BLOCK,
+                BONE_BLOCK, NETHERITE_BLOCK, BONE_BLOCK,
                 BONE_BLOCK, BONE_BLOCK, BONE_BLOCK);
 
         LocalRecipe.addRecipe(ANCIENT_DEBRIS, CRAFTING_TABLE, new ItemStack(ANCIENT_DEBRIS),
                 BONE_BLOCK, BONE_BLOCK, BONE_BLOCK,
-                BONE_BLOCK,     NETHERITE_BLOCK, BONE_BLOCK,
+                BONE_BLOCK, NETHERITE_BLOCK, BONE_BLOCK,
                 BONE_BLOCK, BONE_BLOCK, BONE_BLOCK);
 
         //深板岩
@@ -50,7 +97,7 @@ public class MoreRecipe {
 
         List<Material> saplings = List.of(OAK_SAPLING, SPRUCE_SAPLING, BIRCH_SAPLING, JUNGLE_SAPLING, ACACIA_SAPLING, DARK_OAK_SAPLING);
         for (Material sapling : saplings) {
-            registerSmoking(new ItemStack(DEAD_BUSH),sapling,0,150);
+            registerSmoking(new ItemStack(DEAD_BUSH), sapling, 0, 150);
         }
         {
 
@@ -68,7 +115,6 @@ public class MoreRecipe {
             result.add(new ItemStack(DEAD_BUSH));
             LocalRecipe.addRecipe(icons, types, sources, result);
         }
-
 
 
         //萤石
@@ -103,6 +149,7 @@ public class MoreRecipe {
                 BLACK_DYE, BLACK_DYE, BLACK_DYE,
                 BLACK_DYE, SKELETON_SKULL, BLACK_DYE,
                 BLACK_DYE, BLACK_DYE, BLACK_DYE);
+
         //合成蜘蛛丝
         registerShaped(new ItemStack(COBWEB),
                 STRING, STRING, STRING,
@@ -123,42 +170,69 @@ public class MoreRecipe {
                 STONE, AIR, ENDER_PEARL,
                 AIR, AIR, AIR);
 
-//        绯红菌岩
+//        绯红菌岩 诡异菌岩 菌丝
         registerSmithingRecipie(new ItemStack(CRIMSON_NYLIUM), NETHERRACK, CRIMSON_FUNGUS);
-        LocalRecipe.addRecipe(CRIMSON_NYLIUM, SMITHING_TABLE,
-                AIR, AIR, AIR,
-                NETHERRACK, AIR, CRIMSON_FUNGUS,
-                AIR, AIR, AIR);
-//        诡异菌岩
         registerSmithingRecipie(new ItemStack(WARPED_NYLIUM), NETHERRACK, WARPED_FUNGUS);
-        LocalRecipe.addRecipe(WARPED_NYLIUM, SMITHING_TABLE,
-                AIR, AIR, AIR,
-                NETHERRACK, AIR, WARPED_FUNGUS,
-                AIR, AIR, AIR);
+        registerSmithingRecipie(new ItemStack(MYCELIUM), DIRT, BROWN_MUSHROOM);
+        {
+            List<ItemStack> icons = new ArrayList<>();
+            List<ItemStack> result = new ArrayList<>();
+            for (Material material : List.of(CRIMSON_NYLIUM,WARPED_NYLIUM,MYCELIUM)) {
+                icons.add(new ItemStack(material));
+                result.add(new ItemStack(material));
+            }
+            List<ItemStack> types = new ArrayList<>();
+            types.add(new ItemStack(SMITHING_TABLE));
+            List<ItemStack[]> sources = new ArrayList<>();
+            List<Material> originBlocks = List.of(NETHERRACK, NETHERRACK, DIRT);
+            List<Material> appendItem = List.of(CRIMSON_FUNGUS, WARPED_FUNGUS, BROWN_MUSHROOM);
+            for (int i = 0; i < originBlocks.size(); i++) {
+                ItemStack[] itemStacks = new ItemStack[9];
+                for (int j = 0; j < itemStacks.length; j++) {
+                    itemStacks[j] = new ItemStack(AIR);
+                }
+                itemStacks[3] = new ItemStack(originBlocks.get(i));
+                itemStacks[5] = new ItemStack(appendItem.get(i));
+                sources.add(itemStacks);
+            }
+            LocalRecipe.addRecipe(icons, types, sources, result);
+        }
+
 //        钻石
         registerCampfire(new ItemStack(DIAMOND), POISONOUS_POTATO, 1.0F, 600);
         LocalRecipe.addRecipe(DIAMOND, CAMPFIRE,
                 AIR, AIR, AIR,
                 AIR, POISONOUS_POTATO, AIR,
                 AIR, AIR, AIR);
-//        灵魂沙
+
+
+
+//        灵魂沙 灵魂土 地狱岩
         registerSmoking(new ItemStack(SOUL_SAND), SAND, 1.0F, 150);
-        LocalRecipe.addRecipe(SOUL_SAND, SMOKER,
-                AIR, AIR, AIR,
-                AIR, SAND, AIR,
-                AIR, AIR, AIR);
-//        地狱岩
-        registerSmoking(new ItemStack(NETHERRACK), COBBLESTONE, 1.0F, 150);
-        LocalRecipe.addRecipe(NETHERRACK, SMOKER,
-                AIR, AIR, AIR,
-                AIR, COBBLESTONE, AIR,
-                AIR, AIR, AIR);
-//        灵魂土
         registerSmoking(new ItemStack(SOUL_SOIL), DIRT, 1.0F, 150);
-        LocalRecipe.addRecipe(SOUL_SOIL, SMOKER,
-                AIR, AIR, AIR,
-                AIR, DIRT, AIR,
-                AIR, AIR, AIR);
+        registerSmoking(new ItemStack(NETHERRACK), COBBLESTONE, 1.0F, 150);
+        {
+            List<ItemStack> icons = new ArrayList<>();
+            List<ItemStack> result = new ArrayList<>();
+            for (Material material : List.of(SOUL_SAND,SOUL_SOIL,NETHERRACK)) {
+                icons.add(new ItemStack(material));
+                result.add(new ItemStack(material));
+            }
+            List<ItemStack> types = new ArrayList<>();
+            types.add(new ItemStack(SMOKER));
+            List<ItemStack[]> sources = new ArrayList<>();
+            for (Material material : List.of(SAND,DIRT,COBBLESTONE)) {
+                ItemStack[] itemStacks = new ItemStack[9];
+                for (int i = 0; i < itemStacks.length; i++) {
+                    itemStacks[i] = new ItemStack(AIR);
+                }
+                itemStacks[4] = new ItemStack(material);
+                sources.add(itemStacks);
+            }
+            LocalRecipe.addRecipe(icons, types, sources, result);
+        }
+
+
 //        砂砾
         registerStonecutting(new ItemStack(GRAVEL), COBBLESTONE);
         registerBlasting(new ItemStack(GRAVEL), COBBLESTONE, 1.0F, 150);
@@ -245,18 +319,12 @@ public class MoreRecipe {
                 AIR, AIR, AIR,
                 AIR, CHARCOAL, AIR,
                 AIR, AIR, AIR);
-        //合成菌丝
-        registerSmithingRecipie(new ItemStack(MYCELIUM), DIRT, BROWN_MUSHROOM);
-        LocalRecipe.addRecipe(MYCELIUM, SMITHING_TABLE,
-                AIR, AIR, AIR,
-                DIRT, AIR, BROWN_MUSHROOM,
-                AIR, AIR, AIR);
 
         //合成红石矿
         registerShaped(new ItemStack(REDSTONE_ORE),
-                REDSTONE, REDSTONE, REDSTONE,
-                REDSTONE, STONE, REDSTONE,
-                REDSTONE, REDSTONE, REDSTONE);
+                REDSTONE_BLOCK, REDSTONE_BLOCK, REDSTONE_BLOCK,
+                REDSTONE_BLOCK, STONE, REDSTONE_BLOCK,
+                REDSTONE_BLOCK, REDSTONE_BLOCK, REDSTONE_BLOCK);
         //合成煤矿
         registerShaped(new ItemStack(COAL_ORE),
                 COAL, COAL, COAL,
@@ -278,6 +346,11 @@ public class MoreRecipe {
                 GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
                 GOLD_INGOT, NETHERRACK, GOLD_INGOT,
                 GOLD_INGOT, GOLD_INGOT, GOLD_INGOT);
+        //合成black金矿石
+        registerShaped(new ItemStack(GILDED_BLACKSTONE),
+                GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
+                GOLD_INGOT, BLACKSTONE, GOLD_INGOT,
+                GOLD_INGOT, GOLD_INGOT, GOLD_INGOT);
         //合成青金石矿
         registerShaped(new ItemStack(LAPIS_ORE),
                 LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK,
@@ -298,6 +371,53 @@ public class MoreRecipe {
                 QUARTZ, QUARTZ, QUARTZ,
                 QUARTZ, NETHERRACK, QUARTZ,
                 QUARTZ, QUARTZ, QUARTZ);
+        //合成copper ore
+        registerShaped(new ItemStack(COPPER_ORE),
+                COPPER_INGOT, COPPER_INGOT, COPPER_INGOT,
+                COPPER_INGOT, STONE, COPPER_INGOT,
+                COPPER_INGOT, COPPER_INGOT, COPPER_INGOT);
+
+
+        //合成deep coal
+        registerShaped(new ItemStack(DEEPSLATE_COAL_ORE),
+                COAL, COAL, COAL,
+                COAL, DEEPSLATE, COAL,
+                COAL, COAL, COAL);
+        //合成deep iron
+        registerShaped(new ItemStack(DEEPSLATE_IRON_ORE),
+                IRON_INGOT, IRON_INGOT, IRON_INGOT,
+                IRON_INGOT, DEEPSLATE, IRON_INGOT,
+                IRON_INGOT, IRON_INGOT, IRON_INGOT);
+        //合成deep copper
+        registerShaped(new ItemStack(DEEPSLATE_COPPER_ORE),
+                COPPER_INGOT, COPPER_INGOT, COPPER_INGOT,
+                COPPER_INGOT, DEEPSLATE, COPPER_INGOT,
+                COPPER_INGOT, COPPER_INGOT, COPPER_INGOT);
+        //合成gold copper
+        registerShaped(new ItemStack(DEEPSLATE_GOLD_ORE),
+                GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
+                GOLD_INGOT, DEEPSLATE, GOLD_INGOT,
+                GOLD_INGOT, GOLD_INGOT, GOLD_INGOT);
+        //合成deep redstone
+        registerShaped(new ItemStack(DEEPSLATE_REDSTONE_ORE),
+                REDSTONE_BLOCK, REDSTONE_BLOCK, REDSTONE_BLOCK,
+                REDSTONE_BLOCK, DEEPSLATE, REDSTONE_BLOCK,
+                REDSTONE_BLOCK, REDSTONE_BLOCK, REDSTONE_BLOCK);
+        //合成deep emerald
+        registerShaped(new ItemStack(DEEPSLATE_EMERALD_ORE),
+                EMERALD, EMERALD, EMERALD,
+                EMERALD, DEEPSLATE, EMERALD,
+                EMERALD, EMERALD, EMERALD);
+        //合成deep lapis
+        registerShaped(new ItemStack(DEEPSLATE_LAPIS_ORE),
+                LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK,
+                LAPIS_BLOCK, DEEPSLATE, LAPIS_BLOCK,
+                LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK);
+        //合成deep diamond
+        registerShaped(new ItemStack(DEEPSLATE_DIAMOND_ORE),
+                DIAMOND, DIAMOND, DIAMOND,
+                DIAMOND, DEEPSLATE, DIAMOND,
+                DIAMOND, DIAMOND, DIAMOND);
 
         {
             List<ItemStack> icons = new ArrayList<>();
@@ -312,32 +432,49 @@ public class MoreRecipe {
             icons.add(new ItemStack(IRON_ORE));
             icons.add(new ItemStack(GOLD_ORE));
             icons.add(new ItemStack(NETHER_GOLD_ORE));
+            icons.add(new ItemStack(GILDED_BLACKSTONE));
             icons.add(new ItemStack(LAPIS_ORE));
             icons.add(new ItemStack(DIAMOND_ORE));
             icons.add(new ItemStack(EMERALD_ORE));
             icons.add(new ItemStack(NETHER_QUARTZ_ORE));
+            icons.add(new ItemStack(COPPER_ORE));
+            icons.add(new ItemStack(DEEPSLATE_COAL_ORE));
+            icons.add(new ItemStack(DEEPSLATE_IRON_ORE));
+            icons.add(new ItemStack(DEEPSLATE_COPPER_ORE));
+            icons.add(new ItemStack(DEEPSLATE_GOLD_ORE));
+            icons.add(new ItemStack(DEEPSLATE_REDSTONE_ORE));
+            icons.add(new ItemStack(DEEPSLATE_EMERALD_ORE));
+            icons.add(new ItemStack(DEEPSLATE_LAPIS_ORE));
+            icons.add(new ItemStack(DEEPSLATE_DIAMOND_ORE));
 
             result.add(new ItemStack(REDSTONE_ORE));
             result.add(new ItemStack(COAL_ORE));
             result.add(new ItemStack(IRON_ORE));
             result.add(new ItemStack(GOLD_ORE));
             result.add(new ItemStack(NETHER_GOLD_ORE));
+            result.add(new ItemStack(GILDED_BLACKSTONE));
             result.add(new ItemStack(LAPIS_ORE));
             result.add(new ItemStack(DIAMOND_ORE));
             result.add(new ItemStack(EMERALD_ORE));
             result.add(new ItemStack(NETHER_QUARTZ_ORE));
+            result.add(new ItemStack(COPPER_ORE));
+            result.add(new ItemStack(DEEPSLATE_COAL_ORE));
+            result.add(new ItemStack(DEEPSLATE_IRON_ORE));
+            result.add(new ItemStack(DEEPSLATE_COPPER_ORE));
+            result.add(new ItemStack(DEEPSLATE_GOLD_ORE));
+            result.add(new ItemStack(DEEPSLATE_REDSTONE_ORE));
+            result.add(new ItemStack(DEEPSLATE_EMERALD_ORE));
+            result.add(new ItemStack(DEEPSLATE_LAPIS_ORE));
+            result.add(new ItemStack(DEEPSLATE_DIAMOND_ORE));
             materials.add(List.of(
-                    REDSTONE, REDSTONE, REDSTONE,
-                    REDSTONE, STONE, REDSTONE,
-                    REDSTONE, REDSTONE, REDSTONE
-
+                    REDSTONE_BLOCK, REDSTONE_BLOCK, REDSTONE_BLOCK,
+                    REDSTONE_BLOCK, STONE, REDSTONE_BLOCK,
+                    REDSTONE_BLOCK, REDSTONE_BLOCK, REDSTONE_BLOCK
             ));
             materials.add(List.of(
-
                     COAL, COAL, COAL,
                     COAL, STONE, COAL,
                     COAL, COAL, COAL
-
             ));
 
             materials.add(List.of(
@@ -353,6 +490,11 @@ public class MoreRecipe {
             materials.add(List.of(
                     GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
                     GOLD_INGOT, NETHERRACK, GOLD_INGOT,
+                    GOLD_INGOT, GOLD_INGOT, GOLD_INGOT
+            ));
+            materials.add(List.of(
+                    GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
+                    GOLD_INGOT, BLACKSTONE, GOLD_INGOT,
                     GOLD_INGOT, GOLD_INGOT, GOLD_INGOT
             ));
 
@@ -376,6 +518,54 @@ public class MoreRecipe {
                     QUARTZ, NETHERRACK, QUARTZ,
                     QUARTZ, QUARTZ, QUARTZ
             ));
+            materials.add(List.of(
+                    COPPER_INGOT, COPPER_INGOT, COPPER_INGOT,
+                    COPPER_INGOT, STONE, COPPER_INGOT,
+                    COPPER_INGOT, COPPER_INGOT, COPPER_INGOT
+            ));
+
+
+            //合成deep coal
+            materials.add(List.of(
+                    COAL, COAL, COAL,
+                    COAL, DEEPSLATE, COAL,
+                    COAL, COAL, COAL));
+            //合成deep iron
+            materials.add(List.of(
+                    IRON_INGOT, IRON_INGOT, IRON_INGOT,
+                    IRON_INGOT, DEEPSLATE, IRON_INGOT,
+                    IRON_INGOT, IRON_INGOT, IRON_INGOT));
+            //合成deep copper
+            materials.add(List.of(
+                    COPPER_INGOT, COPPER_INGOT, COPPER_INGOT,
+                    COPPER_INGOT, DEEPSLATE, COPPER_INGOT,
+                    COPPER_INGOT, COPPER_INGOT, COPPER_INGOT));
+            //合成gold copper
+            materials.add(List.of(
+                    GOLD_INGOT, GOLD_INGOT, GOLD_INGOT,
+                    GOLD_INGOT, DEEPSLATE, GOLD_INGOT,
+                    GOLD_INGOT, GOLD_INGOT, GOLD_INGOT));
+            //合成deep redstone
+            materials.add(List.of(
+                    REDSTONE_BLOCK, REDSTONE_BLOCK, REDSTONE_BLOCK,
+                    REDSTONE_BLOCK, DEEPSLATE, REDSTONE_BLOCK,
+                    REDSTONE_BLOCK, REDSTONE_BLOCK, REDSTONE_BLOCK));
+            //合成deep emerald
+            materials.add(List.of(
+                    EMERALD, EMERALD, EMERALD,
+                    EMERALD, DEEPSLATE, EMERALD,
+                    EMERALD, EMERALD, EMERALD));
+            //合成deep lapis
+            materials.add(List.of(
+                    LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK,
+                    LAPIS_BLOCK, DEEPSLATE, LAPIS_BLOCK,
+                    LAPIS_BLOCK, LAPIS_BLOCK, LAPIS_BLOCK));
+            //合成deep diamond
+            materials.add(List.of(
+                    DIAMOND, DIAMOND, DIAMOND,
+                    DIAMOND, DEEPSLATE, DIAMOND,
+                    DIAMOND, DIAMOND, DIAMOND));
+
             for (List<Material> materialList : materials) {
                 ItemStack[] itemStacks = new ItemStack[9];
                 for (int i = 0; i < itemStacks.length; i++) {
@@ -387,7 +577,7 @@ public class MoreRecipe {
         }
 
 
-        List<Material> dyeRecipeMaterials = List.of(GOLD_INGOT, IRON_INGOT, NETHERITE_INGOT, BRICK, NETHER_BRICK,COPPER_INGOT);
+        List<Material> dyeRecipeMaterials = List.of(GOLD_INGOT, IRON_INGOT, NETHERITE_INGOT, BRICK, NETHER_BRICK, COPPER_INGOT);
         //合成铁锭
         dyeRecipeMaterials.forEach(material -> {
             registerShaped(new ItemStack(IRON_INGOT),

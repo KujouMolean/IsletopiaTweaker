@@ -1,10 +1,100 @@
 package com.molean.isletopia.modifier.individual;
 
+import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.jetbrains.annotations.NotNull;
 
-public class LuckyColor implements Listener {
+import java.awt.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+
+public class LuckyColor implements Listener, CommandExecutor {
 
     public LuckyColor() {
+        Bukkit.getPluginManager().registerEvents(this,  IsletopiaTweakers.getPlugin());
+        Objects.requireNonNull(Bukkit.getPluginCommand("luckycolor")).setExecutor(this);
+    }
+    public static Map<String, Color> colorMap = new HashMap<>();
 
+    @EventHandler
+    public void playerJoin(PlayerJoinEvent event){
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            Player player = event.getPlayer();
+            int r,g,b;
+            String lastBumpReward = UniversalParameter.getParameter(player.getName(), "lastLuckyColor");
+            if (lastBumpReward != null && !lastBumpReward.isEmpty()&&
+                    LocalDate.parse(lastBumpReward, DateTimeFormatter.ofPattern("yyyy-MM-dd")).equals(LocalDate.now())) {
+                    String rString = UniversalParameter.getParameter(player.getName(), "luckyColor-R");
+                    String gString = UniversalParameter.getParameter(player.getName(), "luckyColor-G");
+                    String bString = UniversalParameter.getParameter(player.getName(), "luckyColor-B");
+                     r = Integer.parseInt(rString);
+                     g = Integer.parseInt(gString);
+                     b = Integer.parseInt(bString);
+            }else{
+                Random random = new Random();
+                 r = random.nextInt(256);
+                 g = random.nextInt(256);
+                 b = random.nextInt(256);
+                UniversalParameter.setParameter(player.getName(), "luckyColor-R", r + "");
+                UniversalParameter.setParameter(player.getName(), "luckyColor-G", g + "");
+                UniversalParameter.setParameter(player.getName(), "luckyColor-B", b + "");
+                String format = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                UniversalParameter.setParameter(player.getName(), "lastLuckyColor", format);
+
+                ChatColor chatColor = ChatColor.of(new Color(r, g, b));
+                String message = String.format("§8[§3温馨提示§8] §e今日的幸运色为: #█§e(%d,%d,%d)#█", r, g, b);
+                player.sendMessage(message.replaceAll("#",chatColor.toString()));
+            }
+
+            colorMap.put(player.getName(), new  Color(r, g, b));
+
+
+        });
+    }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        Player player = (Player) commandSender;
+
+        {
+            Color color = colorMap.get(player.getName());
+            ChatColor chatColor = ChatColor.of(color);
+            String message = String.format("§8[§3温馨提示§8] §e今日的幸运色为: #█§e(%d,%d,%d)#█", color.getRed(), color.getGreen(), color.getBlue());
+            player.sendMessage(message.replaceAll("#",chatColor.toString()));
+        }
+        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
+        if (itemInMainHand.getType().equals(Material.AIR)) {
+            return true;
+        }
+        ItemMeta itemMeta = itemInMainHand.getItemMeta();
+        if(itemMeta instanceof LeatherArmorMeta){
+            org.bukkit.Color color = ((LeatherArmorMeta) itemMeta).getColor();
+            int r = color.getRed();
+            int g = color.getGreen();
+            int b = color.getBlue();
+
+
+            ChatColor chatColor = ChatColor.of(new Color(r, g, b));
+            String format = String.format("§8[§3温馨提示§8] §e手上物品的颜色是: #█§e(%d,%d,%d)#█", r, g, b);
+            player.sendMessage(format.replaceAll("#",chatColor.toString()));
+        }
+        return true;
     }
 }

@@ -1,7 +1,7 @@
 package com.molean.isletopia.database;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 
 import java.io.IOException;
 import java.io.InputStream;

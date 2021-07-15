@@ -3,6 +3,7 @@ package com.molean.isletopia.message;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.message.core.ServerMessageManager;
 import com.molean.isletopia.message.handler.*;
+import com.molean.isletopia.message.obj.TellMessageRequest;
 
 import java.util.logging.Logger;
 
@@ -16,6 +17,8 @@ public class IsletopiaMessage {
             new TeleportRequestHandler();
             new TeleportResponseHandler();
             new PlaySoundRequestHandler();
+            new CommandExecuteRequestHandler();
+            new TellMessageRequestHandler();
 
         } catch (Exception exception) {
             exception.printStackTrace();

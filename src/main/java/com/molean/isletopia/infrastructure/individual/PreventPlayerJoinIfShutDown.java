@@ -15,7 +15,7 @@ public class PreventPlayerJoinIfShutDown implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (PD.isDisabling) {
             event.getPlayer().kick(Component.text("服务器正在重启中.."));

@@ -6,12 +6,13 @@
 package com.molean.isletopia.message.handler;
 
 import com.google.gson.Gson;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import com.molean.isletopia.message.core.ServerMessage;
 import com.molean.isletopia.message.core.ServerMessageListener;
 import com.molean.isletopia.message.core.ServerMessageManager;
 import com.molean.isletopia.message.obj.VisitResponse;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
+
 import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,7 +32,7 @@ public class VisitResponseHandler implements ServerMessageListener {
                 player.sendMessage(visitResponse.getResponseMessage());
             } else {
                 if (!ServerInfoUpdater.getServerName().equalsIgnoreCase(serverMessage.getSource())) {
-                    BungeeUtils.switchServer(player, serverMessage.getSource());
+                    BukkitBungeeUtils.switchServer(player, serverMessage.getSource());
                 }
 
             }

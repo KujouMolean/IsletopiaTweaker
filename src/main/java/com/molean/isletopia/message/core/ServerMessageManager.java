@@ -3,7 +3,7 @@ package com.molean.isletopia.message.core;
 import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.ServerMessageDao;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import org.bukkit.Bukkit;
 
 import java.util.HashMap;

@@ -1,6 +1,6 @@
 package com.molean.isletopia.database;
 
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 
 import java.io.*;
 import java.sql.*;

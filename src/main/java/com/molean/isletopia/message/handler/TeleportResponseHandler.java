@@ -10,7 +10,7 @@ import com.molean.isletopia.message.core.ServerMessage;
 import com.molean.isletopia.message.core.ServerMessageListener;
 import com.molean.isletopia.message.core.ServerMessageManager;
 import com.molean.isletopia.message.obj.TeleportResponse;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -27,7 +27,7 @@ public class TeleportResponseHandler implements ServerMessageListener {
         Player player = Bukkit.getPlayer(target);
         if (player != null) {
             if (teleportResponse.getResponse().equals("accepted")) {
-                BungeeUtils.switchServer(player, serverMessage.getSource());
+                BukkitBungeeUtils.switchServer(player, serverMessage.getSource());
             } else {
                 player.sendMessage(teleportResponse.getResponseMessage());
             }

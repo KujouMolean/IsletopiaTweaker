@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.generator.ChunkGenerator;
@@ -13,7 +14,7 @@ public class MobRemover implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void MobSpawn(EntitySpawnEvent event) {
         if (EntityType.BAT.equals(event.getEntity().getType())) {
             event.setCancelled(true);

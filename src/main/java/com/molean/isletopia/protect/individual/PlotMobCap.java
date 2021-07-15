@@ -48,26 +48,25 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         Objects.requireNonNull(Bukkit.getPluginCommand("mobcap")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("mobcap")).setExecutor(this);
+
         setMobCap(EntityType.ZOMBIFIED_PIGLIN, 30);
         setMobCap(EntityType.PIGLIN, 30);
         setMobCap(EntityType.HOGLIN, 30);
         setMobCap(EntityType.ZOGLIN, 30);
         setMobCap(EntityType.MAGMA_CUBE, 30);
-
         setMobCap(EntityType.GHAST, 30);
         setMobCap(EntityType.STRIDER, 30);
         setMobCap(EntityType.GUARDIAN, 30);
         setMobCap(EntityType.SPIDER, 30);
-
         setMobCap(EntityType.COD, 30);
         setMobCap(EntityType.TROPICAL_FISH, 30);
         setMobCap(EntityType.SALMON, 30);
-
         setMobCap(EntityType.VILLAGER, 100);
-
         setMobCap(EntityType.MUSHROOM_COW, 15);
 
         ignoredType.add(EntityType.ITEM_FRAME);
+        ignoredType.add(EntityType.GLOW_ITEM_FRAME);
+
         ignoredReason.add(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
 
     }
@@ -181,7 +180,7 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
 
         Map<EntityType, Integer> map = new HashMap<>();
 
-        int total = nearbyEntities.size();
+        int total=0;
 
         for (Entity nearbyEntity : nearbyEntities) {
             EntityType type = nearbyEntity.getType();
@@ -189,6 +188,7 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
                 continue;
             }
             map.put(type, map.getOrDefault(type, 0) + 1);
+            total++;
         }
 
         ArrayList<EntityType> keys = new ArrayList<>(map.keySet());

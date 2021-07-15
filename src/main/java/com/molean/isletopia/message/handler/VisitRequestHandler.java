@@ -8,14 +8,14 @@ package com.molean.isletopia.message.handler;
 import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.message.core.ServerMessage;
 import com.molean.isletopia.message.core.ServerMessageListener;
 import com.molean.isletopia.message.core.ServerMessageManager;
 import com.molean.isletopia.message.obj.VisitRequest;
 import com.molean.isletopia.message.obj.VisitResponse;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
 import java.util.HashMap;
@@ -74,7 +74,7 @@ public class VisitRequestHandler implements ServerMessageListener, Listener {
 
             if (!allow) {
                 if (!offlinePlayer.isOp() && !targetPlayer.equalsIgnoreCase(sourcePlayer) && ServerInfoUpdater.getOnlinePlayers().contains(targetPlayer)) {
-                    BungeeUtils.sendVisitNotificationToPlayer(targetPlayer, sourcePlayer, true);
+                    BukkitBungeeUtils.sendVisitNotificationToPlayer(targetPlayer, sourcePlayer, true);
                 }
 
                 visitResponse.setResponse("refused");
@@ -83,7 +83,7 @@ public class VisitRequestHandler implements ServerMessageListener, Listener {
             } else {
                 if (!targetPlayer.equalsIgnoreCase(sourcePlayer) && !offlinePlayer.isOp()) {
                     if (ServerInfoUpdater.getOnlinePlayers().contains(targetPlayer)) {
-                        BungeeUtils.sendVisitNotificationToPlayer(targetPlayer, sourcePlayer, false);
+                        BukkitBungeeUtils.sendVisitNotificationToPlayer(targetPlayer, sourcePlayer, false);
                     } else if (!UniversalParameter.getParameterAsList(targetPlayer, "visits").contains(sourcePlayer)) {
                         UniversalParameter.addParameter(targetPlayer, "visits", sourcePlayer);
                     }

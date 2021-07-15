@@ -10,6 +10,7 @@ import com.molean.isletopia.infrastructure.individual.MenuCommand;
 import com.molean.isletopia.message.IsletopiaMessage;
 import com.molean.isletopia.modifier.IsletopiaModifier;
 import com.molean.isletopia.protect.IsletopiaProtect;
+import com.molean.isletopia.shared.BukkitMessageListener;
 import com.molean.isletopia.statistics.IsletopiaStatistics;
 import com.molean.isletopia.utils.ConfigUtils;
 import org.bukkit.Bukkit;
@@ -28,6 +29,10 @@ public final class IsletopiaTweakers extends JavaPlugin {
     }
 
     private static Long l;
+
+    static {
+        System.setProperty("druid.mysql.usePingMethod","false");
+    }
 
     @SuppressWarnings("all")
     private static final Thread autoShutDownThread = new Thread(() -> {

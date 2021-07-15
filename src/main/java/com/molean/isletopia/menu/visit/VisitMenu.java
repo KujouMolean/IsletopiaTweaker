@@ -1,8 +1,7 @@
 package com.molean.isletopia.menu.visit;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.individual.ServerInfoUpdater;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.utils.HeadUtils;
@@ -17,8 +16,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Comparator;

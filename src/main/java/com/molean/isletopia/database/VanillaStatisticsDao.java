@@ -1,6 +1,6 @@
 package com.molean.isletopia.database;
 
-import com.molean.isletopia.statistics.individual.vanilla.Stats;
+import com.molean.isletopia.statistics.vanilla.Stats;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,21 +1,17 @@
 package com.molean.isletopia.distribute.individual;
 
-import com.google.common.collect.Iterables;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.utils.BungeeUtils;
+import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
+import com.molean.isletopia.utils.ServerMessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,10 +38,11 @@ public class TellCommand implements CommandExecutor, TabCompleter {
             }
             String message = "§7" + player.getName() + " -> " + args[0] + ": " + rawMessage;
             if (!ServerInfoUpdater.getOnlinePlayers().contains(args[0])) {
+                player.sendMessage("§c对方不在线!");
                 return;
             }
             player.sendMessage(message);
-            BungeeUtils.sendMessageToPlayer(args[0], message);
+            ServerMessageUtils.sendTellToPlayer(player.getName(), args[0], rawMessage.toString());
         });
         return true;
     }

@@ -2,7 +2,8 @@ package com.molean.isletopia.utils;
 
 import com.molean.isletopia.database.VanillaStatisticsDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.statistics.individual.vanilla.Stats;
+import com.molean.isletopia.shared.utils.Pair;
+import com.molean.isletopia.statistics.vanilla.Stats;
 
 import java.util.ArrayList;
 import java.util.HashMap;

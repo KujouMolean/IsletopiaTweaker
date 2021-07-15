@@ -4,22 +4,33 @@ import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ArmoredHorseInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 public class EquipmentWeaker implements Listener {
     public EquipmentWeaker() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+
     }
 
     private double getDamageMultiplier(Player player) {
@@ -34,6 +45,21 @@ public class EquipmentWeaker implements Listener {
                 continue;
             }
             multiplier *= Math.log(maxDurability) / Math.log(125);
+
+            ItemMeta itemMeta = armorContent.getItemMeta();
+            if (itemMeta instanceof LeatherArmorMeta && LuckyColor.colorMap.get(player.getName())!=null) {
+                Color color = ((LeatherArmorMeta) itemMeta).getColor();
+                int diff = 0;
+                int luckyRed = LuckyColor.colorMap.get(player.getName()).getRed();
+                int luckyGreen = LuckyColor.colorMap.get(player.getName()).getGreen();
+                int luckyBlue = LuckyColor.colorMap.get(player.getName()).getBlue();
+                diff += Math.abs(luckyRed - color.getRed());
+                diff += Math.abs(luckyGreen - color.getGreen());
+                diff += Math.abs(luckyBlue - color.getBlue());
+                if (diff < 256) {
+                    multiplier = (1 - (0.50) * (256.0 - diff) / 256.0) * multiplier;
+                }
+            }
         }
         return multiplier;
     }
@@ -61,7 +87,6 @@ public class EquipmentWeaker implements Listener {
     }
 
     @EventHandler
-
     public void on(PlayerArmorChangeEvent event) {
         if (!syncComplete.getOrDefault(event.getPlayer(), false)) {
             return;
@@ -85,4 +110,6 @@ public class EquipmentWeaker implements Listener {
 
 
     }
+
+
 }
