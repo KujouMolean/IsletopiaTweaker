@@ -1,13 +1,13 @@
 package com.molean.isletopia.message.handler;
 
-import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.core.ServerMessage;
-import com.molean.isletopia.message.core.ServerMessageListener;
-import com.molean.isletopia.message.core.ServerMessageManager;
-import com.molean.isletopia.message.obj.TeleportRequest;
-import com.molean.isletopia.message.obj.TeleportResponse;
-import com.molean.isletopia.message.obj.VisitRequest;
+import com.molean.isletopia.shared.MessageHandler;
+import com.molean.isletopia.shared.pojo.req.TeleportRequest;
+import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
+import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.utils.DistributeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -18,13 +18,13 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TeleportRequestHandler implements ServerMessageListener, Listener {
+public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, Listener {
 
     private final Map<String, Location> locationMap = new HashMap<>();
     private final Map<String, Long> expire = new HashMap<>();
 
     public TeleportRequestHandler() {
-        ServerMessageManager.registerHandler("TeleportRequest", this);
+        RedisMessageListener.setHandler("TeleportRequest", this, TeleportRequest.class);
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -34,7 +34,7 @@ public class TeleportRequestHandler implements ServerMessageListener, Listener {
         String name = event.getPlayer().getName();
         Location location = this.locationMap.get(name);
         if (location != null) {
-            if (System.currentTimeMillis() - (Long)this.expire.getOrDefault(name, 0L) < 10000L) {
+            if (System.currentTimeMillis() - (Long) this.expire.getOrDefault(name, 0L) < 10000L) {
                 event.getPlayer().teleport(location);
             }
             this.locationMap.remove(name);
@@ -42,10 +42,7 @@ public class TeleportRequestHandler implements ServerMessageListener, Listener {
     }
 
     @Override
-    public void handleMessage(ServerMessage serverMessage) {
-        serverMessage.setStatus("done");
-        Gson gson = new Gson();
-        TeleportRequest teleportRequest = gson.fromJson(serverMessage.getMessage(), TeleportRequest.class);
+    public void handle(WrappedMessageObject wrappedMessageObject, TeleportRequest teleportRequest) {
         TeleportResponse teleportResponse = new TeleportResponse();
         String sourcePlayer = teleportRequest.getSourcePlayer();
         String targetPlayer = teleportRequest.getTargetPlayer();
@@ -55,7 +52,9 @@ public class TeleportRequestHandler implements ServerMessageListener, Listener {
         if (target == null) {
             teleportResponse.setResponse("no-player");
             teleportResponse.setResponseMessage("玩家不存在");
-            ServerMessageManager.sendMessage(serverMessage.getSource(), "TeleportResponse", teleportResponse);
+            String playerServerName = DistributeUtils.getPlayerServerName(sourcePlayer);
+            ServerMessageUtils.sendMessage(playerServerName, "TeleportResponse", teleportResponse);
+
         } else {
             if (source != null && source.isOnline()) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
@@ -67,8 +66,8 @@ public class TeleportRequestHandler implements ServerMessageListener, Listener {
             }
             teleportResponse.setResponse("accepted");
             teleportResponse.setResponseMessage("");
-            ServerMessageManager.sendMessage(serverMessage.getSource(), "TeleportResponse", teleportResponse);
+            String playerServerName = DistributeUtils.getPlayerServerName(sourcePlayer);
+            ServerMessageUtils.sendMessage(playerServerName, "TeleportResponse", teleportResponse);
         }
-
     }
 }

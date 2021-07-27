@@ -29,6 +29,7 @@ public class TeleportSign implements Listener {
             return;
         if (!(event.getClickedBlock().getState() instanceof Sign))
             return;
+        @SuppressWarnings("all")
         String line = ((Sign) event.getClickedBlock().getState()).getLine(0);
         line = line.replaceAll("§.", "");
         if (!line.matches("\\[[a-zA-Z0-9].*]"))

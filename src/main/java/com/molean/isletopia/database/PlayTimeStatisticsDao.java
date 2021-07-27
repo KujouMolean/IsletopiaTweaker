@@ -40,6 +40,39 @@ public class PlayTimeStatisticsDao {
         }
     }
 
+    public static long getLastPlayTimestamp(String player){
+        try (Connection connection = DataSourceUtils.getConnection()) {
+            String sql = "select startTimeStamp  from playtime_statistics where player=?\n" +
+                    "order by startTimeStamp limit 1";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, player);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return 0L;
+    }
+
+    public static long getRecentPlayTime(String player,long start){
+        try (Connection connection = DataSourceUtils.getConnection()) {
+            String sql = "select SUM(playtime) from playtime_statistics where player=? and startTimeStamp>?;";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, player);
+            preparedStatement.setLong(2, start);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return 0L;
+    }
+
     public static long getServerRecentPlayTime(String server, long start) {
         try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "select SUM(playtime) from playtime_statistics where server=? and startTimeStamp>?;";

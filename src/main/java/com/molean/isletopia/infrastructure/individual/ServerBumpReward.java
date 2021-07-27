@@ -1,10 +1,9 @@
 package com.molean.isletopia.infrastructure.individual;
 
-import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.shared.bungee.ServerBumpObject;
-import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
+import com.molean.isletopia.shared.pojo.obj.ServerBumpObject;
+import com.molean.isletopia.shared.message.ServerMessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -110,7 +109,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                         player.getInventory().addItem(new ItemStack(Material.BEACON, 1));
                         serverBumpObject.getItems().add("信标");
                         UniversalParameter.addParameter("Molean", "beacon", player.getName());
-                        UniversalParameter.setParameter( player.getName(), "beaconReason", "顶贴");
+                        UniversalParameter.setParameter(player.getName(), "beaconReason", "顶贴");
                     }
                     if (random.nextInt(100) < 5) {
                         player.getInventory().addItem(new ItemStack(Material.BUNDLE, 1));
@@ -124,9 +123,9 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                         player.getInventory().addItem(new ItemStack(Material.ELYTRA, 1));
                         serverBumpObject.getItems().add("鞘翅");
                         UniversalParameter.addParameter("Molean", "elytra", player.getName());
-                        UniversalParameter.setParameter( player.getName(), "elytraReason", "顶贴");
+                        UniversalParameter.setParameter(player.getName(), "elytraReason", "顶贴");
                     }
-                    BukkitBungeeUtils.sendBungeeMessage(player, "ServerBump",serverBumpObject);
+                    ServerMessageUtils.sendMessage("waterfall", "ServerBump", serverBumpObject);
                     return;
                 }
             }

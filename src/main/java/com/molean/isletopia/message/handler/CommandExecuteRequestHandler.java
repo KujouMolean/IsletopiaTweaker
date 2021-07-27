@@ -1,28 +1,24 @@
 package com.molean.isletopia.message.handler;
 
-import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.core.ServerMessage;
-import com.molean.isletopia.message.core.ServerMessageListener;
-import com.molean.isletopia.message.core.ServerMessageManager;
-import com.molean.isletopia.message.obj.CommandExecuteRequest;
+import com.molean.isletopia.shared.MessageHandler;
+import com.molean.isletopia.shared.pojo.req.CommandExecuteRequest;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
 import org.bukkit.Bukkit;
 
-public class CommandExecuteRequestHandler implements ServerMessageListener {
+public class CommandExecuteRequestHandler implements MessageHandler<CommandExecuteRequest> {
     public CommandExecuteRequestHandler() {
-        ServerMessageManager.registerHandler("command", this);
+        RedisMessageListener.setHandler("CommandExecuteRequest", this, CommandExecuteRequest.class);
         CommandExecuteRequest commandExecuteRequest = new CommandExecuteRequest();
     }
 
     @Override
-    public void handleMessage(ServerMessage serverMessage) {
-        Gson gson = new Gson();
-        CommandExecuteRequest obj = gson.fromJson(serverMessage.getMessage(), CommandExecuteRequest.class);
-        String command = obj.getCommand();
+    public void handle(WrappedMessageObject wrappedMessageObject, CommandExecuteRequest message) {
+        String command = message.getCommand();
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
         });
 
-        serverMessage.setStatus("done");
     }
 }

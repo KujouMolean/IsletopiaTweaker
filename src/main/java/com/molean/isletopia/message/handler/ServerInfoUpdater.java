@@ -1,28 +1,13 @@
-package com.molean.isletopia.bungee.individual;
+package com.molean.isletopia.message.handler;
 
-import com.google.common.collect.Iterables;
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.shared.BukkitMessageListener;
 import com.molean.isletopia.shared.MessageHandler;
-import com.molean.isletopia.shared.bungee.PlayerInfoObject;
-import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
-import com.plotsquared.core.PlotSquared;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.messaging.PluginMessageListener;
-import org.jetbrains.annotations.NotNull;
+import com.molean.isletopia.shared.pojo.obj.PlayerInfoObject;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
-import static org.bukkit.Bukkit.getScheduler;
 
 public class ServerInfoUpdater implements MessageHandler<PlayerInfoObject> {
 
@@ -58,7 +43,7 @@ public class ServerInfoUpdater implements MessageHandler<PlayerInfoObject> {
     }
 
     public ServerInfoUpdater() {
-        BukkitMessageListener.setHandler("PlayerInfo", this, PlayerInfoObject.class);
+        RedisMessageListener.setHandler("PlayerInfo", this, PlayerInfoObject.class);
     }
 
     public static UUID getUUID(String player) {
@@ -66,7 +51,7 @@ public class ServerInfoUpdater implements MessageHandler<PlayerInfoObject> {
     }
 
     @Override
-    public void handle(PlayerInfoObject message) {
+    public void handle(WrappedMessageObject wrappedMessageObject,PlayerInfoObject message) {
         List<String> players = message.getPlayers();
         Map<String, List<String>> playersPerServer = message.getPlayersPerServer();
 

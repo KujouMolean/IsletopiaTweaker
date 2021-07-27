@@ -1,8 +1,8 @@
 package com.molean.isletopia.admin.individual;
 
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
-import com.molean.isletopia.message.core.ServerMessageManager;
-import com.molean.isletopia.message.obj.CommandExecuteRequest;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.pojo.req.CommandExecuteRequest;
+import com.molean.isletopia.shared.message.ServerMessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -39,7 +39,7 @@ public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
             case "servers": {
                 for (String server : ServerInfoUpdater.getServers()) {
                     if(server.startsWith("server")){
-                        ServerMessageManager.sendMessage(server,"command",obj);
+                        ServerMessageUtils.sendMessage(server,"CommandExecuteRequest",obj);
                     }
 
                 }
@@ -47,12 +47,12 @@ public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
             }
             case "all": {
                 for (String server : ServerInfoUpdater.getServers()) {
-                    ServerMessageManager.sendMessage(server,"command",obj);
+                    ServerMessageUtils.sendMessage(server,"CommandExecuteRequest",obj);
                 }
                 break;
             }
             default:
-                ServerMessageManager.sendMessage(serverName, "command", obj);
+                ServerMessageUtils.sendMessage(serverName, "CommandExecuteRequest", obj);
         }
         return true;
     }

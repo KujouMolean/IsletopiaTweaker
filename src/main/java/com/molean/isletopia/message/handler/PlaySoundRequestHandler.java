@@ -1,40 +1,35 @@
 package com.molean.isletopia.message.handler;
 
-import com.google.gson.Gson;
-import com.molean.isletopia.message.core.ServerMessage;
-import com.molean.isletopia.message.core.ServerMessageListener;
-import com.molean.isletopia.message.core.ServerMessageManager;
-import com.molean.isletopia.message.obj.PlaySoundRequest;
+import com.molean.isletopia.shared.MessageHandler;
+import com.molean.isletopia.shared.pojo.req.PlaySoundRequest;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-public class PlaySoundRequestHandler implements ServerMessageListener {
+public class PlaySoundRequestHandler implements MessageHandler<PlaySoundRequest> {
     public PlaySoundRequestHandler() {
-        ServerMessageManager.registerHandler("PlaySoundRequest", this);
+        RedisMessageListener.setHandler("PlaySoundRequest", this, PlaySoundRequest.class);
     }
 
+
     @Override
-    public void handleMessage(ServerMessage serverMessage) {
-        Gson gson = new Gson();
-        PlaySoundRequest playSoundRequest = gson.fromJson(serverMessage.getMessage(), PlaySoundRequest.class);
-        String targetPlayer = playSoundRequest.getTargetPlayer();
+    public void handle(WrappedMessageObject wrappedMessageObject, PlaySoundRequest message) {
+        String targetPlayer = message.getTargetPlayer();
         Player player = Bukkit.getPlayer(targetPlayer);
-        if(player==null){
-            serverMessage.setStatus("invalid");
+        if (player == null) {
             return;
         }
         Sound sound = null;
         try {
-            sound = Sound.valueOf(playSoundRequest.getSoundName());
+            sound = Sound.valueOf(message.getSoundName());
         } catch (IllegalArgumentException ignored) {
 
         }
-        if(sound==null){
-            serverMessage.setStatus("invalid");
+        if (sound == null) {
             return;
         }
-        player.playSound(player.getLocation(),sound,1.0f,1.0f);
-        serverMessage.setStatus("done");
+        player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
     }
 }

@@ -1,30 +1,27 @@
 package com.molean.isletopia.message.handler;
 
-import com.google.gson.Gson;
-import com.molean.isletopia.message.core.ServerMessage;
-import com.molean.isletopia.message.core.ServerMessageListener;
-import com.molean.isletopia.message.core.ServerMessageManager;
-import com.molean.isletopia.message.obj.TellMessageRequest;
+import com.molean.isletopia.shared.MessageHandler;
+import com.molean.isletopia.shared.pojo.req.TellMessageRequest;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class TellMessageRequestHandler implements ServerMessageListener {
+public class TellMessageRequestHandler implements MessageHandler<TellMessageRequest> {
     public TellMessageRequestHandler() {
-        ServerMessageManager.registerHandler("TellMessage", this);
+        RedisMessageListener.setHandler("TellMessage", this, TellMessageRequest.class);
     }
 
-    public void handleMessage(ServerMessage serverMessage) {
-        serverMessage.setStatus("done");
-        Gson gson = new Gson();
-        TellMessageRequest tellMessageRequest = gson.fromJson(serverMessage.getMessage(), TellMessageRequest.class);
-        String target = tellMessageRequest.getTarget();
+    @Override
+    public void handle(WrappedMessageObject wrappedMessageObject, TellMessageRequest message) {
+        String target = message.getTarget();
         Player player = Bukkit.getPlayer(target);
         if (player != null) {
-            String message = "§7" + tellMessageRequest.getSource() + " -> "
-                    + tellMessageRequest.getTarget() + ": "
-                    + tellMessageRequest.getMessage();
-            player.sendMessage(Component.text(message));
+            String finalMessage = "§7" + message.getSource() + " -> "
+                    + message.getTarget() + ": "
+                    + message.getMessage();
+            player.sendMessage(Component.text(finalMessage));
         }
     }
 }

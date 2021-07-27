@@ -108,6 +108,5 @@ public class CraftRecipeMenu implements Listener {
         }
         stop = true;
         event.getHandlers().unregister(this);
-
     }
 }

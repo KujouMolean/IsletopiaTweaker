@@ -2,9 +2,9 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
-import com.molean.isletopia.utils.ServerMessageUtils;
+import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.location.BlockLoc;
@@ -193,7 +193,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private void visit(String source, String target) {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
-        ServerMessageUtils.universalPlotVisitByMessage(player, target);
+        IsletopiaTweakersUtils.universalPlotVisitByMessage(player, target);
     }
 
     public void trust(String source, String target) {

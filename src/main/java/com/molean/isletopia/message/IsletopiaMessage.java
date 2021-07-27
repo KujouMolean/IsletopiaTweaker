@@ -1,9 +1,8 @@
 package com.molean.isletopia.message;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.core.ServerMessageManager;
 import com.molean.isletopia.message.handler.*;
-import com.molean.isletopia.message.obj.TellMessageRequest;
+import com.molean.isletopia.shared.message.RedisMessageListener;
 
 import java.util.logging.Logger;
 
@@ -11,7 +10,14 @@ public class IsletopiaMessage {
     public IsletopiaMessage() {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try {
-            ServerMessageManager.init();
+
+
+            new VisitNotificationHandler();
+            new SkinValueHandler();
+            new PlaySoundHandler();
+            new GiveItemHandler();
+            new BeaconRequestHandler();
+            new ElytraRequestHandler();
             new VisitRequestHandler();
             new VisitResponseHandler();
             new TeleportRequestHandler();
@@ -19,6 +25,7 @@ public class IsletopiaMessage {
             new PlaySoundRequestHandler();
             new CommandExecuteRequestHandler();
             new TellMessageRequestHandler();
+            new PlayTimeRequestHandler();
 
         } catch (Exception exception) {
             exception.printStackTrace();

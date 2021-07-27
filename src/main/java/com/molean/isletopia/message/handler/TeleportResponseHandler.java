@@ -5,31 +5,29 @@
 
 package com.molean.isletopia.message.handler;
 
-import com.google.gson.Gson;
-import com.molean.isletopia.message.core.ServerMessage;
-import com.molean.isletopia.message.core.ServerMessageListener;
-import com.molean.isletopia.message.core.ServerMessageManager;
-import com.molean.isletopia.message.obj.TeleportResponse;
-import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
+import com.molean.isletopia.shared.MessageHandler;
+import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
+import com.molean.isletopia.shared.message.ServerMessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class TeleportResponseHandler implements ServerMessageListener {
+public class TeleportResponseHandler implements MessageHandler<TeleportResponse> {
     public TeleportResponseHandler() {
-        ServerMessageManager.registerHandler("TeleportResponse", this);
+        RedisMessageListener.setHandler("TeleportResponse", this, TeleportResponse.class);
     }
 
-    public void handleMessage(ServerMessage serverMessage) {
-        serverMessage.setStatus("done");
-        Gson gson = new Gson();
-        TeleportResponse teleportResponse = gson.fromJson(serverMessage.getMessage(), TeleportResponse.class);
-        String target = teleportResponse.getTarget();
+
+    @Override
+    public void handle(WrappedMessageObject wrappedMessageObject, TeleportResponse message) {
+        String target = message.getTarget();
         Player player = Bukkit.getPlayer(target);
         if (player != null) {
-            if (teleportResponse.getResponse().equals("accepted")) {
-                BukkitBungeeUtils.switchServer(player, serverMessage.getSource());
+            if (message.getResponse().equals("accepted")) {
+                ServerMessageUtils.switchServer(player.getName(), wrappedMessageObject.getFrom());
             } else {
-                player.sendMessage(teleportResponse.getResponseMessage());
+                player.sendMessage(message.getResponseMessage());
             }
 
         }

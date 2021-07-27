@@ -1,9 +1,8 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
-import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
-import com.molean.isletopia.utils.ServerMessageUtils;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -42,7 +41,7 @@ public class TellCommand implements CommandExecutor, TabCompleter {
                 return;
             }
             player.sendMessage(message);
-            ServerMessageUtils.sendTellToPlayer(player.getName(), args[0], rawMessage.toString());
+            IsletopiaTweakersUtils.sendTellToPlayer(player.getName(), args[0], rawMessage.toString());
         });
         return true;
     }

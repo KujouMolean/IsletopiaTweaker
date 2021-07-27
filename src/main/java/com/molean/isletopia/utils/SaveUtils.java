@@ -2,7 +2,7 @@
 
 package com.molean.isletopia.utils;
 
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import java.io.File;
 import java.util.UUID;
 import org.bukkit.Bukkit;

@@ -34,6 +34,7 @@ public class IsletopiaModifier {
             new LuckyColor();
             new RichPiglin();
             new SleepAnyTime();
+
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");

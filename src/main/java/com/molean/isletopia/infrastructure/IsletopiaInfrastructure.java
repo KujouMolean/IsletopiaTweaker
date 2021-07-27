@@ -18,17 +18,16 @@ public class IsletopiaInfrastructure {
             new MessageUtils();
             new TempServer();
             new StaticMap();
-            new IgnoreCommand();
-            new UnignoreCommand();
             new MoreChairs();
-            new DropItemNotify();
             new IslandEnterMessage();
             new PlotBackup();
             new OfflineVisitorNotify();
-            new SaveDownload();
             new ServerBumpReward();
             new MenuCommand();
-            new PreventPlayerJoinIfShutDown();
+            new FixSomeProblem();
+            new IslandInfoUpdater();
+            new FreeRiderWarning();
+            new PlayerRidePlayer();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

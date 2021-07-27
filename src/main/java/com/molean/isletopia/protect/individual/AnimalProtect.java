@@ -19,12 +19,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 
+import java.util.Objects;
+
 public class AnimalProtect implements Listener {
     public AnimalProtect() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(EntityTargetEvent event) {
         if (event.getTarget() != null && event.getTarget().getType().equals(EntityType.PLAYER)) {
             if (!PlotUtils.hasCurrentPlotPermission((Player) event.getTarget()))
@@ -32,53 +34,65 @@ public class AnimalProtect implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onRaidTrigger(RaidTriggerEvent event) {
         if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
             event.setCancelled(true);
+            System.out.println(Objects.requireNonNull(PlotUtils.getCurrentPlot(event.getPlayer())).getId());
+
+            PotionEffect potionEffect = event.getPlayer().getPotionEffect(PotionEffectType.BAD_OMEN);
+            event.getPlayer().sendMessage("§c你没有权限触发此岛屿的袭击.");
+            Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
+                if (potionEffect == null) {
+                    return;
+                }
+                int duration = potionEffect.getDuration() - 100;
+                if (duration <= 0) {
+                    return;
+                }
+                if (event.getPlayer().isOnline()) {
+                    event.getPlayer().addPotionEffect(potionEffect.withDuration(duration));
+                }
+            }, 100L);
         }
-        PotionEffect potionEffect = event.getPlayer().getPotionEffect(PotionEffectType.BAD_OMEN);
-        event.getPlayer().sendMessage("§c你没有权限触发此岛屿的袭击.");
-        Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
-            if (potionEffect == null) {
-                return;
-            }
-            int duration = potionEffect.getDuration() - 100;
-            if (duration <= 0) {
-                return;
-            }
-            if (event.getPlayer().isOnline()) {
-                event.getPlayer().addPotionEffect(potionEffect.withDuration(duration));
-            }
-        }, 100L);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         boolean fireball = event.getEntity().getType().equals(EntityType.FIREWORK);
-        if(fireball){
+        if (fireball) {
             return;
         }
+
         ProjectileSource shooter = event.getEntity().getShooter();
         if (shooter instanceof Player) {
+            if (BeaconIslandOption.isEnablePvP(PlotUtils.getCurrentPlot(event.getLocation()))) {
+                return;
+            }
             if (!PlotUtils.hasCurrentPlotPermission((Player) shooter)) {
                 event.setCancelled(true);
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerAttack(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player) {
+            if (BeaconIslandOption.isEnablePvP(PlotUtils.getCurrentPlot((Player) event.getDamager()))) {
+                return;
+            }
             if (!PlotUtils.hasCurrentPlotPermission((Player) event.getDamager())) {
                 event.setCancelled(true);
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayer(EntityKnockbackByEntityEvent event) {
         if (event.getHitBy() instanceof Player) {
+            if (BeaconIslandOption.isEnablePvP(PlotUtils.getCurrentPlot((Player) event.getHitBy()))) {
+                return;
+            }
             if (!PlotUtils.hasCurrentPlotPermission((Player) event.getHitBy())) {
                 event.setCancelled(true);
             }
@@ -86,13 +100,13 @@ public class AnimalProtect implements Listener {
     }
 
     @EventHandler
-    public void on(EntityDamageByEntityEvent event){
-        if(event.getDamager().getType().equals(EntityType.FIREWORK)){
+    public void on(EntityDamageByEntityEvent event) {
+        if (event.getDamager().getType().equals(EntityType.FIREWORK)) {
             Firework firework = (Firework) event.getDamager();
             ProjectileSource shooter = firework.getShooter();
-            if(shooter instanceof Player){
+            if (shooter instanceof Player) {
                 Player player = (Player) shooter;
-                if(!PlotUtils.hasCurrentPlotPermission(player)){
+                if (!PlotUtils.hasCurrentPlotPermission(player)) {
                     event.setCancelled(true);
 
                 }
@@ -101,10 +115,11 @@ public class AnimalProtect implements Listener {
     }
 
 
-    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onItemDrop(PlayerDropItemEvent event) {
         if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
+
 }

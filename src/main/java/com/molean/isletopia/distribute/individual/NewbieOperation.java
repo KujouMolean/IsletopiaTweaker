@@ -1,19 +1,16 @@
 package com.molean.isletopia.distribute.individual;
 
-import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.MessageUtils;
-import com.molean.isletopia.shared.bungee.NewPlayerObject;
-import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
+import com.molean.isletopia.shared.pojo.obj.NewPlayerObject;
+import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.PlotUtils;
-import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
-import com.plotsquared.core.plot.PlotId;
 import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -74,7 +71,7 @@ public class NewbieOperation implements Listener {
                             Component.text("§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
             player.getInventory().addItem(clock);
             NewPlayerObject newPlayerObject = new NewPlayerObject(player.getName(), MessageUtils.getLocalServerName());
-            BukkitBungeeUtils.sendBungeeMessage(player, "NewPlayer", newPlayerObject);
+            ServerMessageUtils.sendMessage("waterfall", "NewPlayer", newPlayerObject);
         });
 
 

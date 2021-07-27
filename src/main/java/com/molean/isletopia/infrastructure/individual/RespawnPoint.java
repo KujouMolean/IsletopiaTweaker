@@ -1,9 +1,10 @@
 package com.molean.isletopia.infrastructure.individual;
 
+import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
-import com.plotsquared.core.plot.PlotId;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -12,9 +13,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import redis.clients.jedis.Jedis;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RespawnPoint implements Listener {
 
@@ -22,9 +23,6 @@ public class RespawnPoint implements Listener {
     public RespawnPoint() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
-
-    public static final Map<PlotId, Location> cache = new ConcurrentHashMap<>();
-
 
     private static void cacheRespawnPointAsync(Player player) {
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
@@ -39,7 +37,11 @@ public class RespawnPoint implements Listener {
                     home.getZ() + 0.5,
                     home.getYaw(),
                     home.getPitch());
-            cache.put(currentPlot.getId(), location);
+            try (Jedis jedis = RedisUtils.getJedis()) {
+                Map<String, Object> serialize = location.serialize();
+                String s = new Gson().toJson(serialize);
+                jedis.set(currentPlot.getId().toDashSeparatedString(), s);
+            }
         });
     }
 
@@ -63,12 +65,15 @@ public class RespawnPoint implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
         Plot currentPlot = PlotUtils.getCurrentPlot(event.getPlayer());
-
         assert currentPlot != null;
-
-        if (cache.containsKey(currentPlot.getId())) {
-            event.setRespawnLocation(cache.get(currentPlot.getId()));
-            return;
+        try (Jedis jedis = RedisUtils.getJedis()) {
+            if (jedis.exists(currentPlot.getId().toDashSeparatedString())) {
+                String s = jedis.get(currentPlot.getId().toDashSeparatedString());
+                Map map = new Gson().fromJson(s, Map.class);
+                Location deserialize = Location.deserialize(map);
+                event.setRespawnLocation(deserialize);
+                return;
+            }
         }
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             event.getPlayer().performCommand("is");

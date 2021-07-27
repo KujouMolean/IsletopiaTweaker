@@ -57,7 +57,7 @@ public class FavoriteVisitMenu implements Listener {
             inventory.setItem(i, itemStackSheet.build());
         }
         for (int i = 0; i+page*52 < collections.size() && i < inventory.getSize() - 2; i++) {
-            inventory.setItem(i, HeadUtils.getSkull(collections.get(i+page*52)));
+            inventory.setItem(i, HeadUtils.getSkullWithIslandInfo(collections.get(i+page*52)));
         }
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());

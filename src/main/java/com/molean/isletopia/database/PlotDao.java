@@ -1,6 +1,6 @@
 package com.molean.isletopia.database;
 
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.plotsquared.core.plot.PlotId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -67,6 +67,7 @@ public class PlotDao {
         }
         return trusted;
     }
+
 
     public static PlotId getPlotPosition(String server, String name) {
         Integer id = getPlotID(server, name);

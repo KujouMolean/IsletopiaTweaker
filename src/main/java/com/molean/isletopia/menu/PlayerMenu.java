@@ -23,6 +23,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.Objects;
+
 public class PlayerMenu implements Listener {
     private final Player player;
     private final Inventory inventory;
@@ -64,10 +66,7 @@ public class PlayerMenu implements Listener {
         ItemStackSheet projects = new ItemStackSheet(Material.REDSTONE, "§f工程");
         projects.addLore("§7尚未开放");
         inventory.setItem(26, projects.build());
-
-
-        ItemStack skull = HeadUtils.getSkull(player.getName());
-
+        ItemStack skull = HeadUtils.getSkullWithIslandInfo(player.getName());
         SkullMeta itemMeta = (SkullMeta) skull.getItemMeta();
         assert itemMeta != null;
         itemMeta.displayName(Component.text("§f回城"));
@@ -100,7 +99,7 @@ public class PlayerMenu implements Listener {
             case 24:
                 Plot currentPlot = PlotUtils.getCurrentPlot(player);
                 assert currentPlot != null;
-                if (currentPlot.getOwner().equals(player.getUniqueId())) {
+                if (Objects.equals(currentPlot.getOwner(), player.getUniqueId())) {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
                 }
                 break;

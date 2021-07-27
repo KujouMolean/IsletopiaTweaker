@@ -5,8 +5,11 @@ api-version: 1.13
 denpend:
   - PlotSquared
 commands:
+  isdebug:
+    permission: isletopia.isdebug
   clubrealm: { }
-
+  transform:
+    permission: isletopia.transform
   getup: { }
   consume: { }
   firework:

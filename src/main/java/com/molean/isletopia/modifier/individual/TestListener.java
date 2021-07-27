@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.shared.utils.RedisUtils;
 import io.papermc.paper.event.player.PlayerBedFailEnterEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,10 +18,12 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
+import redis.clients.jedis.Jedis;
 
 public class TestListener implements Listener {
     public TestListener() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+
     }
 
 

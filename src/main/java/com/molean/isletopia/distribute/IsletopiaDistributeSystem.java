@@ -1,7 +1,7 @@
 package com.molean.isletopia.distribute;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.distribute.individual.*;
 
 import java.util.logging.Logger;
@@ -14,7 +14,7 @@ public class IsletopiaDistributeSystem {
         try {
 
             new NewbieOperation();
-            new PlayerChatTweaker();
+//            new PlayerChatTweaker();
             new TellCommand();
             new VisitCommand();
             new ServerInfoUpdater();

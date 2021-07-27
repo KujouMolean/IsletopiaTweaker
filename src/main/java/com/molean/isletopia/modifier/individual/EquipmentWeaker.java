@@ -30,7 +30,6 @@ import java.util.UUID;
 public class EquipmentWeaker implements Listener {
     public EquipmentWeaker() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-
     }
 
     private double getDamageMultiplier(Player player) {

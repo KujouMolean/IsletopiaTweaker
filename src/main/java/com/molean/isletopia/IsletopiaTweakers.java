@@ -1,16 +1,14 @@
 package com.molean.isletopia;
 
 import com.molean.isletopia.admin.IsletopiaAdmin;
-import com.molean.isletopia.bungee.IsletopiaBungee;
 import com.molean.isletopia.database.DataSourceUtils;
 import com.molean.isletopia.distribute.IsletopiaDistributeSystem;
 import com.molean.isletopia.distribute.parameter.IsletopiaParamter;
 import com.molean.isletopia.infrastructure.IsletopiaInfrastructure;
-import com.molean.isletopia.infrastructure.individual.MenuCommand;
 import com.molean.isletopia.message.IsletopiaMessage;
 import com.molean.isletopia.modifier.IsletopiaModifier;
 import com.molean.isletopia.protect.IsletopiaProtect;
-import com.molean.isletopia.shared.BukkitMessageListener;
+import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.statistics.IsletopiaStatistics;
 import com.molean.isletopia.utils.ConfigUtils;
 import org.bukkit.Bukkit;
@@ -76,9 +74,10 @@ public final class IsletopiaTweakers extends JavaPlugin {
         new IsletopiaDistributeSystem();
         new IsletopiaParamter();
         new IsletopiaProtect();
-        new IsletopiaBungee();
         new IsletopiaStatistics();
         new IsletopiaAdmin();
+
+        RedisMessageListener.init();
 
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             l = System.currentTimeMillis();
@@ -89,6 +88,7 @@ public final class IsletopiaTweakers extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        RedisMessageListener.destroy();
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onlinePlayer.closeInventory();
         }

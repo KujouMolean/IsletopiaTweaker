@@ -1,10 +1,11 @@
-package com.molean.isletopia.bungee.individual;
+package com.molean.isletopia.message.handler;
 
-import com.molean.isletopia.shared.BukkitMessageListener;
 import com.molean.isletopia.shared.MessageHandler;
-import com.molean.isletopia.shared.bungee.CommonResponseObject;
-import com.molean.isletopia.shared.bungee.GiveItemRequestObject;
-import com.molean.isletopia.shared.utils.BukkitBungeeUtils;
+import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
+import com.molean.isletopia.shared.pojo.req.GiveItemRequestObject;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
+import com.molean.isletopia.shared.message.ServerMessageUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,11 +19,11 @@ import java.util.Locale;
 
 public class GiveItemHandler implements MessageHandler<GiveItemRequestObject> {
     public GiveItemHandler() {
-        BukkitMessageListener.setHandler("GiveItemRequest", this, GiveItemRequestObject.class);
+        RedisMessageListener.setHandler("GiveItemRequest", this, GiveItemRequestObject.class);
     }
 
     @Override
-    public void handle(GiveItemRequestObject message) {
+    public void handle(WrappedMessageObject wrappedMessageObject,GiveItemRequestObject message) {
         String player = message.getPlayer();
         Player bukkitPlayer = Bukkit.getPlayer(player);
         if (bukkitPlayer == null || !bukkitPlayer.isOnline()) {
@@ -35,7 +36,7 @@ public class GiveItemHandler implements MessageHandler<GiveItemRequestObject> {
             material = Material.valueOf(message.getMaterial().toUpperCase(Locale.ROOT));
         } catch (Exception e) {
             commonReponseObject.setMessage("失败, " + message.getMaterial() + " 不存在!");
-            BukkitBungeeUtils.sendBungeeMessage(bukkitPlayer, "CommonResponse", commonReponseObject);
+            ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonReponseObject);
             return;
         }
 
@@ -54,6 +55,6 @@ public class GiveItemHandler implements MessageHandler<GiveItemRequestObject> {
         itemStack.setItemMeta(itemMeta);
         bukkitPlayer.getInventory().addItem(itemStack);
         commonReponseObject.setMessage("成功, " + message.getPlayer() + " 已经收到 " + message.getMaterial() + "!");
-        BukkitBungeeUtils.sendBungeeMessage(bukkitPlayer, "CommonResponse", commonReponseObject);
+        ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonReponseObject);
     }
 }

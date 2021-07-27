@@ -1,6 +1,6 @@
 package com.molean.isletopia.database;
 
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 
 import java.io.*;
 import java.sql.*;
@@ -31,8 +31,8 @@ public class BackupDao {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setLong(1, System.currentTimeMillis() - 8 * 60 * 60 * 1000);
             preparedStatement.execute();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
         }
     }
 
@@ -47,8 +47,8 @@ public class BackupDao {
             preparedStatement.setBlob(2, inputStream);
             preparedStatement.setLong(3, System.currentTimeMillis());
             preparedStatement.execute();
-        } catch (SQLException | IOException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException | IOException throwable) {
+            throwable.printStackTrace();
         }
     }
 
@@ -64,8 +64,8 @@ public class BackupDao {
                 long time = resultSet.getLong(2);
                 map.put(id, time);
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
         }
         return map;
     }

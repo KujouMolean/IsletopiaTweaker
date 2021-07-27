@@ -19,7 +19,6 @@ public class IsletopiaProtect {
             new MobRemover();
             new ElytraLimiter();
             new OtherProtect();
-            new RedStoneLimiter();
             new BeaconLimiter();
             new BucketUsageProtect();
             new BeaconIslandOption();

@@ -71,6 +71,9 @@ public class OtherProtect implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerFishEvent event) {
+        if (BeaconIslandOption.isEnablePvP(PlotUtils.getCurrentPlot(event.getPlayer()))) {
+            return;
+        }
         if(event.getPlayer().isOp()){
             return;
         }

@@ -4,7 +4,7 @@ package com.molean.isletopia.database;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.molean.isletopia.bungee.individual.ServerInfoUpdater;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.PlotUtils;
 import com.molean.isletopia.utils.SaveUtils;
 import com.plotsquared.core.PlotSquared;

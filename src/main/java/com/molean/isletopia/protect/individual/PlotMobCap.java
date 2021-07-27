@@ -10,20 +10,19 @@ import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotArea;
 import com.plotsquared.core.plot.world.PlotAreaManager;
+import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,14 +60,12 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         setMobCap(EntityType.COD, 30);
         setMobCap(EntityType.TROPICAL_FISH, 30);
         setMobCap(EntityType.SALMON, 30);
-        setMobCap(EntityType.VILLAGER, 100);
+        setMobCap(EntityType.VILLAGER, 50);
         setMobCap(EntityType.MUSHROOM_COW, 15);
 
         ignoredType.add(EntityType.ITEM_FRAME);
         ignoredType.add(EntityType.GLOW_ITEM_FRAME);
-
         ignoredReason.add(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
-
     }
 
     private static final Map<Plot, Long> lastNotifyTimeMap = new HashMap<>();
@@ -98,6 +95,38 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         }
         if (countEntities(currentPlot, null) >= 512) {
             warn(currentPlot);
+        }
+    }
+
+    @EventHandler
+    public void on(VehicleMoveEvent event){
+        org.bukkit.Location from = event.getFrom();
+        org.bukkit.Location to = event.getTo();
+        int plotFromX = Math.floorDiv(from.getBlockX(), 512) + 1;
+        int plotFromZ = Math.floorDiv(from.getBlockZ(), 512) + 1;
+        int plotToX = Math.floorDiv(to.getBlockX(), 512) + 1;
+        int plotToZ = Math.floorDiv(to.getBlockZ(), 512) + 1;
+
+        if (plotFromX != plotToX || plotFromZ != plotToZ) {
+            event.getVehicle().remove();
+
+        }
+    }
+    @EventHandler
+    public void on(EntityMoveEvent event){
+        if(event.getEntityType().equals(EntityType.PLAYER)){
+            return;
+        }
+        org.bukkit.Location from = event.getFrom();
+        org.bukkit.Location to = event.getTo();
+        int plotFromX = Math.floorDiv(from.getBlockX(), 512) + 1;
+        int plotFromZ = Math.floorDiv(from.getBlockZ(), 512) + 1;
+        int plotToX = Math.floorDiv(to.getBlockX(), 512) + 1;
+        int plotToZ = Math.floorDiv(to.getBlockZ(), 512) + 1;
+
+        if (plotFromX != plotToX || plotFromZ != plotToZ) {
+            event.getEntity().remove();
+
         }
     }
 

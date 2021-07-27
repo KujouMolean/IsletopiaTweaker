@@ -22,6 +22,5 @@ public class MobRemover implements Listener {
         if (EntityType.WITHER.equals(event.getEntity().getType())) {
             event.setCancelled(true);
         }
-
     }
 }

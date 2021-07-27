@@ -1,8 +1,9 @@
-package com.molean.isletopia.bungee.individual;
+package com.molean.isletopia.message.handler;
 
-import com.molean.isletopia.shared.BukkitMessageListener;
 import com.molean.isletopia.shared.MessageHandler;
-import com.molean.isletopia.shared.bungee.PlaySoundObject;
+import com.molean.isletopia.shared.pojo.obj.PlaySoundObject;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -10,11 +11,11 @@ import org.bukkit.entity.Player;
 public class PlaySoundHandler implements MessageHandler<PlaySoundObject> {
 
     public PlaySoundHandler() {
-        BukkitMessageListener.setHandler("PlaySound", this,PlaySoundObject.class);
+        RedisMessageListener.setHandler("PlaySound", this, PlaySoundObject.class);
     }
 
     @Override
-    public void handle(PlaySoundObject message) {
+    public void handle(WrappedMessageObject wrappedMessageObject,PlaySoundObject message) {
 
         Player target = Bukkit.getPlayer(message.getPlayer());
         if (target == null) {
