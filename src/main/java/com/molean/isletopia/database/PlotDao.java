@@ -1,6 +1,7 @@
 package com.molean.isletopia.database;
 
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.utils.UUIDUtils;
 import com.plotsquared.core.plot.PlotId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +15,7 @@ public class PlotDao {
 
     public static Integer getPlotID(String server, String name) {
         Integer result = null;
-        UUID uuid = ServerInfoUpdater.getUUID(name);
+        UUID uuid = UUIDUtils.get(name);
         try (Connection connection = DataSourceUtils.getConnection(server)) {
             String sql = "select id from plot where owner=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);

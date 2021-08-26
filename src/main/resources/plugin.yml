@@ -5,13 +5,15 @@ api-version: 1.13
 denpend:
   - PlotSquared
 commands:
+  cmd: { }
+  mail: { }
   isdebug:
     permission: isletopia.isdebug
   clubrealm: { }
+  slime: { }
   transform:
     permission: isletopia.transform
   getup: { }
-  consume: { }
   firework:
     permission: isletopia.firework
   gtp:
@@ -27,17 +29,17 @@ commands:
   visit: { }
   issue: { }
   menu: { }
-  tell: { }
-  msg: { }
-  w: { }
-  is: { }
-  island: { }
-  islet: { }
-  isletopia: { }
+  tell:
+    aliases:
+      - msg
+      - w
+  island:
+    aliases:
+      - is
+      - islet
+      - isletopia
   temp: { }
   staticmap: { }
-  ignore: { }
-  unignore: { }
   mobcap: { }
   backup: { }
   download: { }
@@ -46,3 +48,6 @@ commands:
   luckycolor: { }
   clock: { }
   test: { }
+  rank: { }
+
+

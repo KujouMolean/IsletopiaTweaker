@@ -13,7 +13,7 @@ public class SaveUtils {
     }
 
     public static File getPlayerDataFile(String name) {
-        return getPlayerDataFile(ServerInfoUpdater.getUUID(name));
+        return getPlayerDataFile(UUIDUtils.get(name));
     }
 
     public static File getPlayerDataFile(UUID uuid) {
@@ -23,7 +23,7 @@ public class SaveUtils {
     }
 
     public static File getPlayerStatsFile(String name) {
-        return getPlayerStatsFile(ServerInfoUpdater.getUUID(name));
+        return getPlayerStatsFile(UUIDUtils.get(name));
     }
 
     public static File getPlayerStatsFile(UUID uuid) {

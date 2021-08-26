@@ -13,9 +13,12 @@ public class ExplosionProtect implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onCreeperExplode(EntityExplodeEvent event) {
-        if (EntityType.CREEPER.equals(event.getEntityType()))
-            event.setCancelled(true);
+        if (EntityType.CREEPER.equals(event.getEntityType())) {
+            if (!"Creeper".equalsIgnoreCase(event.getEntity().getCustomName())) {
+                event.setCancelled(true);
+            }
+        }
     }
 }

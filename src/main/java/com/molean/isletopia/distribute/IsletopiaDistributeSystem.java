@@ -14,8 +14,6 @@ public class IsletopiaDistributeSystem {
         try {
 
             new NewbieOperation();
-//            new PlayerChatTweaker();
-            new TellCommand();
             new VisitCommand();
             new ServerInfoUpdater();
             new LastServerUpdater();

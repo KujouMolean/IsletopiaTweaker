@@ -32,6 +32,7 @@ public class RichWanderingTrader implements Listener {
         additions.add(BEETROOT_SEEDS);
         additions.add(GLOW_LICHEN);
         additions.add(SPORE_BLOSSOM);
+        additions.add(GRASS_BLOCK);
         {
             List<ItemStack> icons = new ArrayList<>();
             List<ItemStack> result = new ArrayList<>();

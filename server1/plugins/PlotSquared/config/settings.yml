@@ -94,8 +94,9 @@ enabled-components:
   component-presets: true
   # Enable per user locale
   per-user-locale: false
-  # The default locale
-  default-locale: "zhcn"
+  # The default locale. Before changing the language, make sure you downloaded the appropriate file and put it in the 'lang' folder.
+  # You can find additional translations here: https://intellectualsites.crowdin.com/plotsquared
+  default-locale: "en"
   # Use UUID cache to complete usernames
   extended-username-completion: true
   # Command aliases that will be tab completed
@@ -321,6 +322,9 @@ chat:
   # Whether an action bar message should be send over a chat message for notification purposes such for the 
   # notify-enter, notify-leave, greeting or farewell flag.
   notification-as-actionbar: false
+  # Whether to strip any possible <click_event> components from user-defined messages, e.g. plot greeting
+  # This can allow players to use commands to give themselves ranks as commands ran in this fashion cannot be prevent by permissions etc.
+  remove-user-defined-click-events: true
 
 # Used to format the plot creation date placeholder. Modifying the format does not affect the storage time.
 timeformat:

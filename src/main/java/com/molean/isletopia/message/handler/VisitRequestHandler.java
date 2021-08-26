@@ -15,6 +15,8 @@ import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.utils.RedisUtils;
+import com.molean.isletopia.utils.IsletopiaTweakersUtils;
+import com.molean.isletopia.utils.UUIDUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
@@ -58,8 +60,8 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
         VisitResponse visitResponse = new VisitResponse();
         visitResponse.setTarget(sourcePlayer);
         boolean allow = true;
-        UUID sourceUUID = ServerInfoUpdater.getUUID(sourcePlayer);
-        UUID targetUUID = ServerInfoUpdater.getUUID(targetPlayer);
+        UUID sourceUUID = UUIDUtils.get(sourcePlayer);
+        UUID targetUUID = UUIDUtils.get(targetPlayer);
 
         Set<Plot> plots = PlotSquared.get().getPlotAreaManager().getAllPlotAreas()[0].getPlots(targetUUID);
         if (plots.isEmpty()) {
@@ -82,7 +84,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
 
             if (!allow) {
                 if (!offlinePlayer.isOp() && !targetPlayer.equalsIgnoreCase(sourcePlayer) && ServerInfoUpdater.getOnlinePlayers().contains(targetPlayer)) {
-                    ServerMessageUtils.sendVisitNotificationToPlayer(targetPlayer, sourcePlayer, true);
+                    IsletopiaTweakersUtils.sendVisitNotificationToPlayer(targetPlayer, sourcePlayer, true);
                 }
 
                 visitResponse.setResponse("refused");
@@ -96,7 +98,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
             } else {
                 if (!targetPlayer.equalsIgnoreCase(sourcePlayer) && !offlinePlayer.isOp()) {
                     if (ServerInfoUpdater.getOnlinePlayers().contains(targetPlayer)) {
-                        ServerMessageUtils.sendVisitNotificationToPlayer(targetPlayer, sourcePlayer, false);
+                        IsletopiaTweakersUtils.sendVisitNotificationToPlayer(targetPlayer, sourcePlayer, false);
                     } else if (!UniversalParameter.getParameterAsList(targetPlayer, "visits").contains(sourcePlayer)) {
                         UniversalParameter.addParameter(targetPlayer, "visits", sourcePlayer);
                     }

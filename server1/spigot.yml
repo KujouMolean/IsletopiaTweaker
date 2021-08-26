@@ -22,7 +22,7 @@ settings:
   player-shuffle: 0
   user-cache-size: 1000
   netty-threads: 4
-  timeout-time: 6000
+  timeout-time: 60000
   restart-on-crash: true
   restart-script: ./start.sh
   attribute:

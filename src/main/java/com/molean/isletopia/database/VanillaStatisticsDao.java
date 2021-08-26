@@ -5,19 +5,23 @@ import com.molean.isletopia.statistics.vanilla.Stats;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class VanillaStatisticsDao {
 
     public static void checkTable() {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "create table if not exists vanilla_statistics(\n" +
-                    "    id int auto_increment primary key,\n" +
-                    "    player varchar(100) not null unique,\n" +
-                    "    stats longtext not null \n" +
-                    ");";
+            String sql = """
+                    create table if not exists vanilla_statistics(
+                        id int auto_increment primary key,
+                        player varchar(100) not null unique,
+                        stats longtext not null\s
+                    );""";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
 
@@ -95,6 +99,29 @@ public class VanillaStatisticsDao {
         } else {
             return null;
         }
+    }
+
+    public static Map<String, Stats> getAllPlayerStats() {
+        Map<String, Stats> map =new HashMap<>();
+        try (Connection connection = DataSourceUtils.getConnection()) {
+            String sql = "select player,stats from vanilla_statistics where true";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                try {
+                    String player = resultSet.getString(1);
+                    String statsString = resultSet.getString(2);
+                    Stats stats = Stats.fromJson(statsString);
+                    map.put(player, stats);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            return map;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
 }

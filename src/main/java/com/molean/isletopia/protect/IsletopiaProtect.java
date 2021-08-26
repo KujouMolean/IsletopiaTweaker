@@ -22,6 +22,7 @@ public class IsletopiaProtect {
             new BeaconLimiter();
             new BucketUsageProtect();
             new BeaconIslandOption();
+            new DragonEggLimiter();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia protect failed!");

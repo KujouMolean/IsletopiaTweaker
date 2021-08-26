@@ -7,6 +7,7 @@ import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
 import com.molean.isletopia.utils.PlotUtils;
+import com.molean.isletopia.utils.UUIDUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
 import org.bukkit.Bukkit;
@@ -90,8 +91,8 @@ public class TransformIsland implements CommandExecutor {
                 commonResponseObject.setMessage("玩家 " + player.getName() + " 已将 " + single + "的岛屿转让给 " + args[0] + " !");
                 ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonResponseObject);
 
-                currentPlot.setOwner(ServerInfoUpdater.getUUID(args[0]));
-                PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(args[0], ServerInfoUpdater.getUUID(args[0]));
+                currentPlot.setOwner(UUIDUtils.get(args[0]));
+                PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(args[0], UUIDUtils.get(args[0]));
                 UniversalParameter.setParameter(args[0], "server", ServerInfoUpdater.getServerName());
                 player.sendMessage("§a成功!已修改岛屿新主人为: " + args[0]);
 

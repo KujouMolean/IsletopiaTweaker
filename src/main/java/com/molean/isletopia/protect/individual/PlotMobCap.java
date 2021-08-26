@@ -1,23 +1,25 @@
 package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.task.PlotChunkTask;
+import com.molean.isletopia.task.PlotLoadedChunkTask;
 import com.molean.isletopia.utils.LangUtils;
 import com.molean.isletopia.utils.PlotUtils;
-import com.plotsquared.bukkit.util.BukkitUtil;
-import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.location.Location;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotArea;
-import com.plotsquared.core.plot.world.PlotAreaManager;
+import com.plotsquared.core.plot.PlotId;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -28,12 +30,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
 
     private static final Map<EntityType, Integer> map = new HashMap<>();
     private static final List<EntityType> ignoredType = new ArrayList<>();
     private static final List<CreatureSpawnEvent.SpawnReason> ignoredReason = new ArrayList<>();
+    private static final Map<PlotId, Map<EntityType, Integer>> plotsEntities = new ConcurrentHashMap<>();
+    private static final Map<PlotId, Integer> plotsEntityCount = new ConcurrentHashMap<>();
+
+
+    private static final Set<PlotId> shouldUpdatePlot = new HashSet<>();
+
 
     public static void setMobCap(EntityType entityType, Integer integer) {
         map.put(entityType, integer);
@@ -47,7 +56,6 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         Objects.requireNonNull(Bukkit.getPluginCommand("mobcap")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("mobcap")).setExecutor(this);
-
         setMobCap(EntityType.ZOMBIFIED_PIGLIN, 30);
         setMobCap(EntityType.PIGLIN, 30);
         setMobCap(EntityType.HOGLIN, 30);
@@ -66,6 +74,19 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         ignoredType.add(EntityType.ITEM_FRAME);
         ignoredType.add(EntityType.GLOW_ITEM_FRAME);
         ignoredReason.add(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
+
+        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                Plot currentPlot = PlotUtils.getCurrentPlot(onlinePlayer);
+                if (currentPlot != null) {
+                    shouldUpdatePlot.add(currentPlot.getId());
+                }
+            }
+            for (PlotId plotId : shouldUpdatePlot) {
+                newCountEntities(plotId);
+            }
+            shouldUpdatePlot.clear();
+        }, 20L, 20L);
     }
 
     private static final Map<Plot, Long> lastNotifyTimeMap = new HashMap<>();
@@ -90,31 +111,34 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         Item entity = event.getEntity();
         org.bukkit.Location location = entity.getLocation();
         Plot currentPlot = PlotUtils.getCurrentPlot(location);
-        if (countEntities(currentPlot, null) >= 1024) {
+        if (!plotsEntityCount.containsKey(currentPlot.getId())) {
+            return;
+        }
+        int count = plotsEntityCount.get(currentPlot.getId());
+        if (count >= 1024) {
             event.setCancelled(true);
         }
-        if (countEntities(currentPlot, null) >= 512) {
+        if (count >= 512) {
             warn(currentPlot);
         }
     }
 
     @EventHandler
-    public void on(VehicleMoveEvent event){
+    public void on(VehicleMoveEvent event) {
         org.bukkit.Location from = event.getFrom();
         org.bukkit.Location to = event.getTo();
         int plotFromX = Math.floorDiv(from.getBlockX(), 512) + 1;
         int plotFromZ = Math.floorDiv(from.getBlockZ(), 512) + 1;
         int plotToX = Math.floorDiv(to.getBlockX(), 512) + 1;
         int plotToZ = Math.floorDiv(to.getBlockZ(), 512) + 1;
-
         if (plotFromX != plotToX || plotFromZ != plotToZ) {
             event.getVehicle().remove();
-
         }
     }
+
     @EventHandler
-    public void on(EntityMoveEvent event){
-        if(event.getEntityType().equals(EntityType.PLAYER)){
+    public void on(EntityMoveEvent event) {
+        if (event.getEntityType().equals(EntityType.PLAYER)) {
             return;
         }
         org.bukkit.Location from = event.getFrom();
@@ -123,18 +147,13 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         int plotFromZ = Math.floorDiv(from.getBlockZ(), 512) + 1;
         int plotToX = Math.floorDiv(to.getBlockX(), 512) + 1;
         int plotToZ = Math.floorDiv(to.getBlockZ(), 512) + 1;
-
         if (plotFromX != plotToX || plotFromZ != plotToZ) {
             event.getEntity().remove();
-
         }
     }
-
-
     @EventHandler
     public void onMobSpawn(CreatureSpawnEvent event) {
-        PlotAreaManager plotAreaManager = PlotSquared.get().getPlotAreaManager();
-        PlotArea plotArea = plotAreaManager.getPlotArea(PlotUtils.fromBukkitLocation(event.getLocation()));
+        PlotArea plotArea = PlotUtils.getFirstPlotArea();
         Plot plot = plotArea.getPlot(PlotUtils.fromBukkitLocation(event.getLocation()));
         if (plot == null) {
             return;
@@ -142,54 +161,49 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         if (ignoredReason.contains(event.getSpawnReason())) {
             return;
         }
-        if (countEntities(plot, null) >= 512) {
+
+        shouldUpdatePlot.add(plot.getId());
+        Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(plot.getId());
+        if (entityTypeIntegerMap == null) {
+            return;
+        }
+        if (plotsEntityCount.get(plot.getId()) >= 512) {
             warn(plot);
             event.setCancelled(true);
             return;
         }
         EntityType entityType = event.getEntity().getType();
         if (map.containsKey(entityType)) {
-            if (countEntities(plot, entityType) >= map.get(entityType)) {
+            if (entityTypeIntegerMap.getOrDefault(entityType, 0) >= map.get(entityType)) {
                 event.setCancelled(true);
             }
         }
-    }
 
-    public static int countEntities(@NotNull Plot plot, @Nullable EntityType entityType) {
-        String typeString;
-        if (entityType != null) {
-            typeString = entityType.toString();
-        } else {
-            typeString = "all";
-        }
-        Integer prevCount = (Integer) plot.getMeta("Isletopia-Cap-" + typeString);
-        Long prevTime = (Long) plot.getMeta("Isletopia-Cap" + typeString + "-Time");
-        if (prevTime != null && System.currentTimeMillis() - prevTime < 1e3 && prevCount != null) {
-            return prevCount;
-        }
-        int count = 0;
-        PlotArea area = plot.getArea();
-        assert area != null;
-        World world = BukkitUtil.getWorld(area.getWorldName());
-        assert world != null;
-        Location bot = plot.getBottomAbs();
-        Location top = plot.getTopAbs();
-        BoundingBox boundingBox = new BoundingBox(bot.getX(), bot.getY(), bot.getZ(), top.getX(), top.getY(), top.getZ());
-        Collection<Entity> nearbyEntities = world.getNearbyEntities(boundingBox);
-        for (Entity chunkEntity : nearbyEntities) {
-            if (entityType != null) {
-                if (chunkEntity.getType() == entityType) {
-                    count++;
+    }
+    public static void newCountEntities(PlotId plotId) {
+        Plot plot = PlotUtils.getFirstPlotArea().getPlot(plotId);
+        assert plot != null;
+        HashMap<EntityType, Integer> plotEntities = new HashMap<>();
+
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            new PlotLoadedChunkTask(plot, chunk -> {
+                @NotNull Entity[] entities = chunk.getEntities();
+                for (Entity entity : entities) {
+                    if (!ignoredType.contains(entity.getType())) {
+                        Integer orDefault = plotEntities.getOrDefault(entity.getType(), 0);
+                        plotEntities.put(entity.getType(), orDefault + 1);
+                    }
                 }
-            } else {
-                if (!ignoredType.contains(chunkEntity.getType())) {
-                    count++;
+            }, () -> {
+                plotsEntities.put(plotId, plotEntities);
+                int count = 0;
+                for (int value : plotEntities.values()) {
+                    count += value;
                 }
-            }
-        }
-        plot.setMeta("Isletopia-Cap-" + typeString, count);
-        plot.setMeta("Isletopia-Cap" + typeString + "-Time", System.currentTimeMillis());
-        return count;
+                plotsEntityCount.put(plotId, count);
+            }, 20).run();
+        });
+
     }
 
 
@@ -200,29 +214,14 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
         if (currentPlot == null) {
             return true;
         }
-
-        Location bot = currentPlot.getBottomAbs();
-        Location top = currentPlot.getTopAbs();
-        BoundingBox boundingBox = new BoundingBox(bot.getX(), bot.getY(), bot.getZ(), top.getX(), top.getY(), top.getZ());
-        Collection<Entity> nearbyEntities = player.getWorld().getNearbyEntities(boundingBox);
-
-
-        Map<EntityType, Integer> map = new HashMap<>();
-
-        int total=0;
-
-        for (Entity nearbyEntity : nearbyEntities) {
-            EntityType type = nearbyEntity.getType();
-            if (ignoredType.contains(type)) {
-                continue;
-            }
-            map.put(type, map.getOrDefault(type, 0) + 1);
-            total++;
+        Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(currentPlot.getId());
+        if (entityTypeIntegerMap == null) {
+            player.sendMessage("还在统计中, 稍后重试");
+            return true;
         }
-
-        ArrayList<EntityType> keys = new ArrayList<>(map.keySet());
-
-        keys.sort((o1, o2) -> map.getOrDefault(o2, 0) - map.getOrDefault(o1, 0));
+        int total = plotsEntityCount.get(currentPlot.getId());
+        ArrayList<EntityType> keys = new ArrayList<>(entityTypeIntegerMap.keySet());
+        keys.sort((o1, o2) -> entityTypeIntegerMap.get(o2) - entityTypeIntegerMap.get(o1));
         player.sendMessage(String.format("§a>§e%s §" + (total < 512 ? "a" : "c") + "%s", "总计", total));
         for (int i = 0; i < 10 && i < keys.size(); i++) {
             @SuppressWarnings("deprecation")
@@ -233,11 +232,10 @@ public class PlotMobCap implements Listener, CommandExecutor, TabCompleter {
             } else {
                 name = "未知";
             }
-            String c = (PlotMobCap.map.get(keys.get(i)) != null && PlotMobCap.map.get(keys.get(i)) <= map.get(keys.get(i))) ? "c" : "a";
-            String message = String.format("§a>§e%s §" + c + "%s", name, map.get(keys.get(i)));
+            String c = (map.get(keys.get(i)) != null && map.get(keys.get(i)) <= entityTypeIntegerMap.get(keys.get(i))) ? "c" : "a";
+            String message = String.format("§a>§e%s §" + c + "%s", name, entityTypeIntegerMap.get(keys.get(i)));
             player.sendMessage(message);
         }
-
         return true;
     }
 

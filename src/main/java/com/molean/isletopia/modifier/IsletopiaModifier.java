@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.infrastructure.individual.FirstSapling;
 import com.molean.isletopia.modifier.individual.*;
 
 import java.util.logging.Logger;
@@ -15,8 +16,7 @@ public class IsletopiaModifier {
             new RemoveUnbreakable();
             new FertilizeFlower();
             new HungerKeeper();
-            new IronElevator();
-            new RailWay();
+
             new RemoveJoinLeftMessage();
             new RandomPatrol();
             new DeepOceanGuardian();
@@ -26,7 +26,7 @@ public class IsletopiaModifier {
 
             new PreventRenameHead();
 //            new AdvancedDispenser();
-            new FirstSapling();
+
             new TestListener();
             new NetherPortal();
             new ShulkerRespawn();

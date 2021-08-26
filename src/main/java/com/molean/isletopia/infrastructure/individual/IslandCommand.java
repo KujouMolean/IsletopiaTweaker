@@ -2,13 +2,18 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.menu.settings.member.MemberMenu;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
+import com.molean.isletopia.other.ConfirmDialog;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.PlotUtils;
+import com.molean.isletopia.utils.UUIDUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.location.BlockLoc;
 import com.plotsquared.core.plot.Plot;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -198,13 +203,26 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
     public void trust(String source, String target) {
         Player player = Bukkit.getPlayer(source);
+
+
         assert player != null;
+        if (!"true".equalsIgnoreCase(UniversalParameter.getParameter(player.getName(), "MemberConfirm"))) {
+            new ConfirmDialog(Component.text("添加岛屿成员后，你的岛员将能够随意破坏你的岛屿。\n" +
+                    "请不要随意乱加岛员，如果因为乱给权限导致岛屿被破坏，服务器将不给予任何帮助。\n" +
+                    "(此消息确认一次后不再出现)" +
+                    "\n\n\n\n\n")).accept(player1 -> {
+                UniversalParameter.setParameter(player1.getName(), "MemberConfirm", "true");
+                trust(source, target);
+            }).open(player);
+            return;
+        }
+
         if (!PlotUtils.isCurrentPlotOwner(player)) {
             player.sendMessage("§8[§3岛屿助手§8] §c阁下只能对自己的岛屿进行设置.");
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
-        UUID uuid = ServerInfoUpdater.getUUID(target);
+        UUID uuid = UUIDUtils.get(target);
         assert currentPlot != null;
         currentPlot.addTrusted(uuid);
         PlotSquared.get().getImpromptuUUIDPipeline().storeImmediately(target, uuid);
@@ -219,7 +237,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             return;
         }
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
-        UUID uuid = ServerInfoUpdater.getUUID(target);
+        UUID uuid = UUIDUtils.get(target);
         assert currentPlot != null;
         currentPlot.removeTrusted(uuid);
         player.sendMessage("§8[§3岛屿助手§8] §6已经从信任列表中删除 %1%.".replace("%1%", target));

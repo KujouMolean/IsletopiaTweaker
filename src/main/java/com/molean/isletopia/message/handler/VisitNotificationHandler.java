@@ -3,8 +3,9 @@ package com.molean.isletopia.message.handler;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.shared.MessageHandler;
-import com.molean.isletopia.shared.pojo.obj.VisitNotificationObject;
+import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.pojo.obj.VisitNotificationObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,20 +18,23 @@ import java.util.List;
 public class VisitNotificationHandler implements MessageHandler<VisitNotificationObject>, Listener {
     public VisitNotificationHandler() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        RedisMessageListener.setHandler("VisitNotification", this, VisitNotificationObject.class);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
-        if (visits.size() > 0) {
-            event.getPlayer().sendMessage("§8[§3访客提醒§8] §e离线时的访客有:");
-            event.getPlayer().sendMessage("§7  " + String.join(",", visits));
-            UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            List<String> visits = UniversalParameter.getParameterAsList(event.getPlayer().getName(), "visits");
+            if (visits.size() > 0) {
+                event.getPlayer().sendMessage("§8[§3访客提醒§8] §e离线时的访客有:");
+                event.getPlayer().sendMessage("§7  " + String.join(",", visits));
+                UniversalParameter.setParameter(event.getPlayer().getName(), "visits", null);
+            }
+        });
     }
 
     @Override
-    public void handle(WrappedMessageObject wrappedMessageObject,VisitNotificationObject message) {
+    public void handle(WrappedMessageObject wrappedMessageObject, VisitNotificationObject message) {
         String visitor = message.getVisitor();
         String target = message.getTarget();
         boolean success = message.isSuccess();

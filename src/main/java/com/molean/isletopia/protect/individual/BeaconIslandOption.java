@@ -1,6 +1,7 @@
 package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.task.PlotChunkTask;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotId;
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Beacon;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,9 +36,9 @@ public class BeaconIslandOption implements Listener {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (PlotUtils.hasCurrentPlotPermission(onlinePlayer)) {
                     Plot currentPlot = PlotUtils.getCurrentPlot(onlinePlayer);
+                    assert currentPlot != null;
                     if (isEnablePvP(currentPlot)) {
                         onlinePlayer.sendActionBar(Component.text("§c此岛屿已开启PVP, 生物不受保护!"));
-
                     }
                 }
             }
@@ -44,18 +46,15 @@ public class BeaconIslandOption implements Listener {
     }
 
     private static final Map<PlotId, Set<PotionEffectType>> stringHashSetMap = new HashMap<>();
-    private static final Map<PlotId, Long> lastUpdate = new HashMap<>();
+    private static final HashSet<PlotId> updatingPlot = new HashSet<>();
 
-
-    public static Set<PotionEffectType> getPrimaryBeaconEffects(Plot plot) {
-        if (System.currentTimeMillis() - lastUpdate.getOrDefault(plot.getId(),0L) < 60 * 1000) {
-            if (stringHashSetMap.containsKey(plot.getId())) {
-                return stringHashSetMap.get(plot.getId());
-            }
+    public static void updatePrimaryBeaconEffects(Plot plot) {
+        if (updatingPlot.contains(plot.getId())) {
+            return;
         }
-        Set<PotionEffectType> effectTypes = new HashSet<>();
-        Set<Chunk> chunks = PlotUtils.getPlotChunks(plot);
-        for (Chunk chunk : chunks) {
+        updatingPlot.add(plot.getId());
+        HashSet<PotionEffectType> potionEffectTypes = new HashSet<>();
+        new PlotChunkTask(plot, chunk -> {
             @NotNull BlockState[] tileEntities = chunk.getTileEntities();
             for (BlockState tileEntity : tileEntities) {
                 if (tileEntity.getBlock().getType().equals(Material.BEACON)) {
@@ -63,22 +62,30 @@ public class BeaconIslandOption implements Listener {
                     PotionEffect primaryEffect = beacon.getPrimaryEffect();
                     PotionEffect secondaryEffect = beacon.getSecondaryEffect();
                     if (secondaryEffect == null && primaryEffect != null) {
-                        effectTypes.add(primaryEffect.getType());
+                        potionEffectTypes.add(primaryEffect.getType());
                     }
                 }
             }
-        }
-        lastUpdate.put(plot.getId(), System.currentTimeMillis());
-        stringHashSetMap.put(plot.getId(), effectTypes);
-        return effectTypes;
+        }, () -> {
+            stringHashSetMap.put(plot.getId(), potionEffectTypes);
+            updatingPlot.remove(plot.getId());
+
+        }, 20 * 60).run();
     }
 
     public static boolean isAntiFire(Plot plot) {
-        return getPrimaryBeaconEffects(plot).contains(PotionEffectType.DAMAGE_RESISTANCE);
+        if (!stringHashSetMap.containsKey(plot.getId())) {
+            updatePrimaryBeaconEffects(plot);
+            return true;
+        }
+        return stringHashSetMap.get(plot.getId()).contains(PotionEffectType.DAMAGE_RESISTANCE);
     }
 
     public static boolean isEnablePvP(Plot plot) {
-        return getPrimaryBeaconEffects(plot).contains(PotionEffectType.INCREASE_DAMAGE);
+        if (!stringHashSetMap.containsKey(plot.getId())) {
+            return false;
+        }
+        return stringHashSetMap.get(plot.getId()).contains(PotionEffectType.INCREASE_DAMAGE);
     }
 
     @EventHandler
@@ -91,26 +98,27 @@ public class BeaconIslandOption implements Listener {
     }
 
     @EventHandler
-    public void on(PlayerChangeBeaconEffectEvent event) {
-        if (event.getBeacon() == null) {
-            return;
-        }
-        org.bukkit.Location location = event.getBeacon().getLocation();
-        Plot currentPlot = PlotUtils.getCurrentPlot(location);
-        lastUpdate.put(currentPlot.getId(), 0L);
-    }
-
-    @EventHandler
     public void on(BeaconActivatedEvent event) {
-        org.bukkit.Location location = event.getBeacon().getLocation();
+        org.bukkit.Location location = event.getBlock().getLocation();
         Plot currentPlot = PlotUtils.getCurrentPlot(location);
-        lastUpdate.put(currentPlot.getId(), 0L);
+        updatePrimaryBeaconEffects(currentPlot);
     }
 
     @EventHandler
     public void on(BeaconDeactivatedEvent event) {
         org.bukkit.Location location = event.getBlock().getLocation();
         Plot currentPlot = PlotUtils.getCurrentPlot(location);
-        lastUpdate.put(currentPlot.getId(), 0L);
+        updatePrimaryBeaconEffects(currentPlot);
+    }
+
+    @EventHandler
+    public void on(PlayerChangeBeaconEffectEvent event) {
+        Block beacon = event.getBeacon();
+        if (beacon == null) {
+            return;
+        }
+        org.bukkit.Location location = beacon.getLocation();
+        Plot currentPlot = PlotUtils.getCurrentPlot(location);
+        updatePrimaryBeaconEffects(currentPlot);
     }
 }

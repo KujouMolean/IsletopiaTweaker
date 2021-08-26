@@ -5,6 +5,7 @@ import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.PlotUtils;
+import com.molean.isletopia.utils.UUIDUtils;
 import com.plotsquared.core.plot.Plot;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -33,7 +34,7 @@ public class MemberAddMenu implements Listener {
         Plot currentPlot = PlotUtils.getCurrentPlot(player);
         assert currentPlot != null;
         HashSet<UUID> trusted = currentPlot.getTrusted();
-        players.removeIf(s -> trusted.contains(ServerInfoUpdater.getUUID(s)));
+        players.removeIf(s -> trusted.contains(UUIDUtils.get(s)));
         return players;
     }
 
@@ -97,7 +98,7 @@ public class MemberAddMenu implements Listener {
             Plot currentPlot = PlotUtils.getCurrentPlot(player);
             assert currentPlot != null;
             if (currentPlot.getOwner().equals(player.getUniqueId())) {
-                currentPlot.addTrusted(ServerInfoUpdater.getUUID(players.get(slot + page * 52)));
+                currentPlot.addTrusted(UUIDUtils.get(players.get(slot + page * 52)));
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberAddMenu(player).open());
             } else {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.kick(Component.text("错误, 非岛主操作岛屿成员.")));

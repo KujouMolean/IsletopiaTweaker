@@ -2,19 +2,19 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlotDao;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.protect.individual.BeaconIslandOption;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.plot.Plot;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 public class IslandInfoUpdater {
@@ -24,6 +24,7 @@ public class IslandInfoUpdater {
         world = Bukkit.getWorld("SkyWorld");
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 Plot currentPlot = PlotUtils.getCurrentPlot(onlinePlayer);
                 if (currentPlot == null) {
@@ -32,6 +33,8 @@ public class IslandInfoUpdater {
 
                 cacheStatus(currentPlot);
                 cacheCreation(currentPlot);
+                cacheCollections(onlinePlayer);
+
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                     cacheOptions(currentPlot);
                 });
@@ -49,6 +52,18 @@ public class IslandInfoUpdater {
 
     }
 
+    public static void cacheCollections(Player player) {
+        String collection = UniversalParameter.getParameter(player.getName(), "collection");
+        if (collection == null || collection.isEmpty()) {
+            return;
+        }
+        try (Jedis jedis = RedisUtils.getJedis()) {
+            jedis.set("Collection-" + player.getName(), collection);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void cacheCreation(Plot currentPlot) {
         if (currentPlot == null) {
             return;
@@ -64,6 +79,8 @@ public class IslandInfoUpdater {
             String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             jedis.set("Creation-" + owner, format);
 
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
@@ -88,6 +105,8 @@ public class IslandInfoUpdater {
             } else {
                 jedis.set("EnablePvP-" + owner, "false");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -107,6 +126,8 @@ public class IslandInfoUpdater {
                 jedis.set("Lock-" + owner, "false");
 
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
@@ -128,6 +149,8 @@ public class IslandInfoUpdater {
             if (jedis.exists("Area-" + owner)) {
                 return false;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         Location top = PlotUtils.fromPlotLocation(currentPlot.getTopAbs());
@@ -144,6 +167,8 @@ public class IslandInfoUpdater {
 
         try (Jedis jedis = RedisUtils.getJedis()) {
             jedis.setex("Area-" + owner, 60 * 15L, "" + areaCount);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return true;
     }
@@ -152,20 +177,22 @@ public class IslandInfoUpdater {
         try (Jedis jedis = RedisUtils.getJedis()) {
             if (jedis.exists("Creation-" + owner)) {
                 return jedis.get("Creation-" + owner);
-            } else {
-                return null;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     public static long getArea(UUID owner) {
         try (Jedis jedis = RedisUtils.getJedis()) {
             if (jedis.exists("Area-" + owner)) {
                 return Long.parseLong(jedis.get("Area-" + owner));
-            } else {
-                return -1L;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return -1L;
     }
 
     public static String getIslandStatus(UUID uuid) {
@@ -176,10 +203,11 @@ public class IslandInfoUpdater {
                 } else {
                     return "开放";
                 }
-            } else {
-                return "未知";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return "未知";
     }
 
     public static String isEnablePvP(UUID uuid) {
@@ -190,10 +218,11 @@ public class IslandInfoUpdater {
                 } else {
                     return "仅岛员";
                 }
-            } else {
-                return "未知";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return "未知";
     }
     public static String isAntiFire(UUID uuid) {
         try (Jedis jedis = RedisUtils.getJedis()) {
@@ -203,10 +232,11 @@ public class IslandInfoUpdater {
                 } else {
                     return "禁用";
                 }
-            } else {
-                return "未知";
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return "未知";
     }
 
 }

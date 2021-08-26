@@ -1,6 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
@@ -30,12 +31,12 @@ public class IslandEnterMessage implements Listener {
         String title;
         if (alias.isEmpty()) {
             title = "§6%1%:%2%,%3%"
-                    .replace("%1%", MessageUtils.getLocalServerName())
+                    .replace("%1%", IsletopiaTweakersUtils.getLocalServerName())
                     .replace("%2%", toPlotX + 1 + "")
                     .replace("%3%", toPlotZ + 1 + "");
         } else {
             title = "§6%1%:%2%"
-                    .replace("%1%", MessageUtils.getLocalServerName())
+                    .replace("%1%", IsletopiaTweakersUtils.getLocalServerName())
                     .replace("%2%", alias);
         }
 

@@ -22,10 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,26 +102,35 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                     serverBumpObject.getItems().add("潜影盒");
 
                     Random random = new Random();
+
+                    ArrayList<ItemStack> itemStacks = new ArrayList<>();
+
                     if (random.nextInt(100) < 10) {
-                        player.getInventory().addItem(new ItemStack(Material.BEACON, 1));
+                        itemStacks.add(new ItemStack(Material.BEACON, 1));
                         serverBumpObject.getItems().add("信标");
                         UniversalParameter.addParameter("Molean", "beacon", player.getName());
                         UniversalParameter.setParameter(player.getName(), "beaconReason", "顶贴");
                     }
                     if (random.nextInt(100) < 5) {
-                        player.getInventory().addItem(new ItemStack(Material.BUNDLE, 1));
+                        itemStacks.add(new ItemStack(Material.BUNDLE, 1));
                         serverBumpObject.getItems().add("收纳袋");
                     }
                     if (random.nextInt(100) < 10) {
-                        player.getInventory().addItem(new ItemStack(Material.HEART_OF_THE_SEA, 1));
+                        itemStacks.add(new ItemStack(Material.HEART_OF_THE_SEA, 1));
                         serverBumpObject.getItems().add("海洋之心");
                     }
                     if (random.nextInt(100) == 0) {
-                        player.getInventory().addItem(new ItemStack(Material.ELYTRA, 1));
+                        itemStacks.add(new ItemStack(Material.ELYTRA, 1));
                         serverBumpObject.getItems().add("鞘翅");
                         UniversalParameter.addParameter("Molean", "elytra", player.getName());
                         UniversalParameter.setParameter(player.getName(), "elytraReason", "顶贴");
                     }
+
+                    Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
+                    for (ItemStack value : values) {
+                        player.getLocation().getWorld().dropItem(player.getLocation(), value);
+                    }
+
                     ServerMessageUtils.sendMessage("waterfall", "ServerBump", serverBumpObject);
                     return;
                 }

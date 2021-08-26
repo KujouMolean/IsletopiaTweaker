@@ -14,51 +14,53 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Random;
 
 public class PlayerServerFirework implements CommandExecutor {
-    private final Map<Player, Boolean> fireworkMap = new HashMap<>();
+    private final HashSet<String> fireworkMap = new HashSet<>();
     private final Random random = new Random();
 
     public PlayerServerFirework() {
         Objects.requireNonNull(Bukkit.getPluginCommand("firework")).setExecutor(this);
         Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
-            for (Player player : fireworkMap.keySet()) {
-                if(fireworkMap.get(player)){
-                    if(player.isOnline()){
-                        Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
-                            spawnFirework(player.getLocation().add(0, 2, 0));
-                        }, random.nextInt(20));
+            fireworkMap.removeIf(s -> Bukkit.getOnlinePlayers().stream()
+                    .noneMatch(player -> player.getName().equalsIgnoreCase(s)));
+
+            for (String player : fireworkMap) {
+                Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
+                    Player bukkitPlayer = Bukkit.getPlayer(player);
+                    if (bukkitPlayer != null && bukkitPlayer.isOnline()) {
+                        spawnFirework(bukkitPlayer.getLocation().add(0, 2, 0));
                     }
-                }
+                }, random.nextInt(20));
             }
         }, 20, 20);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if(args.length==1){
+        if (args.length == 1) {
             if (args[0].equalsIgnoreCase("all")) {
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    fireworkMap.put(onlinePlayer, true);
+                    fireworkMap.add(onlinePlayer.getName());
                 }
-            }else if (args[0].equalsIgnoreCase("stop")) {
+            } else if (args[0].equalsIgnoreCase("stop")) {
                 fireworkMap.clear();
-            }else {
-                Player player = Bukkit.getPlayer(args[0]);
-                if(player!=null){
-                    Boolean orDefault = fireworkMap.getOrDefault(player, false);
-                    fireworkMap.put(player, !orDefault);
+            } else {
+                if (fireworkMap.contains(args[0])) {
+                    fireworkMap.remove(args[0]);
+                } else {
+                    fireworkMap.add(args[0]);
                 }
             }
-
-
-        }else{
-            Boolean orDefault = fireworkMap.getOrDefault((Player) sender, false);
-            fireworkMap.put((Player) sender, !orDefault);
+        } else {
+            if (fireworkMap.contains(sender.getName())) {
+                fireworkMap.remove(sender.getName());
+            } else {
+                fireworkMap.add(sender.getName());
+            }
         }
 
         return true;

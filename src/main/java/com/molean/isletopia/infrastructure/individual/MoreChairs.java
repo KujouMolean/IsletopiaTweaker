@@ -1,5 +1,6 @@
 package com.molean.isletopia.infrastructure.individual;
 
+import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.*;
@@ -11,10 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -59,7 +57,10 @@ public class MoreChairs implements Listener {
         if (!inventory.getItemInOffHand().getType().equals(Material.AIR)) {
             return;
         }
+        if (event.getPlayer().getLocation().getPitch() < 75) {
 
+            return;
+        }
         if (event.isSneaking()) {
             sneakTime.put(event.getPlayer(), currentTimeMillis);
             Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
@@ -99,12 +100,26 @@ public class MoreChairs implements Listener {
     }
 
     @EventHandler
-    public void on(ChunkLoadEvent event) {
-        Entity[] entities = event.getChunk().getEntities();
-        for (Entity entity : entities) {
-            if (entity instanceof ArmorStand) {
-                if (!((ArmorStand) entity).isVisible()) {
-                    entity.remove();
+    public void on(EntityAddToWorldEvent event) {
+        Entity entity = event.getEntity();
+        if (entity.getType().equals(EntityType.ARMOR_STAND)) {
+            ArmorStand armorStand = (ArmorStand) entity;
+            if (!armorStand.isVisible()) {
+                if (armorStand.getPassengers().isEmpty()) {
+                    armorStand.remove();
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void on(PlayerInteractEntityEvent event) {
+        Entity entity = event.getRightClicked();
+        if (entity.getType().equals(EntityType.ARMOR_STAND)) {
+            ArmorStand armorStand = (ArmorStand) entity;
+            if (!armorStand.isVisible()) {
+                if (armorStand.getPassengers().isEmpty()) {
+                    armorStand.remove();
                 }
             }
         }
@@ -114,8 +129,7 @@ public class MoreChairs implements Listener {
     public void on(EntityDismountEvent event) {
         Entity dismounted = event.getDismounted();
         if (dismounted.getType().equals(EntityType.ARMOR_STAND)) {
-            if (event.getEntity() instanceof Player) {
-                Player player = (Player) event.getEntity();
+            if (event.getEntity() instanceof Player player) {
                 Location origin = originLocation.get(player);
                 Location location = player.getLocation();
                 location.set(origin.getX(), origin.getY(), origin.getZ());
@@ -125,6 +139,7 @@ public class MoreChairs implements Listener {
             }
         }
     }
+
 
     @EventHandler
     public void on(PlayerJoinEvent event) {

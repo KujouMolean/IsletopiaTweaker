@@ -8,6 +8,7 @@ import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.shared.pojo.obj.NewPlayerObject;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import com.plotsquared.core.player.PlotPlayer;
 import com.plotsquared.core.plot.Plot;
@@ -70,7 +71,7 @@ public class NewbieOperation implements Listener {
                     List.of(Component.text("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r"),
                             Component.text("§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
             player.getInventory().addItem(clock);
-            NewPlayerObject newPlayerObject = new NewPlayerObject(player.getName(), MessageUtils.getLocalServerName());
+            NewPlayerObject newPlayerObject = new NewPlayerObject(player.getName(), IsletopiaTweakersUtils.getLocalServerName());
             ServerMessageUtils.sendMessage("waterfall", "NewPlayer", newPlayerObject);
         });
 

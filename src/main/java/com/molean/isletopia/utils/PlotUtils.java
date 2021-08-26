@@ -113,23 +113,6 @@ public class PlotUtils {
         return names;
     }
 
-    public static void localServerTeleport(Player source, String target) {
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            @SuppressWarnings("all") PlotPlayer sourcePlayer = plotAPI.wrapPlayer(source.getUniqueId());
-            Plot plot = getPlot(target);
-            plot.teleportPlayer(sourcePlayer, TeleportCause.PLUGIN, aBoolean -> {
-                String localServerName = MessageUtils.getLocalServerName();
-                PlotId id = plot.getId();
-                String title = "§6%1%:%2%,%3%"
-                        .replace("%1%", localServerName)
-                        .replace("%2%", id.getX() + "")
-                        .replace("%3%", id.getY() + "");
-                String subtitle = "§3由 %1% 所有".replace("%1%", target);
-                source.sendTitle(title, subtitle, 20, 40, 20);
-            });
-        });
-    }
-
     public static boolean hasPlot(String player) {
         List<String> servers = new ArrayList<>(ServerInfoUpdater.getServers());
         for (String server : servers) {

@@ -3,6 +3,7 @@ package com.molean.isletopia.infrastructure.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -10,6 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
 public class PlayerRidePlayer implements Listener {
@@ -20,6 +23,13 @@ public class PlayerRidePlayer implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerInteractEntityEvent event){
         if(!PlotUtils.hasCurrentPlotPermission(event.getPlayer())){
+            return;
+        }
+        PlayerInventory inventory = event.getPlayer().getInventory();
+        if (!inventory.getItemInMainHand().getType().equals(Material.AIR)) {
+            return;
+        }
+        if (!inventory.getItemInOffHand().getType().equals(Material.AIR)) {
             return;
         }
         Entity rightClicked = event.getRightClicked();

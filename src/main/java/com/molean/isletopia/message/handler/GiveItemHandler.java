@@ -1,11 +1,11 @@
 package com.molean.isletopia.message.handler;
 
 import com.molean.isletopia.shared.MessageHandler;
-import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
-import com.molean.isletopia.shared.pojo.req.GiveItemRequestObject;
-import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.pojo.req.GiveItemRequestObject;
+import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,8 +23,16 @@ public class GiveItemHandler implements MessageHandler<GiveItemRequestObject> {
     }
 
     @Override
-    public void handle(WrappedMessageObject wrappedMessageObject,GiveItemRequestObject message) {
+    public void handle(WrappedMessageObject wrappedMessageObject, GiveItemRequestObject message) {
         String player = message.getPlayer();
+
+        boolean noResponse = false;
+
+        if (player.startsWith("#")) {
+            player = player.substring(1);
+            noResponse = true;
+        }
+
         Player bukkitPlayer = Bukkit.getPlayer(player);
         if (bukkitPlayer == null || !bukkitPlayer.isOnline()) {
             return;
@@ -36,7 +44,10 @@ public class GiveItemHandler implements MessageHandler<GiveItemRequestObject> {
             material = Material.valueOf(message.getMaterial().toUpperCase(Locale.ROOT));
         } catch (Exception e) {
             commonReponseObject.setMessage("失败, " + message.getMaterial() + " 不存在!");
-            ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonReponseObject);
+            if (!noResponse) {
+
+                ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonReponseObject);
+            }
             return;
         }
 
@@ -55,6 +66,8 @@ public class GiveItemHandler implements MessageHandler<GiveItemRequestObject> {
         itemStack.setItemMeta(itemMeta);
         bukkitPlayer.getInventory().addItem(itemStack);
         commonReponseObject.setMessage("成功, " + message.getPlayer() + " 已经收到 " + message.getMaterial() + "!");
-        ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonReponseObject);
+        if (!noResponse) {
+            ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonReponseObject);
+        }
     }
 }

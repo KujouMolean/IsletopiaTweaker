@@ -46,10 +46,6 @@ public class ServerInfoUpdater implements MessageHandler<PlayerInfoObject> {
         RedisMessageListener.setHandler("PlayerInfo", this, PlayerInfoObject.class);
     }
 
-    public static UUID getUUID(String player) {
-        return UUID.nameUUIDFromBytes(("OfflinePlayer:" + player).getBytes(StandardCharsets.UTF_8));
-    }
-
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject,PlayerInfoObject message) {
         List<String> players = message.getPlayers();

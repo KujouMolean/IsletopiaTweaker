@@ -9,14 +9,15 @@ public class PlayTimeStatisticsDao {
 
     public static void checkTable() {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "create table if not exists playtime_statistics(\n" +
-                    "    id int auto_increment primary key not null ,\n" +
-                    "    player text not null ,\n" +
-                    "    server text not null ,\n" +
-                    "    startTimeStamp long not null,\n" +
-                    "    endTimeStamp long not null ,\n" +
-                    "    playtime long not null\n" +
-                    ")";
+            String sql = """
+                    create table if not exists playtime_statistics(
+                        id int auto_increment primary key not null ,
+                        player text not null ,
+                        server text not null ,
+                        startTimeStamp long not null,
+                        endTimeStamp long not null ,
+                        playtime long not null
+                    )""";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
 

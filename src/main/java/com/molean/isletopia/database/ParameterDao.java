@@ -9,16 +9,18 @@ import java.util.ArrayList;
 public class ParameterDao {
     public static void checkTable() {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "create table if not exists isletopia_parameters\n" +
-                    "(\n" +
-                    "    id      int auto_increment\n" +
-                    "        primary key,\n" +
-                    "    player  varchar(100) not null,\n" +
-                    "    p_key   varchar(100) not null,\n" +
-                    "    p_value text         null,\n" +
-                    "    constraint unique_parameter\n" +
-                    "        unique (player, p_key)\n" +
-                    ");\n";
+            String sql = """
+                    create table if not exists isletopia_parameters
+                    (
+                        id      int auto_increment
+                            primary key,
+                        player  varchar(100) not null,
+                        p_key   varchar(100) not null,
+                        p_value text         null,
+                        constraint unique_parameter
+                            unique (player, p_key)
+                    );
+                    """;
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
 

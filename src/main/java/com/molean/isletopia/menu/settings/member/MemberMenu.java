@@ -1,9 +1,10 @@
 package com.molean.isletopia.menu.settings.member;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.settings.SettingsMenu;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
+import com.molean.isletopia.other.ConfirmDialog;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -28,6 +29,17 @@ public class MemberMenu implements Listener {
     }
 
     public void open() {
+
+        if (!"true".equalsIgnoreCase(UniversalParameter.getParameter(player.getName(), "MemberConfirm"))) {
+            new ConfirmDialog(Component.text("添加岛屿成员后，你的岛员将能够随意破坏你的岛屿。" +
+                    "请不要随意乱加岛员，如果因为乱给权限导致岛屿被破坏，服务器将不给予任何帮助。\n\n\n\n\n")).accept(player1 -> {
+                UniversalParameter.setParameter(player1.getName(), "MemberConfirm", "true");
+                MemberMenu.this.open();
+            }).open(player);
+            return;
+        }
+
+
         for (int i = 0; i < 9; i++) {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());

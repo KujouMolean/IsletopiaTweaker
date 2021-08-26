@@ -5,6 +5,7 @@ import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.PlotUtils;
+import com.molean.isletopia.utils.UUIDUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
 import net.kyori.adventure.text.Component;
@@ -107,7 +108,7 @@ public class MemberRemoveMenu implements Listener {
             Plot currentPlot = PlotUtils.getCurrentPlot(player);
             assert currentPlot != null;
             if (currentPlot.getOwner().equals(player.getUniqueId())) {
-                currentPlot.removeTrusted(ServerInfoUpdater.getUUID(members.get(slot + page * 52)));
+                currentPlot.removeTrusted(UUIDUtils.get(members.get(slot + page * 52)));
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player).open());
             } else {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->

@@ -9,15 +9,16 @@ public class CustomStatisticsDao {
 
     public static void checkTable() {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "create table if not exists isletopia_statistics\n" +
-                    "(\n" +
-                    "    id    int auto_increment primary key,\n" +
-                    "    player text not null,\n" +
-                    "    name  text not null,\n" +
-                    "    count int  not null,\n" +
-                    "    constraint unique_parameter\n" +
-                    "        unique (player, name)\n" +
-                    ")";
+            String sql = """
+                    create table if not exists isletopia_statistics
+                    (
+                        id    int auto_increment primary key,
+                        player text not null,
+                        name  text not null,
+                        count int  not null,
+                        constraint unique_parameter
+                            unique (player, name)
+                    )""";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
 

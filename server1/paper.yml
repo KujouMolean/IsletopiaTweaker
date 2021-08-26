@@ -12,8 +12,9 @@
 
 use-display-name-in-quit-message: false
 verbose: false
-config-version: 20
+config-version: 21
 settings:
+  log-named-entity-deaths: true
   fix-entity-position-desync: true
   track-plugin-scoreboards: false
   max-joins-per-tick: 3
@@ -73,7 +74,9 @@ settings:
       page: 16384
   loggers:
     deobfuscate-stacktraces: true
+  use-display-name-in-quit-message: false
 timings:
+  url: https://timings.aikar.co/
   enabled: true
   verbose: true
   server-name-privacy: false
@@ -93,6 +96,8 @@ messages:
     connection-throttle: 连接已被搁置, 请稍等一会儿重连!
 world-settings:
   default:
+    show-sign-click-command-failure-msgs-to-player: false
+    allow-player-cramming-damage: false
     seed-based-feature-search-loads-chunks: true
     fix-items-merging-through-walls: false
     map-item-frame-cursor-limit: 128
@@ -250,12 +255,14 @@ world-settings:
     viewdistances:
       no-tick-view-distance: -1
     wandering-trader:
-      spawn-minute-length: 1200
-      spawn-day-length: 24000
-      spawn-chance-failure-increment: 25
-      spawn-chance-min: 25
-      spawn-chance-max: 75
+      spawn-minute-length: 24000
+      spawn-day-length: 0
+      spawn-chance-failure-increment: 1000
+      spawn-chance-min: 1000
+      spawn-chance-max: 1000
     entity-per-chunk-save-limit:
+      fireball: -1
+      small_fireball: -1
       experience_orb: -1
       snowball: -1
       ender_pearl: -1
@@ -277,3 +284,16 @@ world-settings:
       water-animals: -1
       water-ambient: -1
       ambient: -1
+    mob-effects:
+      undead-immune-to-certain-effects: true
+      spiders-immune-to-poison-effect: true
+      immune-to-wither-effect:
+        wither: true
+        wither-skeleton: true
+    tick-rates:
+      sensor:
+        villager:
+          secondarypoisensor: 40
+      behavior:
+        villager:
+          validatenearbypoi: -1

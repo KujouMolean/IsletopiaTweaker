@@ -4,9 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.infrastructure.individual.IslandInfoUpdater;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.utils.RedisUtils;
-import com.molean.isletopia.statistics.individual.IslandEnvironment;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +14,7 @@ import redis.clients.jedis.Jedis;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +23,7 @@ public class HeadUtils {
     public static ItemStack getSkullWithIslandInfo(String name) {
         ItemStack skull = getSkull(name);
         ItemMeta itemMeta = skull.getItemMeta();
-        UUID uuid = ServerInfoUpdater.getUUID(name);
+        UUID uuid = UUIDUtils.get(name);
         List<Component> componentList = new ArrayList<>();
         componentList.add(Component.text("§f岛屿状态: " + IslandInfoUpdater.getIslandStatus(uuid)));
         long area = IslandInfoUpdater.getArea(uuid);
@@ -40,8 +39,6 @@ public class HeadUtils {
             componentList.add(Component.text("§f创建日期: " + creation));
         }
 
-        componentList.add(Component.text("§f水污染等级: " + IslandEnvironment.getCachedWaterLevel(uuid)));
-        componentList.add(Component.text("§f碳排放等级: " + IslandEnvironment.getCachedPowerUsageLevel(uuid)));
         componentList.add(Component.text("§fPvP: " + IslandInfoUpdater.isEnablePvP(uuid)));
         componentList.add(Component.text("§f防火: " + IslandInfoUpdater.isAntiFire(uuid)));
 
@@ -50,12 +47,33 @@ public class HeadUtils {
         return skull;
     }
 
+    public static String getSkullValue(ItemStack head) {
+
+        try {
+            SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+            assert headMeta != null;
+            Field profileField = headMeta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            GameProfile gameProfile = (GameProfile) profileField.get(headMeta);
+            Collection<Property> textures = gameProfile.getProperties().get("textures");
+            for (Property texture : textures) {
+                String value = texture.getValue();
+                if (value != null) {
+                    return value;
+                }
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
     public static ItemStack getSkull(String name) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         assert headMeta != null;
         headMeta.displayName(Component.text("§f" + name));
-        GameProfile profile = new GameProfile(ServerInfoUpdater.getUUID(name), null);
+        GameProfile profile = new GameProfile(UUIDUtils.get(name), null);
         String skinValue;
 
         try (Jedis jedis = RedisUtils.getJedis()) {
@@ -88,7 +106,7 @@ public class HeadUtils {
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
         assert headMeta != null;
         headMeta.displayName(Component.text("§f" + name));
-        GameProfile profile = new GameProfile(ServerInfoUpdater.getUUID(name), null);
+        GameProfile profile = new GameProfile(UUIDUtils.get(name), null);
         profile.getProperties().put("textures", new Property("textures", value));
         try {
             Field profileField = headMeta.getClass().getDeclaredField("profile");

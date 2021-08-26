@@ -1,24 +1,15 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.utils.RedisUtils;
-import io.papermc.paper.event.player.PlayerBedFailEnterEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Piglin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.entity.EntityDropItemEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.entity.PiglinBarterEvent;
-import org.bukkit.event.player.PlayerBedEnterEvent;
-import org.bukkit.event.player.PlayerBedLeaveEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import redis.clients.jedis.Jedis;
+
+import java.util.Locale;
 
 public class TestListener implements Listener {
     public TestListener() {
@@ -27,19 +18,6 @@ public class TestListener implements Listener {
     }
 
 
-    @EventHandler
-    public void on(PlayerToggleSneakEvent event) {
-
-    }
 
 
-    @EventHandler
-    public void on(PlayerBedEnterEvent event) {
-
-    }
-
-    @EventHandler
-    public void on(PlayerBedLeaveEvent event){
-
-    }
 }

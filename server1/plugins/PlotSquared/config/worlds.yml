@@ -2,7 +2,6 @@ configuration_version: v5
 worlds:
   SkyWorld:
     flags:
-      use: '#signs, #stairs, #slabs, #wall_signs'
       pve: true
       pvp: false
       explosion: true

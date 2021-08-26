@@ -2,12 +2,11 @@ package com.molean.isletopia.message.handler;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.MessageHandler;
-import com.molean.isletopia.shared.pojo.req.TeleportRequest;
-import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
-import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
-import com.molean.isletopia.utils.DistributeUtils;
+import com.molean.isletopia.shared.pojo.WrappedMessageObject;
+import com.molean.isletopia.shared.pojo.req.TeleportRequest;
+import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -52,7 +51,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
         if (target == null) {
             teleportResponse.setResponse("no-player");
             teleportResponse.setResponseMessage("玩家不存在");
-            String playerServerName = DistributeUtils.getPlayerServerName(sourcePlayer);
+            String playerServerName = ServerInfoUpdater.getPlayerServerMap().get(sourcePlayer);
             ServerMessageUtils.sendMessage(playerServerName, "TeleportResponse", teleportResponse);
 
         } else {
@@ -66,7 +65,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
             }
             teleportResponse.setResponse("accepted");
             teleportResponse.setResponseMessage("");
-            String playerServerName = DistributeUtils.getPlayerServerName(sourcePlayer);
+            String playerServerName = ServerInfoUpdater.getPlayerServerMap().get(sourcePlayer);
             ServerMessageUtils.sendMessage(playerServerName, "TeleportResponse", teleportResponse);
         }
     }

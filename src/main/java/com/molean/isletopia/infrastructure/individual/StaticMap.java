@@ -20,8 +20,6 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.map.MapRenderer;
-import org.bukkit.map.MapView;
 import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -131,10 +128,11 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
                 return true;
             }
             colors = MapUtils.setPixel(colors, Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
-            NMSTagUtils.set(itemStack, "static-map", colors);
+            itemStack = NMSTagUtils.set(itemStack, "static-map", colors);
             ItemMeta itemMeta = itemStack.getItemMeta();
             MapUtils.updateStaticMap(colors, (MapMeta) itemMeta);
             itemStack.setItemMeta(itemMeta);
+            player.getInventory().setItemInMainHand(itemStack);
         }
         if (args[0].equalsIgnoreCase("fill")) {
             if (args.length < 6) {
@@ -148,10 +146,11 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
             int y2 = Integer.parseInt(args[4]);
             int c = Integer.parseInt(args[5]);
             colors = MapUtils.fillRectangle(colors, x1, y1, x2, y2, c);
-            NMSTagUtils.set(itemStack, "static-map", colors);
+            itemStack = NMSTagUtils.set(itemStack, "static-map", colors);
             ItemMeta itemMeta = itemStack.getItemMeta();
             MapUtils.updateStaticMap(colors, (MapMeta) itemMeta);
             itemStack.setItemMeta(itemMeta);
+            player.getInventory().setItemInMainHand(itemStack);
         }
         if (args[0].equalsIgnoreCase("image")) {
             if (args.length < 4) {
@@ -162,25 +161,20 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
             int x = Integer.parseInt(args[1]);
             int y = Integer.parseInt(args[2]);
             String url = args[3];
-            final String finalColor = colors;
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                BufferedImage read;
-                try {
-                    read = ImageIO.read(new URL(url));
-                } catch (IOException e) {
-                    player.sendMessage("URL is invalid!");
-                    return;
-                }
-                BufferedImage finalRead = read;
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    String newColor = MapUtils.drawImage(finalColor, x, y, finalRead);
-                    NMSTagUtils.set(itemStack, "static-map", newColor);
-                    ItemMeta itemMeta = itemStack.getItemMeta();
-                    MapUtils.updateStaticMap(newColor, (MapMeta) itemMeta);
-                    itemStack.setItemMeta(itemMeta);
-                });
-
-            });
+            BufferedImage read;
+            try {
+                read = ImageIO.read(new URL(url));
+            } catch (IOException e) {
+                player.sendMessage("URL is invalid!");
+                return true;
+            }
+            BufferedImage finalRead = read;
+            String newColor = MapUtils.drawImage(colors, x, y, finalRead);
+            itemStack = NMSTagUtils.set(itemStack, "static-map", newColor);
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            MapUtils.updateStaticMap(newColor, (MapMeta) itemMeta);
+            itemStack.setItemMeta(itemMeta);
+            player.getInventory().setItemInMainHand(itemStack);
         }
         if (args[0].equalsIgnoreCase("text")) {
             if (args.length < 4) {
@@ -192,10 +186,11 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
             int y = Integer.parseInt(args[2]);
             String text = args[3];
             colors = MapUtils.drawText(colors, x, y, MinecraftFont.Font, text);
-            NMSTagUtils.set(itemStack, "static-map", colors);
+            itemStack = NMSTagUtils.set(itemStack, "static-map", colors);
             ItemMeta itemMeta = itemStack.getItemMeta();
             MapUtils.updateStaticMap(colors, (MapMeta) itemMeta);
             itemStack.setItemMeta(itemMeta);
+            player.getInventory().setItemInMainHand(itemStack);
         }
         return true;
     }

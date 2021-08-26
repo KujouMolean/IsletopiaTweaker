@@ -16,13 +16,13 @@ public class DataSourceUtils {
     private static final Map<String, DruidDataSource> dataSourceMap = new HashMap<>();
 
     public static void checkDatabase() {
-       try(Connection connection = DataSourceUtils.getConnection("minecraft")) {
-           String sql = "create database if not exists " + ServerInfoUpdater.getServerName() + " default charset utf8;";
-           PreparedStatement preparedStatement = connection.prepareStatement(sql);
-           preparedStatement.execute();
-       } catch (SQLException throwables) {
-           throwables.printStackTrace();
-       }
+        try (Connection connection = DataSourceUtils.getConnection("minecraft")) {
+            String sql = "create database if not exists " + ServerInfoUpdater.getServerName() + " default charset utf8;";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.execute();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     public static Connection getConnection() {
@@ -47,6 +47,23 @@ public class DataSourceUtils {
             dataSource.setUrl(url);
             dataSource.setUsername(username);
             dataSource.setPassword(password);
+
+            //超过60秒不归还强制回收
+            dataSource.setRemoveAbandoned(true);
+            dataSource.setRemoveAbandonedTimeoutMillis(60000);
+            dataSource.setLogAbandoned(true);
+
+            //validate
+            dataSource.setValidationQueryTimeout(10);
+            dataSource.setValidationQuery("select 1");
+
+            //timeout
+            dataSource.setMaxWait(10000);
+            dataSource.setQueryTimeout(10);
+
+            //max active
+            dataSource.setMaxActive(64);
+
             dataSourceMap.put(server, dataSource);
         }
         Connection connection = null;

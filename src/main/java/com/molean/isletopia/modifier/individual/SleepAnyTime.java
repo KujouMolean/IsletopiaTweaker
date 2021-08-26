@@ -30,13 +30,18 @@ public class SleepAnyTime implements Listener, CommandExecutor {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         Objects.requireNonNull(Bukkit.getPluginCommand("getup")).setExecutor(this);
         Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+            sleepingPlayers.removeIf(player -> !player.isOnline());
             int size = sleepingPlayers.size();
             if (size > 0) {
-                world.setTime(world.getTime() + size * 20L);
+                world.setTime(world.getTime() + size);
             }
-            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 1 + size);
-        }, 0, 20);
+        }, 0, 1);
 
+        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+            sleepingPlayers.removeIf(player -> !player.isOnline());
+            int size = sleepingPlayers.size();
+            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 3 * (1 + size));
+        }, 0, 20);
     }
 
 
@@ -47,17 +52,17 @@ public class SleepAnyTime implements Listener, CommandExecutor {
             return;
         }
         switch (bedEnterResult) {
-            case NOT_POSSIBLE_NOW:
+            case NOT_POSSIBLE_NOW -> {
                 event.getPlayer().sleep(event.getBed().getLocation(), true);
                 event.setCancelled(true);
-                break;
-            case OK:
+            }
+            case OK -> {
                 sleepingPlayers.add(event.getPlayer());
                 sleepTickTimeMap.put(event.getPlayer(), Bukkit.getCurrentTick());
                 sleepDayTimeMap.put(event.getPlayer(), world.getFullTime());
                 event.getPlayer().sendMessage(Component.text("§8[§3温馨提示§8] §e睡眠将加快时间流速(+100%), 不会跳过夜晚."));
                 event.getPlayer().sendMessage(Component.text("§8[§3温馨提示§8] §c使用指令 /getup 起床, 点起床按钮无效!"));
-                break;
+            }
         }
     }
 

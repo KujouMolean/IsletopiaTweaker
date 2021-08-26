@@ -22,8 +22,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -119,11 +119,11 @@
             <artifactId>annotations</artifactId>
             <version>21.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.plotsquared</groupId>
-            <artifactId>PlotSquared-Bukkit</artifactId>
-            <version>6.0.7-SNAPSHOT</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.plotsquared</groupId>-->
+<!--            <artifactId>PlotSquared-Bukkit</artifactId>-->
+<!--            <version>6.0.7-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
@@ -142,7 +142,7 @@
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
-            <version>4.9.0-SNAPSHOT</version>
+            <version>4.8.1</version>
         </dependency>
         <dependency>
             <groupId>com.mojang</groupId>

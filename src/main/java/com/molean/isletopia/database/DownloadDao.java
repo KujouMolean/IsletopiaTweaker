@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.PlotUtils;
 import com.molean.isletopia.utils.SaveUtils;
+import com.molean.isletopia.utils.UUIDUtils;
 import com.plotsquared.core.PlotSquared;
 import com.plotsquared.core.plot.Plot;
 
@@ -23,14 +24,15 @@ public class DownloadDao {
 
     public static void checkTable() {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "create table if not exists isletopia_save\n" +
-                    "(\n" +
-                    "    id     int primary key auto_increment,\n" +
-                    "    player text     not null,\n" +
-                    "    data   longblob not null,\n" +
-                    "    time   long     not null,\n" +
-                    "    token  text     not null\n" +
-                    ");";
+            String sql = """
+                    create table if not exists isletopia_save
+                    (
+                        id     int primary key auto_increment,
+                        player text     not null,
+                        data   longblob not null,
+                        time   long     not null,
+                        token  text     not null
+                    );""";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
 
@@ -48,31 +50,11 @@ public class DownloadDao {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-
-    }
-
-    public static UUID getOnlineUUID(String player) throws IOException {
-        try {
-            URL url = new URL("https://api.mojang.com/users/profiles/minecraft/" + player);
-            InputStream inputStream = url.openStream();
-            byte[] bytes = inputStream.readAllBytes();
-            JsonParser jsonParser = new JsonParser();
-            JsonElement parse = jsonParser.parse(new String(bytes));
-            JsonObject asJsonObject = parse.getAsJsonObject();
-            JsonElement id = asJsonObject.get("id");
-            String asString = id.getAsString();
-            return UUID.fromString(asString.replaceFirst(
-                    "(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)",
-                    "$1-$2-$3-$4-$5"));
-        } catch (Exception e) {
-            return ServerInfoUpdater.getUUID(player);
-        }
     }
 
     public static String uploadSave(Plot plot) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String player = PlotSquared.get().getImpromptuUUIDPipeline().getSingle(plot.getOwner(), 100L);
-        UUID onlineUUID = getOnlineUUID(player);
         deleteOld(player);
         UUID owner = plot.getOwner();
         File plotRegionFile = PlotUtils.getPlotRegionFile(plot);
@@ -101,29 +83,18 @@ public class DownloadDao {
         byte[] playerStatsBytes = playerStatsInputStream.readAllBytes();
         byte[] playerDataBytes = playerDataInputStream.readAllBytes();
         ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
-        zipOutputStream.putNextEntry(new ZipEntry(levelFile.getName()));
+        zipOutputStream.putNextEntry(new ZipEntry("SkyWorld/" + levelFile.getName()));
         zipOutputStream.write(levelBytes);
-        zipOutputStream.putNextEntry(new ZipEntry("/region/" + plotRegionFile.getName()));
+        zipOutputStream.putNextEntry(new ZipEntry("SkyWorld/region/" + plotRegionFile.getName()));
         zipOutputStream.write(regionBytes);
-        zipOutputStream.putNextEntry(new ZipEntry("/stats/" + playerStatsFile.getName()));
+        zipOutputStream.putNextEntry(new ZipEntry("SkyWorld/stats/" + playerStatsFile.getName()));
         zipOutputStream.write(playerStatsBytes);
-        zipOutputStream.putNextEntry(new ZipEntry("/playerdata/" + playerDataFile.getName()));
+        zipOutputStream.putNextEntry(new ZipEntry("SkyWorld/playerdata/" + playerDataFile.getName()));
         zipOutputStream.write(playerDataBytes);
-
-        try {
-            zipOutputStream.putNextEntry(new ZipEntry("/stats/" + onlineUUID.toString() + ".json"));
-            zipOutputStream.write(playerStatsBytes);
-            zipOutputStream.putNextEntry(new ZipEntry("/playerdata/" + onlineUUID.toString() + ".dat"));
-            zipOutputStream.write(playerDataBytes);
-        } catch (IOException e) {
-
-        }
-
-
         zipOutputStream.close();
+
         byte[] data = outputStream.toByteArray();
         String token = UUID.randomUUID().toString().substring(0, 8);
-
         try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "insert into minecraft.isletopia_save(player, data, time, token) values (?,?,?,?);";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
