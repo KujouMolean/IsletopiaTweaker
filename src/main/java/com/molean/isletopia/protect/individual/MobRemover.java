@@ -14,6 +14,8 @@ public class MobRemover implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
+
+    //remove bat and wither
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void MobSpawn(EntitySpawnEvent event) {
         if (EntityType.BAT.equals(event.getEntity().getType())) {

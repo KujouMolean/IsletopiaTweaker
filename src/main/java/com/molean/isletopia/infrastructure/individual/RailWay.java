@@ -34,41 +34,37 @@ public class RailWay implements Listener {
             List<Block> connectedRails = getConnectedRails(init);
             Direction direction = Direction.getDirection(event.getPlayer());
             switch (direction) {
-                case NORTH: {
+                case NORTH -> {
                     for (Block connectedRail : connectedRails) {
                         if (connectedRail.getZ() < lastBlock.getZ()) {
                             now = connectedRail;
                             break;
                         }
                     }
-                    break;
                 }
-                case EAST: {
+                case EAST -> {
                     for (Block connectedRail : connectedRails) {
                         if (connectedRail.getX() > lastBlock.getX()) {
                             now = connectedRail;
                             break;
                         }
                     }
-                    break;
                 }
-                case SOUTH: {
+                case SOUTH -> {
                     for (Block connectedRail : connectedRails) {
                         if (connectedRail.getZ() > lastBlock.getZ()) {
                             now = connectedRail;
                             break;
                         }
                     }
-                    break;
                 }
-                case WEST: {
+                case WEST -> {
                     for (Block connectedRail : connectedRails) {
                         if (connectedRail.getX() < lastBlock.getX()) {
                             now = connectedRail;
                             break;
                         }
                     }
-                    break;
                 }
             }
         }

@@ -1,18 +1,13 @@
 
 package com.molean.isletopia.database;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
-import com.molean.isletopia.utils.PlotUtils;
+import com.molean.isletopia.island.Island;
 import com.molean.isletopia.utils.SaveUtils;
-import com.molean.isletopia.utils.UUIDUtils;
-import com.plotsquared.core.PlotSquared;
-import com.plotsquared.core.plot.Plot;
 
-import java.io.*;
-import java.net.URL;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -52,14 +47,14 @@ public class DownloadDao {
         }
     }
 
-    public static String uploadSave(Plot plot) throws IOException {
+    public static String uploadSave(Island plot) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        String player = PlotSquared.get().getImpromptuUUIDPipeline().getSingle(plot.getOwner(), 100L);
-        deleteOld(player);
-        UUID owner = plot.getOwner();
-        File plotRegionFile = PlotUtils.getPlotRegionFile(plot);
-        File playerStatsFile = SaveUtils.getPlayerStatsFile(owner);
-        File playerDataFile = SaveUtils.getPlayerDataFile(owner);
+        deleteOld(plot.getOwner());
+        File plotRegionFile = plot.getRegionFile();
+        File playerStatsFile = SaveUtils.getPlayerStatsFile(plot.getOwner());
+        File playerDataFile = SaveUtils.getPlayerDataFile(plot.getOwner());
+
+
         File levelFile = SaveUtils.getLevelFile();
         if (!plotRegionFile.exists() && !plotRegionFile.createNewFile()) {
             throw new IOException();
@@ -98,7 +93,7 @@ public class DownloadDao {
         try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "insert into minecraft.isletopia_save(player, data, time, token) values (?,?,?,?);";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, player);
+            preparedStatement.setString(1, plot.getOwner());
             preparedStatement.setBytes(2, data);
             preparedStatement.setLong(3, System.currentTimeMillis());
             preparedStatement.setString(4, token);

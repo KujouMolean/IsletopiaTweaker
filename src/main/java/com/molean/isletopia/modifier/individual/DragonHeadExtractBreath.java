@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
@@ -27,7 +28,7 @@ public class DragonHeadExtractBreath implements Listener {
 
     @EventHandler
     public void on(PlayerInteractEvent event) {
-        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
             return;
         }
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {

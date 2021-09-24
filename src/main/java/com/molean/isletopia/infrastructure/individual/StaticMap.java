@@ -1,10 +1,10 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.MapUtils;
 import com.molean.isletopia.utils.NMSTagUtils;
-import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
@@ -58,7 +59,7 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
 
 
     @EventHandler
-    public void onSyncCom(SyncCompleteEvent event) {
+    public void onJoin(PlayerDataSyncCompleteEvent event) {
         ItemStack itemStack = event.getPlayer().getInventory().getItemInMainHand();
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
             if (!itemStack.getType().equals(Material.FILLED_MAP)) {

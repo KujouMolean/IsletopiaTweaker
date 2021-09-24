@@ -2,11 +2,11 @@ package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +22,7 @@ public class ElytraLimiter implements Listener {
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
+    public void onJoin(PlayerDataSyncCompleteEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             List<String> parameterAsList = UniversalParameter.getParameterAsList("Molean", "elytra");
             if (!parameterAsList.contains(event.getPlayer().getName())) {
@@ -53,5 +53,6 @@ public class ElytraLimiter implements Listener {
         event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), chestplate);
         event.getPlayer().getInventory().setChestplate(null);
         event.getPlayer().sendMessage("§c抱歉, 使用该物品需要经过管理员审核!");
+        event.getPlayer().sendMessage("§c(新获取的鞘翅需要重进服务器以获得权限)!");
     }
 }

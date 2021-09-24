@@ -1,6 +1,8 @@
 package com.molean.isletopia.modifier.individual;
 
+import com.google.protobuf.Message;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -33,12 +35,12 @@ public class NetherPortal implements Listener {
 
     @EventHandler
     public void onPlayer(EntityPortalEnterEvent event) {
-        if (event.getEntity() instanceof Player) {
+        if (event.getEntity() instanceof Player player) {
             if (!map.containsKey(event.getEntity().getUniqueId())) {
                 map.put(event.getEntity().getUniqueId(), System.currentTimeMillis());
             } else if (System.currentTimeMillis() - map.get(event.getEntity().getUniqueId()) > 4000) {
-                ((Player) event.getEntity()).setHealth(0);
-                event.getEntity().sendMessage("§8[§3温馨提示§8] §e下界已被关闭, 如需地狱生物, 请切换到地狱生物群系.");
+                player.setHealth(0);
+                MessageUtils.notify(player, "下界已被关闭, 如需地狱生物, 请切换到地狱生物群系.");
                 map.remove(event.getEntity().getUniqueId());
             }
         }

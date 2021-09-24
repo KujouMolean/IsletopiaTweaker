@@ -1,6 +1,7 @@
 package com.molean.isletopia.message.handler;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.shared.MessageHandler;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
@@ -29,7 +30,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
 
 
     @EventHandler
-    public void on(PlayerJoinEvent event) {
+    public void on(PlayerDataSyncCompleteEvent event) {
         String name = event.getPlayer().getName();
         Location location = this.locationMap.get(name);
         if (location != null) {

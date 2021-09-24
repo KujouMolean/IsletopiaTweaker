@@ -31,12 +31,12 @@ public class InboxMenu implements Listener {
 
     private static final Gson GSON = new Gson();
 
-    private Map<Integer, UUID> map = new HashMap<>();
+    private final Map<Integer, UUID> map = new HashMap<>();
 
 
     public InboxMenu(Player player) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 36, Component.text("扩展合成表"));
+        inventory = Bukkit.createInventory(player, 36, Component.text("邮箱"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
@@ -111,9 +111,7 @@ public class InboxMenu implements Listener {
                     });
                 } else {
                     player.sendMessage("§c数据不一致, 请重新领取");
-
                 }
-
                 new InboxMenu(player).open();
             });
 

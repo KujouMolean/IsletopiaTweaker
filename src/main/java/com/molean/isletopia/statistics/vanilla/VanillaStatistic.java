@@ -2,6 +2,7 @@ package com.molean.isletopia.statistics.vanilla;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.VanillaStatisticsDao;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -53,7 +54,7 @@ public class VanillaStatistic implements Listener {
     }
 
     @EventHandler
-    public void on(PlayerJoinEvent event) {
+    public void on(PlayerDataSyncCompleteEvent event) {
         Player player = event.getPlayer();
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             complete.put(player.getName(), false);

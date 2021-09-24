@@ -2,6 +2,8 @@ package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.utils.MessageUtils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -34,7 +36,7 @@ public class LuckyColor implements Listener, CommandExecutor {
     public static Map<String, Color> colorMap = new HashMap<>();
 
     @EventHandler
-    public void playerJoin(PlayerJoinEvent event){
+    public void playerJoin(PlayerDataSyncCompleteEvent event){
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Player player = event.getPlayer();
             int r,g,b;
@@ -59,8 +61,8 @@ public class LuckyColor implements Listener, CommandExecutor {
                 UniversalParameter.setParameter(player.getName(), "lastLuckyColor", format);
 
                 ChatColor chatColor = ChatColor.of(new Color(r, g, b));
-                String message = String.format("§8[§3温馨提示§8] §e今日的幸运色为: #█§e(%d,%d,%d)#█", r, g, b);
-                player.sendMessage(message.replaceAll("#",chatColor.toString()));
+                String message = String.format("今日的幸运色为: #█§e(%d,%d,%d)#█", r, g, b);
+                MessageUtils.notify(event.getPlayer(), message.replaceAll("#", chatColor.toString()));
             }
 
             colorMap.put(player.getName(), new  Color(r, g, b));
@@ -76,8 +78,8 @@ public class LuckyColor implements Listener, CommandExecutor {
         {
             Color color = colorMap.get(player.getName());
             ChatColor chatColor = ChatColor.of(color);
-            String message = String.format("§8[§3温馨提示§8] §e今日的幸运色为: #█§e(%d,%d,%d)#█", color.getRed(), color.getGreen(), color.getBlue());
-            player.sendMessage(message.replaceAll("#",chatColor.toString()));
+            String message = String.format("今日的幸运色为: #█§e(%d,%d,%d)#█", color.getRed(), color.getGreen(), color.getBlue());
+            MessageUtils.notify(player, message.replaceAll("#", chatColor.toString()));
         }
         ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
         if (itemInMainHand.getType().equals(Material.AIR)) {
@@ -92,8 +94,8 @@ public class LuckyColor implements Listener, CommandExecutor {
 
 
             ChatColor chatColor = ChatColor.of(new Color(r, g, b));
-            String format = String.format("§8[§3温馨提示§8] §e手上物品的颜色是: #█§e(%d,%d,%d)#█", r, g, b);
-            player.sendMessage(format.replaceAll("#",chatColor.toString()));
+            String format = String.format("手上物品的颜色是: #█§e(%d,%d,%d)#█", r, g, b);
+            MessageUtils.notify(player, format.replaceAll("#", chatColor.toString()));
         }
         return true;
     }

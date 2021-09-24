@@ -1,6 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,7 +23,7 @@ public class PlayerRidePlayer implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerInteractEntityEvent event){
-        if(!PlotUtils.hasCurrentPlotPermission(event.getPlayer())){
+        if(!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())){
             return;
         }
         PlayerInventory inventory = event.getPlayer().getInventory();

@@ -2,6 +2,7 @@ package com.molean.isletopia.statistics.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.PlayTimeStatisticsDao;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -22,7 +23,7 @@ public class PlayTime implements Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerDataSyncCompleteEvent event) {
         long timeStamp = Calendar.getInstance().getTimeInMillis();
         playerJoinTime.put(event.getPlayer().getName(), timeStamp);
     }

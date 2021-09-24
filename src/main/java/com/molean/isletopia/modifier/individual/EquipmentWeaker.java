@@ -2,7 +2,8 @@ package com.molean.isletopia.modifier.individual;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.molean.isletopia.IsletopiaTweakers;
-import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ArmoredHorseInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -78,7 +80,7 @@ public class EquipmentWeaker implements Listener {
     private static final Map<OfflinePlayer, Boolean> syncComplete = new HashMap<>();
 
     @EventHandler
-    public void onSyncComplete(SyncCompleteEvent event) {
+    public void onSyncComplete(PlayerDataSyncCompleteEvent event) {
         syncComplete.put(event.getPlayer(), false);
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
             syncComplete.put(event.getPlayer(), true);
@@ -101,8 +103,8 @@ public class EquipmentWeaker implements Listener {
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), (task) -> {
             if (uuid == map.get(event.getPlayer())) {
                 double damageMultiplier = getDamageMultiplier(event.getPlayer());
-                String format = String.format("§8[§3温馨提示§8] §e你更新了装备, 受到的伤害被修正为: %.2fx", damageMultiplier);
-                event.getPlayer().sendMessage(format);
+                String format = String.format("你更新了装备, 受到的伤害被修正为: %.2fx", damageMultiplier);
+                MessageUtils.notify(event.getPlayer(), format);
             }
 
         }, 50L);

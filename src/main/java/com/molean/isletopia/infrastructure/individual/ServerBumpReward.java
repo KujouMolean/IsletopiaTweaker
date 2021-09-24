@@ -27,18 +27,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ServerBumpReward implements CommandExecutor, TabCompleter {
-
     public static class BumpInfo {
         private final int uid;
         private final String username;
         private final LocalDateTime dateTime;
-
         public BumpInfo(int uid, String username, LocalDateTime dateTime) {
             this.uid = uid;
             this.username = username;
             this.dateTime = dateTime;
         }
-
         @Override
         public String toString() {
             return "BumpInfo{" +

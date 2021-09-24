@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.sk89q.worldedit.bukkit.fastutil.Hash;
 import org.bukkit.Material;
 
 import java.io.IOException;
@@ -13,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.bukkit.Material.*;
-import static org.bukkit.Material.BIG_DRIPLEAF_STEM;
 
 public class BlockHeadUtils {
     public static class HeadBlock {
@@ -55,7 +53,7 @@ public class BlockHeadUtils {
         }
     }
 
-    public static Map<Material, Set<String>> getBlockHeadMap(){
+    public static Map<Material, Set<String>> getBlockHeadMap() {
         Map<Material, Set<String>> blocks = new HashMap<>();
         Gson gson = new Gson();
         InputStream resourceAsStream = BlockHeadUtils.class.getClassLoader().getResourceAsStream("blocks.json");

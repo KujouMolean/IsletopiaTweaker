@@ -2,6 +2,7 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -142,7 +143,7 @@ public class MoreChairs implements Listener {
 
 
     @EventHandler
-    public void on(PlayerJoinEvent event) {
+    public void on(PlayerDataSyncCompleteEvent event) {
         Entity vehicle = event.getPlayer().getVehicle();
         if (vehicle instanceof ArmorStand) {
             vehicle.eject();

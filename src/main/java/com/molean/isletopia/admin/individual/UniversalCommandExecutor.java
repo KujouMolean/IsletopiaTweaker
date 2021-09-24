@@ -36,23 +36,20 @@ public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
         }
         CommandExecuteRequest obj = new CommandExecuteRequest(cmd.toString());
         switch (serverName) {
-            case "servers": {
+            case "servers" -> {
                 for (String server : ServerInfoUpdater.getServers()) {
-                    if(server.startsWith("server")){
-                        ServerMessageUtils.sendMessage(server,"CommandExecuteRequest",obj);
+                    if (server.startsWith("server")) {
+                        ServerMessageUtils.sendMessage(server, "CommandExecuteRequest", obj);
                     }
 
                 }
-                break;
             }
-            case "all": {
+            case "all" -> {
                 for (String server : ServerInfoUpdater.getServers()) {
-                    ServerMessageUtils.sendMessage(server,"CommandExecuteRequest",obj);
+                    ServerMessageUtils.sendMessage(server, "CommandExecuteRequest", obj);
                 }
-                break;
             }
-            default:
-                ServerMessageUtils.sendMessage(serverName, "CommandExecuteRequest", obj);
+            default -> ServerMessageUtils.sendMessage(serverName, "CommandExecuteRequest", obj);
         }
         return true;
     }

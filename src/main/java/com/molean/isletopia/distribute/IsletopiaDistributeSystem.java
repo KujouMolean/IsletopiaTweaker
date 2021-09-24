@@ -18,6 +18,7 @@ public class IsletopiaDistributeSystem {
             new ServerInfoUpdater();
             new LastServerUpdater();
             new ClubServer();
+            new PlayerDataSync();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia distribute failed!");

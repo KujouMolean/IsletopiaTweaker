@@ -28,10 +28,9 @@ public class UniversalPlayerSender implements CommandExecutor, TabCompleter {
         if (!sender.isOp()) {
             return true;
         }
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             return true;
         }
-        Player player = (Player) sender;
         if (args.length < 2) {
             return true;
         }

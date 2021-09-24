@@ -10,9 +10,6 @@ public class IsletopiaMessage {
     public IsletopiaMessage() {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try {
-
-
-            new VisitNotificationHandler();
             new SkinValueHandler();
             new PlaySoundHandler();
             new GiveItemHandler();

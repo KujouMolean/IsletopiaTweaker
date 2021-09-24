@@ -2,7 +2,7 @@ package com.molean.isletopia.charge;
 
 public class PlayerChargeDetailUtils {
     public static final long DISPENSER_TIMES = 2000;
-    public static final long PISTON_TIMES = 500;
+    public static final long PISTON_TIMES = 200;
     public static final long REDSTONE_TIMES = 2000;
     public static final long HOPPER_TIMES = 4000;
     public static final long TNT_TIMES = 50;
@@ -10,17 +10,18 @@ public class PlayerChargeDetailUtils {
     public static final long VEHICLE_TIMES = 2000;
     public static final long WATER_TIMES = 100;
 
-    public static final long POWER_INITIAL = 0;
+    public static final long POWER_INITIAL = 1000;
     public static final long POWER_PER_BUY = 10000;
-    public static final long POWER_PER_PRODUCE = 25;
+    public static final long POWER_PER_PRODUCE = 10;
     public static final long POWER_PER_ONLINE = 50;
 
-    public static final long WATER_INITIAL = 0;
+    public static final long WATER_INITIAL = 1000;
     public static final long WATER_PER_BUY = 10000;
-    public static final long WATER_PER_PRODUCE = 25;
+    public static final long WATER_PER_PRODUCE = 10;
     public static final long WATER_PER_ONLINE = 50;
 
 
+    //获取用户总用电量
     public static long getTotalPowerUsage(PlayerChargeDetail playerChargeDetail) {
         long powerUsage = 0;
         powerUsage += playerChargeDetail.getDispenser() / DISPENSER_TIMES;
@@ -33,41 +34,48 @@ public class PlayerChargeDetailUtils {
         return powerUsage;
     }
 
+    //获取用户发射器用电量
     public static long getDispenserPowerUsage(PlayerChargeDetail playerChargeDetail) {
         return playerChargeDetail.getDispenser() / DISPENSER_TIMES;
     }
 
+    //获取用户活塞用电量
     public static long getPistonPowerUsage(PlayerChargeDetail playerChargeDetail) {
         return playerChargeDetail.getPiston() / PISTON_TIMES;
     }
 
+    //获取用户红石用电量
     public static long getRedstonePowerUsage(PlayerChargeDetail playerChargeDetail) {
         return playerChargeDetail.getRedstone() / REDSTONE_TIMES;
-
     }
 
+    //获取用户漏斗用电量
     public static long getHopperPowerUsage(PlayerChargeDetail playerChargeDetail) {
         return playerChargeDetail.getHopper() / HOPPER_TIMES;
     }
 
+    //获取用户Tnt用电量
     public static long getTntPowerUsage(PlayerChargeDetail playerChargeDetail) {
         return playerChargeDetail.getTnt() / TNT_TIMES;
 
     }
 
+    //获取用户熔炉用电量
     public static long getFurnacePowerUsage(PlayerChargeDetail playerChargeDetail) {
         return playerChargeDetail.getFurnace() / FURNACE_TIMES;
     }
 
+    //获取用户矿车用电量
     public static long getVehiclePowerUsage(PlayerChargeDetail playerChargeDetail) {
         return playerChargeDetail.getVehicle() / VEHICLE_TIMES;
     }
 
-
+    //获取用户用水量
     public static long getTotalWaterUsage(PlayerChargeDetail playerChargeDetail) {
         return playerChargeDetail.getWater() / WATER_TIMES;
     }
 
+    //获取用户总电量
     public static long getTotalPower(PlayerChargeDetail playerChargeDetail) {
         long powerTotal = 0;
         powerTotal += playerChargeDetail.getPowerChargeTimes() * POWER_PER_BUY;

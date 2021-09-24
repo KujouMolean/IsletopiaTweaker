@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -25,8 +26,7 @@ public class SleepAnyTime implements Listener, CommandExecutor {
     private final World world;
 
     public SleepAnyTime() {
-        world = Bukkit.getWorld("SkyWorld");
-        assert world != null;
+        world = IsletopiaTweakers.getWorld();
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         Objects.requireNonNull(Bukkit.getPluginCommand("getup")).setExecutor(this);
         Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
@@ -60,8 +60,9 @@ public class SleepAnyTime implements Listener, CommandExecutor {
                 sleepingPlayers.add(event.getPlayer());
                 sleepTickTimeMap.put(event.getPlayer(), Bukkit.getCurrentTick());
                 sleepDayTimeMap.put(event.getPlayer(), world.getFullTime());
-                event.getPlayer().sendMessage(Component.text("§8[§3温馨提示§8] §e睡眠将加快时间流速(+100%), 不会跳过夜晚."));
-                event.getPlayer().sendMessage(Component.text("§8[§3温馨提示§8] §c使用指令 /getup 起床, 点起床按钮无效!"));
+                MessageUtils.notify(event.getPlayer(), "睡眠将加快时间流速(+100%), 不会跳过夜晚.");
+                MessageUtils.strong(event.getPlayer(), "使用指令 /getup 起床, 点起床按钮无效!");
+
             }
         }
     }
@@ -88,8 +89,8 @@ public class SleepAnyTime implements Listener, CommandExecutor {
             player.teleport(Objects.requireNonNull(player.getBedSpawnLocation()));
             int sleepTicks = Bukkit.getCurrentTick() - sleepTickTimeMap.get(player);
             long sleepDayTime = world.getFullTime() - sleepDayTimeMap.get(player);
-            player.sendMessage("§8[§3温馨提示§8] §e早上好, 你实际睡眠" + sleepTicks + "gt, 总共过去了" + sleepDayTime + "gt.");
-            player.sendMessage("§8[§3温馨提示§8] §e昨晚的睡眠质量" + (sleepTicks % 2 == 0 ? "很不错" : "很差") + ".");
+            MessageUtils.info(player,"早上好, 你实际睡眠" + sleepTicks + "gt, 总共过去了" + sleepDayTime + "gt.");
+            MessageUtils.info(player, "昨晚的睡眠质量" + (sleepTicks % 2 == 0 ? "很不错" : "很差") + ".");
         }
         return true;
     }

@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
@@ -90,7 +91,7 @@ public class FertilizeFlower implements Listener {
         if (!relative.getType().equals(Material.AIR)) {
             return;
         }
-        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
             return;
         }
         Random random = new Random();

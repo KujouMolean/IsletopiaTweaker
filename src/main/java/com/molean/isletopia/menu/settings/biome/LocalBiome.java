@@ -83,10 +83,9 @@ public enum LocalBiome {
     CRIMSON_FOREST("绯红森林", Material.CRIMSON_ROOTS, List.of("猪灵", "僵尸猪灵", "疣猪兽", "炽足兽"), List.of("")),
     WARPED_FOREST("诡异森林", Material.WARPED_ROOTS, List.of("末影人", "炽足兽"), List.of("")),
     BASALT_DELTAS("玄武岩三角洲", Material.BASALT, List.of("恶魂", "岩浆怪", "炽足兽"), List.of("")),
-    DRIPSTONE_CAVES("溶洞", Material.PLAYER_HEAD, List.of(""), List.of("")),
-    LUSH_CAVES("繁茂洞穴", Material.PLAYER_HEAD, List.of(""), List.of("")),
-    CUSTOM("未知", Material.PLAYER_HEAD, List.of(""), List.of("")),
-    ;
+    DRIPSTONE_CAVES("溶洞", Material.PLAYER_HEAD, List.of("?"), List.of("?")),
+    LUSH_CAVES("繁茂洞穴", Material.PLAYER_HEAD, List.of("?"), List.of("?")),
+    CUSTOM("未知", Material.PLAYER_HEAD, List.of("?"), List.of("?"));
 
 
     private String name;

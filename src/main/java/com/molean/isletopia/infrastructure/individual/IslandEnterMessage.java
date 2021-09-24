@@ -1,20 +1,17 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandId;
+import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
-import com.molean.isletopia.utils.PlotUtils;
-import com.plotsquared.core.PlotSquared;
-import com.plotsquared.core.plot.Plot;
-import com.plotsquared.core.plot.PlotId;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-
-import java.util.UUID;
 
 public class IslandEnterMessage implements Listener {
 
@@ -22,57 +19,36 @@ public class IslandEnterMessage implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    public void sendEnterMessage(Player player, int toPlotX, int toPlotZ) {
-        Plot plot = PlotUtils.getFirstPlotArea().getPlot(PlotId.of(toPlotX + 1, toPlotZ + 1));
-        if (plot == null) {
+    public void sendEnterMessage(Player player, IslandId to) {
+
+        Island island = IslandManager.INSTANCE.getIsland(to);
+        if (island == null) {
             return;
         }
-        String alias = plot.getAlias();
+
+        String alias = island.getName();
         String title;
-        if (alias.isEmpty()) {
+        if (alias == null || alias.isEmpty()) {
             title = "§6%1%:%2%,%3%"
                     .replace("%1%", IsletopiaTweakersUtils.getLocalServerName())
-                    .replace("%2%", toPlotX + 1 + "")
-                    .replace("%3%", toPlotZ + 1 + "");
+                    .replace("%2%", to.getX() + "")
+                    .replace("%3%", to.getZ() + "");
         } else {
             title = "§6%1%:%2%"
                     .replace("%1%", IsletopiaTweakersUtils.getLocalServerName())
                     .replace("%2%", alias);
         }
+        String subtitle = "§3由 %1% 所有".replace("%1%", island.getOwner());
+        player.sendTitle(title, subtitle, 20, 40, 20);
+    }
 
-        UUID owner = plot.getOwner();
-        if (owner == null) {
+    @EventHandler(ignoreCancelled = true)
+    public void on(PlayerIslandChangeEvent event) {
+        Island to = event.getTo();
+        if (to == null) {
             return;
         }
-        PlotSquared.get().getImpromptuUUIDPipeline().getSingle(owner, (ownerName, throwable) -> {
-            ownerName = ownerName == null ? "未知" : ownerName;
-            String subtitle = "§3由 %1% 所有".replace("%1%", ownerName);
-            player.sendTitle(title, subtitle, 20, 40, 20);
-        });
-    }
-
-    @EventHandler
-    public void on(PlayerMoveEvent event) {
-        Location from = event.getFrom();
-        Location to = event.getTo();
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            int fromPlotX = Math.floorDiv(from.getBlockX(), 512);
-            int fromPlotZ = Math.floorDiv(from.getBlockZ(), 512);
-            int toPlotX = Math.floorDiv(to.getBlockX(), 512);
-            int toPlotZ = Math.floorDiv(to.getBlockZ(), 512);
-            if (fromPlotX != toPlotX || fromPlotZ != toPlotZ) {
-                sendEnterMessage(event.getPlayer(), toPlotX, toPlotZ);
-            }
-        });
-
-    }
-
-    @EventHandler
-    public void on(PlayerJoinEvent event) {
-        Location to = event.getPlayer().getLocation();
-        int toPlotX = Math.floorDiv(to.getBlockX(), 512);
-        int toPlotZ = Math.floorDiv(to.getBlockZ(), 512);
-        sendEnterMessage(event.getPlayer(), toPlotX, toPlotZ);
+        sendEnterMessage(event.getPlayer(), to.getIslandId());
     }
 
 }

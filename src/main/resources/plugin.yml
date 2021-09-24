@@ -2,11 +2,19 @@ name: IsletopiaTweakers
 version: 1.0-SNAPSHOT
 main: com.molean.isletopia.IsletopiaTweakers
 api-version: 1.13
+load: STARTUP
 denpend:
   - PlotSquared
 commands:
   cmd: { }
+  isadmin:
+    aliases:
+      - isa
+      - isadmin
+      - islandadmin
+    permission: isletopia.admin
   mail: { }
+  inbox: { }
   isdebug:
     permission: isletopia.isdebug
   clubrealm: { }

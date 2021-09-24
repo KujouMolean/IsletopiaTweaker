@@ -4,11 +4,10 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.charge.PlayerChargeDetail;
 import com.molean.isletopia.charge.PlayerChargeDetailCommitter;
 import com.molean.isletopia.charge.PlayerChargeDetailUtils;
+import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
-import com.molean.isletopia.utils.PlotUtils;
-import com.molean.isletopia.utils.UUIDUtils;
-import com.plotsquared.core.plot.Plot;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -31,9 +30,8 @@ public class PlayerChargeMenu implements Listener {
 
     public PlayerChargeMenu(Player player) {
         this.player = player;
-        Plot currentPlot = PlotUtils.getCurrentPlot(player);
-        assert currentPlot != null;
-        ownerName = UUIDUtils.get(currentPlot.getOwner());
+        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+        ownerName = currentPlot.getOwner();
         inventory = Bukkit.createInventory(player, 27, Component.text("§f水电系统"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
@@ -42,10 +40,10 @@ public class PlayerChargeMenu implements Listener {
         ItemStackSheet bills = new ItemStackSheet(material, display);
         bills.addLore("§c总用电量: " + PlayerChargeDetailUtils.getTotalPowerUsage(playerChargeDetail) + "度");
         bills.addLore("§7  发射器: " + PlayerChargeDetailUtils.getDispenserPowerUsage(playerChargeDetail) + "度  " +
-                "§7  活塞: " + PlayerChargeDetailUtils.getPistonPowerUsage(playerChargeDetail) + "度  "+
-                "§7  漏斗: " + PlayerChargeDetailUtils.getHopperPowerUsage(playerChargeDetail) + "度  " );
+                "§7  活塞: " + PlayerChargeDetailUtils.getPistonPowerUsage(playerChargeDetail) + "度  " +
+                "§7  漏斗: " + PlayerChargeDetailUtils.getHopperPowerUsage(playerChargeDetail) + "度  ");
         bills.addLore("§7  矿车: " + PlayerChargeDetailUtils.getVehiclePowerUsage(playerChargeDetail) + "度  " +
-                "§7  熔炉: " + PlayerChargeDetailUtils.getFurnacePowerUsage(playerChargeDetail) + "度  "+
+                "§7  熔炉: " + PlayerChargeDetailUtils.getFurnacePowerUsage(playerChargeDetail) + "度  " +
                 "§7  tnt: " + PlayerChargeDetailUtils.getTntPowerUsage(playerChargeDetail) + "度  ");
         bills.addLore("§7  红石: " + PlayerChargeDetailUtils.getRedstonePowerUsage(playerChargeDetail) + "度  ");
         bills.addLore("§c总用水量: " + PlayerChargeDetailUtils.getTotalWaterUsage(playerChargeDetail) + "吨");
@@ -94,16 +92,6 @@ public class PlayerChargeMenu implements Listener {
             ItemStackSheet billThisWeek = fromPlayerChargeDetail(playerChargeDetail, Material.PAPER, "§f本周费用(" + ownerName + ")");
             inventory.setItem(13, billThisWeek.build());
 
-            PlayerChargeDetail lastWeekPlayerChargeDetail = PlayerChargeDetailCommitter.getLastWeekPlayerChargeDetail(ownerName);
-            if (lastWeekPlayerChargeDetail != null) {
-                ItemStackSheet billLastWeek = fromPlayerChargeDetail(lastWeekPlayerChargeDetail, Material.PAPER, "§f上周费用(" + ownerName + ")");
-                inventory.setItem(16, billLastWeek.build());
-                hasLastWeek = true;
-            } else {
-                hasLastWeek = false;
-                ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
-                inventory.setItem(16, itemStackSheet.build());
-            }
         }, 0, 20);
 
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
@@ -155,20 +143,6 @@ public class PlayerChargeMenu implements Listener {
                         player.closeInventory();
                         player.sendMessage("§c你的背包中没有足够的钻石!");
                     }
-                } else if (slot == 16 && hasLastWeek) {
-                    PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.getLastWeekPlayerChargeDetail(ownerName);
-                    if (playerChargeDetail == null) {
-                        player.closeInventory();
-                        player.sendMessage("ERROR!");
-                        return;
-                    }
-                    if (takeItem(player, Material.DIAMOND, playerChargeDetail.getPowerChargeTimes() + 1)) {
-                        playerChargeDetail.setPowerChargeTimes(playerChargeDetail.getPowerChargeTimes() + 1);
-                        PlayerChargeDetailCommitter.updateLastWeekPlayerChargeDetail(ownerName, playerChargeDetail);
-                    } else {
-                        player.closeInventory();
-                        player.sendMessage("§c你的背包中没有足够的钻石!");
-                    }
                 } else if (slot == 26) {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerMenu(player).open());
                 }
@@ -179,21 +153,6 @@ public class PlayerChargeMenu implements Listener {
                     if (takeItem(player, Material.DIAMOND, playerChargeDetail.getWaterChargeTimes() + 1)) {
 
                         playerChargeDetail.setWaterChargeTimes(playerChargeDetail.getWaterChargeTimes() + 1);
-                    } else {
-                        player.closeInventory();
-                        player.sendMessage("§c你的背包中没有足够的钻石!");
-                    }
-                } else if (slot == 16 && hasLastWeek) {
-                    PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.getLastWeekPlayerChargeDetail(ownerName);
-                    if (playerChargeDetail == null) {
-                        player.closeInventory();
-                        player.sendMessage("ERROR!");
-                        return;
-                    }
-                    if (takeItem(player, Material.DIAMOND, 1)) {
-                        playerChargeDetail.setWaterChargeTimes(playerChargeDetail.getWaterChargeTimes() + 1);
-                        PlayerChargeDetailCommitter.updateLastWeekPlayerChargeDetail(ownerName, playerChargeDetail);
-
                     } else {
                         player.closeInventory();
                         player.sendMessage("§c你的背包中没有足够的钻石!");

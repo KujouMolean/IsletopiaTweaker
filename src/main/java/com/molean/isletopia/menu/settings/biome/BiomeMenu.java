@@ -1,12 +1,11 @@
 package com.molean.isletopia.menu.settings.biome;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.settings.SettingsMenu;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
-import com.molean.isletopia.utils.PlotUtils;
-import com.plotsquared.core.plot.Plot;
-import com.sk89q.worldedit.world.biome.BiomeTypes;
+import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -24,14 +23,12 @@ import org.bukkit.inventory.ItemFlag;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 
 public class BiomeMenu implements Listener {
 
     private final Player player;
     private final Inventory inventory;
-    private final List<Biome> biomes = List.of(Biome.values());
+    private final List<Biome> biomes = new ArrayList<>(List.of(Biome.values()));
     private final int page;
 
     public BiomeMenu(Player player) {
@@ -43,6 +40,7 @@ public class BiomeMenu implements Listener {
         this.page = page;
         inventory = Bukkit.createInventory(player, 54, Component.text("选择想要切换的生物群系:"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        biomes.remove(Biome.CUSTOM);
     }
 
     public void open() {
@@ -120,7 +118,7 @@ public class BiomeMenu implements Listener {
             return;
         }
 
-        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
 
         String biomeName = biomes.get(slot + page * 52).name();
         String name = "未知";
@@ -129,11 +127,14 @@ public class BiomeMenu implements Listener {
         } catch (IllegalArgumentException ignore) {
         }
         assert currentPlot != null;
-        if (Objects.equals(currentPlot.getOwner(), player.getUniqueId())) {
-            player.sendMessage("§8[§3岛屿助手§8] §7尝试修改岛屿生物群系...");
+        if (player.getName().equals(currentPlot.getOwner())) {
+            MessageUtils.info(player, "尝试修改岛屿生物群系...");
             String finalName = name;
-            currentPlot.getPlotModificationManager().setBiome(BiomeTypes.get(biomeName.toLowerCase(Locale.ROOT)), () ->
-                    player.sendMessage("§8[§3岛屿助手§8] §7成功修改生物群系为:" + finalName + "."));
+            currentPlot.getCuboidRegion().forEachBlockLimited(5000, (block) -> {
+                block.setBiome(biomes.get(slot + page * 52));
+            }, () -> {
+                MessageUtils.info(player, "成功修改生物群系为:" + finalName + ".");
+            });
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
                     player.kick(Component.text("错误, 非岛主操作岛屿成员.")));

@@ -1,7 +1,6 @@
 package com.molean.isletopia.menu.favorite;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
 import net.kyori.adventure.text.Component;

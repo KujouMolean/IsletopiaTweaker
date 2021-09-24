@@ -2,6 +2,8 @@ package com.molean.isletopia.protect.individual;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
@@ -19,27 +21,26 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 
-import java.util.Objects;
-
 public class AnimalProtect implements Listener {
     public AnimalProtect() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
+
+    //disable mob target no permission player
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(EntityTargetEvent event) {
         if (event.getTarget() != null && event.getTarget().getType().equals(EntityType.PLAYER)) {
-            if (!PlotUtils.hasCurrentPlotPermission((Player) event.getTarget()))
+            if (!IslandManager.INSTANCE.hasTargetIslandPermission((Player) event.getTarget(),event.getEntity().getLocation()))
                 event.setCancelled(true);
         }
     }
 
+    //disable player trigger raid
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onRaidTrigger(RaidTriggerEvent event) {
-        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
+    public void on(RaidTriggerEvent event) {
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getRaid().getLocation())) {
             event.setCancelled(true);
-            System.out.println(Objects.requireNonNull(PlotUtils.getCurrentPlot(event.getPlayer())).getId());
-
             PotionEffect potionEffect = event.getPlayer().getPotionEffect(PotionEffectType.BAD_OMEN);
             event.getPlayer().sendMessage("§c你没有权限触发此岛屿的袭击.");
             Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
@@ -57,8 +58,10 @@ public class AnimalProtect implements Listener {
         }
     }
 
+
+    //disable fire projectile
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+    public void on(ProjectileLaunchEvent event) {
         boolean fireball = event.getEntity().getType().equals(EntityType.FIREWORK);
         if (fireball) {
             return;
@@ -66,47 +69,51 @@ public class AnimalProtect implements Listener {
 
         ProjectileSource shooter = event.getEntity().getShooter();
         if (shooter instanceof Player) {
-            if (BeaconIslandOption.isEnablePvP(PlotUtils.getCurrentPlot(event.getLocation()))) {
+            Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
+            if (BeaconIslandOption.isEnablePvP(currentIsland)) {
                 return;
             }
-            if (!PlotUtils.hasCurrentPlotPermission((Player) shooter)) {
+            if (!IslandManager.INSTANCE.hasCurrentIslandPermission((Player) shooter)) {
                 event.setCancelled(true);
             }
         }
     }
 
+    //disable attack animal
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerAttack(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Player) {
-            if (BeaconIslandOption.isEnablePvP(PlotUtils.getCurrentPlot((Player) event.getDamager()))) {
+        if (event.getDamager() instanceof Player player) {
+            if (BeaconIslandOption.isEnablePvP(IslandManager.INSTANCE.getCurrentIsland(player))) {
                 return;
             }
-            if (!PlotUtils.hasCurrentPlotPermission((Player) event.getDamager())) {
+            if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getEntity().getLocation())) {
                 event.setCancelled(true);
             }
         }
     }
 
+    //disable knock back animal
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayer(EntityKnockbackByEntityEvent event) {
-        if (event.getHitBy() instanceof Player) {
-            if (BeaconIslandOption.isEnablePvP(PlotUtils.getCurrentPlot((Player) event.getHitBy()))) {
+        if (event.getHitBy() instanceof Player player) {
+            Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+            if (BeaconIslandOption.isEnablePvP(currentIsland)) {
                 return;
             }
-            if (!PlotUtils.hasCurrentPlotPermission((Player) event.getHitBy())) {
+            if (!IslandManager.INSTANCE.hasTargetIslandPermission((Player) event.getHitBy(), event.getEntity().getLocation())) {
                 event.setCancelled(true);
             }
         }
     }
 
-    @EventHandler
+    //disable projectile damage
+    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void on(EntityDamageByEntityEvent event) {
         if (event.getDamager().getType().equals(EntityType.FIREWORK)) {
             Firework firework = (Firework) event.getDamager();
             ProjectileSource shooter = firework.getShooter();
-            if (shooter instanceof Player) {
-                Player player = (Player) shooter;
-                if (!PlotUtils.hasCurrentPlotPermission(player)) {
+            if (shooter instanceof Player player) {
+                if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getEntity().getLocation())) {
                     event.setCancelled(true);
 
                 }
@@ -115,9 +122,10 @@ public class AnimalProtect implements Listener {
     }
 
 
+    //disable player drop item
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onItemDrop(PlayerDropItemEvent event) {
-        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
             event.setCancelled(true);
         }
     }

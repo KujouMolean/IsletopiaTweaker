@@ -41,4 +41,4 @@ ticks-per:
 aliases: now-in-commands.yml
 worlds:
   SkyWorld:
-    generator: PlotSquared
+    generator: IsletopiaTweakers

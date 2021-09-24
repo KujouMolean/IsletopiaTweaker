@@ -2,7 +2,6 @@ package com.molean.isletopia.menu.recipe;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.ItemStackSheet;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

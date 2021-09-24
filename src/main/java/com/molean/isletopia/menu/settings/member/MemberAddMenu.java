@@ -1,12 +1,11 @@
 package com.molean.isletopia.menu.settings.member;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.HeadUtils;
-import com.molean.isletopia.utils.PlotUtils;
-import com.molean.isletopia.utils.UUIDUtils;
-import com.plotsquared.core.plot.Plot;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,7 +18,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 
 public class MemberAddMenu implements Listener {
 
@@ -31,10 +33,10 @@ public class MemberAddMenu implements Listener {
     private static List<String> getPlayers(Player player) {
         List<String> players = ServerInfoUpdater.getOnlinePlayers();
         players.remove(player.getName());
-        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
-        HashSet<UUID> trusted = currentPlot.getTrusted();
-        players.removeIf(s -> trusted.contains(UUIDUtils.get(s)));
+        HashSet<String> trusted = new HashSet<>(currentPlot.getMembers());
+        players.removeIf(trusted::contains);
         return players;
     }
 
@@ -95,10 +97,10 @@ public class MemberAddMenu implements Listener {
             return;
         }
         if (slot < players.size() && slot < 52) {
-            Plot currentPlot = PlotUtils.getCurrentPlot(player);
+            Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
             assert currentPlot != null;
-            if (currentPlot.getOwner().equals(player.getUniqueId())) {
-                currentPlot.addTrusted(UUIDUtils.get(players.get(slot + page * 52)));
+            if (currentPlot.getOwner().equals(player.getName())) {
+                currentPlot.getMembers().add(players.get(slot + page * 52));
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberAddMenu(player).open());
             } else {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.kick(Component.text("错误, 非岛主操作岛屿成员.")));

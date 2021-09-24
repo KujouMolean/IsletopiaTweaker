@@ -1,6 +1,7 @@
 package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,7 +20,7 @@ public class BucketUsageProtect implements Listener {
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void on(PlayerBucketEmptyEvent event) {
         Player player = event.getPlayer();
-        if (!PlotUtils.hasCurrentPlotPermission(player)) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(player)) {
             event.setCancelled(true);
 
         }
@@ -27,7 +28,7 @@ public class BucketUsageProtect implements Listener {
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void on(PlayerBucketEntityEvent event) {
         Player player = event.getPlayer();
-        if (!PlotUtils.hasCurrentPlotPermission(player)) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(player)) {
             event.setCancelled(true);
 
         }
@@ -35,7 +36,7 @@ public class BucketUsageProtect implements Listener {
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void on(PlayerBucketFillEvent event) {
         Player player = event.getPlayer();
-        if (!PlotUtils.hasCurrentPlotPermission(player)) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(player)) {
             event.setCancelled(true);
 
         }

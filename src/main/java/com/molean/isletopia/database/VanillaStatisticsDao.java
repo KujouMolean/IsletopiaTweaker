@@ -32,7 +32,7 @@ public class VanillaStatisticsDao {
 
     private static void insert(String player, String stats) {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "insert into vanilla_statistics(player, stats) VALUES (?,?)";
+            String sql = "insert into minecraft.vanilla_statistics(player, stats) VALUES (?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, player);
             preparedStatement.setString(2, stats);
@@ -44,7 +44,7 @@ public class VanillaStatisticsDao {
 
     private static void update(String player, String stats) {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "update vanilla_statistics set stats=? where player=?";
+            String sql = "update minecraft.vanilla_statistics set stats=? where player=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, stats);
             preparedStatement.setString(2, player);
@@ -57,7 +57,7 @@ public class VanillaStatisticsDao {
 
     public static String query(String player) {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "select stats from vanilla_statistics where player=?";
+            String sql = "select stats from minecraft.vanilla_statistics where player=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, player);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -72,7 +72,7 @@ public class VanillaStatisticsDao {
     public static List<String> players(){
         List<String> list = new ArrayList<>();
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "select player from vanilla_statistics where true";
+            String sql = "select player from minecraft.vanilla_statistics where true";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
@@ -104,7 +104,7 @@ public class VanillaStatisticsDao {
     public static Map<String, Stats> getAllPlayerStats() {
         Map<String, Stats> map =new HashMap<>();
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "select player,stats from vanilla_statistics where true";
+            String sql = "select player,stats from minecraft.vanilla_statistics where true";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {

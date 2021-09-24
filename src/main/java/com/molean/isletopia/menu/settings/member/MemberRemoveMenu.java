@@ -1,13 +1,10 @@
 package com.molean.isletopia.menu.settings.member;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
-import com.molean.isletopia.utils.PlotUtils;
-import com.molean.isletopia.utils.UUIDUtils;
-import com.plotsquared.core.PlotSquared;
-import com.plotsquared.core.plot.Plot;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -20,7 +17,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class MemberRemoveMenu implements Listener {
 
@@ -30,15 +29,9 @@ public class MemberRemoveMenu implements Listener {
     private final int page;
 
     private static List<String> getPlayer(Player player) {
-        Plot currentPlot = PlotUtils.getCurrentPlot(player);
+        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
-        HashSet<UUID> trusted = currentPlot.getTrusted();
-        List<String> members = new ArrayList<>();
-        for (UUID uuid : trusted) {
-            String single = PlotSquared.get().getImpromptuUUIDPipeline().getSingle(uuid, 50000);
-            members.add(single);
-        }
-        return members;
+        return new ArrayList<>(currentPlot.getMembers());
     }
 
     public MemberRemoveMenu(Player player) {
@@ -103,12 +96,12 @@ public class MemberRemoveMenu implements Listener {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberMenu(player).open());
             return;
         }
-        
+
         if (slot < members.size() && slot < 52) {
-            Plot currentPlot = PlotUtils.getCurrentPlot(player);
+            Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
             assert currentPlot != null;
-            if (currentPlot.getOwner().equals(player.getUniqueId())) {
-                currentPlot.removeTrusted(UUIDUtils.get(members.get(slot + page * 52)));
+            if (player.getName().equals(currentPlot.getOwner())) {
+                currentPlot.getMembers().remove(members.get(slot + page * 52));
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player).open());
             } else {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->

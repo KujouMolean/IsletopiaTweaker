@@ -34,8 +34,7 @@ public class CommandListener implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length > 0) {
             if (map.containsKey(args[0])) {
-                if (commandSender instanceof Player) {
-                    Player player = (Player) commandSender;
+                if (commandSender instanceof Player player) {
                     if (map.get(args[0]).test(args[0], player)) {
                         map.remove(args[0]);
                     }

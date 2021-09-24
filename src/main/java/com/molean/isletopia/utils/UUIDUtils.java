@@ -1,6 +1,5 @@
 package com.molean.isletopia.utils;
 
-import com.plotsquared.core.PlotSquared;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -17,11 +16,7 @@ public class UUIDUtils {
         if (offlinePlayer.getName() != null) {
             return offlinePlayer.getName();
         } else {
-            if (!Bukkit.isPrimaryThread()) {
-                return PlotSquared.get().getImpromptuUUIDPipeline().getSingle(uuid, 200L);
-            } else {
-                return null;
-            }
+            return null;
         }
     }
 

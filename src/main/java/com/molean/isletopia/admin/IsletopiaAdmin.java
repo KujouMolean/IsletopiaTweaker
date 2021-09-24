@@ -13,10 +13,10 @@ public class IsletopiaAdmin {
             new UniversalCommandExecutor();
             new UniversalPlayerSender();
             new PlayerServerFirework();
-            new ServerDownParty();
-            new TransformIsland();
+//            new TransformIsland();
             new IsDebugCommand();
             new StatsRankCommand();
+            new IslandAdmin();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia admin failed!");

@@ -25,82 +25,50 @@ public class PlayerChargeDetailCommitter {
         //每分钟执行一次
         Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             //每分钟提交一次岛屿消费数据
-
             playerChargeDetailMap.remove(null);
-
             playerChargeDetailMap.forEach((s, playerChargeDetail) -> {
                 playerChargeDetail.setLastCommitTime(System.currentTimeMillis());
                 String playerChargeDetailString = gson.toJson(playerChargeDetail);
                 UniversalParameter.setParameter(s, "PlayerChargeDetail", playerChargeDetailString);
             });
-
-
-
-
         }, 0, 60 * 20L);
     }
 
+    //获取当前周
     public static int getWeek(Long time) {
         Timestamp timestamp = new Timestamp(time);
         LocalDateTime localDateTime = timestamp.toLocalDateTime();
         return localDateTime.get(WeekFields.ISO.weekOfYear());
     }
 
-    public static PlayerChargeDetail getPlayerChargeDetailFromDB(String player) {
+    //从数据库获取用户当前账单
+    private static PlayerChargeDetail getPlayerChargeDetailFromDB(String player) {
         String playerChargeDetailString = UniversalParameter.getParameter(player, "PlayerChargeDetail");
         if (playerChargeDetailString == null || playerChargeDetailString.isEmpty()) {
+            //数据库不存在账单, 新建
             PlayerChargeDetail playerChargeDetail = new PlayerChargeDetail();
             playerChargeDetail.setStartTime(System.currentTimeMillis());
             playerChargeDetailString = gson.toJson(playerChargeDetail);
+            //保存到数据库
             UniversalParameter.setParameter(player, "PlayerChargeDetail", playerChargeDetailString);
         }
+        //从数据库读取账单
         PlayerChargeDetail playerChargeDetail = gson.fromJson(playerChargeDetailString, PlayerChargeDetail.class);
         playerChargeDetailMap.put(player, playerChargeDetail);
         return playerChargeDetail;
     }
 
-    public static @Nullable PlayerChargeDetail getLastWeekPlayerChargeDetail(String player) {
-        get(player);
-
-        String lastWeekPlayerChargeDetail = UniversalParameter.getParameter(player, "LastWeekPlayerChargeDetail");
-        if (lastWeekPlayerChargeDetail == null || lastWeekPlayerChargeDetail.isEmpty()) {
-            return null;
-        } else {
-            PlayerChargeDetail playerChargeDetail = gson.fromJson(lastWeekPlayerChargeDetail, PlayerChargeDetail.class);
-            if (getWeek(playerChargeDetail.getStartTime()) != getWeek(System.currentTimeMillis()) - 1) {
-                UniversalParameter.unsetParameter(player, "LastWeekPlayerChargeDetail");
-                return null;
-            } else if (PlayerChargeDetailUtils.getWaterCost(playerChargeDetail) == 0 &&
-                    PlayerChargeDetailUtils.getPowerCost(playerChargeDetail) == 0) {
-                UniversalParameter.unsetParameter(player, "LastWeekPlayerChargeDetail");
-                return null;
-            } else {
-                return playerChargeDetail;
-            }
-        }
-    }
-
-    public static void updateLastWeekPlayerChargeDetail(String player, PlayerChargeDetail playerChargeDetail) {
-        UniversalParameter.setParameter(player, "LastWeekPlayerChargeDetail", gson.toJson(playerChargeDetail));
-        getLastWeekPlayerChargeDetail(player);
-    }
-
 
     public static @NotNull PlayerChargeDetail get(String player) {
         if (!playerChargeDetailMap.containsKey(player)) {
+            //本地缓存不存在账单, 从数据库读取账单
             PlayerChargeDetail playerChargeDetail = getPlayerChargeDetailFromDB(player);
             playerChargeDetailMap.put(player, playerChargeDetail);
         }
-
+        //从缓存中读取账单
         PlayerChargeDetail playerChargeDetail = playerChargeDetailMap.get(player);
         if (getWeek(playerChargeDetail.getStartTime()) != getWeek(System.currentTimeMillis())) {
-            if (getWeek(playerChargeDetail.getStartTime()) == getWeek(System.currentTimeMillis()) - 1) {
-                if (PlayerChargeDetailUtils.getPowerCost(playerChargeDetail) > 0 ||
-                        PlayerChargeDetailUtils.getWaterCost(playerChargeDetail) > 0) {
-
-                    UniversalParameter.setParameter(player, "LastWeekPlayerChargeDetail", gson.toJson(playerChargeDetail));
-                }
-            }
+            //账单过期, 新建账单
             playerChargeDetail = new PlayerChargeDetail();
             playerChargeDetail.setStartTime(System.currentTimeMillis());
             playerChargeDetailMap.put(player, playerChargeDetail);

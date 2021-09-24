@@ -1,7 +1,8 @@
 package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
+import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,12 +24,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import java.util.Collection;
 
 public class LavaProtect implements Listener {
-
-
     public LavaProtect() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
+    //allow bucket obsidian to lava
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void onBucketFillObsidian(PlayerInteractEvent event) {
         if (Action.RIGHT_CLICK_BLOCK != event.getAction())
@@ -38,13 +38,15 @@ public class LavaProtect implements Listener {
         assert event.getClickedBlock() != null;
         if (!Material.OBSIDIAN.equals(event.getClickedBlock().getType()))
             return;
-        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
             return;
         }
         event.getClickedBlock().setType(Material.LAVA);
         event.setCancelled(true);
     }
 
+
+    //disable replace lava by block
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void onLavaReplacing(BlockPlaceEvent event) {
         if(event.getPlayer().isOp()){
@@ -55,10 +57,11 @@ public class LavaProtect implements Listener {
         String asString = blockData.getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆受到保护,只能用空桶收起.");
+            MessageUtils.notify(event.getPlayer(), "岩浆受到保护,只能用空桶收起.");
         }
     }
 
+    //disable water lava
     @EventHandler
     public void onWateringLava(PlayerBucketEmptyEvent event) {
         if(event.getPlayer().isOp()){
@@ -67,10 +70,11 @@ public class LavaProtect implements Listener {
         String asString = event.getBlock().getBlockData().getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆受到保护,只能用空桶收起.");
+            MessageUtils.notify(event.getPlayer(), "岩浆受到保护,只能用空桶收起.");
         }
     }
 
+    //notify player that lava could cause fire
     @EventHandler
     public void onPlaceLava(PlayerBucketEmptyEvent event) {
         Material bucket = event.getBucket();
@@ -81,12 +85,13 @@ public class LavaProtect implements Listener {
         if (statistic > 3) {
             return;
         }
-        if (!PlotUtils.hasCurrentPlotPermission(event.getPlayer())) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
             return;
         }
-        event.getPlayer().sendMessage("§8[§3温馨提示§8] §e岩浆会引起火灾,请务必注意.");
+        MessageUtils.notify(event.getPlayer(), "岩浆会引起火灾,请务必注意.");
     }
 
+    //notify player that empty bucket can restore obsidian to lava
     @EventHandler
     public void onLavaTransferring(BlockFormEvent event) {
         if (!"minecraft:lava[level=0]".equals(event.getBlock().getBlockData().getAsString()))
@@ -95,7 +100,7 @@ public class LavaProtect implements Listener {
         Collection<Entity> nearbyEntities = event.getBlock().getWorld().getNearbyEntities(location, 8, 8, 8);
         for (Entity nearbyEntity : nearbyEntities) {
             if (nearbyEntity instanceof Player) {
-                nearbyEntity.sendMessage("§8[§3温馨提示§8] §e空桶右键黑曜石可以还原成岩浆.");
+                MessageUtils.notify(nearbyEntity, "空桶右键黑曜石可以还原成岩浆.");
             }
         }
     }

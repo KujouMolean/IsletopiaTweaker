@@ -6,6 +6,7 @@ import com.molean.isletopia.database.DataSourceUtils;
 import com.molean.isletopia.distribute.IsletopiaDistributeSystem;
 import com.molean.isletopia.distribute.parameter.IsletopiaParamter;
 import com.molean.isletopia.infrastructure.IsletopiaInfrastructure;
+import com.molean.isletopia.island.IsletopiaIslandSystem;
 import com.molean.isletopia.mail.MailCommand;
 import com.molean.isletopia.message.IsletopiaMessage;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
@@ -19,11 +20,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import redis.clients.jedis.Jedis;
 
 import java.lang.reflect.Method;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Logger;
 
 public final class IsletopiaTweakers extends JavaPlugin {
@@ -41,10 +44,6 @@ public final class IsletopiaTweakers extends JavaPlugin {
     }
 
     private static Long l;
-
-    static {
-        System.setProperty("druid.mysql.usePingMethod", "false");
-    }
 
     @SuppressWarnings("all")
     private static final Thread autoShutDownThread = new Thread(() -> {
@@ -75,51 +74,70 @@ public final class IsletopiaTweakers extends JavaPlugin {
 
     });
 
+    private static final Map<String, Runnable> SHUTDOWN_MAP = new HashMap<>();
+
+
+    public static void addDisableTask(String key, Runnable runnable) {
+        SHUTDOWN_MAP.put(key, runnable);
+    }
+
+    public static void removeDisableTask(String key) {
+        SHUTDOWN_MAP.remove(key);
+    }
 
     @Override
     public void onEnable() {
         isletopiaTweakers = this;
-        world = Bukkit.getWorld("SkyWorld");
-        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        Bukkit.getScheduler().runTask(getPlugin(), () -> {
+            world = Bukkit.getWorld("SkyWorld");
+            getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+            DataSourceUtils.checkDatabase();
+            new IsletopiaMessage();
+            new IsletopiaInfrastructure();
+            new IsletopiaModifier();
+            new IsletopiaDistributeSystem();
+            new IsletopiaParamter();
+            new IsletopiaProtect();
+            new IsletopiaStatistics();
+            new IsletopiaAdmin();
+            new IsletopiaChargeSystem();
+            new IsletopiaIslandSystem();
+            RedisMessageListener.init();
 
-        DataSourceUtils.checkDatabase();
+            //test
+            new CommandListener();
+            new MailCommand();
 
-        new IsletopiaMessage();
-        new IsletopiaInfrastructure();
-        new IsletopiaModifier();
-        new IsletopiaDistributeSystem();
-        new IsletopiaParamter();
-        new IsletopiaProtect();
-        new IsletopiaStatistics();
-        new IsletopiaAdmin();
-        new IsletopiaChargeSystem();
+            //auto shutdown
+            Bukkit.getScheduler().runTaskTimer(this, () -> {
+                l = System.currentTimeMillis();
+            }, 0, 20);
+            autoShutDownThread.start();
+        });
+    }
 
-
-        RedisMessageListener.init();
-
-        Bukkit.getScheduler().runTaskTimer(this, () -> {
-            l = System.currentTimeMillis();
-        }, 0, 20);
-
-        autoShutDownThread.start();
-
-
-        //test
-        new CommandListener();
-        new MailCommand();
-
-
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(@NotNull String worldName, String id) {
+        return new EmptyChunkGenerator();
     }
 
     @Override
     public void onDisable() {
+        getLogger().info("Destroy redis listener..");
         RedisMessageListener.destroy();
+        getLogger().info("Close online player inventory..");
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onlinePlayer.closeInventory();
         }
+        getLogger().info("Add restart flag to redis..");
         try (Jedis jedis = RedisUtils.getJedis()) {
             jedis.setex("Restarting-" + ServerInfoUpdater.getServerName(), 15L, "true");
         }
+        SHUTDOWN_MAP.forEach((s, runnable) -> {
+            getLogger().info("Running shutdown task: " + s);
+            runnable.run();
+        });
+        getLogger().info("Disable auto shutdown thread..");
         autoShutDownThread.interrupt();
     }
 }

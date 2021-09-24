@@ -2,6 +2,8 @@ package com.molean.isletopia.utils;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.obj.VisitNotificationObject;
@@ -13,11 +15,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Map;
 
 public class IsletopiaTweakersUtils {
-    public static String getLocalServerName() {
-        return switch (ServerInfoUpdater.getServerName()) {
+    public static String getLocalServerName(String server) {
+        return switch (server) {
             case "server1" -> "衔心岠";
             case "server2" -> "梦华沢";
             case "server3" -> "凌沧州";
@@ -28,6 +31,9 @@ public class IsletopiaTweakersUtils {
             case "server8" -> "胧月花栞";
             default -> "未知";
         };
+    }
+ public static String getLocalServerName() {
+     return getLocalServerName(ServerInfoUpdater.getServerName());
     }
 
 
@@ -42,22 +48,6 @@ public class IsletopiaTweakersUtils {
             playSoundRequest.setTargetPlayer(target);
             playSoundRequest.setSoundName(sound.name());
             ServerMessageUtils.sendMessage(server, "TeleportRequest", playSoundRequest);
-        });
-    }
-
-    public static void sendVisitNotificationToPlayer(String player, String visitor, boolean isFailed) {
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            Map<String, String> playerServerMap = ServerInfoUpdater.getPlayerServerMap();
-            String server = playerServerMap.getOrDefault(player, null);
-            if (server == null) {
-                Bukkit.getLogger().warning("Failed send visit notification to player, player is not online!");
-                return;
-            }
-            VisitNotificationObject visitNotificationObject = new VisitNotificationObject();
-            visitNotificationObject.setVisitor(visitor);
-            visitNotificationObject.setTarget(player);
-            visitNotificationObject.setSuccess(!isFailed);
-            ServerMessageUtils.sendMessage(server, "VisitNotification", visitNotificationObject);
         });
     }
 
@@ -92,16 +82,23 @@ public class IsletopiaTweakersUtils {
         });
     }
 
-    public static void universalPlotVisitByMessage(Player sourcePlayer, String target) {
+    public static void universalPlotVisitByMessage(Player sourcePlayer, String target, int order) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String source = sourcePlayer.getName();
-            String targetServer = UniversalParameter.getParameter(target, "server");
-            if (targetServer == null) {
-                sourcePlayer.sendMessage("§8[§3岛屿助手§8] §6对方岛屿不存在.");
+
+            List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(target);
+
+            if (order >= playerIslands.size()) {
+                if (order == 0) {
+                    MessageUtils.fail(sourcePlayer, "对方岛屿不存在.");
+                } else {
+                    MessageUtils.fail(sourcePlayer, "对方岛屿不存在第 " + order + " 个岛屿.");
+                }
                 return;
             }
-
-            VisitRequest visitRequest = new VisitRequest(source, target);
+            Island island = playerIslands.get(order);
+            String targetServer = island.getServer();
+            VisitRequest visitRequest = new VisitRequest(source, target, island.getId());
             ServerMessageUtils.sendMessage(targetServer, "VisitRequest", visitRequest);
         });
     }

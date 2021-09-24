@@ -2,7 +2,7 @@ package com.molean.isletopia.infrastructure;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.infrastructure.individual.*;
-import com.plotsquared.core.command.Save;
+import com.molean.isletopia.island.IslandCommand;
 
 import java.util.logging.Logger;
 
@@ -10,29 +10,24 @@ public class IsletopiaInfrastructure {
     public IsletopiaInfrastructure() {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try {
-            new ClockMenu();
-            new IslandCommand();
+
             new TeleportSign();
-            new ClockMenu();
             new RespawnPoint();
-            new MessageUtils();
-            new TempServer();
             new StaticMap();
             new MoreChairs();
             new IslandEnterMessage();
-            new OfflineVisitorNotify();
             new ServerBumpReward();
             new MenuCommand();
             new FixSomeProblem();
             new IslandInfoUpdater();
-            new FreeRiderWarning();
             new PlayerRidePlayer();
             new IronElevator();
             new RailWay();
             new FirstSapling();
             new SaveDownload();
-            new PlotBackup();
+            new IslandBackup();
             new SlimeChunk();
+            new IslandVisitRecord();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

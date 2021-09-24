@@ -12,8 +12,10 @@
 
 use-display-name-in-quit-message: false
 verbose: false
-config-version: 21
+config-version: 22
 settings:
+  lag-compensate-block-breaking: true
+  send-full-pos-for-hard-colliding-entities: true
   log-named-entity-deaths: true
   fix-entity-position-desync: true
   track-plugin-scoreboards: false
@@ -75,6 +77,26 @@ settings:
   loggers:
     deobfuscate-stacktraces: true
   use-display-name-in-quit-message: false
+  chunk-loading:
+    min-load-radius: 2
+    max-concurrent-sends: 2
+    autoconfig-send-distance: true
+    target-player-chunk-send-rate: 100.0
+    global-max-chunk-send-rate: -1.0
+    enable-frustum-priority: false
+    global-max-chunk-load-rate: 300.0
+    player-max-concurrent-loads: 4.0
+    global-max-concurrent-loads: 500.0
+  packet-limiter:
+    kick-message: '&cSent too many packets'
+    limits:
+      all:
+        interval: 7.0
+        max-packet-rate: 500.0
+      PacketPlayInAutoRecipe:
+        interval: 4.0
+        max-packet-rate: 5.0
+        action: DROP
 timings:
   url: https://timings.aikar.co/
   enabled: true
@@ -96,6 +118,8 @@ messages:
     connection-throttle: 连接已被搁置, 请稍等一会儿重连!
 world-settings:
   default:
+    piglins-guard-chests: true
+    map-item-frame-cursor-update-interval: 10
     show-sign-click-command-failure-msgs-to-player: false
     allow-player-cramming-damage: false
     seed-based-feature-search-loads-chunks: true
@@ -154,7 +178,7 @@ world-settings:
     experience-merge-max-value: -1
     falling-block-height-nerf: 0
     tnt-entity-height-nerf: 0
-    per-player-mob-spawns: false
+    per-player-mob-spawns: true
     optimize-explosions: false
     enable-treasure-maps: false
     treasure-maps-return-already-discovered: false
@@ -297,3 +321,5 @@ world-settings:
       behavior:
         villager:
           validatenearbypoi: -1
+    feature-seeds:
+      generate-random-seeds-for-all: false

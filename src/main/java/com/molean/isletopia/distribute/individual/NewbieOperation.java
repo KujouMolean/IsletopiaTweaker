@@ -1,35 +1,16 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
-import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.infrastructure.individual.MessageUtils;
-import com.molean.isletopia.shared.pojo.obj.NewPlayerObject;
-import com.molean.isletopia.shared.message.ServerMessageUtils;
-import com.molean.isletopia.utils.HeadUtils;
-import com.molean.isletopia.utils.IsletopiaTweakersUtils;
-import com.molean.isletopia.utils.PlotUtils;
-import com.plotsquared.core.player.PlotPlayer;
-import com.plotsquared.core.plot.Plot;
-import net.craftersland.data.bridge.api.events.SyncCompleteEvent;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
 
 public class NewbieOperation implements Listener {
 
@@ -37,102 +18,57 @@ public class NewbieOperation implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    public void checkNewbie(Player player) {
-        if (!player.isOnline()) {
-            return;
-        }
-
-        Set<Plot> plots = PlotUtils.getPlotAPI().getPlayerPlots(Objects.requireNonNull(PlotUtils.getPlotAPI().wrapPlayer(player.getUniqueId())));
-        if (plots.size() != 0) {
-            return;
-        }
-
-        List<String> servers = ServerInfoUpdater.getServers();
-        for (String server : servers) {
-            if (!server.startsWith("server"))
-                continue;
-            Integer plotID = PlotDao.getPlotID(server, player.getName());
-            if (plotID != null) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
-                        player.kick(Component.text("#严重错误, 在其他服务器拥有岛屿, 但位置与数据库不匹配.")));
-                return;
-            }
-        }
-
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 300, 4));
-            player.performCommand("plot auto");
-            PlotPlayer<?> plotPlayer = PlotUtils.getPlotAPI().wrapPlayer(player.getUniqueId());
-            Plot nextFreePlot = PlotUtils.getFirstPlotArea().getNextFreePlot(plotPlayer, null);
-            assert plotPlayer != null;
-            nextFreePlot.claim(plotPlayer, true, null, true);
-            placeItem(player.getInventory());
-            ItemStack clock = newUnbreakableItem(Material.CLOCK, "§f[§d主菜单§f]§r",
-                    List.of(Component.text("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r"),
-                            Component.text("§f[§7右键单击§f]§r §f打开§r §f主菜单§r")));
-            player.getInventory().addItem(clock);
-            NewPlayerObject newPlayerObject = new NewPlayerObject(player.getName(), IsletopiaTweakersUtils.getLocalServerName());
-            ServerMessageUtils.sendMessage("waterfall", "NewPlayer", newPlayerObject);
-        });
-
-
-    }
-
-    @EventHandler()
-    public void onSync(SyncCompleteEvent event) {
+    @EventHandler
+    public void onJoin(PlayerDataSyncCompleteEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String server = UniversalParameter.getParameter(event.getPlayer().getName(), "server");
+            Player player = event.getPlayer();
+
+
+            int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(player.getName());
+
+            String server = UniversalParameter.getParameter(player.getName(), "server");
+
             if (server == null) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
-                        event.getPlayer().kick(Component.text("#严重错误, 已加入服务器, 但未被分配岛屿.")));
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    player.kick(Component.text("#发生错误, 转发器未指定你的岛屿所在服务器."));
+                });
                 return;
             }
-            if (server.equalsIgnoreCase(ServerInfoUpdater.getServerName())) {
-                checkNewbie(event.getPlayer());
-            }
-        });
 
-        //check plot number
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            if (event.getPlayer().isOp()) {
+            if (!server.equals(ServerInfoUpdater.getServerName())) {
+                if (playerIslandCount == 0) {
+                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                        player.kick(Component.text("#发生错误, 你被转发器发送到了错误的服务器, 请联系管理员."));
+                    });
+                }
                 return;
             }
-            int cnt = 0;
-            List<String> servers = new ArrayList<>(ServerInfoUpdater.getServers());
-            for (String server : servers) {
-                if (!server.startsWith("server"))
-                    continue;
-                Integer plotID = PlotDao.getPlotID(server, event.getPlayer().getName());
-                if (plotID != null) {
-                    cnt++;
+
+            if (playerIslandCount == 0) {
+                //分配岛屿
+
+
+                MessageUtils.strong(player, "正在为你分配岛屿，请勿离开游戏..");
+
+                try {
+                    IslandManager.INSTANCE.createNewIsland(player.getName(), (island -> {
+                        if (island == null) {
+                            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                                player.kick(Component.text("#岛屿创建失败，请联系管理员。"));
+                            });
+                            return;
+                        }
+                        island.tp(player);
+                        MessageUtils.success(player, "岛屿分配完毕，开始你的游戏！");
+                    }));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                        player.kick(Component.text("#岛屿创建失败，请联系管理员。"));
+                    });
                 }
             }
-            if (cnt > 1) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
-                        event.getPlayer().kick(Component.text("#发生错误, 非管理员但拥有多个岛屿.")));
 
-            }
-            HeadUtils.getSkull(event.getPlayer().getName());
         });
-    }
-
-
-    public void placeItem(PlayerInventory inventory) {
-        ItemStack food = new ItemStack(Material.APPLE, 32);
-        ItemStack lavaBucket = new ItemStack(Material.LAVA_BUCKET);
-        ItemStack waterBucket1 = new ItemStack(Material.WATER_BUCKET, 1);
-        ItemStack waterBucket2 = new ItemStack(Material.WATER_BUCKET, 1);
-        inventory.addItem(food, lavaBucket, waterBucket1, waterBucket2);
-    }
-
-    public static ItemStack newUnbreakableItem(Material material, String name, List<Component> lores) {
-        ItemStack itemStack = new ItemStack(material);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        assert itemMeta != null;
-        itemMeta.setUnbreakable(true);
-        itemMeta.setLocalizedName(name);
-        itemStack.lore(lores);
-        itemStack.setItemMeta(itemMeta);
-        return itemStack;
     }
 }

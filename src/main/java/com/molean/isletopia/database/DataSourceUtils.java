@@ -58,8 +58,8 @@ public class DataSourceUtils {
             dataSource.setValidationQuery("select 1");
 
             //timeout
-            dataSource.setMaxWait(10000);
-            dataSource.setQueryTimeout(10);
+            dataSource.setMaxWait(30000);
+            dataSource.setQueryTimeout(30);
 
             //max active
             dataSource.setMaxActive(64);

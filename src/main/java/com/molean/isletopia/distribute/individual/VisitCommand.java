@@ -3,6 +3,7 @@ package com.molean.isletopia.distribute.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,7 +28,16 @@ public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
         if (args.length < 1)
             return true;
         String target = args[0];
-        IsletopiaTweakersUtils.universalPlotVisitByMessage(sourcePlayer, target);
+        int order = 0;
+        if (args.length >= 2) {
+            try {
+                order = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                MessageUtils.fail(sender, args[1] + "不是有效数字");
+                return true;
+            }
+        }
+        IsletopiaTweakersUtils.universalPlotVisitByMessage(sourcePlayer, target, order);
         return true;
     }
 

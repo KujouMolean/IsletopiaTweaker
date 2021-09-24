@@ -31,7 +31,7 @@ public class ParameterDao {
 
     public static String get(String playerName, String key) {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "select p_value from isletopia_parameters where player=? and p_key=?";
+            String sql = "select p_value from minecraft.isletopia_parameters where player=? and p_key=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, playerName);
             preparedStatement.setString(2, key);
@@ -48,7 +48,7 @@ public class ParameterDao {
     public static ArrayList<String> keys(String playerName) {
         ArrayList<String> keyList = new ArrayList<>();
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "select p_key from isletopia_parameters where player=?";
+            String sql = "select p_key from minecraft.isletopia_parameters where player=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, playerName);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -72,7 +72,7 @@ public class ParameterDao {
             insert(playerName, key, value);
         } else {
             try (Connection connection = DataSourceUtils.getConnection()) {
-                String sql = "update isletopia_parameters set p_value=? where player=? and p_key=?";
+                String sql = "update minecraft.isletopia_parameters set p_value=? where player=? and p_key=?";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 preparedStatement.setString(1, value);
                 preparedStatement.setString(2, playerName);
@@ -86,7 +86,7 @@ public class ParameterDao {
 
     public static void unset(String playerName, String key) {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "delete from isletopia_parameters where player=? and p_key=?";
+            String sql = "delete from minecraft.isletopia_parameters where player=? and p_key=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, playerName);
             preparedStatement.setString(2, key);
@@ -98,7 +98,7 @@ public class ParameterDao {
 
     public static void insert(String playerName, String key, String value) {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "insert into isletopia_parameters(player,p_key,p_value) values(?,?,?)";
+            String sql = "insert into minecraft.isletopia_parameters(player,p_key,p_value) values(?,?,?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, playerName);
             preparedStatement.setString(2, key);
@@ -111,7 +111,7 @@ public class ParameterDao {
 
     public static boolean exist(String playerName, String key) {
         try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = "select * from isletopia_parameters where player=? and p_key=?";
+            String sql = "select * from minecraft.isletopia_parameters where player=? and p_key=?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, playerName);
             preparedStatement.setString(2, key);

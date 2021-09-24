@@ -1,20 +1,20 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.PlotDao;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.protect.individual.BeaconIslandOption;
 import com.molean.isletopia.shared.utils.RedisUtils;
-import com.molean.isletopia.utils.PlotUtils;
-import com.plotsquared.core.plot.Plot;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
 
 public class IslandInfoUpdater {
@@ -22,27 +22,21 @@ public class IslandInfoUpdater {
 
     public IslandInfoUpdater() {
         world = Bukkit.getWorld("SkyWorld");
-
         Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                Plot currentPlot = PlotUtils.getCurrentPlot(onlinePlayer);
+                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
+
                 if (currentPlot == null) {
                     continue;
                 }
-
-                cacheStatus(currentPlot);
                 cacheCreation(currentPlot);
                 cacheCollections(onlinePlayer);
-
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                     cacheOptions(currentPlot);
                 });
-
             }
-
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                Plot currentPlot = PlotUtils.getCurrentPlot(onlinePlayer);
+                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
                 if (cacheArea(currentPlot)) {
                     break;
                 }
@@ -64,17 +58,13 @@ public class IslandInfoUpdater {
         }
     }
 
-    public static void cacheCreation(Plot currentPlot) {
+    public static void cacheCreation(Island currentPlot) {
         if (currentPlot == null) {
             return;
         }
-        UUID owner = currentPlot.getOwner();
-        if (owner == null) {
-            return;
-        }
+        String owner = currentPlot.getOwner();
         try (Jedis jedis = RedisUtils.getJedis()) {
-            long creationDate = currentPlot.getTimestamp();
-            Timestamp timestamp = new Timestamp(creationDate);
+            Timestamp timestamp = currentPlot.getCreation();
             LocalDateTime localDateTime = timestamp.toLocalDateTime();
             String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             jedis.set("Creation-" + owner, format);
@@ -85,14 +75,11 @@ public class IslandInfoUpdater {
 
     }
 
-    public static void cacheOptions(Plot currentPlot) {
+    public static void cacheOptions(Island currentPlot) {
         if (currentPlot == null) {
             return;
         }
-        UUID owner = currentPlot.getOwner();
-        if (owner == null) {
-            return;
-        }
+        String owner = currentPlot.getOwner();
         try (Jedis jedis = RedisUtils.getJedis()) {
             if (BeaconIslandOption.isAntiFire(currentPlot)) {
                 jedis.set("AntiFire-" + owner, "true");
@@ -111,39 +98,12 @@ public class IslandInfoUpdater {
     }
 
 
-    public static void cacheStatus(Plot currentPlot) {
-        if (currentPlot == null) {
-            return;
-        }
-        UUID owner = currentPlot.getOwner();
-        if (owner == null) {
-            return;
-        }
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            if (currentPlot.getDenied().contains(PlotDao.getAllUUID())) {
-                jedis.set("Lock-" + owner, "true");
-            } else {
-                jedis.set("Lock-" + owner, "false");
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    public static boolean cacheArea(Plot currentPlot) {
+    public static boolean cacheArea(Island currentPlot) {
         assert world != null;
         if (currentPlot == null) {
             return false;
         }
-
-        UUID owner = currentPlot.getOwner();
-
-        if (owner == null) {
-            return false;
-        }
+        String owner = currentPlot.getOwner();
 
         try (Jedis jedis = RedisUtils.getJedis()) {
             if (jedis.exists("Area-" + owner)) {
@@ -153,8 +113,8 @@ public class IslandInfoUpdater {
             e.printStackTrace();
         }
 
-        Location top = PlotUtils.fromPlotLocation(currentPlot.getTopAbs());
-        Location bot = PlotUtils.fromPlotLocation(currentPlot.getBottomAbs());
+        Location top = currentPlot.getTopLocation();
+        Location bot = currentPlot.getBottomLocation();
         long areaCount = 0;
         for (int i = bot.getBlockX(); i < top.getBlockX(); i++) {
             for (int j = bot.getBlockZ(); j < top.getBlockZ(); j++) {
@@ -224,6 +184,7 @@ public class IslandInfoUpdater {
         }
         return "未知";
     }
+
     public static String isAntiFire(UUID uuid) {
         try (Jedis jedis = RedisUtils.getJedis()) {
             if (jedis.exists("AntiFire-" + uuid)) {

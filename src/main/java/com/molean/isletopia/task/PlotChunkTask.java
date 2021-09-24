@@ -1,15 +1,15 @@
 package com.molean.isletopia.task;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.plotsquared.core.plot.Plot;
+import com.molean.isletopia.island.Island;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class PlotChunkTask extends BukkitRunnable {
@@ -25,15 +25,16 @@ public class PlotChunkTask extends BukkitRunnable {
     private final Runnable runnable;
     private int chunkPerTick;
 
-    public PlotChunkTask(@NotNull Plot plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
-        com.plotsquared.core.location.Location bot = plot.getBottomAbs();
-        com.plotsquared.core.location.Location top = plot.getTopAbs();
-        World world = Bukkit.getWorld(Objects.requireNonNull(plot.getWorldName()));
+    public PlotChunkTask(@NotNull Island plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
+        Location bottomLocation = plot.getBottomLocation();
+        Location topLocation = plot.getTopLocation();
+        World world = Bukkit.getWorld("SkyWorld");
+
         assert world != null;
-        bx = bot.getX() >> 4;
-        bz = bot.getZ() >> 4;
-        tx = top.getX() >> 4;
-        tz = top.getZ() >> 4;
+        bx = bottomLocation.getBlockX() >> 4;
+        bz = bottomLocation.getBlockZ() >> 4;
+        tx = topLocation.getBlockX() >> 4;
+        tz = topLocation.getBlockZ() >> 4;
         this.chunkPerTick = (int) Math.ceil(1024 / (double) timeOutTicks);
         if (chunkPerTick < 4) {
             this.chunkPerTick = 4;
@@ -48,8 +49,8 @@ public class PlotChunkTask extends BukkitRunnable {
         Z = bz;
         Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), (task) -> {
             int count = 0;
-            for (; X <= tx; X++) {
-                for (; Z <= tz; Z++) {
+            for (; X < tx; X++) {
+                for (; Z < tz; Z++) {
                     if (count++ > chunkPerTick) {
                         return;
                     }
