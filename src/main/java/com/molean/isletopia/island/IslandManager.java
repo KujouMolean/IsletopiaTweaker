@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,13 +27,15 @@ public enum IslandManager {
     private final Set<Island> tobeUpdate = new HashSet<>();
 
     IslandManager() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             for (Island island : tobeUpdate) {
                 persist(island);
             }
             tobeUpdate.clear();
 
         }, 20, 20);
+        IsletopiaTweakers.addDisableTask("Stop persist island data..", bukkitTask::cancel);
     }
 
     public void persist(Island island) {

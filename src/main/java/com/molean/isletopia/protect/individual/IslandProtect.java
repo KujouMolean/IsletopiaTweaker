@@ -96,7 +96,7 @@ public class IslandProtect implements Listener {
         int plotToX = Math.floorDiv(to.getBlockX(), 512) + 1;
         int plotToZ = Math.floorDiv(to.getBlockZ(), 512) + 1;
         if (plotFromX != plotToX || plotFromZ != plotToZ) {
-            event.setCancelled(true);
+            event.getEntity().remove();
         }
     }
 

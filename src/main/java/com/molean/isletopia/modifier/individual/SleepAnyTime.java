@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.world.TimeSkipEvent;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -29,19 +30,23 @@ public class SleepAnyTime implements Listener, CommandExecutor {
         world = IsletopiaTweakers.getWorld();
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         Objects.requireNonNull(Bukkit.getPluginCommand("getup")).setExecutor(this);
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             sleepingPlayers.removeIf(player -> !player.isOnline());
             int size = sleepingPlayers.size();
             if (size > 0) {
                 world.setTime(world.getTime() + size);
             }
         }, 0, 1);
+        IsletopiaTweakers.addDisableTask("Stop skip world time for sleep player..", bukkitTask::cancel);
 
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask1 = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             sleepingPlayers.removeIf(player -> !player.isOnline());
             int size = sleepingPlayers.size();
             world.setGameRule(GameRule.RANDOM_TICK_SPEED, 3 * (1 + size));
         }, 0, 20);
+
+        IsletopiaTweakers.addDisableTask("Stop update random tick speed for sleep player..", bukkitTask1::cancel);
+
     }
 
 

@@ -22,6 +22,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +35,7 @@ public class BeaconIslandOption implements Listener {
 
     public BeaconIslandOption() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (IslandManager.INSTANCE.hasCurrentIslandPermission(onlinePlayer)) {
                     Island island = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
@@ -45,6 +46,7 @@ public class BeaconIslandOption implements Listener {
                 }
             }
         }, 60 * 20, 60 * 3 * 20);
+        IsletopiaTweakers.addDisableTask("Stop update beacon options..",bukkitTask::cancel);
     }
 
     private static final Map<IslandId, Set<PotionEffectType>> stringHashSetMap = new HashMap<>();

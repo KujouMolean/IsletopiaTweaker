@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
@@ -22,7 +23,7 @@ public class IslandInfoUpdater {
 
     public IslandInfoUpdater() {
         world = Bukkit.getWorld("SkyWorld");
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
 
@@ -43,6 +44,7 @@ public class IslandInfoUpdater {
             }
 
         }, 60, 60);
+        IsletopiaTweakers.addDisableTask("Stop update island info", bukkitTask::cancel);
 
     }
 

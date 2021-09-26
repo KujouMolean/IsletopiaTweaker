@@ -111,6 +111,7 @@ public class PlayerDataSync implements Listener {
 
     public void onJoin(Player player) {
         Location location = player.getLocation().clone();
+        GameMode gameMode = player.getGameMode();
         try {
             if (!PlayerDataDao.exist(player.getName())) {
                 //插入数据
@@ -122,7 +123,7 @@ public class PlayerDataSync implements Listener {
             //拿锁
             String passwd = PlayerDataDao.getLock(player.getName());
             if (passwd != null) {
-                loadData(player, passwd, location);
+                loadData(player, passwd,gameMode, location);
                 // end
             } else {
                 //没拿到, 开始等锁
@@ -136,7 +137,7 @@ public class PlayerDataSync implements Listener {
                             String lock = PlayerDataDao.getLock(player.getName());
 
                             if (lock != null) {
-                                loadData(player, lock, location);
+                                loadData(player, lock,gameMode, location);
                                 task.cancel();
 
                                 //end
@@ -154,7 +155,7 @@ public class PlayerDataSync implements Listener {
                                     //end (failed)
                                 }
 
-                                loadData(player, lockForce, location);
+                                loadData(player, lockForce,gameMode, location);
 
 
                                 //end (success)
@@ -185,7 +186,7 @@ public class PlayerDataSync implements Listener {
         }
     }
 
-    private void loadData(Player player, String passwd, Location location) throws SQLException, IOException {
+    private void loadData(Player player, String passwd,GameMode gameMode, Location location) throws SQLException, IOException {
         passwdMap.put(player.getName(), passwd);
         //强制拿到锁了, 加载数据
 
@@ -200,6 +201,7 @@ public class PlayerDataSync implements Listener {
         PlayerSerializeUtils.deserialize(player, query);
         //deserialize player from db
         player.teleport(location);
+        player.setGameMode(gameMode);
 
         PlayerDataSyncCompleteEvent playerDataSyncCompleteEvent = new PlayerDataSyncCompleteEvent(player);
         Bukkit.getPluginManager().callEvent(playerDataSyncCompleteEvent);

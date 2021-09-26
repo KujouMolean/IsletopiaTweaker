@@ -10,13 +10,11 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -90,22 +88,41 @@ public class BeaconLimiter implements Listener {
 
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void on(BlockDropItemEvent event) {
-        Location location = event.getBlock().getLocation();
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
-        if (currentIsland == null) {
-            return;
-        }
-        String owner = currentIsland.getOwner();
-        for (Item item : event.getItems()) {
-            ItemStack itemStack = item.getItemStack();
-            if (!itemStack.getType().equals(Material.BEACON)) {
-                continue;
+//    @EventHandler(ignoreCancelled = true)
+//    public void on(BlockDropItemEvent event) {
+//        Location location = event.getBlock().getLocation();
+//        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
+//        if (currentIsland == null) {
+//            return;
+//        }
+//        String owner = currentIsland.getOwner();
+//        for (Item item : event.getItems()) {
+//            ItemStack itemStack = item.getItemStack();
+//            if (!itemStack.getType().equals(Material.BEACON)) {
+//                continue;
+//            }
+//            itemStack.lore(List.of(Component.text("§c绑定=>" + owner)));
+//            item.setItemStack(NMSTagUtils.set(itemStack, "bind", owner));
+//
+//        }
+//    }
+
+    @EventHandler
+    public void on(ItemSpawnEvent event) {
+        Item item = event.getEntity();
+        ItemStack itemStack = item.getItemStack();
+        if (itemStack.getType().equals(Material.BEACON)) {
+            Location location = event.getLocation();
+            Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
+            if (currentIsland == null) {
+                return;
             }
+            String owner = currentIsland.getOwner();
             itemStack.lore(List.of(Component.text("§c绑定=>" + owner)));
             item.setItemStack(NMSTagUtils.set(itemStack, "bind", owner));
 
         }
+
+
     }
 }

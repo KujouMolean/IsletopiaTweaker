@@ -1,11 +1,15 @@
 package com.molean.isletopia.admin.individual;
 
 import com.google.gson.Gson;
+import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.ConvertDao;
+import com.molean.isletopia.database.IslandDao;
 import com.molean.isletopia.island.*;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.task.PlotChunkTask;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.ResourceUtils;
+import com.mysql.cj.result.Field;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -17,10 +21,9 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 public class IslandAdmin implements CommandExecutor, TabCompleter {
     public IslandAdmin() {
@@ -173,6 +176,71 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
+            }
+            case "trim"->{
+                int tobeDelete = 0;
+                if (strings.length >= 2) {
+                    tobeDelete = Integer.parseInt(strings[1]);
+                }
+
+
+
+                try {
+                    HashSet<String> islandStringIds = new HashSet<>();
+                    HashSet<String> wantDeleteIds = new HashSet<>();
+
+
+                    Set<IslandId> localServerIslandIds = IslandDao.getLocalServerIslandIds(ServerInfoUpdater.getServerName());
+                    for (IslandId localServerIslandId : localServerIslandIds) {
+                        islandStringIds.add(localServerIslandId.getX() + "." + localServerIslandId.getZ());
+                    }
+                    File file = new File(IsletopiaTweakers.getWorld().getWorldFolder() + "/region/");
+                    File[] files = file.listFiles((dir, name) -> {
+                        if (name.matches("r\\.[0-9]+\\.[0-9]+\\.mca")) {
+                            return true;
+                        }
+                        return false;
+                    });
+
+                    assert files != null;
+                    for (File file1 : files) {
+                        String[] split = file1.getName().split("\\.");
+                        if (split.length < 3) {
+                            continue;
+                        }
+                        int x = Integer.parseInt(split[1]);
+                        int z = Integer.parseInt(split[2]);
+                        if (!islandStringIds.contains(x + "." + z)) {
+                            wantDeleteIds.add(x + "." + z);
+                            if (tobeDelete < 0) {
+                                commandSender.sendMessage(x + "." + z);
+                            }
+                        }
+                    }
+
+                    if (wantDeleteIds.size() == tobeDelete) {
+
+                        //start delete
+                        for (File file1 : files) {
+                            String[] split = file1.getName().split("\\.");
+                            if (split.length < 3) {
+                                continue;
+                            }
+                            int x = Integer.parseInt(split[1]);
+                            int z = Integer.parseInt(split[2]);
+                            if (!islandStringIds.contains(x + "." + z)) {
+                                file1.delete();
+                            }
+                        }
+                    } else {
+                        commandSender.sendMessage("total:" + wantDeleteIds.size());
+                    }
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    commandSender.sendMessage("Trim error!");
+                }
+
             }
         }
         return false;

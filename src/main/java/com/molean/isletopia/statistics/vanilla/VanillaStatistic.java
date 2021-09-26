@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +34,8 @@ public class VanillaStatistic implements Listener {
             }
         });
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), (task) -> {
+
+        Runnable runnable = () -> {
             try {
                 Bukkit.getLogger().info("Saving statistics for online players...");
                 int cnt = 0;
@@ -48,9 +50,11 @@ public class VanillaStatistic implements Listener {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        };
 
-
-        }, 20 * 60 * 2, 20 * 60 * 2);
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), runnable, 20 * 60 * 2, 20 * 60 * 2);
+        IsletopiaTweakers.addDisableTask("Stop update player stats data", runnable);
+        IsletopiaTweakers.addDisableTask("Stop update player stats data", bukkitTask::cancel);
     }
 
     @EventHandler

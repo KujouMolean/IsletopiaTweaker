@@ -19,6 +19,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.HashMap;
@@ -30,11 +31,12 @@ public class MoreChairs implements Listener {
 
     public MoreChairs() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             map.forEach((player, armorStand) -> {
                 armorStand.setRotation(player.getLocation().getYaw(), player.getLocation().getPitch());
             });
         }, 0, 1);
+        IsletopiaTweakers.addDisableTask("Stop update chair position..", bukkitTask::cancel);
     }
 
     private static final Map<Player, ArmorStand> map = new HashMap<>();

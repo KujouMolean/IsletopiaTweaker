@@ -5,6 +5,7 @@ import com.molean.isletopia.island.Island;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.settings.SettingsMenu;
+import com.molean.isletopia.task.PlotChunkTask;
 import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -128,13 +129,20 @@ public class BiomeMenu implements Listener {
         }
         assert currentPlot != null;
         if (player.getName().equals(currentPlot.getOwner())) {
-            MessageUtils.info(player, "尝试修改岛屿生物群系...");
+            MessageUtils.info(player, "尝试修改岛屿生物群系...(需要30秒)");
             String finalName = name;
-            currentPlot.getCuboidRegion().forEachBlockLimited(5000, (block) -> {
-                block.setBiome(biomes.get(slot + page * 52));
+            Biome biome = biomes.get(slot + page * 52);
+            new PlotChunkTask(currentPlot, chunk -> {
+                for (int i = 0; i < 16; i++) {
+                    for (int j = 0; j < 256; j++) {
+                        for (int k = 0; k < 16; k++) {
+                            chunk.getBlock(i, j, k).setBiome(biome);
+                        }
+                    }
+                }
             }, () -> {
                 MessageUtils.info(player, "成功修改生物群系为:" + finalName + ".");
-            });
+            }, 30 * 20);
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
                     player.kick(Component.text("错误, 非岛主操作岛屿成员.")));

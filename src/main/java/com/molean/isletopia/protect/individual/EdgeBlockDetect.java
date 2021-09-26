@@ -25,9 +25,22 @@ public class EdgeBlockDetect implements Listener {
 
     }
 
+
+
     //disable piston push edge block
     @EventHandler(ignoreCancelled = true)
     public void on(BlockPistonExtendEvent event) {
+        {
+            int fromX = event.getBlock().getLocation().getBlockX() >> 9;
+            int fromZ = event.getBlock().getLocation().getBlockZ() >> 9;
+            Block relative = event.getBlock().getRelative(event.getDirection());
+            int toX = relative.getLocation().getBlockX() >> 9;
+            int toZ = relative.getLocation().getBlockZ() >> 9;
+            if (!(fromX == toX && fromZ == toZ)){
+                event.setCancelled(true);
+            }
+        }
+
         for (Block block : event.getBlocks()) {
             int fromX = block.getLocation().getBlockX() >> 9;
             int fromZ = block.getLocation().getBlockZ() >> 9;
@@ -45,6 +58,7 @@ public class EdgeBlockDetect implements Listener {
     //disable pistion pull edge block
     @EventHandler(ignoreCancelled = true)
     public void on(BlockPistonRetractEvent event) {
+
         for (Block block : event.getBlocks()) {
             int fromX = block.getLocation().getBlockX() >> 9;
             int fromZ = block.getLocation().getBlockZ() >> 9;
@@ -58,10 +72,6 @@ public class EdgeBlockDetect implements Listener {
         }
     }
 
-    //    @EventHandler
-    public void onBlockEvent(BlockPhysicsEvent event) {
-        //dangerous
-    }
 
 
     //disable liquid flow to other island

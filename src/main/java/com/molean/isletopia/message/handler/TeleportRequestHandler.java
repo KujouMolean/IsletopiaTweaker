@@ -28,6 +28,16 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
+    @EventHandler
+    public void on(PlayerJoinEvent event) {
+        String name = event.getPlayer().getName();
+        Location location = this.locationMap.get(name);
+        if (location != null) {
+            if (System.currentTimeMillis() - this.expire.getOrDefault(name, 0L) < 10000L) {
+                event.getPlayer().teleport(location);
+            }
+        }
+    }
 
     @EventHandler
     public void on(PlayerDataSyncCompleteEvent event) {

@@ -15,6 +15,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,20 +36,23 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
 
         //check database before use
         PlayerBackupDao.checkTable();
+        IslandBackupDao.checkTable();
 
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask1 = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 onlinePlayer.saveData();
             }
             Bukkit.getScheduler().runTaskLaterAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    PlayerBackupDao.upload(onlinePlayer.getName());;
+                    PlayerBackupDao.upload(onlinePlayer.getName());
+                    ;
                 }
 
             }, 20L);
         }, 5 * 60 * 20, 5 * 60 * 20);
+        IsletopiaTweakers.addDisableTask("Stop backup player data", bukkitTask1::cancel);
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask2 = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Set<IslandId> plotIdSet = new HashSet<>();
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
@@ -75,6 +79,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
             }
 
         }, 10 * 60 * 20, 10 * 60 * 20);
+        IsletopiaTweakers.addDisableTask("Stop backup player island", bukkitTask2::cancel);
     }
 
 

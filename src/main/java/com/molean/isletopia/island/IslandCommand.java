@@ -437,11 +437,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayer(source);
         assert player != null;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            List<String> players = new ArrayList<>();
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                players.add(onlinePlayer.getName());
-            }
-            new VisitMenu(player, players, 0).open();
+            new VisitMenu(player, ServerInfoUpdater.getOnlinePlayers(), 0).open();
         });
     }
 
@@ -518,7 +514,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> subCommand = List.of("home", "visit", "trust", "distrust", "help", "invite",
             "kick", "lock", "unlock", "setHome", "resetHome",
-            "visits","trusts","visitors","consume","stars","star","unstar","spectatorVisitor");
+            "visits","trusts","visitors","consume","stars","star","unstar","spectatorVisitor","setBiome");
 
     private static final List<String> playerCommand = List.of("trust", "distrust",
             "kick", "invite", "visit","star","unstar");

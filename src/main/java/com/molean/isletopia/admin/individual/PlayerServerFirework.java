@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -24,7 +25,7 @@ public class PlayerServerFirework implements CommandExecutor {
 
     public PlayerServerFirework() {
         Objects.requireNonNull(Bukkit.getPluginCommand("firework")).setExecutor(this);
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             fireworkMap.removeIf(s -> Bukkit.getOnlinePlayers().stream()
                     .noneMatch(player -> player.getName().equalsIgnoreCase(s)));
 
@@ -37,6 +38,7 @@ public class PlayerServerFirework implements CommandExecutor {
                 }, random.nextInt(20));
             }
         }, 20, 20);
+        IsletopiaTweakers.addDisableTask("Disable  player firework", bukkitTask::cancel);
     }
 
     @Override

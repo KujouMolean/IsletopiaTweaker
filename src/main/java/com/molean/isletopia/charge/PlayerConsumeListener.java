@@ -20,6 +20,8 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.scheduler.BukkitTask;
+import org.hamcrest.core.IsEqual;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -125,7 +127,7 @@ public class PlayerConsumeListener implements Listener {
         updateSample(20);
 
         //online count
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             //get plot distinct
             producePowerAndWater();
             for (String owner : getIslandHasPlayerUnique()) {
@@ -134,6 +136,9 @@ public class PlayerConsumeListener implements Listener {
                 warning(owner);
             }
         }, 20 * 60, 20 * 60);
+
+        IsletopiaTweakers.addDisableTask("Stop listen player consumer", bukkitTask::cancel);
+
     }
 
 
@@ -312,6 +317,10 @@ public class PlayerConsumeListener implements Listener {
             return;
         }
         if (Bukkit.getCurrentTick() % TICK_SAMPLE_10 == 0) {
+            if (!event.getBlock().getType().equals(Material.WATER)) {
+                return;
+            }
+
             String plotOwner = getPlotOwner(event.getBlock().getLocation());
             if (plotOwner == null) {
                 return;

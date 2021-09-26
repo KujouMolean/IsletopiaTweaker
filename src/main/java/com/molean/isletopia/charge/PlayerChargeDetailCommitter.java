@@ -5,6 +5,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +24,7 @@ public class PlayerChargeDetailCommitter {
 
     public PlayerChargeDetailCommitter() {
         //每分钟执行一次
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             //每分钟提交一次岛屿消费数据
             playerChargeDetailMap.remove(null);
             playerChargeDetailMap.forEach((s, playerChargeDetail) -> {
@@ -32,6 +33,8 @@ public class PlayerChargeDetailCommitter {
                 UniversalParameter.setParameter(s, "PlayerChargeDetail", playerChargeDetailString);
             });
         }, 0, 60 * 20L);
+
+        IsletopiaTweakers.addDisableTask("Stop commit player charge", bukkitTask::cancel);
     }
 
     //获取当前周

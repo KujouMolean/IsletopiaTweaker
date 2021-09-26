@@ -28,6 +28,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import redis.clients.jedis.Jedis;
@@ -77,7 +78,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         ignoredType.add(EntityType.ITEM_FRAME);
         ignoredType.add(EntityType.GLOW_ITEM_FRAME);
         ignoredReason.add(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
                 if (currentPlot != null) {
@@ -99,6 +100,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
             shouldUpdatePlot.clear();
         }, 20L, 20L);
+        IsletopiaTweakers.addDisableTask("Stop record mob cap data..", bukkitTask::cancel);
     }
 
     private static final Map<Island, Long> lastNotifyTimeMap = new HashMap<>();
