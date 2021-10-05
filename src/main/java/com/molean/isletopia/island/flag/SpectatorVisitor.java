@@ -20,6 +20,10 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
     @Override
     public void onFlagAdd(Island island, String... data) {
         for (Player player : island.getPlayersInIsland()) {
+            if (player.isOp()) {
+                continue;
+            }
+
             if (!island.hasPermission(player)) {
                 player.setGameMode(GameMode.SPECTATOR);
             }
@@ -29,7 +33,10 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
     @Override
     public void onFlagRemove(Island island, String... data) {
         for (Player player : island.getPlayersInIsland()) {
-            if (player.getGameMode().equals(GameMode.SPECTATOR)) {
+            if (player.isOp()) {
+                return;
+            }
+            if (!island.hasPermission(player) && player.getGameMode().equals(GameMode.SPECTATOR)) {
                 player.setGameMode(GameMode.SURVIVAL);
             }
         }
@@ -37,30 +44,32 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerIslandChangeEvent event) {
-        Island to = event.getTo();
-        if (to != null) {
-            for (String islandFlag : to.getIslandFlags()) {
-                String[] split = islandFlag.split("#");
-                if (split[0].equals(getKey())) {
-                    if (!to.hasPermission(event.getPlayer())) {
-                        event.getPlayer().setGameMode(GameMode.SPECTATOR);
-                        return;
-                    }
-                }
-            }
+        if (event.getPlayer().isOp()) {
+            return;
         }
-        if (!event.getPlayer().isOp() || (event.getFrom() != null && event.getFrom().containsFlag(getKey()))) {
+
+        Island to = event.getTo();
+        if (to != null && to.containsFlag(getKey())) {
+            // contains this flag
+            if (!to.hasPermission(event.getPlayer())) {
+                //and has no permission
+                event.getPlayer().setGameMode(GameMode.SPECTATOR);
+            }
+        } else {
             event.getPlayer().setGameMode(GameMode.SURVIVAL);
         }
+
     }
 
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerTeleportEvent event) {
-        if (!event.getPlayer().isOp()) {
-            if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.SPECTATE)) {
-                MessageUtils.fail(event.getPlayer(), "你不能使用传送!");
-                event.setCancelled(true);
-            }
+
+        if (event.getPlayer().isOp()) {
+            return;
+        }
+        if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.SPECTATE)) {
+            MessageUtils.fail(event.getPlayer(), "你不能使用传送!");
+            event.setCancelled(true);
         }
     }
 }

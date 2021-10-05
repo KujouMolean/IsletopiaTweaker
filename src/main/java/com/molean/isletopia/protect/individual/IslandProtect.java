@@ -1,32 +1,27 @@
 package com.molean.isletopia.protect.individual;
 
-import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.Island;
 import com.molean.isletopia.island.IslandManager;
-import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.ItemStack;
@@ -50,32 +45,25 @@ public class IslandProtect implements Listener {
         }
     }
 
-
     //disable interact expect firework
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerInteractEvent event) {
-        if (event.getPlayer().isOp()) {
+        if (event.getClickedBlock() == null) {
             return;
         }
-
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getClickedBlock().getLocation())) {
             ItemStack item = event.getItem();
             if (item != null && item.getType().equals(Material.FIREWORK_ROCKET)) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+                event.setUseItemInHand(Event.Result.ALLOW);
                 return;
             }
-        }
-        if (event.getClickedBlock() != null) {
-            if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getClickedBlock().getLocation())) {
-                event.setCancelled(true);
-            }
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void on(PlayerInteractEntityEvent event){
-        if (event.getPlayer().isOp()) {
-            return;
-        }
+    public void on(PlayerInteractEntityEvent event) {
         if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getRightClicked().getLocation())) {
             event.setCancelled(true);
         }
@@ -170,5 +158,31 @@ public class IslandProtect implements Listener {
         if (plotFromX != plotToX || plotFromZ != plotToZ) {
             event.getVehicle().remove();
         }
+    }
+
+
+    //change to adventure mode
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onChange(PlayerIslandChangeEvent event) {
+        if (event.getPlayer().isOp()) {
+            return;
+        }
+
+        Island to = event.getTo();
+        if (to == null) {
+            return;
+        }
+
+        if (to.containsFlag("SpectatorVisitor")) {
+            return;
+        }
+
+        if (to.hasPermission(event.getPlayer())) {
+            event.getPlayer().setGameMode(GameMode.SURVIVAL);
+        } else {
+            event.getPlayer().setGameMode(GameMode.ADVENTURE);
+        }
+
+
     }
 }

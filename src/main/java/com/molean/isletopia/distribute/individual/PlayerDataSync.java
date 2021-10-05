@@ -207,8 +207,6 @@ public class PlayerDataSync implements Listener {
         PlayerSerializeUtils.deserialize(player, query);
         //deserialize player from db
         player.teleport(location);
-        player.setGameMode(gameMode);
-
         if (RedisUtils.getCommand().exists("GameMode:" + player.getName()) > 0) {
 
             String s = RedisUtils.getCommand().get("GameMode:" + player.getName());
@@ -218,7 +216,6 @@ public class PlayerDataSync implements Listener {
             } catch (IllegalArgumentException ignored) {
             }
         }
-
         PlayerDataSyncCompleteEvent playerDataSyncCompleteEvent = new PlayerDataSyncCompleteEvent(player);
         Bukkit.getPluginManager().callEvent(playerDataSyncCompleteEvent);
     }

@@ -64,4 +64,6 @@ commands:
   reloadpermission:
     permission: isletopia.admin
   usertoken: { }
+  skiptutor: { }
+
 

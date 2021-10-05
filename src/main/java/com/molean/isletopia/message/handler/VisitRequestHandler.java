@@ -78,7 +78,6 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
                 operators.add(operator.getName());
             }
 
-
             if (members.contains(sourcePlayer) || targetPlayer.equalsIgnoreCase(sourcePlayer) || operators.contains(sourcePlayer)) {
                 allow = true;
             }
@@ -89,10 +88,10 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
                 visitResponse.setResponseMessage("§8[§3岛屿助手§8] §7对方拒绝了你的访问.");
                 ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
 
-                    RedisUtils.getCommand().set("Lock-" + targetPlayer, "true");
+                RedisUtils.getCommand().set("Lock-" + targetPlayer, "true");
 
             } else {
-                    RedisUtils.getCommand().set("Lock-" + targetPlayer, "false");
+                RedisUtils.getCommand().set("Lock-" + targetPlayer, "false");
 
                 Player player = Bukkit.getPlayerExact(sourcePlayer);
 

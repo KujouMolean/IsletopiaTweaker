@@ -30,9 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class ProductionBar implements Listener, CommandExecutor {
-    private final Map<IslandId, Map<Material, Deque<Long>>> map = new HashMap<>();
-    private final Map<IslandId, Map<Material, Integer>> maxMap = new HashMap<>();
-    private final Map<IslandId, List<BossBar>> bossBarsPerIsland = new HashMap<>();
+    private static final Map<IslandId, Map<Material, Deque<Long>>> map = new HashMap<>();
+    private static final Map<IslandId, Map<Material, Integer>> maxMap = new HashMap<>();
+    private static final Map<IslandId, List<BossBar>> bossBarsPerIsland = new HashMap<>();
 
     public ProductionBar() {
         Objects.requireNonNull(Bukkit.getPluginCommand("productionbar")).setExecutor(this);
@@ -100,7 +100,7 @@ public class ProductionBar implements Listener, CommandExecutor {
                 }
             }
         }, 0, 20);
-        IsletopiaTweakers.addDisableTask("Disable production bar update, and remove all bars",() -> {
+        IsletopiaTweakers.addDisableTask("Disable production bar update, and remove all bars", () -> {
             bukkitTask.cancel();
             bossBarsPerIsland.forEach((islandId, bossBars) -> {
                 for (BossBar bossBar : bossBars) {
@@ -149,7 +149,7 @@ public class ProductionBar implements Listener, CommandExecutor {
         }
     }
 
-    public Map<Material, Integer> productionPerMin(IslandId islandId) {
+    public static Map<Material, Integer> productionPerMin(IslandId islandId) {
         Map<Material, Deque<Long>> materialDequeMap = map.get(islandId);
         HashMap<Material, Integer> materialIntegerHashMap = new HashMap<>();
         if (materialDequeMap == null) {

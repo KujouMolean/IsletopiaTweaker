@@ -7,6 +7,7 @@ import com.molean.isletopia.island.IslandId;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -28,6 +29,12 @@ public class PlayerIslandChangeEventListener implements Listener {
         Player player = event.getPlayer();
         Island toIsland = IslandManager.INSTANCE.getCurrentIsland(event.getPlayer());
         PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, null, toIsland);
+
+        if (playerIslandChangeEvent.isCancelled()) {
+            MessageUtils.fail(player, "你无法进入该岛屿!");
+            player.performCommand("is");
+        }
+
         Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);
     }
 

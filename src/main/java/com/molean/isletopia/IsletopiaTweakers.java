@@ -16,6 +16,7 @@ import com.molean.isletopia.protect.IsletopiaProtect;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.statistics.IsletopiaStatistics;
+import com.molean.isletopia.tutor.IsletopiaTutorialSystem;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -102,12 +103,11 @@ public final class IsletopiaTweakers extends JavaPlugin {
             new IsletopiaChargeSystem();
             new IsletopiaIslandSystem();
             RedisMessageListener.init();
-
-            //test
             new CommandListener();
             new MailCommand();
+            new IsletopiaTutorialSystem();
 
-            //auto shutdown
+//            auto shutdown
             Bukkit.getScheduler().runTaskTimer(this, () -> {
                 l = System.currentTimeMillis();
             }, 0, 20);

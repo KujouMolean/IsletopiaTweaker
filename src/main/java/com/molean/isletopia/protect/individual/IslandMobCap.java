@@ -37,7 +37,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
+public class
+IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
     private static final Map<EntityType, Integer> map = new HashMap<>();
     private static final List<EntityType> ignoredType = new ArrayList<>();
@@ -133,7 +134,6 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
                     int old = entityTypeIntegerHashMap.getOrDefault(entity.getType(), 0);
                     entityTypeIntegerHashMap.put(entity.getType(), old + 1);
                 }
-//                byte[] serialize = ObjectUtils.serialize(entityTypeIntegerHashMap);
                 consumer.accept(entityTypeIntegerHashMap);
             });
         } else {
@@ -170,7 +170,8 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
     private static void warn(Island currentPlot) {
         Long lastNotifyTime = lastNotifyTimeMap.getOrDefault(currentPlot, 0L);
-        if (System.currentTimeMillis() - lastNotifyTime > 15000) {
+        if (System.currentTimeMillis() - lastNotifyTime > 3 * 60 * 1000L) {
+
             lastNotifyTimeMap.put(currentPlot, System.currentTimeMillis());
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (Objects.equals(IslandManager.INSTANCE.getCurrentIsland(onlinePlayer), currentPlot)) {

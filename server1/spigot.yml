@@ -15,7 +15,7 @@ settings:
   log-named-deaths: true
   debug: false
   save-user-cache-on-stop-only: false
-  bungeecord: true
+  bungeecord: false
   moved-too-quickly-multiplier: 100.0
   moved-wrongly-threshold: 10.0
   log-villager-deaths: false

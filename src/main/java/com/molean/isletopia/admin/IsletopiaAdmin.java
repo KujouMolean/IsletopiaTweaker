@@ -15,7 +15,6 @@ public class IsletopiaAdmin {
             new PlayerServerFirework();
 //            new TransformIsland();
             new IsDebugCommand();
-            new StatsRankCommand();
             new IslandAdmin();
             new ReloadPermissionCommand();
 
