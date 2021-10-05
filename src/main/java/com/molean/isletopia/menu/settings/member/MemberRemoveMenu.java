@@ -98,15 +98,10 @@ public class MemberRemoveMenu implements Listener {
         }
 
         if (slot < members.size() && slot < 52) {
-            Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
-            assert currentPlot != null;
-            if (player.getName().equals(currentPlot.getOwner())) {
-                currentPlot.getMembers().remove(members.get(slot + page * 52));
-                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberRemoveMenu(player).open());
-            } else {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
-                        player.kick(Component.text("错误, 非岛主操作岛屿成员.")));
-            }
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                player.performCommand("is distrust " + members.get(slot + page * 52));
+                player.closeInventory();
+            });
         }
 
 

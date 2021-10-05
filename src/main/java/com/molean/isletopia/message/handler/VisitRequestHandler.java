@@ -6,7 +6,6 @@
 package com.molean.isletopia.message.handler;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.island.Island;
 import com.molean.isletopia.island.IslandManager;
@@ -17,15 +16,11 @@ import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.VisitRequest;
 import com.molean.isletopia.shared.pojo.resp.VisitResponse;
 import com.molean.isletopia.shared.utils.RedisUtils;
-import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import redis.clients.jedis.Jedis;
 
 import java.util.*;
 
@@ -94,26 +89,24 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
                 visitResponse.setResponseMessage("§8[§3岛屿助手§8] §7对方拒绝了你的访问.");
                 ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
 
-                try (Jedis jedis = RedisUtils.getJedis()) {
-                    jedis.set("Lock-" + targetPlayer, "true");
+                    RedisUtils.getCommand().set("Lock-" + targetPlayer, "true");
 
-                }
             } else {
-                try (Jedis jedis = RedisUtils.getJedis()) {
-                    jedis.set("Lock-" + targetPlayer, "false");
-                }
+                    RedisUtils.getCommand().set("Lock-" + targetPlayer, "false");
 
-                Player player = Bukkit.getPlayer(sourcePlayer);
+                Player player = Bukkit.getPlayerExact(sourcePlayer);
+
                 if (player != null && player.isOnline()) {
+                    System.out.println("handle visit request handler: " + sourcePlayer + " " + player.getName());
                     island.tp(player);
-
                 } else {
                     this.locationMap.put(sourcePlayer, island);
                     this.expire.put(sourcePlayer, System.currentTimeMillis());
-                    visitResponse.setResponse("accepted");
-                    visitResponse.setResponseMessage("");
-                    ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
                 }
+
+                visitResponse.setResponse("accepted");
+                visitResponse.setResponseMessage("");
+                ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
             }
         }
     }

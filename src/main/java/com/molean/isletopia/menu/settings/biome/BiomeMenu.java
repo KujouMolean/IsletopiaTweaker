@@ -2,6 +2,7 @@ package com.molean.isletopia.menu.settings.biome;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.IslandId;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.settings.SettingsMenu;
@@ -23,7 +24,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class BiomeMenu implements Listener {
 
@@ -31,6 +34,8 @@ public class BiomeMenu implements Listener {
     private final Inventory inventory;
     private final List<Biome> biomes = new ArrayList<>(List.of(Biome.values()));
     private final int page;
+
+    private static final Set<IslandId> changingBiome = new HashSet<>();
 
     public BiomeMenu(Player player) {
         this(player, 0);
@@ -121,17 +126,26 @@ public class BiomeMenu implements Listener {
 
         Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
 
+        assert currentPlot != null;
+
+        if (changingBiome.contains(currentPlot.getIslandId())) {
+            MessageUtils.fail(player, "你的岛屿正在修改生物群系, 请等待修改完成!");
+            player.closeInventory();
+            return;
+        }
+
         String biomeName = biomes.get(slot + page * 52).name();
         String name = "未知";
         try {
             name = LocalBiome.valueOf(biomeName.toUpperCase()).getName();
         } catch (IllegalArgumentException ignore) {
         }
-        assert currentPlot != null;
+
         if (player.getName().equals(currentPlot.getOwner())) {
-            MessageUtils.info(player, "尝试修改岛屿生物群系...(需要30秒)");
+            MessageUtils.info(player, "尝试修改岛屿生物群系...(需要180秒)");
             String finalName = name;
             Biome biome = biomes.get(slot + page * 52);
+            changingBiome.add(currentPlot.getIslandId());
             new PlotChunkTask(currentPlot, chunk -> {
                 for (int i = 0; i < 16; i++) {
                     for (int j = 0; j < 256; j++) {
@@ -142,7 +156,9 @@ public class BiomeMenu implements Listener {
                 }
             }, () -> {
                 MessageUtils.info(player, "成功修改生物群系为:" + finalName + ".");
-            }, 30 * 20);
+                changingBiome.remove(currentPlot.getIslandId());
+            }, 180 * 20).run();
+
         } else {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
                     player.kick(Component.text("错误, 非岛主操作岛屿成员.")));
@@ -164,6 +180,5 @@ public class BiomeMenu implements Listener {
             return;
         }
         event.getHandlers().unregister(this);
-
     }
 }

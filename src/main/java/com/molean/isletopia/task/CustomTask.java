@@ -19,6 +19,28 @@ public class CustomTask extends BukkitRunnable {
         this.runnable = runnable;
     }
 
+    public void runAsync() {
+        int taskPerTick = runnableList.size() / timeoutTicks;
+        if (runnableList.size() % timeoutTicks != 0) {
+            taskPerTick++;
+        }
+
+        int finalTaskPerTick = taskPerTick;
+        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), (task) -> {
+            int count = 0;
+            while (count++ < finalTaskPerTick && !runnableList.isEmpty()) {
+                Runnable poll = runnableList.poll();
+                poll.run();
+            }
+            if (runnableList.isEmpty()) {
+                task.cancel();
+                if (runnable != null) {
+                    runnable.run();
+                }
+            }
+
+        }, 0, 1);
+    }
 
     @Override
     public void run() {

@@ -3,14 +3,20 @@ package com.molean.isletopia.distribute.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.infrastructure.individual.ClockMenu;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.title.Title;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 
 public class NewbieOperation implements Listener {
 
@@ -45,11 +51,6 @@ public class NewbieOperation implements Listener {
             }
 
             if (playerIslandCount == 0) {
-                //分配岛屿
-
-
-                MessageUtils.strong(player, "正在为你分配岛屿，请勿离开游戏..");
-
                 try {
                     IslandManager.INSTANCE.createNewIsland(player.getName(), (island -> {
                         if (island == null) {
@@ -60,6 +61,12 @@ public class NewbieOperation implements Listener {
                         }
                         island.tp(player);
                         MessageUtils.success(player, "岛屿分配完毕，开始你的游戏！");
+                        MessageUtils.strong(player, "记住，你没有重开的机会。");
+                        player.getInventory().addItem(new ItemStack(Material.WATER_BUCKET, 1));
+                        player.getInventory().addItem(new ItemStack(Material.WATER_BUCKET, 1));
+                        player.getInventory().addItem(new ItemStack(Material.LAVA_BUCKET, 1));
+                        player.getInventory().addItem(new ItemStack(Material.APPLE, 64));
+                        player.getInventory().addItem(ClockMenu.getClock());
                     }));
                 } catch (Exception e) {
                     e.printStackTrace();

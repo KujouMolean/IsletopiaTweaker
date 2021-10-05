@@ -8,8 +8,6 @@ import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
-import com.molean.isletopia.utils.PlotUtils;
-import com.molean.isletopia.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -20,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public class TransformIsland implements CommandExecutor {
 

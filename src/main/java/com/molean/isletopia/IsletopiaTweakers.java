@@ -17,17 +17,16 @@ import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.statistics.IsletopiaStatistics;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import redis.clients.jedis.Jedis;
 
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public final class IsletopiaTweakers extends JavaPlugin {
 
@@ -130,14 +129,14 @@ public final class IsletopiaTweakers extends JavaPlugin {
             onlinePlayer.closeInventory();
         }
         getLogger().info("Add restart flag to redis..");
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            jedis.setex("Restarting-" + ServerInfoUpdater.getServerName(), 15L, "true");
-        }
+        RedisUtils.getCommand().setex("Restarting-" + ServerInfoUpdater.getServerName(), 15L, "true");
         SHUTDOWN_MAP.forEach((s, runnable) -> {
             getLogger().info("Running shutdown task: " + s);
             runnable.run();
         });
         getLogger().info("Disable auto shutdown thread..");
         autoShutDownThread.interrupt();
+        RedisUtils.destroy();
+
     }
 }

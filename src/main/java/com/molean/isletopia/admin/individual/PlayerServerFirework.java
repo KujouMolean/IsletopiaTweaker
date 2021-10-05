@@ -31,7 +31,7 @@ public class PlayerServerFirework implements CommandExecutor {
 
             for (String player : fireworkMap) {
                 Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
-                    Player bukkitPlayer = Bukkit.getPlayer(player);
+                    Player bukkitPlayer = Bukkit.getPlayerExact(player);
                     if (bukkitPlayer != null && bukkitPlayer.isOnline()) {
                         spawnFirework(bukkitPlayer.getLocation().add(0, 2, 0));
                     }

@@ -2,7 +2,6 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
-import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -12,7 +11,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 

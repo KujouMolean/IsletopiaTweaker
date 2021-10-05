@@ -123,10 +123,13 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                         UniversalParameter.setParameter(player.getName(), "elytraReason", "顶贴");
                     }
 
-                    Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
-                    for (ItemStack value : values) {
-                        player.getLocation().getWorld().dropItem(player.getLocation(), value);
-                    }
+                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                        Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
+                        for (ItemStack value : values) {
+                            player.getLocation().getWorld().dropItem(player.getLocation(), value);
+                        }
+                    });
+
 
                     ServerMessageUtils.sendMessage("waterfall", "ServerBump", serverBumpObject);
                     return;

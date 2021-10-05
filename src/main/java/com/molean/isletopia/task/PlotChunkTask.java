@@ -36,8 +36,8 @@ public class PlotChunkTask extends BukkitRunnable {
         tx = topLocation.getBlockX() >> 4;
         tz = topLocation.getBlockZ() >> 4;
         this.chunkPerTick = (int) Math.ceil(1024 / (double) timeOutTicks);
-        if (chunkPerTick < 4) {
-            this.chunkPerTick = 4;
+        if (chunkPerTick < 1) {
+            this.chunkPerTick = 1;
         }
         this.consumer = consumer;
         this.runnable = then;

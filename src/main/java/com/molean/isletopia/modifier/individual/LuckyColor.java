@@ -61,8 +61,8 @@ public class LuckyColor implements Listener, CommandExecutor {
                 UniversalParameter.setParameter(player.getName(), "lastLuckyColor", format);
 
                 ChatColor chatColor = ChatColor.of(new Color(r, g, b));
-                String message = String.format("今日的幸运色为: #█§e(%d,%d,%d)#█", r, g, b);
-                MessageUtils.notify(event.getPlayer(), message.replaceAll("#", chatColor.toString()));
+                String message = String.format("§8[§3温馨提示§8] §e今日的幸运色为: #█§e(%d,%d,%d)#█", r, g, b);
+                player.sendMessage(message.replaceAll("#",chatColor.toString()));
             }
 
             colorMap.put(player.getName(), new  Color(r, g, b));
@@ -78,9 +78,10 @@ public class LuckyColor implements Listener, CommandExecutor {
         {
             Color color = colorMap.get(player.getName());
             ChatColor chatColor = ChatColor.of(color);
-            String message = String.format("今日的幸运色为: #█§e(%d,%d,%d)#█", color.getRed(), color.getGreen(), color.getBlue());
-            MessageUtils.notify(player, message.replaceAll("#", chatColor.toString()));
+            String message = String.format("§8[§3温馨提示§8] §e今日的幸运色为: #█§e(%d,%d,%d)#█", color.getRed(), color.getGreen(), color.getBlue());
+            player.sendMessage(message.replaceAll("#",chatColor.toString()));
         }
+
         ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
         if (itemInMainHand.getType().equals(Material.AIR)) {
             return true;
@@ -92,10 +93,9 @@ public class LuckyColor implements Listener, CommandExecutor {
             int g = color.getGreen();
             int b = color.getBlue();
 
-
             ChatColor chatColor = ChatColor.of(new Color(r, g, b));
-            String format = String.format("手上物品的颜色是: #█§e(%d,%d,%d)#█", r, g, b);
-            MessageUtils.notify(player, format.replaceAll("#", chatColor.toString()));
+            String format = String.format("§8[§3温馨提示§8] §e手上物品的颜色是: #█§e(%d,%d,%d)#█", r, g, b);
+            player.sendMessage(format.replaceAll("#",chatColor.toString()));
         }
         return true;
     }

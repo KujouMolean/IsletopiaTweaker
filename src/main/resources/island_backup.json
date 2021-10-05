@@ -1114,15 +1114,15 @@
         "6": "minecraft:oak_log[axis\u003dy]",
         "7": "minecraft:oak_leaves[distance\u003d4,persistent\u003dfalse]",
         "8": "minecraft:oak_leaves[distance\u003d1,persistent\u003dfalse]",
-        "9": "minecraft:dirt",
-        "10": "minecraft:dirt",
+        "9": "minecraft:lava[level\u003d0]",
+        "10": "minecraft:crying_obsidian",
         "11": "minecraft:cobblestone",
-        "12": "minecraft:dirt",
-        "13": "minecraft:dirt",
+        "12": "minecraft:cut_copper_stairs[facing\u003deast,half\u003dbottom,shape\u003dinner_left,waterlogged\u003dtrue]",
+        "13": "minecraft:cut_copper_stairs[facing\u003dnorth,half\u003dbottom,shape\u003dinner_left,waterlogged\u003dtrue]",
         "14": "minecraft:oak_leaves[distance\u003d1,persistent\u003dfalse]",
         "15": "minecraft:oak_leaves[distance\u003d2,persistent\u003dfalse]",
         "16": "minecraft:oak_leaves[distance\u003d3,persistent\u003dfalse]",
-        "17": "minecraft:dirt",
-        "18": "minecraft:dirt"
+        "17": "minecraft:cut_copper_stairs[facing\u003dwest,half\u003dbottom,shape\u003dinner_left,waterlogged\u003dtrue]",
+        "18": "minecraft:cut_copper_stairs[facing\u003dsouth,half\u003dbottom,shape\u003dinner_left,waterlogged\u003dtrue]"
     }
 }

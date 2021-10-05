@@ -31,11 +31,11 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import redis.clients.jedis.Jedis;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
@@ -44,7 +44,6 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
     private static final List<CreatureSpawnEvent.SpawnReason> ignoredReason = new ArrayList<>();
     private static final Map<IslandId, Map<EntityType, Integer>> plotsEntities = new ConcurrentHashMap<>();
     private static final Map<String, Map<EntityType, Integer>> unloadedLocalCache = new ConcurrentHashMap<>();
-    private static final Map<String, Map<EntityType, Integer>> loadedChunkCache = new ConcurrentHashMap<>();
     private static final Map<IslandId, Integer> plotsEntityCount = new ConcurrentHashMap<>();
 
     private static final Set<IslandId> shouldUpdatePlot = new HashSet<>();
@@ -89,14 +88,12 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
             Queue<Runnable> runnables = new ArrayDeque<>();
 
             for (IslandId plotId : shouldUpdatePlot) {
-                for (int i = 0; i < 15; i++) {
-                    runnables.add(() -> {
-                        newCountEntities(plotId);
-                    });
-                }
+                runnables.add(() -> {
+                    newCountEntities(plotId);
+                });
             }
 
-            new CustomTask(runnables, 20, null).run();
+            new CustomTask(runnables, 20, null).runAsync();
 
             shouldUpdatePlot.clear();
         }, 20L, 20L);
@@ -111,49 +108,50 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         int z = event.getChunk().getZ();
         String stringKey = "ChunkCount:" + ServerInfoUpdater.getServerName() + x + "," + z;
         byte[] key = stringKey.getBytes(StandardCharsets.UTF_8);
-
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            HashMap<EntityType, Integer> entityTypeIntegerHashMap = new HashMap<>();
-            for (Entity entity : event.getChunk().getEntities()) {
-                int old = entityTypeIntegerHashMap.getOrDefault(entity.getType(), 0);
-                entityTypeIntegerHashMap.put(entity.getType(), old + 1);
-            }
-            byte[] serialize = ObjectUtils.serialize(entityTypeIntegerHashMap);
-            jedis.set(key, serialize);
-            unloadedLocalCache.put(stringKey, entityTypeIntegerHashMap);
+        HashMap<EntityType, Integer> entityTypeIntegerHashMap = new HashMap<>();
+        for (Entity entity : event.getChunk().getEntities()) {
+            int old = entityTypeIntegerHashMap.getOrDefault(entity.getType(), 0);
+            entityTypeIntegerHashMap.put(entity.getType(), old + 1);
         }
+        byte[] serialize = ObjectUtils.serialize(entityTypeIntegerHashMap);
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            RedisUtils.getByteCommand().set(key, serialize);
+            unloadedLocalCache.put(stringKey, entityTypeIntegerHashMap);
+        });
     }
 
-    public static Map<EntityType, Integer> countChunk(Jedis jedis, int x, int z) {
-
+    public static void countChunk(int x, int z, Consumer<Map<EntityType, Integer>> consumer) {
         World world = IsletopiaTweakers.getWorld();
-
-
         String stringKey = "ChunkCount:" + ServerInfoUpdater.getServerName() + x + "," + z;
         byte[] key = stringKey.getBytes(StandardCharsets.UTF_8);
 
         if (world.isChunkLoaded(x, z)) {
             HashMap<EntityType, Integer> entityTypeIntegerHashMap = new HashMap<>();
             // keep update if loaded
-            Chunk chunkAt = world.getChunkAt(x, z);
-            for (Entity entity : chunkAt.getEntities()) {
-                int old = entityTypeIntegerHashMap.getOrDefault(entity.getType(), 0);
-                entityTypeIntegerHashMap.put(entity.getType(), old + 1);
-            }
-            byte[] serialize = ObjectUtils.serialize(entityTypeIntegerHashMap);
-            return entityTypeIntegerHashMap;
+            world.getChunkAtAsync(x, z, false, chunk -> {
+                for (Entity entity : chunk.getEntities()) {
+                    int old = entityTypeIntegerHashMap.getOrDefault(entity.getType(), 0);
+                    entityTypeIntegerHashMap.put(entity.getType(), old + 1);
+                }
+//                byte[] serialize = ObjectUtils.serialize(entityTypeIntegerHashMap);
+                consumer.accept(entityTypeIntegerHashMap);
+            });
         } else {
             // try load from cache
 
             if (unloadedLocalCache.containsKey(stringKey)) {
-                return unloadedLocalCache.get(stringKey);
+                consumer.accept(unloadedLocalCache.get(stringKey));
+                return;
             }
 
-            if (jedis.exists(key)) {
-                byte[] bytes = jedis.get(key);
+            if (RedisUtils.getByteCommand().exists(key) > 0) {
+                byte[] bytes = RedisUtils.getByteCommand().get(key);
                 HashMap<EntityType, Integer> deserialize = (HashMap<EntityType, Integer>) ObjectUtils.deserialize(bytes);
                 unloadedLocalCache.put(stringKey, deserialize);
-                return deserialize;
+
+                consumer.accept(deserialize);
+                //end
+                return;
             }
 
             Chunk chunkAt = world.getChunkAt(x, z);
@@ -163,10 +161,10 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
                 entityTypeIntegerHashMap.put(entity.getType(), old + 1);
             }
             byte[] serialize = ObjectUtils.serialize(entityTypeIntegerHashMap);
-            jedis.set(key, serialize);
+            RedisUtils.getByteCommand().set(key, serialize);
             unloadedLocalCache.put(stringKey, entityTypeIntegerHashMap);
-            return entityTypeIntegerHashMap;
-
+            consumer.accept(entityTypeIntegerHashMap);
+            //end
         }
     }
 
@@ -184,7 +182,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onItem(ItemSpawnEvent event) {
         Item entity = event.getEntity();
         Location location = entity.getLocation();
@@ -204,7 +202,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(VehicleMoveEvent event) {
         org.bukkit.Location from = event.getFrom();
         org.bukkit.Location to = event.getTo();
@@ -218,7 +216,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
     }
 
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onMobSpawn(CreatureSpawnEvent event) {
         Island plot = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
         if (plot == null) {
@@ -247,9 +245,9 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
     }
 
+
     public static void newCountEntities(IslandId plotId) {
         HashMap<EntityType, Integer> plotEntities = new HashMap<>();
-
 
         if (!plotId.getServer().equals(ServerInfoUpdater.getServerName())) {
             throw new RuntimeException("Can't count mob in other server!");
@@ -260,28 +258,43 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
         int bz = plotId.getZ() << 5;
         int ez = (plotId.getZ() + 1) << 5;
+        new Runnable() {
+            int count = 0;
+            private final Object countLock = new Object();
 
-
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            for (int i = bx; i < ex; i++) {
-                for (int j = bz; j < ez; j++) {
-                    countChunk(jedis, i, j).forEach((entityType, integer) -> {
-                        if (!ignoredType.contains(entityType)) {
-                            Integer orDefault = plotEntities.getOrDefault(entityType, 0);
-                            plotEntities.put(entityType, orDefault + integer);
+            @Override
+            public void run() {
+                for (int i = bx; i < ex; i++) {
+                    for (int j = bz; j < ez; j++) {
+                        synchronized (countLock) {
+                            count++;
                         }
-                    });
+                        countChunk(i, j, entityTypeIntegerMap -> {
+                            entityTypeIntegerMap.forEach((entityType, integer) -> {
+                                if (!ignoredType.contains(entityType)) {
+                                    Integer orDefault = plotEntities.getOrDefault(entityType, 0);
+                                    plotEntities.put(entityType, orDefault + integer);
+                                }
+                            });
+                            synchronized (countLock) {
+                                count--;
+                            }
 
+                            if (count == 0) {
+                                plotsEntities.put(plotId, plotEntities);
+                                int count = 0;
+                                for (int value : plotEntities.values()) {
+                                    count += value;
+                                }
+                                plotsEntityCount.put(plotId, count);
+                            }
+                        });
+                    }
                 }
             }
-        }
+        }.
 
-        plotsEntities.put(plotId, plotEntities);
-        int count = 0;
-        for (int value : plotEntities.values()) {
-            count += value;
-        }
-        plotsEntityCount.put(plotId, count);
+                run();
 
     }
 

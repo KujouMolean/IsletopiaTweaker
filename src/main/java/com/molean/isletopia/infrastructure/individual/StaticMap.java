@@ -12,12 +12,15 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
@@ -57,6 +60,26 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
         LocalRecipe.addRecipe(icon, type, source, result);
     }
 
+
+    @EventHandler
+    public void on(ChunkLoadEvent event) {
+        for (Entity entity : event.getChunk().getEntities()) {
+            if (!entity.getType().equals(EntityType.ITEM_FRAME)) {
+                return;
+            }
+            ItemFrame itemFrame = (ItemFrame) entity;
+            ItemStack item = itemFrame.getItem();
+            if (!item.getType().equals(Material.FILLED_MAP)) {
+                return;
+            }
+            String colors = NMSTagUtils.get(item, "static-map");
+            if (colors != null && colors.isEmpty()) {
+                ItemMeta itemMeta = item.getItemMeta();
+                MapUtils.updateStaticMap(colors, (MapMeta) itemMeta);
+                item.setItemMeta(itemMeta);
+            }
+        }
+    }
 
     @EventHandler
     public void onJoin(PlayerDataSyncCompleteEvent event) {

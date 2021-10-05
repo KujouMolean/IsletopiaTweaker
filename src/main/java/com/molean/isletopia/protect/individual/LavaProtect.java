@@ -3,7 +3,6 @@ package com.molean.isletopia.protect.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

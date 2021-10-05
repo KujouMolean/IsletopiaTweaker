@@ -20,6 +20,8 @@ public enum IslandFlagManager {
             registerHandler(DisableRedstone.class);
             registerHandler(Lock.class);
             registerHandler(SpectatorVisitor.class);
+            registerHandler(DisableMobSpawn.class);
+            registerHandler(DisableBlockBurn.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

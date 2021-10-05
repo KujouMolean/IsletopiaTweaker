@@ -88,35 +88,23 @@ public class BeaconLimiter implements Listener {
 
     }
 
-//    @EventHandler(ignoreCancelled = true)
-//    public void on(BlockDropItemEvent event) {
-//        Location location = event.getBlock().getLocation();
-//        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
-//        if (currentIsland == null) {
-//            return;
-//        }
-//        String owner = currentIsland.getOwner();
-//        for (Item item : event.getItems()) {
-//            ItemStack itemStack = item.getItemStack();
-//            if (!itemStack.getType().equals(Material.BEACON)) {
-//                continue;
-//            }
-//            itemStack.lore(List.of(Component.text("§c绑定=>" + owner)));
-//            item.setItemStack(NMSTagUtils.set(itemStack, "bind", owner));
-//
-//        }
-//    }
-
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(ItemSpawnEvent event) {
         Item item = event.getEntity();
         ItemStack itemStack = item.getItemStack();
         if (itemStack.getType().equals(Material.BEACON)) {
+            String bind = NMSTagUtils.get(itemStack, "bind");
+            if (bind != null && !bind.isEmpty()) {
+                return;
+            }
+
+
             Location location = event.getLocation();
             Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
             if (currentIsland == null) {
                 return;
             }
+
             String owner = currentIsland.getOwner();
             itemStack.lore(List.of(Component.text("§c绑定=>" + owner)));
             item.setItemStack(NMSTagUtils.set(itemStack, "bind", owner));

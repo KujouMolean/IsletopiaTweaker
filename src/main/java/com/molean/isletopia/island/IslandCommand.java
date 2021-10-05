@@ -2,9 +2,6 @@ package com.molean.isletopia.island;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.island.Island;
-import com.molean.isletopia.island.IslandManager;
-import com.molean.isletopia.island.flag.SpectatorVisitor;
 import com.molean.isletopia.menu.VisitorMenu;
 import com.molean.isletopia.menu.charge.PlayerChargeMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
@@ -12,9 +9,11 @@ import com.molean.isletopia.menu.settings.biome.LocalBiome;
 import com.molean.isletopia.menu.visit.VisitMenu;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.other.ConfirmDialog;
+import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -162,7 +161,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void spectatorVisitor(String subject) {
-        Player player = Bukkit.getPlayer(subject);
+        Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
 
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
@@ -183,7 +182,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void visitors(String subject) {
-        Player player = Bukkit.getPlayer(subject);
+        Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             new VisitorMenu(player, 0).open();
@@ -191,7 +190,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void consume(String subject) {
-        Player player = Bukkit.getPlayer(subject);
+        Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             new PlayerChargeMenu(player).open();
@@ -199,7 +198,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void info(String subject) {
-        Player player = Bukkit.getPlayer(subject);
+        Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null) {
@@ -255,7 +254,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private static void name(String subject, String object) {
-        Player player = Bukkit.getPlayer(subject);
+        Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
 
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
@@ -270,13 +269,13 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
 
     public static void home(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         visit(source, source);
     }
 
     public static void setHome(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
@@ -297,7 +296,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void resetHome(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
@@ -317,7 +316,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void setBiome(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
@@ -332,13 +331,13 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private static void visit(String source, String target) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         IsletopiaTweakersUtils.universalPlotVisitByMessage(player, target, 0);
     }
 
     public static void trust(String source, String target) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
@@ -370,7 +369,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void distrust(String source, String target) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
@@ -386,7 +385,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void lock(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
@@ -399,7 +398,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void unlock(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
@@ -414,7 +413,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
 
     public static void trusts(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
@@ -434,16 +433,24 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void visits(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             new VisitMenu(player, ServerInfoUpdater.getOnlinePlayers(), 0).open();
         });
     }
 
+    public static void cacheCollections(Player player) {
+        String collection = UniversalParameter.getParameter(player.getName(), "collection");
+        if (collection == null || collection.isEmpty()) {
+            return;
+        }
+        RedisUtils.getCommand().set("Collection-" + player.getName(), collection);
+    }
+
 
     public static void star(String source, String target) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         //check player exist
         int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(target);
@@ -456,24 +463,28 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             MessageUtils.fail(player, "失败, " + target + " 已在你的收藏列表中了!");
             return;
         }
+
         UniversalParameter.addParameter(player.getName(), "collection", target);
+        cacheCollections(player);
         MessageUtils.success(player, "成功, " + target + " 已添加到你收藏列表!");
     }
 
     public static void unstar(String source, String target) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         List<String> collection = UniversalParameter.getParameterAsList(player.getName(), "collection");
         if (!collection.contains(target)) {
             MessageUtils.fail(player, "失败, " + target + " 不在你的收藏列表中!");
             return;
         }
+
         UniversalParameter.removeParameter(player.getName(), "collection", target);
+        cacheCollections(player);
         MessageUtils.success(player, "成功, " + target + " 已从你的收藏列表中删除!");
     }
 
     public static void stars(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         List<String> collection = UniversalParameter.getParameterAsList(player.getName(), "collection");
         if (collection.isEmpty()) {
@@ -484,18 +495,19 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 MessageUtils.info(player, " - " + member);
             }
         }
+        cacheCollections(player);
     }
 
     public void help(String source) {
-        Player player = Bukkit.getPlayer(source);
+        Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         player.sendMessage("§7§m§l----------§b梦幻之屿§7§m§l----------");
         player.sendMessage("§e> 快速回家 /is home");
         player.sendMessage("§e> 闭关锁岛 /is lock");
         player.sendMessage("§e> 开放岛屿 /is unlock");
+        player.sendMessage("§e> 查看岛屿信息 /is info");
         player.sendMessage("§e> 打开访问菜单 /is visits");
         player.sendMessage("§e> 访问某人岛屿 /is visit [玩家]");
-        player.sendMessage("§7§m§l---");
         player.sendMessage("§e> 查看岛屿成员 /is trusts");
         player.sendMessage("§e> 添加岛屿成员 /is trust [玩家]");
         player.sendMessage("§e> 删除岛屿成员 /is distrust [玩家]");
@@ -504,10 +516,11 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("§e> 重置复活位置 /is resetHome");
         player.sendMessage("§e> 修改生物群系 /is setBiome");
         player.sendMessage("§e> 缴纳水电费用 /is consume");
-        player.sendMessage("§7§m§l---");
         player.sendMessage("§e> 查看收藏列表 /is stars");
         player.sendMessage("§e> 添加收藏列表 /is star [玩家]");
         player.sendMessage("§e> 删除收藏列表 /is unstar [玩家]");
+        player.sendMessage(Component.text("§e§n点击此处查看梦幻之屿服务器指南(WiKi)")
+                .clickEvent(ClickEvent.openUrl("http://wiki.islet.world")));
         player.sendMessage("§7§m§l--------------------------");
 
     }

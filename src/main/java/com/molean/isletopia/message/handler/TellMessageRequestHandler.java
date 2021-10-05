@@ -16,7 +16,7 @@ public class TellMessageRequestHandler implements MessageHandler<TellMessageRequ
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject, TellMessageRequest message) {
         String target = message.getTarget();
-        Player player = Bukkit.getPlayer(target);
+        Player player = Bukkit.getPlayerExact(target);
         if (player != null) {
             String finalMessage = "§7" + message.getSource() + " -> "
                     + message.getTarget() + ": "

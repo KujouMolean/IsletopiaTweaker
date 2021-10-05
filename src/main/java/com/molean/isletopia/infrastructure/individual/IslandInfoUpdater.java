@@ -3,7 +3,6 @@ package com.molean.isletopia.infrastructure.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.distribute.parameter.UniversalParameter;
 import com.molean.isletopia.island.Island;
-import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.protect.individual.BeaconIslandOption;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import org.bukkit.Bukkit;
@@ -11,7 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -25,23 +23,23 @@ public class IslandInfoUpdater {
         world = Bukkit.getWorld("SkyWorld");
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
-
-                if (currentPlot == null) {
-                    continue;
-                }
-                cacheCreation(currentPlot);
-                cacheCollections(onlinePlayer);
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    cacheOptions(currentPlot);
-                });
+//                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
+//
+//                if (currentPlot == null) {
+//                    continue;
+//                }
+//                cacheCreation(currentPlot);
+//                cacheCollections(onlinePlayer);
+//                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+//                    cacheOptions(currentPlot);
+//                });
             }
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
-                if (cacheArea(currentPlot)) {
-                    break;
-                }
-            }
+//            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+//                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
+//                if (cacheArea(currentPlot)) {
+//                    break;
+//                }
+//            }
 
         }, 60, 60);
         IsletopiaTweakers.addDisableTask("Stop update island info", bukkitTask::cancel);
@@ -53,11 +51,7 @@ public class IslandInfoUpdater {
         if (collection == null || collection.isEmpty()) {
             return;
         }
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            jedis.set("Collection-" + player.getName(), collection);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        RedisUtils.getCommand().set("Collection-" + player.getName(), collection);
     }
 
     public static void cacheCreation(Island currentPlot) {
@@ -65,15 +59,11 @@ public class IslandInfoUpdater {
             return;
         }
         String owner = currentPlot.getOwner();
-        try (Jedis jedis = RedisUtils.getJedis()) {
             Timestamp timestamp = currentPlot.getCreation();
             LocalDateTime localDateTime = timestamp.toLocalDateTime();
             String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            jedis.set("Creation-" + owner, format);
+        RedisUtils.getCommand().set("Creation-" + owner, format);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
     }
 
@@ -82,21 +72,17 @@ public class IslandInfoUpdater {
             return;
         }
         String owner = currentPlot.getOwner();
-        try (Jedis jedis = RedisUtils.getJedis()) {
             if (BeaconIslandOption.isAntiFire(currentPlot)) {
-                jedis.set("AntiFire-" + owner, "true");
+                RedisUtils.getCommand().set("AntiFire-" + owner, "true");
             } else {
-                jedis.set("AntiFire-" + owner, "false");
+                RedisUtils.getCommand().set("AntiFire-" + owner, "false");
             }
 
             if (BeaconIslandOption.isEnablePvP(currentPlot)) {
-                jedis.set("EnablePvP-" + owner, "true");
+                RedisUtils.getCommand().set("EnablePvP-" + owner, "true");
             } else {
-                jedis.set("EnablePvP-" + owner, "false");
+                RedisUtils.getCommand().set("EnablePvP-" + owner, "false");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -107,13 +93,9 @@ public class IslandInfoUpdater {
         }
         String owner = currentPlot.getOwner();
 
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            if (jedis.exists("Area-" + owner)) {
+            if (RedisUtils.getCommand().exists("Area-" + owner)>0) {
                 return false;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         Location top = currentPlot.getTopLocation();
         Location bot = currentPlot.getBottomLocation();
@@ -127,78 +109,55 @@ public class IslandInfoUpdater {
             }
         }
 
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            jedis.setex("Area-" + owner, 60 * 15L, "" + areaCount);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        RedisUtils.getCommand().setex("Area-" + owner, 60 * 15L, "" + areaCount);
         return true;
     }
 
     public static String getCreation(UUID owner) {
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            if (jedis.exists("Creation-" + owner)) {
-                return jedis.get("Creation-" + owner);
+            if (RedisUtils.getCommand().exists("Creation-" + owner)>0) {
+                return RedisUtils.getCommand().get("Creation-" + owner);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return null;
     }
 
     public static long getArea(UUID owner) {
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            if (jedis.exists("Area-" + owner)) {
-                return Long.parseLong(jedis.get("Area-" + owner));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (RedisUtils.getCommand().exists("Area-" + owner) > 0) {
+
+            return Long.parseLong(RedisUtils.getCommand().get("Area-" + owner));
         }
         return -1L;
     }
 
     public static String getIslandStatus(UUID uuid) {
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            if (jedis.exists("Lock-" + uuid)) {
-                if (jedis.get("Lock-" + uuid).equalsIgnoreCase("true")) {
-                    return "锁定";
-                } else {
-                    return "开放";
-                }
+        if (RedisUtils.getCommand().exists("Lock-" + uuid) > 0) {
+            if (RedisUtils.getCommand().get("Lock-" + uuid).equalsIgnoreCase("true")) {
+                return "锁定";
+            } else {
+                return "开放";
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return "未知";
     }
 
     public static String isEnablePvP(UUID uuid) {
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            if (jedis.exists("EnablePvP-" + uuid)) {
-                if (jedis.get("EnablePvP-" + uuid).equalsIgnoreCase("true")) {
+            if (RedisUtils.getCommand().exists("EnablePvP-" + uuid)>0) {
+                if (RedisUtils.getCommand().get("EnablePvP-" + uuid).equalsIgnoreCase("true")) {
                     return "开放";
                 } else {
                     return "仅岛员";
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return "未知";
     }
 
     public static String isAntiFire(UUID uuid) {
-        try (Jedis jedis = RedisUtils.getJedis()) {
-            if (jedis.exists("AntiFire-" + uuid)) {
-                if (jedis.get("AntiFire-" + uuid).equalsIgnoreCase("true")) {
+            if (RedisUtils.getCommand().exists("AntiFire-" + uuid)>0) {
+                if (RedisUtils.getCommand().get("AntiFire-" + uuid).equalsIgnoreCase("true")) {
                     return "开启";
                 } else {
                     return "禁用";
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return "未知";
     }
 

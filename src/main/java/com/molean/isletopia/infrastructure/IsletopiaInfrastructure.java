@@ -11,15 +11,16 @@ public class IsletopiaInfrastructure {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try {
 
+            new ClockMenu();
             new TeleportSign();
             new RespawnPoint();
             new StaticMap();
             new MoreChairs();
             new IslandEnterMessage();
-            new ServerBumpReward();
+//            new ServerBumpReward();
             new MenuCommand();
             new FixSomeProblem();
-            new IslandInfoUpdater();
+//            new IslandInfoUpdater();
             new PlayerRidePlayer();
             new IronElevator();
             new RailWay();
@@ -28,6 +29,9 @@ public class IsletopiaInfrastructure {
             new IslandBackup();
             new SlimeChunk();
             new IslandVisitRecord();
+            new ProductionBar();
+            new ServerLikeReward();
+            new UserTokenGenerator();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

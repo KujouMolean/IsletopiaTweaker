@@ -3,7 +3,6 @@ package com.molean.isletopia.modifier.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
-import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

@@ -1,9 +1,9 @@
 package com.molean.isletopia.menu.charge;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.charge.PlayerChargeDetail;
-import com.molean.isletopia.charge.PlayerChargeDetailCommitter;
-import com.molean.isletopia.charge.PlayerChargeDetailUtils;
+import com.molean.isletopia.charge.ChargeDetail;
+import com.molean.isletopia.charge.ChargeDetailCommitter;
+import com.molean.isletopia.charge.ChargeDetailUtils;
 import com.molean.isletopia.island.Island;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
@@ -36,30 +36,30 @@ public class PlayerChargeMenu implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    public static ItemStackSheet fromPlayerChargeDetail(PlayerChargeDetail playerChargeDetail, Material material, String display) {
+    public static ItemStackSheet fromPlayerChargeDetail(ChargeDetail chargeDetail, Material material, String display) {
         ItemStackSheet bills = new ItemStackSheet(material, display);
-        bills.addLore("§c总用电量: " + PlayerChargeDetailUtils.getTotalPowerUsage(playerChargeDetail) + "度");
-        bills.addLore("§7  发射器: " + PlayerChargeDetailUtils.getDispenserPowerUsage(playerChargeDetail) + "度  " +
-                "§7  活塞: " + PlayerChargeDetailUtils.getPistonPowerUsage(playerChargeDetail) + "度  " +
-                "§7  漏斗: " + PlayerChargeDetailUtils.getHopperPowerUsage(playerChargeDetail) + "度  ");
-        bills.addLore("§7  矿车: " + PlayerChargeDetailUtils.getVehiclePowerUsage(playerChargeDetail) + "度  " +
-                "§7  熔炉: " + PlayerChargeDetailUtils.getFurnacePowerUsage(playerChargeDetail) + "度  " +
-                "§7  tnt: " + PlayerChargeDetailUtils.getTntPowerUsage(playerChargeDetail) + "度  ");
-        bills.addLore("§7  红石: " + PlayerChargeDetailUtils.getRedstonePowerUsage(playerChargeDetail) + "度  ");
-        bills.addLore("§c总用水量: " + PlayerChargeDetailUtils.getTotalWaterUsage(playerChargeDetail) + "吨");
+        bills.addLore("§c总用电量: " + ChargeDetailUtils.getTotalPowerUsage(chargeDetail) + "度");
+        bills.addLore("§7  发射器: " + ChargeDetailUtils.getDispenserPowerUsage(chargeDetail) + "度  " +
+                "§7  活塞: " + ChargeDetailUtils.getPistonPowerUsage(chargeDetail) + "度  " +
+                "§7  漏斗: " + ChargeDetailUtils.getHopperPowerUsage(chargeDetail) + "度  ");
+        bills.addLore("§7  矿车: " + ChargeDetailUtils.getVehiclePowerUsage(chargeDetail) + "度  " +
+                "§7  熔炉: " + ChargeDetailUtils.getFurnacePowerUsage(chargeDetail) + "度  " +
+                "§7  tnt: " + ChargeDetailUtils.getTntPowerUsage(chargeDetail) + "度  ");
+        bills.addLore("§7  红石: " + ChargeDetailUtils.getRedstonePowerUsage(chargeDetail) + "度  ");
+        bills.addLore("§c总用水量: " + ChargeDetailUtils.getTotalWaterUsage(chargeDetail) + "吨");
         bills.addLore("");
-        bills.addLore("§d激活信标发电量: " + playerChargeDetail.getPowerProduceTimes() * PlayerChargeDetailUtils.POWER_PER_PRODUCE + "度");
-        bills.addLore("§b潮涌核心净水量: " + playerChargeDetail.getWaterProduceTimes() * PlayerChargeDetailUtils.WATER_PER_PRODUCE + "吨");
-        bills.addLore("§d在线赠送电量: " + playerChargeDetail.getOnlineMinutes() * PlayerChargeDetailUtils.POWER_PER_ONLINE + "度");
-        bills.addLore("§b在线赠送水量: " + playerChargeDetail.getOnlineMinutes() * PlayerChargeDetailUtils.WATER_PER_ONLINE + "吨");
-        bills.addLore("§d购买电量(左键): " + playerChargeDetail.getPowerChargeTimes() * PlayerChargeDetailUtils.POWER_PER_BUY + "度(下次花费:" + (playerChargeDetail.getPowerChargeTimes() + 1) + "钻石)");
-        bills.addLore("§b购买水量(右键): " + playerChargeDetail.getWaterChargeTimes() * PlayerChargeDetailUtils.WATER_PER_BUY + "吨(下次花费:" + (playerChargeDetail.getWaterChargeTimes() + 1) + "钻石)");
+        bills.addLore("§d激活信标发电量: " + chargeDetail.getPowerProduceTimes() * ChargeDetailUtils.POWER_PER_PRODUCE + "度");
+        bills.addLore("§b潮涌核心净水量: " + chargeDetail.getWaterProduceTimes() * ChargeDetailUtils.WATER_PER_PRODUCE + "吨");
+        bills.addLore("§d在线赠送电量: " + chargeDetail.getOnlineMinutes() * ChargeDetailUtils.POWER_PER_ONLINE + "度");
+        bills.addLore("§b在线赠送水量: " + chargeDetail.getOnlineMinutes() * ChargeDetailUtils.WATER_PER_ONLINE + "吨");
+        bills.addLore("§d购买电量(左键): " + chargeDetail.getPowerChargeTimes() * ChargeDetailUtils.POWER_PER_BUY + "度(下次花费:" + (chargeDetail.getPowerChargeTimes() + 1) + "钻石)");
+        bills.addLore("§b购买水量(右键): " + chargeDetail.getWaterChargeTimes() * ChargeDetailUtils.WATER_PER_BUY + "吨(下次花费:" + (chargeDetail.getWaterChargeTimes() + 1) + "钻石)");
         bills.addLore("");
-        bills.addLore("§d合计剩余电量: " + PlayerChargeDetailUtils.getLeftPower(playerChargeDetail) + "度");
-        bills.addLore("§b合计剩余水量: " + PlayerChargeDetailUtils.getLeftWater(playerChargeDetail) + "吨");
+        bills.addLore("§d合计剩余电量: " + ChargeDetailUtils.getLeftPower(chargeDetail) + "度");
+        bills.addLore("§b合计剩余水量: " + ChargeDetailUtils.getLeftWater(chargeDetail) + "吨");
         bills.addLore("");
-        bills.addLore("§d需要交纳电费: " + PlayerChargeDetailUtils.getPowerCost(playerChargeDetail) + "钻石");
-        bills.addLore("§b需要交纳水费: " + PlayerChargeDetailUtils.getWaterCost(playerChargeDetail) + "钻石");
+        bills.addLore("§d需要交纳电费: " + ChargeDetailUtils.getPowerCost(chargeDetail) + "钻石");
+        bills.addLore("§b需要交纳水费: " + ChargeDetailUtils.getWaterCost(chargeDetail) + "钻石");
         bills.addLore("");
         return bills;
     }
@@ -88,8 +88,8 @@ public class PlayerChargeMenu implements Listener {
         inventory.setItem(10, introduction.build());
 
         bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(ownerName);
-            ItemStackSheet billThisWeek = fromPlayerChargeDetail(playerChargeDetail, Material.PAPER, "§f本周费用(" + ownerName + ")");
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(ownerName);
+            ItemStackSheet billThisWeek = fromPlayerChargeDetail(chargeDetail, Material.PAPER, "§f本周费用(" + ownerName + ")");
             inventory.setItem(13, billThisWeek.build());
 
         }, 0, 20);
@@ -136,9 +136,9 @@ public class PlayerChargeMenu implements Listener {
         switch (event.getClick()) {
             case LEFT -> {
                 if (slot == 13) {
-                    PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(ownerName);
-                    if (takeItem(player, Material.DIAMOND, playerChargeDetail.getPowerChargeTimes() + 1)) {
-                        playerChargeDetail.setPowerChargeTimes(playerChargeDetail.getPowerChargeTimes() + 1);
+                    ChargeDetail chargeDetail = ChargeDetailCommitter.get(ownerName);
+                    if (takeItem(player, Material.DIAMOND, chargeDetail.getPowerChargeTimes() + 1)) {
+                        chargeDetail.setPowerChargeTimes(chargeDetail.getPowerChargeTimes() + 1);
                     } else {
                         player.closeInventory();
                         player.sendMessage("§c你的背包中没有足够的钻石!");
@@ -149,10 +149,10 @@ public class PlayerChargeMenu implements Listener {
             }
             case RIGHT -> {
                 if (slot == 13) {
-                    PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(ownerName);
-                    if (takeItem(player, Material.DIAMOND, playerChargeDetail.getWaterChargeTimes() + 1)) {
+                    ChargeDetail chargeDetail = ChargeDetailCommitter.get(ownerName);
+                    if (takeItem(player, Material.DIAMOND, chargeDetail.getWaterChargeTimes() + 1)) {
 
-                        playerChargeDetail.setWaterChargeTimes(playerChargeDetail.getWaterChargeTimes() + 1);
+                        chargeDetail.setWaterChargeTimes(chargeDetail.getWaterChargeTimes() + 1);
                     } else {
                         player.closeInventory();
                         player.sendMessage("§c你的背包中没有足够的钻石!");
@@ -161,8 +161,8 @@ public class PlayerChargeMenu implements Listener {
             }
         }
 
-        PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(ownerName);
-        ItemStackSheet billThisWeek = fromPlayerChargeDetail(playerChargeDetail, Material.PAPER, "§f本周费用(" + ownerName + ")");
+        ChargeDetail chargeDetail = ChargeDetailCommitter.get(ownerName);
+        ItemStackSheet billThisWeek = fromPlayerChargeDetail(chargeDetail, Material.PAPER, "§f本周费用(" + ownerName + ")");
         inventory.setItem(13, billThisWeek.build());
     }
 

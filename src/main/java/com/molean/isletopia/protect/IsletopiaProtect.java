@@ -23,7 +23,6 @@ public class IsletopiaProtect {
             new BucketUsageProtect();
             new BeaconIslandOption();
             new DragonEggLimiter();
-            new IslandProtect();
             new EdgeBlockDetect();
         }catch (Exception exception){
             exception.printStackTrace();

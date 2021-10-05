@@ -1,5 +1,6 @@
 package com.molean.isletopia.protect.individual;
 
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.Island;
 import com.molean.isletopia.island.IslandManager;
@@ -8,6 +9,8 @@ import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -16,7 +19,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.EntityBlockFormEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.ItemStack;
@@ -33,10 +43,10 @@ public class IslandProtect implements Listener {
         Location location = event.getBlockPlaced().getLocation();
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
         if (currentIsland == null) {
-            event.setBuild(false);
+            event.setCancelled(true);
         }
         if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), location)) {
-            event.setBuild(false);
+            event.setCancelled(true);
         }
     }
 
@@ -47,8 +57,6 @@ public class IslandProtect implements Listener {
         if (event.getPlayer().isOp()) {
             return;
         }
-        event.setUseInteractedBlock(Event.Result.DENY);
-        event.setUseInteractedBlock(Event.Result.ALLOW);
 
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             ItemStack item = event.getItem();
@@ -60,6 +68,56 @@ public class IslandProtect implements Listener {
             if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getClickedBlock().getLocation())) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void on(PlayerInteractEntityEvent event){
+        if (event.getPlayer().isOp()) {
+            return;
+        }
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getRightClicked().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void on(EntityBlockFormEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void on(EntityChangeBlockEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    //disable vehicle damage
+    @EventHandler(ignoreCancelled = true)
+    public void on(VehicleDamageEvent event) {
+        if (!(event.getAttacker() instanceof Player player)) {
+            return;
+        }
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getVehicle().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+
+    //disable armor stand interact
+    @EventHandler
+    public void on(PlayerArmorStandManipulateEvent event) {
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getRightClicked().getLocation())) {
+            event.setCancelled(true);
         }
     }
 

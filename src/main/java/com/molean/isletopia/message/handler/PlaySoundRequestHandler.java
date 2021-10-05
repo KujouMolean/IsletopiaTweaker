@@ -17,7 +17,7 @@ public class PlaySoundRequestHandler implements MessageHandler<PlaySoundRequest>
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject, PlaySoundRequest message) {
         String targetPlayer = message.getTargetPlayer();
-        Player player = Bukkit.getPlayer(targetPlayer);
+        Player player = Bukkit.getPlayerExact(targetPlayer);
         if (player == null) {
             return;
         }

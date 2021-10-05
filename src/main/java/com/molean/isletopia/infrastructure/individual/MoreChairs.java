@@ -3,10 +3,7 @@ package com.molean.isletopia.infrastructure.individual;
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
-import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -15,7 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -23,9 +19,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class MoreChairs implements Listener {
 

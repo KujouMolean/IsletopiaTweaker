@@ -97,14 +97,11 @@ public class MemberAddMenu implements Listener {
             return;
         }
         if (slot < players.size() && slot < 52) {
-            Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
-            assert currentPlot != null;
-            if (currentPlot.getOwner().equals(player.getName())) {
-                currentPlot.getMembers().add(players.get(slot + page * 52));
-                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberAddMenu(player).open());
-            } else {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.kick(Component.text("错误, 非岛主操作岛屿成员.")));
-            }
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                player.performCommand("is trust " + players.get(slot + page * 52));
+                player.closeInventory();
+            });
+
         }
 
 

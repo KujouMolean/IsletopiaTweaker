@@ -35,8 +35,10 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
         Objects.requireNonNull(Bukkit.getPluginCommand("backup")).setTabCompleter(this);
 
         //check database before use
-        PlayerBackupDao.checkTable();
-        IslandBackupDao.checkTable();
+        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            PlayerBackupDao.checkTable();
+            IslandBackupDao.checkTable();
+        });
 
         BukkitTask bukkitTask1 = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -171,7 +173,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                 }
 
                 try {
-                    Player targetPlayer = Bukkit.getPlayer(args[1]);
+                    Player targetPlayer = Bukkit.getPlayerExact(args[1]);
                     if (targetPlayer != null && targetPlayer.isOnline()) {
                         targetPlayer.saveData();
                     }
@@ -214,7 +216,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                Player targetPlayer = Bukkit.getPlayer(args[1]);
+                Player targetPlayer = Bukkit.getPlayerExact(args[1]);
 
                 if (targetPlayer == null) {
                     player.sendMessage("玩家不在线!");

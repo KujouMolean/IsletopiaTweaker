@@ -10,9 +10,10 @@ public class IsletopiaChargeSystem {
     public IsletopiaChargeSystem() {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try{
-            new PlayerChargeDetailCommitter();
-            new PlayerChargeDetail();
-            new PlayerConsumeListener();
+            new ChargeDetailCommitter();
+            new ChargeDetail();
+            new ConsumeListener();
+            new ChargeBar();
         } catch(Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia charge system failed!");

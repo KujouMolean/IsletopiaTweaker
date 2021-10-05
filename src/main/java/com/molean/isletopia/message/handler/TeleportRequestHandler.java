@@ -56,8 +56,8 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
         TeleportResponse teleportResponse = new TeleportResponse();
         String sourcePlayer = teleportRequest.getSourcePlayer();
         String targetPlayer = teleportRequest.getTargetPlayer();
-        Player source = Bukkit.getPlayer(sourcePlayer);
-        Player target = Bukkit.getPlayer(targetPlayer);
+        Player source = Bukkit.getPlayerExact(sourcePlayer);
+        Player target = Bukkit.getPlayerExact(targetPlayer);
         teleportResponse.setTarget(sourcePlayer);
         if (target == null) {
             teleportResponse.setResponse("no-player");

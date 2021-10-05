@@ -1,7 +1,7 @@
 package com.molean.isletopia.charge;
 
 //pojo 记录岛屿详细的数据
-public class PlayerChargeDetail {
+public class ChargeDetail {
     private long dispenser = 0;
     private long redstone = 0;
     private long piston = 0;

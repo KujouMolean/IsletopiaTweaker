@@ -22,7 +22,7 @@ public class TeleportResponseHandler implements MessageHandler<TeleportResponse>
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject, TeleportResponse message) {
         String target = message.getTarget();
-        Player player = Bukkit.getPlayer(target);
+        Player player = Bukkit.getPlayerExact(target);
         if (player != null) {
             if (message.getResponse().equals("accepted")) {
                 ServerMessageUtils.switchServer(player.getName(), wrappedMessageObject.getFrom());

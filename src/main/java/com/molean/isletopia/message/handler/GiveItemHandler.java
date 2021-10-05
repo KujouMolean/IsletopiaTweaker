@@ -33,7 +33,7 @@ public class GiveItemHandler implements MessageHandler<GiveItemRequestObject> {
             noResponse = true;
         }
 
-        Player bukkitPlayer = Bukkit.getPlayer(player);
+        Player bukkitPlayer = Bukkit.getPlayerExact(player);
         if (bukkitPlayer == null || !bukkitPlayer.isOnline()) {
             return;
         }

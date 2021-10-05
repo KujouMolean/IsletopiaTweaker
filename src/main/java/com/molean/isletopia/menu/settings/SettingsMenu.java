@@ -19,10 +19,12 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class SettingsMenu implements Listener {
 
@@ -65,25 +67,20 @@ public class SettingsMenu implements Listener {
         ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, "§f= 更改生物群系 =");
         inventory.setItem(0, visit.build());
 
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            Random random = new Random();
-            List<Material> spawnEggs = getSpawnEggs();
-
-            while (!stop) {
+        Random random = new Random();
+        List<Material> spawnEggs = getSpawnEggs();
+        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), new Consumer<BukkitTask>() {
+            @Override
+            public void accept(BukkitTask task) {
+                if (stop) {
+                    task.cancel();
+                }
                 ItemStack item = inventory.getItem(0);
                 if (item != null) {
                     item.setType(spawnEggs.get(random.nextInt(spawnEggs.size())));
                 }
-
-                try {
-
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
             }
-        });
+        }, 0, 20);
 
         ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, "§f< 添加删除成员 >");
         inventory.setItem(2, member.build());
@@ -91,19 +88,19 @@ public class SettingsMenu implements Listener {
         ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, "§f| 更改复活位置 |");
         inventory.setItem(4, bed.build());
 
-//        if (currentPlot.getIslandFlag) {
-//            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, "§f! 点击开放岛屿 !");
-//            cancel.addLore("§7当前岛屿模式: §c锁定");
-//            cancel.addLore("§7仅岛屿成员可访问你的岛屿.");
-//            inventory.setItem(6, cancel.build());
-//            open = false;
-//        } else {
-//            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, "§f! 点击闭关锁岛 !");
-//            denyAll.addLore("§7当前岛屿模式: §2开放");
-//            denyAll.addLore("§7任何人都可以访问你的岛屿.");
-//            inventory.setItem(6, denyAll.build());
-//            open = true;
-//        }
+        if (currentPlot.containsFlag("Lock")) {
+            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, "§f! 点击开放岛屿 !");
+            cancel.addLore("§7当前岛屿模式: §c锁定");
+            cancel.addLore("§7仅岛屿成员可访问你的岛屿.");
+            inventory.setItem(6, cancel.build());
+            open = false;
+        } else {
+            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, "§f! 点击闭关锁岛 !");
+            denyAll.addLore("§7当前岛屿模式: §2开放");
+            denyAll.addLore("§7任何人都可以访问你的岛屿.");
+            inventory.setItem(6, denyAll.build());
+            open = true;
+        }
 
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f<<返回主菜单<<");
         inventory.setItem(8, father.build());
@@ -124,69 +121,36 @@ public class SettingsMenu implements Listener {
             return;
         }
         switch (slot) {
-            case 0: {
+            case 0 -> {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new BiomeMenu(player).open());
-                break;
             }
-            case 2: {
+            case 2 -> {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new MemberMenu(player).open());
-                break;
             }
-            case 4: {
-//                Plot currentPlot = PlotUtils.getCurrentPlot(player);
-//                assert currentPlot != null;
-//                if (currentPlot.getOwner().equals(player.getUniqueId())) {
-//                    Location location = player.getLocation();
-//                    com.plotsquared.core.location.Location bottomAbs = currentPlot.getBottomAbs();
-//
-//                    currentPlot.setHome(new BlockLoc(
-//                            location.getBlockX() - bottomAbs.getX(),
-//                            location.getBlockY() - bottomAbs.getY(),
-//                            location.getBlockZ() - bottomAbs.getZ(),
-//                            location.getYaw(),
-//                            location.getPitch()));
-//                    player.sendMessage("§8[§3岛屿助手§8] §7成功修改重生点为: %1%,%2%,%3%"
-//                            .replace("%1%", location.getBlockX() + "")
-//                            .replace("%2%", location.getBlockX() + "")
-//                            .replace("%3%", location.getBlockZ() + "")
-//                    );
-//                    player.closeInventory();
-//                } else {
-//                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
-//                            player.kick(Component.text("错误, 非岛主更改岛屿设置.")));
-//                }
-                break;
-            }
+            case 4 -> {
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    player.performCommand("is setHome");
 
-            case 6: {
-//                Plot currentPlot = PlotUtils.getCurrentPlot(player);
-//                assert currentPlot != null;
-//                if (currentPlot.getOwner().equals(player.getUniqueId())) {
-//                    if (open) {
-//                        currentPlot.addDenied(PlotDao.getAllUUID());
-//                        List<PlotPlayer<?>> playersInPlot = currentPlot.getPlayersInPlot();
-//                        for (PlotPlayer<?> plotPlayer : playersInPlot) {
-//                            Player player = Bukkit.getPlayer(plotPlayer.getUUID());
-//                            if (player == null) {
-//                                continue;
-//                            }
-//                            if (!PlotUtils.hasCurrentPlotPermission(player)) {
-//                                player.performCommand("is");
-//                            }
-//                        }
-//                    } else {
-//                        currentPlot.removeDenied(PlotDao.getAllUUID());
-//                    }
-//                    Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
-//                } else {
-//                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
-//                            player.kick(Component.text("错误, 非岛主更改岛屿设置.")));
-//                }
-                break;
+                });
+
             }
-            case 8: {
+            case 6 -> {
+                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                if (currentIsland == null) {
+                    break;
+                }
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    if (currentIsland.containsFlag("Lock")) {
+                        player.performCommand("is unlock");
+                    } else {
+                        player.performCommand("is lock");
+                    }
+                });
+
+
+            }
+            case 8 -> {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerMenu(player).open());
-                break;
             }
         }
 

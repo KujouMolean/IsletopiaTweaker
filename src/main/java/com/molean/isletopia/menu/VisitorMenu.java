@@ -23,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +77,8 @@ public class VisitorMenu implements Listener {
                 components.addAll(skullWithIslandInfo.lore());
             }
             Timestamp value = pairs.get(page * 52 + i).getValue();
-            String format = value.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            LocalDateTime localDateTime = value.toLocalDateTime().minusHours(8);
+            String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             components.add(Component.text("访问时间: " + format));
             skullWithIslandInfo.lore(components);
             inventory.setItem(i, skullWithIslandInfo);

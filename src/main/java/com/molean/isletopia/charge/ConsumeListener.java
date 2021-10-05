@@ -21,14 +21,13 @@ import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.scheduler.BukkitTask;
-import org.hamcrest.core.IsEqual;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class PlayerConsumeListener implements Listener {
+public class ConsumeListener implements Listener {
     private static int TICK_SAMPLE_10 = 10;
     private static final Random random = new Random();
     private static final Map<IslandId, String> plotOwnerCache = new HashMap<>();
@@ -43,8 +42,8 @@ public class PlayerConsumeListener implements Listener {
                     .forEach(beacon -> {
                         if (beacon.getTier() > 0) {
                             String s = Objects.requireNonNull(IslandManager.INSTANCE.getCurrentIsland(beacon.getLocation())).getOwner();
-                            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(s);
-                            playerChargeDetail.setPowerProduceTimes(playerChargeDetail.getPowerProduceTimes() + 1);
+                            ChargeDetail chargeDetail = ChargeDetailCommitter.get(s);
+                            chargeDetail.setPowerProduceTimes(chargeDetail.getPowerProduceTimes() + 1);
                         }
                     });
             Arrays.stream(loadedChunk.getTileEntities(false))
@@ -52,8 +51,8 @@ public class PlayerConsumeListener implements Listener {
                     .map(blockState -> (Conduit) blockState)
                     .forEach(conduit -> {
                         String s = Objects.requireNonNull(IslandManager.INSTANCE.getCurrentIsland(conduit.getLocation())).getOwner();
-                        PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(s);
-                        playerChargeDetail.setWaterProduceTimes(playerChargeDetail.getWaterProduceTimes() + 1);
+                        ChargeDetail chargeDetail = ChargeDetailCommitter.get(s);
+                        chargeDetail.setWaterProduceTimes(chargeDetail.getWaterProduceTimes() + 1);
                     });
         }
     }
@@ -61,7 +60,7 @@ public class PlayerConsumeListener implements Listener {
     public void arrearsDetect(String owner) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Island playerLocalServerFirstIsland = IslandManager.INSTANCE.getPlayerLocalServerFirstIsland(owner);
-            if (PlayerChargeDetailUtils.getLeftPower(PlayerChargeDetailCommitter.get(owner)) < 0) {
+            if (shouldRecord && ChargeDetailUtils.getLeftPower(ChargeDetailCommitter.get(owner)) < 0) {
                 playerLocalServerFirstIsland.addIslandFlag("DisableRedstone");
                 for (Player player : playerLocalServerFirstIsland.getPlayersInIsland()) {
                     if (playerLocalServerFirstIsland.hasPermission(player)) {
@@ -78,11 +77,11 @@ public class PlayerConsumeListener implements Listener {
                     }
                 }
             }
-            if (PlayerChargeDetailUtils.getLeftWater(PlayerChargeDetailCommitter.get(owner)) < 0) {
+            if (shouldRecord && ChargeDetailUtils.getLeftWater(ChargeDetailCommitter.get(owner)) < 0) {
                 playerLocalServerFirstIsland.addIslandFlag("DisableWaterFlow");
                 for (Player player : playerLocalServerFirstIsland.getPlayersInIsland()) {
                     if (playerLocalServerFirstIsland.hasPermission(player)) {
-                        MessageUtils.warn(player, "当前岛屿已停水，请即使缴纳水费。");
+                        MessageUtils.warn(player, "当前岛屿已停水，请及时缴纳水费。");
                     }
                 }
             } else {
@@ -121,7 +120,7 @@ public class PlayerConsumeListener implements Listener {
         return owners;
     }
 
-    public PlayerConsumeListener() {
+    public ConsumeListener() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
 
         updateSample(20);
@@ -143,22 +142,25 @@ public class PlayerConsumeListener implements Listener {
 
 
     private void addOneMinute(String owner) {
-        PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(owner);
-        int onlineMinutes = playerChargeDetail.getOnlineMinutes();
-        playerChargeDetail.setOnlineMinutes(onlineMinutes + 1);
+        ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
+        int onlineMinutes = chargeDetail.getOnlineMinutes();
+        chargeDetail.setOnlineMinutes(onlineMinutes + 1);
     }
 
     private void warning(String owner) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Island playerLocalServerFirstIsland = IslandManager.INSTANCE.getPlayerLocalServerFirstIsland(owner);
-            if (PlayerChargeDetailUtils.getLeftPower(PlayerChargeDetailCommitter.get(owner)) < 500) {
+            long leftPower = ChargeDetailUtils.getLeftPower(ChargeDetailCommitter.get(owner));
+            long leftWater = ChargeDetailUtils.getLeftWater(ChargeDetailCommitter.get(owner));
+            if (leftPower < 500 && leftPower > 0) {
+
                 for (Player player : playerLocalServerFirstIsland.getPlayersInIsland()) {
                     if (playerLocalServerFirstIsland.hasPermission(player)) {
                         MessageUtils.warn(player, "岛屿剩余电量较低，即将停电，请及时缴费。");
                     }
                 }
             }
-            if (PlayerChargeDetailUtils.getLeftWater(PlayerChargeDetailCommitter.get(owner)) < 500) {
+            if (leftWater < 500 && leftWater > 0) {
                 for (Player player : playerLocalServerFirstIsland.getPlayersInIsland()) {
                     if (playerLocalServerFirstIsland.hasPermission(player)) {
                         MessageUtils.warn(player, "岛屿剩余水量较低，即将停电，请及时缴费。");
@@ -199,9 +201,9 @@ public class PlayerConsumeListener implements Listener {
             if (plotOwner == null) {
                 return;
             }
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(plotOwner);
-            long dispenser = playerChargeDetail.getDispenser();
-            playerChargeDetail.setDispenser(dispenser + TICK_SAMPLE_10);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(plotOwner);
+            long dispenser = chargeDetail.getDispenser();
+            chargeDetail.setDispenser(dispenser + TICK_SAMPLE_10);
         }
     }
 
@@ -215,9 +217,9 @@ public class PlayerConsumeListener implements Listener {
             if (plotOwner == null) {
                 return;
             }
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(plotOwner);
-            long dispenser = playerChargeDetail.getRedstone();
-            playerChargeDetail.setRedstone(dispenser + TICK_SAMPLE_10);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(plotOwner);
+            long dispenser = chargeDetail.getRedstone();
+            chargeDetail.setRedstone(dispenser + TICK_SAMPLE_10);
         }
     }
 
@@ -232,9 +234,9 @@ public class PlayerConsumeListener implements Listener {
             if (plotOwner == null) {
                 return;
             }
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(plotOwner);
-            long dispenser = playerChargeDetail.getPiston();
-            playerChargeDetail.setPiston(dispenser + TICK_SAMPLE_10);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(plotOwner);
+            long dispenser = chargeDetail.getPiston();
+            chargeDetail.setPiston(dispenser + TICK_SAMPLE_10);
         }
     }
     @EventHandler(ignoreCancelled = true)
@@ -257,9 +259,9 @@ public class PlayerConsumeListener implements Listener {
             if (plotOwner == null) {
                 return;
             }
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(plotOwner);
-            long dispenser = playerChargeDetail.getTnt();
-            playerChargeDetail.setTnt(dispenser + TICK_SAMPLE_10);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(plotOwner);
+            long dispenser = chargeDetail.getTnt();
+            chargeDetail.setTnt(dispenser + TICK_SAMPLE_10);
         }
     }
 
@@ -273,9 +275,9 @@ public class PlayerConsumeListener implements Listener {
             if (plotOwner == null) {
                 return;
             }
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(plotOwner);
-            long dispenser = playerChargeDetail.getFurnace();
-            playerChargeDetail.setFurnace(dispenser + TICK_SAMPLE_10);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(plotOwner);
+            long dispenser = chargeDetail.getFurnace();
+            chargeDetail.setFurnace(dispenser + TICK_SAMPLE_10);
         }
     }
 
@@ -289,9 +291,9 @@ public class PlayerConsumeListener implements Listener {
             if (plotOwner == null) {
                 return;
             }
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(plotOwner);
-            long dispenser = playerChargeDetail.getHopper();
-            playerChargeDetail.setHopper(dispenser + TICK_SAMPLE_10);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(plotOwner);
+            long dispenser = chargeDetail.getHopper();
+            chargeDetail.setHopper(dispenser + TICK_SAMPLE_10);
         }
     }
 
@@ -305,9 +307,9 @@ public class PlayerConsumeListener implements Listener {
             if (plotOwner == null) {
                 return;
             }
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(plotOwner);
-            long dispenser = playerChargeDetail.getVehicle();
-            playerChargeDetail.setVehicle(dispenser + TICK_SAMPLE_10);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(plotOwner);
+            long dispenser = chargeDetail.getVehicle();
+            chargeDetail.setVehicle(dispenser + TICK_SAMPLE_10);
         }
     }
 
@@ -325,9 +327,9 @@ public class PlayerConsumeListener implements Listener {
             if (plotOwner == null) {
                 return;
             }
-            PlayerChargeDetail playerChargeDetail = PlayerChargeDetailCommitter.get(plotOwner);
-            long dispenser = playerChargeDetail.getWater();
-            playerChargeDetail.setWater(dispenser + TICK_SAMPLE_10);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(plotOwner);
+            long dispenser = chargeDetail.getWater();
+            chargeDetail.setWater(dispenser + TICK_SAMPLE_10);
         }
     }
 }

@@ -54,12 +54,13 @@ public class DataSourceUtils {
             dataSource.setLogAbandoned(true);
 
             //validate
-            dataSource.setValidationQueryTimeout(10);
+            dataSource.setValidationQueryTimeout(30);
             dataSource.setValidationQuery("select 1");
 
             //timeout
             dataSource.setMaxWait(30000);
             dataSource.setQueryTimeout(30);
+            dataSource.setKillWhenSocketReadTimeout(true);
 
             //max active
             dataSource.setMaxActive(64);

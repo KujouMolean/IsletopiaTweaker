@@ -35,7 +35,7 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(PlayerIslandChangeEvent event) {
         Island to = event.getTo();
         if (to != null) {
@@ -54,7 +54,7 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(PlayerTeleportEvent event) {
         if (!event.getPlayer().isOp()) {
             if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.SPECTATE)) {

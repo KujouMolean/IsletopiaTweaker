@@ -4,7 +4,6 @@ import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.Island;
 import com.molean.isletopia.island.IslandManager;
-import com.molean.isletopia.utils.PlotUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
@@ -31,8 +30,9 @@ public class AnimalProtect implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(EntityTargetEvent event) {
         if (event.getTarget() != null && event.getTarget().getType().equals(EntityType.PLAYER)) {
-            if (!IslandManager.INSTANCE.hasTargetIslandPermission((Player) event.getTarget(),event.getEntity().getLocation()))
+            if (!IslandManager.INSTANCE.hasTargetIslandPermission((Player) event.getTarget(), event.getEntity().getLocation())) {
                 event.setCancelled(true);
+            }
         }
     }
 
@@ -106,7 +106,7 @@ public class AnimalProtect implements Listener {
         }
     }
 
-    //disable projectile damage
+    //disable firework damage from other player
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void on(EntityDamageByEntityEvent event) {
         if (event.getDamager().getType().equals(EntityType.FIREWORK)) {
@@ -115,7 +115,6 @@ public class AnimalProtect implements Listener {
             if (shooter instanceof Player player) {
                 if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getEntity().getLocation())) {
                     event.setCancelled(true);
-
                 }
             }
         }
@@ -124,7 +123,7 @@ public class AnimalProtect implements Listener {
 
     //disable player drop item
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onItemDrop(PlayerDropItemEvent event) {
+    public void on(PlayerDropItemEvent event) {
         if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
             event.setCancelled(true);
         }

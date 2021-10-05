@@ -17,6 +17,8 @@ public class IsletopiaAdmin {
             new IsDebugCommand();
             new StatsRankCommand();
             new IslandAdmin();
+            new ReloadPermissionCommand();
+
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia admin failed!");

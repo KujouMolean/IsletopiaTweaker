@@ -14,7 +14,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import redis.clients.jedis.Jedis;
 
 import java.util.Locale;
 
@@ -26,12 +25,11 @@ public class FixSomeProblem implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        try (Jedis jedis = RedisUtils.getJedis()) {
 
             int joinTime = 0;
 
-            if (jedis.exists("JoinTime-" + event.getPlayer().getName())) {
-                joinTime = Integer.parseInt(jedis.get("JoinTime-" + event.getPlayer().getName()));
+            if (RedisUtils.getCommand().exists("JoinTime-" + event.getPlayer().getName())>0) {
+                joinTime = Integer.parseInt(RedisUtils.getCommand().get("JoinTime-" + event.getPlayer().getName()));
                 if (joinTime > 10) {
                     CommonResponseObject commonResponseObject = new CommonResponseObject();
                     commonResponseObject.setMessage("玩家 " + event.getPlayer().getName() + " 崩掉了 " + IsletopiaTweakersUtils.getLocalServerName() + ", 大家恭喜!");
@@ -43,8 +41,7 @@ public class FixSomeProblem implements Listener {
                     return;
                 }
             }
-            jedis.setex("JoinTime-" + event.getPlayer().getName(), 5L, "" + (joinTime + 1));
-        }
+        RedisUtils.getCommand().setex("JoinTime-" + event.getPlayer().getName(), 5L, "" + (joinTime + 1));
     }
 
 
@@ -52,10 +49,8 @@ public class FixSomeProblem implements Listener {
     public void on(PlayerCommandPreprocessEvent event) {
         String message = event.getMessage();
         if (message.toLowerCase(Locale.ROOT).startsWith("/stop")) {
-            try (Jedis jedis = RedisUtils.getJedis()) {
-                jedis.setex("Restarting-" + ServerInfoUpdater.getServerName(), 15L, "true");
+            RedisUtils.getCommand().setex("Restarting-" + ServerInfoUpdater.getServerName(), 15L, "true");
 
-            }
         }
     }
 

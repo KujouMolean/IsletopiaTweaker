@@ -11,6 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -57,8 +58,16 @@ public class EquipmentWeaker implements Listener {
                 diff += Math.abs(luckyRed - color.getRed());
                 diff += Math.abs(luckyGreen - color.getGreen());
                 diff += Math.abs(luckyBlue - color.getBlue());
+
+                Map<Enchantment, Integer> enchantments = armorContent.getEnchantments();
+
                 if (diff < 256) {
-                    multiplier = (1 - (0.50) * (256.0 - diff) / 256.0) * multiplier;
+                    if (enchantments.isEmpty()) {
+
+                        multiplier = (1 - (0.50) * (256.0 - diff) / 256.0) * multiplier;
+                    }else{
+                        multiplier = (1 - ((0.50) * (256.0 - diff) / 256.0) * 0.5) * multiplier;
+                    }
                 }
             }
         }

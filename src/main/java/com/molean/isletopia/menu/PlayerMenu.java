@@ -67,10 +67,15 @@ public class PlayerMenu implements Listener {
             settings.addLore("§c你只能修改自己的岛屿");
         }
         inventory.setItem(24, settings.build());
-        ItemStackSheet projects = new ItemStackSheet(Material.END_PORTAL_FRAME, "§f历史长廊");
-        projects.addLore("§7在这里发现曾在梦幻之屿留下足迹的岛屿");
-        projects.addLore("§7在这里为自己的岛屿在梦幻之屿留下足迹");
-        projects.addLore("§7该功能正在开发...(暂时无法使用)");
+//        ItemStackSheet projects = new ItemStackSheet(Material.END_PORTAL_FRAME, "§f历史长廊");
+//        projects.addLore("§7在这里发现曾在梦幻之屿留下足迹的岛屿");
+//        projects.addLore("§7在这里为自己的岛屿在梦幻之屿留下足迹");
+//        projects.addLore("§7该功能正在开发...(暂时无法使用)");
+//        inventory.setItem(26, projects.build());
+
+        ItemStackSheet projects = new ItemStackSheet(Material.END_PORTAL_FRAME, "§f历史访客");
+        projects.addLore("§7在这里发现最近三天你的岛屿访客");
+        projects.addLore("§7看看你的岛屿有多少人参观");
         inventory.setItem(26, projects.build());
         ItemStackSheet bills = new ItemStackSheet(Material.PAPER, "§f生活缴费-此岛-本周");
         others.addLore("§7§m缴纳水费和电费");
@@ -86,7 +91,7 @@ public class PlayerMenu implements Listener {
 
         ItemStackSheet mail = new ItemStackSheet(Material.CHEST, "§f邮件");
         mail.addLore("§7活动奖励通过邮件发放");
-        mail.addLore("§7该功能目前不稳定");
+        mail.addLore("§7该功能目前不稳定,请勿使用");
         inventory.setItem(42, mail.build());
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
@@ -121,7 +126,8 @@ public class PlayerMenu implements Listener {
                 }
                 break;
             case 26:
-                //projects
+                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new VisitorMenu(player, 0).open());
+
                 break;
             case 38:
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerChargeMenu(player).open());

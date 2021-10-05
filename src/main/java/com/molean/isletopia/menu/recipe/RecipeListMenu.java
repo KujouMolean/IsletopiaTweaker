@@ -14,8 +14,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class RecipeListMenu implements Listener {
     private final Player player;
@@ -29,6 +31,7 @@ public class RecipeListMenu implements Listener {
         inventory = Bukkit.createInventory(player, 54, Component.text("扩展合成表"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
     @SuppressWarnings("all")
     public void open() {
         for (int i = 0; i < inventory.getSize(); i++) {
@@ -37,22 +40,21 @@ public class RecipeListMenu implements Listener {
         }
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回");
         inventory.setItem(inventory.getSize() - 1, father.build());
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), new Consumer<BukkitTask>() {
             int cnt = 0;
-            while (!stop) {
+            @Override
+            public void accept(BukkitTask task) {
+                if (stop) {
+                    task.cancel();
+                }
                 for (int i = 0; i < LocalRecipe.localRecipeList.size(); i++) {
                     List<ItemStack> icons = LocalRecipe.localRecipeList.get(i).icons;
                     inventory.setItem(i, icons.get(cnt % icons.size()));
                 }
                 cnt++;
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
 
             }
-        });
+        }, 0, 20);
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
     }

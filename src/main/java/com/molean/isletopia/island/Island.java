@@ -14,10 +14,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,90 +75,49 @@ public class Island {
     }
 
 
+    @Nullable
+    private Location getSafeLandingPosition(@NotNull Location location) {
+        for (int i = 0; i < location.getY(); i++) {
+            Location add = location.clone().add(0, -i, 0);
+            if (add.getBlock().getRelative(BlockFace.DOWN).isSolid() && add.getBlock().getType().isAir() && add.getBlock().getRelative(BlockFace.UP).getType().isAir()) {
+                return add;
+            }
+        }
+        return null;
+    }
+
+    private Location getHigherLandingPosition(Location location) {
+        for (int i = 0; i < 256 - location.getY(); i++) {
+            Location add = location.clone().add(0, i, 0);
+            if (add.getBlock().getRelative(BlockFace.DOWN).isSolid() && add.getBlock().getType().isAir() && add.getBlock().getRelative(BlockFace.UP).getType().isAir()) {
+                return add;
+            }
+        }
+        return null;
+    }
+
+
     public void tp(Entity entity) {
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             if (server.equals(ServerInfoUpdater.getServerName())) {
                 World skyWorld = Bukkit.getWorld("SkyWorld");
-                Location location = new Location(skyWorld, (x << 9) + spawnX, spawnY, (z << 9) + spawnZ);
+                Location location = new Location(skyWorld, (x << 9) + spawnX, spawnY, (z << 9) + spawnZ, yaw, pitch);
 
-                Block block = location.getBlock();
-
-                if (block.getType().isAir()) {
-                    //find lower block
-                    for (int i = 0; i < block.getY(); i++) {
-                        Location add = block.getLocation().clone().add(0, -i, 0);
-                        if (!add.getBlock().getType().isAir()) {
-                            Location finalLocation = add.clone().add(0, 1, 0);
-                            finalLocation.setYaw(yaw);
-                            finalLocation.setPitch(pitch);
-                            entity.teleport(finalLocation);
-                            return;
-                        }
-
+                Location safeLandingPosition = getSafeLandingPosition(location);
+                if (safeLandingPosition == null) {
+                    Location higherLandingPosition = getHigherLandingPosition(location);
+                    if (higherLandingPosition == null) {
+                        location.getBlock().getRelative(BlockFace.DOWN).setType(Material.STONE);
+                    }else{
+                        location = higherLandingPosition;
                     }
-
-                    //if has no lower block, find higher block
-
-                    for (int i = 0; i < 256 - block.getY(); i++) {
-                        Location add = block.getLocation().clone().add(0, i, 0);
-                        if (!add.getBlock().getType().isAir()) {
-                            //after find higher block, find higher air block, and teleport
-                            for (int j = 0; j < 256 - add.getY(); j++) {
-                                Location addAdd = add.clone().add(0, j, 0);
-                                if (!addAdd.getBlock().getType().isAir()) {
-                                    Location finalLocation = addAdd.clone();
-                                    finalLocation.setYaw(yaw);
-                                    finalLocation.setPitch(pitch);
-                                    entity.teleport(finalLocation);
-
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    //if no block in this y, set a stone block and teleport
-
-                    Location lowerLocation = block.getLocation().clone().add(0, -1, 0);
-                    if (lowerLocation.getBlockY() < 0) {
-                        lowerLocation.setY(0);
-
-                    }
-                    if (lowerLocation.getBlockY() > 255) {
-                        lowerLocation.setY(255);
-                    }
-
-
-                    lowerLocation.getBlock().setType(Material.STONE);
-
-                    Location finalLocation = lowerLocation.clone();
-                    finalLocation.setYaw(yaw);
-                    finalLocation.setPitch(pitch);
-
-                    entity.teleport(finalLocation);
-
-
                 } else {
-                    //find higher block that is air
-                    for (int i = 0; i < 256 - block.getY(); i++) {
-                        Location add = block.getLocation().clone().add(0, i, 0);
-                        if (add.getBlock().getType().isAir()) {
-                            Location finalLocation = add.clone();
-                            finalLocation.setYaw(yaw);
-                            finalLocation.setPitch(pitch);
-
-                            entity.teleport(add);
-                            return;
-                        }
-                    }
-                    Location finalLocation = block.getLocation().clone();
-                    finalLocation.setY(256);
-                    finalLocation.setYaw(yaw);
-                    finalLocation.setPitch(pitch);
-
-                    entity.teleport(finalLocation);
-
+                    location = safeLandingPosition;
                 }
+
+                entity.teleport(location);
+
+
             } else {
                 throw new RuntimeException("Can't teleport to island in other server");
             }
@@ -371,7 +329,7 @@ public class Island {
 
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            Player player = Bukkit.getPlayer(member);
+            Player player = Bukkit.getPlayerExact(member);
             if (player != null && Objects.equals(IslandManager.INSTANCE.getCurrentIsland(player), this)) {
                 PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, this, this);
                 Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);
@@ -388,7 +346,7 @@ public class Island {
         IslandManager.INSTANCE.update(this);
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            Player player = Bukkit.getPlayer(member);
+            Player player = Bukkit.getPlayerExact(member);
             if (player != null && Objects.equals(IslandManager.INSTANCE.getCurrentIsland(player), this)) {
                 PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, this, this);
                 Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);
