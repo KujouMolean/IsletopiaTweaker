@@ -11,7 +11,7 @@ public final class IsletopiaStatistics {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         try {
             new PlayTime();
-            new VanillaStatistic();
+//            new VanillaStatistic();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia statistics failed!");

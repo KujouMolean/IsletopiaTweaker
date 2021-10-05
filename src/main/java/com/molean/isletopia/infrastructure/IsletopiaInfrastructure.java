@@ -19,7 +19,6 @@ public class IsletopiaInfrastructure {
             new IslandEnterMessage();
 //            new ServerBumpReward();
             new MenuCommand();
-            new FixSomeProblem();
 //            new IslandInfoUpdater();
             new PlayerRidePlayer();
             new IronElevator();

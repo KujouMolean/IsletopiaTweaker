@@ -1,5 +1,6 @@
 package com.molean.isletopia.infrastructure.individual;
 
+import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
@@ -20,7 +21,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.MapMeta;
@@ -62,22 +62,22 @@ public class StaticMap implements CommandExecutor, TabCompleter, Listener {
 
 
     @EventHandler
-    public void on(ChunkLoadEvent event) {
-        for (Entity entity : event.getChunk().getEntities()) {
-            if (!entity.getType().equals(EntityType.ITEM_FRAME)) {
-                return;
-            }
-            ItemFrame itemFrame = (ItemFrame) entity;
-            ItemStack item = itemFrame.getItem();
-            if (!item.getType().equals(Material.FILLED_MAP)) {
-                return;
-            }
-            String colors = NMSTagUtils.get(item, "static-map");
-            if (colors != null && colors.isEmpty()) {
-                ItemMeta itemMeta = item.getItemMeta();
-                MapUtils.updateStaticMap(colors, (MapMeta) itemMeta);
-                item.setItemMeta(itemMeta);
-            }
+    public void on(EntityAddToWorldEvent event) {
+        Entity entity = event.getEntity();
+        if (!entity.getType().equals(EntityType.ITEM_FRAME)) {
+            return;
+        }
+        ItemFrame itemFrame = (ItemFrame) entity;
+        ItemStack item = itemFrame.getItem();
+        if (!item.getType().equals(Material.FILLED_MAP)) {
+            return;
+        }
+        String colors = NMSTagUtils.get(item, "static-map");
+        if (colors != null && !colors.isEmpty()) {
+            ItemMeta itemMeta = item.getItemMeta();
+            MapUtils.updateStaticMap(colors, (MapMeta) itemMeta);
+            item.setItemMeta(itemMeta);
+            itemFrame.setItem(item);
         }
     }
 

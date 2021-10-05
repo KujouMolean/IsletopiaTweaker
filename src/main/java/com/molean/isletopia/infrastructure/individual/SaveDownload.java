@@ -31,6 +31,11 @@ public class SaveDownload implements CommandExecutor, TabCompleter {
         }
         Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
+
+        if (currentIsland == null) {
+            player.sendMessage("??");
+            return true;
+        }
         if (!Objects.equals(currentIsland.getOwner(), player.getName()) && !player.isOp()) {
             player.sendMessage("你没有权限这么做。");
             return true;
@@ -47,8 +52,6 @@ public class SaveDownload implements CommandExecutor, TabCompleter {
             }
         });
         return true;
-
-
     }
 
     @Nullable
