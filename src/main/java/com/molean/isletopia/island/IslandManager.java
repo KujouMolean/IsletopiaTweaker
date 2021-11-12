@@ -1,12 +1,12 @@
 package com.molean.isletopia.island;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.IslandDao;
-import com.molean.isletopia.island.obj.CuboidRegion;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.database.IslandDao;
+import com.molean.isletopia.shared.model.Island;
+import com.molean.isletopia.shared.model.IslandId;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -22,23 +22,58 @@ import java.util.function.Consumer;
 public enum IslandManager {
     INSTANCE;
 
-    private final Map<IslandId, Island> islandSet = new ConcurrentHashMap<>();
+    private final Map<IslandId, LocalIsland> islandSet = new ConcurrentHashMap<>();
+    private final Map<IslandId, Long> lastQuery = new ConcurrentHashMap<>();
 
-    private final Set<Island> tobeUpdate = new HashSet<>();
 
     IslandManager() {
-
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            for (Island island : tobeUpdate) {
-                persist(island);
+            HashMap<IslandId, LocalIsland> islandIdIslandHashMap = new HashMap<>(islandSet);
+            for (IslandId islandId : islandIdIslandHashMap.keySet()) {
+                Long l = lastQuery.get(islandId);
+                if (l == null || System.currentTimeMillis() - l > 60 * 1000) {
+                    lastQuery.remove(islandId);
+                    islandSet.remove(islandId);
+                }
             }
-            tobeUpdate.clear();
-
-        }, 20, 20);
-        IsletopiaTweakers.addDisableTask("Stop persist island data..", bukkitTask::cancel);
+            for (IslandId islandId : islandSet.keySet()) {
+                reloadIsland(islandId);
+            }
+        }, new Random().nextInt(200), 20 * 60);
+        IsletopiaTweakers.addDisableTask("Stop update island data..", bukkitTask::cancel);
     }
 
-    public void persist(Island island) {
+    private void reloadIsland(IslandId islandId) {
+        try {
+            Island islandByIslandId = IslandDao.getIslandByIslandId(islandId);
+            if (islandByIslandId != null) {
+                islandSet.put(islandByIslandId.getIslandId(), new LocalIsland(islandByIslandId));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Nullable
+    public LocalIsland getIsland(IslandId islandId) {
+        if (!islandSet.containsKey(islandId)) {
+            try {
+                Island islandByIslandId = IslandDao.getIslandByIslandId(islandId);
+                if (islandByIslandId != null) {
+                    islandSet.put(islandByIslandId.getIslandId(), new LocalIsland(islandByIslandId));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (islandSet.containsKey(islandId)) {
+            lastQuery.put(islandId, System.currentTimeMillis());
+        }
+        return islandSet.get(islandId);
+    }
+
+
+    public void persist(LocalIsland island) {
         try {
             IslandDao.updateIsland(island);
         } catch (SQLException e) {
@@ -73,13 +108,13 @@ public enum IslandManager {
         }
     }
 
-    public Island createNewIsland(String owner, Consumer<Island> consumer) {
+    public LocalIsland createNewIsland( UUID uuid, Consumer<LocalIsland> consumer) {
         IslandId nextIslandId = getNextIslandId(ServerInfoUpdater.getServerName());
-        return createNewIsland(nextIslandId, owner, consumer);
+        return createNewIsland(nextIslandId, uuid, consumer);
 
     }
 
-    public void deleteIsland(@NotNull Island island,@Nullable Runnable runnable) {
+    public void deleteIsland(@NotNull LocalIsland island, @Nullable Runnable runnable) {
         island.persist();
 
         island.clear(() -> {
@@ -89,7 +124,6 @@ public enum IslandManager {
                 e.printStackTrace();
                 throw new RuntimeException("Unexpected database error!");
             }
-            tobeUpdate.remove(island);
             islandSet.remove(island.getIslandId());
             if (runnable != null) {
                 runnable.run();
@@ -98,15 +132,15 @@ public enum IslandManager {
     }
 
 
-    public List<Island> getPlayerLocalServerIslands(String player) {
+    public List<LocalIsland> getPlayerLocalServerIslands(UUID player) {
         List<IslandId> localServerIslandIds;
         try {
-            localServerIslandIds = IslandDao.getPlayerLocalServerIslands(player);
+            localServerIslandIds = IslandDao.getPlayerLocalServerIslands(ServerInfoUpdater.getServerName(), player);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected database error");
         }
-        List<Island> islands = new ArrayList<>();
+        List<LocalIsland> islands = new ArrayList<>();
         for (IslandId localServerIslandId : localServerIslandIds) {
             islands.add(getIsland(localServerIslandId));
         }
@@ -114,10 +148,10 @@ public enum IslandManager {
     }
 
 
-    public Island getPlayerLocalServerFirstIsland(String player) {
+    public LocalIsland getPlayerLocalServerFirstIsland(UUID player) {
         IslandId playerFirstIsland = null;
         try {
-            playerFirstIsland = IslandDao.getPlayerLocalServerFirstIsland(player);
+            playerFirstIsland = IslandDao.getPlayerLocalServerFirstIsland(ServerInfoUpdater.getServerName(), player);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected database error");
@@ -126,7 +160,7 @@ public enum IslandManager {
     }
 
     @Nullable
-    public Island getPlayerFirstIsland(String player) {
+    public LocalIsland getPlayerFirstIsland(UUID player) {
         IslandId playerFirstIsland = null;
         try {
             playerFirstIsland = IslandDao.getPlayerFirstIsland(player);
@@ -137,22 +171,22 @@ public enum IslandManager {
         return getIsland(playerFirstIsland);
     }
 
-    public List<Island> getPlayerIslands(String player) {
+    public List<LocalIsland> getPlayerIslands(UUID uuid) {
         List<IslandId> playerIslandIds = null;
         try {
-            playerIslandIds = IslandDao.getPlayerIslandIds(player);
+            playerIslandIds = IslandDao.getPlayerIslandIds(uuid);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected database error!");
         }
-        List<Island> islands = new ArrayList<>();
+        List<LocalIsland> islands = new ArrayList<>();
         for (IslandId playerIslandId : playerIslandIds) {
             islands.add(getIsland(playerIslandId));
         }
         return islands;
     }
 
-    public int getPlayerIslandCount(String player) {
+    public int getPlayerIslandCount(UUID player) {
         try {
 
             Integer integer = IslandDao.countIslandByPlayer(player);
@@ -167,17 +201,19 @@ public enum IslandManager {
         }
     }
 
-    public void update(Island island) {
-        tobeUpdate.add(island);
+    public void update(LocalIsland island) {
+//        tobeUpdate.add(island);
+        persist(island);
+
     }
 
     public boolean hasCurrentIslandPermission(Player player) {
-        Island currentIsland = getCurrentIsland(player);
+        LocalIsland currentIsland = getCurrentIsland(player);
         return currentIsland != null && currentIsland.hasPermission(player);
     }
 
     public boolean hasTargetIslandPermission(Player player, Location location) {
-        Island currentIsland = getCurrentIsland(location);
+        LocalIsland currentIsland = getCurrentIsland(location);
         return currentIsland != null && currentIsland.hasPermission(player);
     }
 
@@ -194,7 +230,7 @@ public enum IslandManager {
         return false;
     }
 
-    public @NotNull Island createNewIsland(IslandId islandId, String owner, Consumer<Island> runnable) {
+    public @NotNull LocalIsland createNewIsland(IslandId islandId, UUID uuid, Consumer<LocalIsland> runnable) {
 
         if (!islandId.getServer().equals(ServerInfoUpdater.getServerName())) {
             throw new RuntimeException("Can't create an island from other server!");
@@ -204,9 +240,9 @@ public enum IslandManager {
             throw new RuntimeException("Island already exist!");
         }
 
-        Island temp = new Island(0, islandId.getX(), islandId.getZ(),
+        LocalIsland temp = new LocalIsland(0, islandId.getX(), islandId.getZ(),
                 256, 128, 256, 0f, 0f,
-                ServerInfoUpdater.getServerName(), owner, null, Biome.PLAINS,
+                ServerInfoUpdater.getServerName(), uuid, null, Biome.PLAINS.name(),
                 new Timestamp(System.currentTimeMillis()),
                 new HashSet<>(),
                 new HashSet<>());
@@ -217,50 +253,32 @@ public enum IslandManager {
             e.printStackTrace();
         }
 
-        Island islandByIslandId = null;
-        try {
-            islandByIslandId = IslandDao.getIslandByIslandId(islandId);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        LocalIsland islandByIslandId = null;
+        islandByIslandId = getIsland(islandId);
 
         if (islandByIslandId == null) {
             throw new RuntimeException("Unexpected error, island creation is failed");
         }
 
-        Island finalIslandByIslandId = islandByIslandId;
+        LocalIsland finalIslandByIslandId = islandByIslandId;
         islandByIslandId.applyIsland(() -> {
             if (runnable != null) {
                 runnable.accept(finalIslandByIslandId);
             }
         });
+
         return islandByIslandId;
     }
 
 
     @Nullable
-    public Island getIsland(IslandId islandId) {
-        if (!islandSet.containsKey(islandId)) {
-            try {
-                Island islandByIslandId = IslandDao.getIslandByIslandId(islandId);
-                if (islandByIslandId != null) {
-                    islandSet.put(islandByIslandId.getIslandId(), islandByIslandId);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return islandSet.get(islandId);
-    }
-
-    @Nullable
-    public Island getCurrentIsland(Player player) {
+    public LocalIsland getCurrentIsland(Player player) {
         return getCurrentIsland(player.getLocation());
     }
 
     @Nullable
-    public Island getCurrentIsland(Location location) {
-        IslandId islandId = IslandId.fromLocation(location.getBlockX(), location.getBlockZ());
+    public LocalIsland getCurrentIsland(Location location) {
+        IslandId islandId = IslandId.fromLocation(ServerInfoUpdater.getServerName(), location.getBlockX(), location.getBlockZ());
         return getIsland(islandId);
     }
 }

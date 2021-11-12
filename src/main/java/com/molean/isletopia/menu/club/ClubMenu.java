@@ -1,8 +1,9 @@
 package com.molean.isletopia.menu.club;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.menu.ItemStackSheet;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,7 +16,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class ClubMenu implements Listener {
@@ -33,28 +33,29 @@ public class ClubMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        List<String> clubs = UniversalParameter.getParameterAsList("Molean", "clubs");
-        for (int i = 0; i < clubs.size(); i++) {
-            Material clubIcon = null;
-            try {
-                clubIcon = Material.valueOf(UniversalParameter.getParameter(clubs.get(i), "clubIcon"));
-            } catch (Exception e) {
-                clubIcon = Material.GRASS_BLOCK;
-            }
+        List<String> clubs = UniversalParameter.getParameterAsList(UUIDUtils.get("Molean"), "clubs");
 
-            String rawClubGoal = UniversalParameter.getParameter(clubs.get(i), "clubGoal");
-            if (rawClubGoal == null || rawClubGoal.isEmpty()) {
-
-            }else{
-                String[] split = rawClubGoal.split("#");
-            }
-
-
-            ItemStackSheet itemStackSheet = new ItemStackSheet(clubIcon, clubs.get(i));
-
-
-
-        }
+//        for (int i = 0; i < clubs.size(); i++) {
+//            Material clubIcon = null;
+//            try {
+//                clubIcon = Material.valueOf(UniversalParameter.getParameter(clubs.get(i), "clubIcon"));
+//            } catch (Exception e) {
+//                clubIcon = Material.GRASS_BLOCK;
+//            }
+//
+//            String rawClubGoal = UniversalParameter.getParameter(clubs.get(i), "clubGoal");
+//            if (rawClubGoal == null || rawClubGoal.isEmpty()) {
+//
+//            }else{
+//                String[] split = rawClubGoal.split("#");
+//            }
+//
+//
+//            ItemStackSheet itemStackSheet = new ItemStackSheet(clubIcon, clubs.get(i));
+//
+//
+//
+//        }
 
 
         //here place icon

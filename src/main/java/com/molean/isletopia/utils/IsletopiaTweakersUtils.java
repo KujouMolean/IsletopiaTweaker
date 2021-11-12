@@ -1,16 +1,15 @@
 package com.molean.isletopia.utils;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.island.Island;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
-import com.molean.isletopia.shared.pojo.obj.VisitNotificationObject;
 import com.molean.isletopia.shared.pojo.req.PlaySoundRequest;
 import com.molean.isletopia.shared.pojo.req.TeleportRequest;
 import com.molean.isletopia.shared.pojo.req.TellMessageRequest;
 import com.molean.isletopia.shared.pojo.req.VisitRequest;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -29,11 +28,16 @@ public class IsletopiaTweakersUtils {
             case "server6" -> "佳和苑";
             case "server7" -> "楠故㟓";
             case "server8" -> "胧月花栞";
+            case "server9" -> "第⑨区";
+            case "server10" -> "第十区";
+            case "server11" -> "十一区";
+            case "server12" -> "十二区";
             default -> "未知";
         };
     }
- public static String getLocalServerName() {
-     return getLocalServerName(ServerInfoUpdater.getServerName());
+
+    public static String getLocalServerName() {
+        return getLocalServerName(ServerInfoUpdater.getServerName());
     }
 
 
@@ -86,7 +90,7 @@ public class IsletopiaTweakersUtils {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String source = sourcePlayer.getName();
 
-            List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(target);
+            List<LocalIsland> playerIslands = IslandManager.INSTANCE.getPlayerIslands(UUIDUtils.get(target));
 
             if (order >= playerIslands.size()) {
                 if (order == 0) {
@@ -96,7 +100,7 @@ public class IsletopiaTweakersUtils {
                 }
                 return;
             }
-            Island island = playerIslands.get(order);
+            LocalIsland island = playerIslands.get(order);
             String targetServer = island.getServer();
             VisitRequest visitRequest = new VisitRequest(source, target, island.getId());
             ServerMessageUtils.sendMessage(targetServer, "VisitRequest", visitRequest);

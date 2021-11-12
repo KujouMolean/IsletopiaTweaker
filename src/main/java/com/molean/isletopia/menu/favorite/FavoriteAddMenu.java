@@ -1,10 +1,11 @@
 package com.molean.isletopia.menu.favorite;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.menu.ItemStackSheet;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.Inventory;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 public class FavoriteAddMenu implements Listener {
 
@@ -30,7 +32,10 @@ public class FavoriteAddMenu implements Listener {
 
     private static List<String> getPlayers(Player player) {
         List<String> stringList = new ArrayList<>(ServerInfoUpdater.getOnlinePlayers());
-        List<String> collections = UniversalParameter.getParameterAsList(player.getName(), "collection");
+        List<String> collections = new ArrayList<>();
+        for (UUID playerCollection : CollectionDao.getPlayerCollections(player.getUniqueId())) {
+            collections.add(UUIDUtils.get(playerCollection));
+        }
         stringList.removeAll(collections);
         stringList.remove(player.getName());
         return stringList;
@@ -98,7 +103,8 @@ public class FavoriteAddMenu implements Listener {
         if (slot < players.size() && slot < 52) {
 
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                UniversalParameter.addParameter(player.getName(), "collection", players.get(slot + page * 52));
+                CollectionDao.addCollection(player.getUniqueId(), UUIDUtils.get(players.get(slot + page * 52)));
+
                 new FavoriteAddMenu(player).open();
             });
         }

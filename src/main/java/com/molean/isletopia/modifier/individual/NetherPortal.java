@@ -22,7 +22,7 @@ public class NetherPortal implements Listener {
 
     private static final Map<UUID, Long> map = new HashMap<>();
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onMob(EntityPortalEnterEvent event) {
         if (event.getEntity() instanceof Mob) {
             if (!map.containsKey(event.getEntity().getUniqueId())) {
@@ -33,7 +33,7 @@ public class NetherPortal implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayer(EntityPortalEnterEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (!map.containsKey(event.getEntity().getUniqueId())) {
@@ -46,7 +46,7 @@ public class NetherPortal implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(EntityPortalExitEvent event) {
         map.remove(event.getEntity().getUniqueId());
     }

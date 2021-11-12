@@ -1,9 +1,9 @@
 package com.molean.isletopia.tutor.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.infrastructure.individual.ProductionBar;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.shared.service.UniversalParameter;
+import com.molean.isletopia.infrastructure.individual.bars.ProductionBar;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
@@ -29,7 +29,7 @@ public class MobFarmTutor implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             for (Player player : new HashSet<>(PLAYERS)) {
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null || !currentIsland.hasPermission(player)) {
                     continue;
                 }
@@ -45,10 +45,10 @@ public class MobFarmTutor implements Listener {
 
                     MessageUtils.info(player, "看起来你已经建造了一所刷怪塔。");
                     MessageUtils.info(player, "接下来请开洞脑筋，制作一块铁锭。");
-                    MessageUtils.info(player, "输入/menu recipe 可以查看额外合成表，当然你也可以用JEI查看。");
+                    MessageUtils.info(player, "输入/menu recipe 可查看新合成表，也可用JEI查看。");
                     MessageUtils.info(player, "如果看完新合成表仍然一头雾水，就去梦幻之屿Wiki看看。");
 
-                    UniversalParameter.setParameter(player.getName(), "TutorStatus", "Iron");
+                    UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "Iron");
                     IronTutor.onJoin(player);
                 }
             }
@@ -69,7 +69,7 @@ public class MobFarmTutor implements Listener {
 
     public static void onJoin(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String tutorStatus = UniversalParameter.getParameter(player.getName(), "TutorStatus");
+            String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (Objects.equals(tutorStatus, "MobFarm") && player.isOnline()) {
                 BossBar bossBar = Bukkit.createBossBar("新手引导: 建造一个刷怪塔.", BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);

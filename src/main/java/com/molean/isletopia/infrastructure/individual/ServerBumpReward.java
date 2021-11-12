@@ -1,9 +1,12 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.shared.pojo.obj.ServerBumpObject;
+import com.molean.isletopia.shared.database.BumpDao;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.model.BumpInfo;
+import com.molean.isletopia.shared.pojo.obj.ServerBumpObject;
+import com.molean.isletopia.shared.service.UniversalParameter;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -19,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,33 +31,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ServerBumpReward implements CommandExecutor, TabCompleter {
-    public static class BumpInfo {
-        private final int uid;
-        private final String username;
-        private final LocalDateTime dateTime;
-        public BumpInfo(int uid, String username, LocalDateTime dateTime) {
-            this.uid = uid;
-            this.username = username;
-            this.dateTime = dateTime;
-        }
-        @Override
-        public String toString() {
-            return "BumpInfo{" +
-                    "uid=" + uid +
-                    ", username='" + username + '\'' +
-                    ", dateTime=" + dateTime +
-                    '}';
-        }
-    }
+
 
     private final List<BumpInfo> bumpInfos = new ArrayList<>();
 
     private long lastUpdate = 0;
 
-    public ServerBumpReward() {
+    public ServerBumpReward() throws SQLException {
+        BumpDao.checkTable();
         Objects.requireNonNull(Bukkit.getPluginCommand("bumpreward")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("bumpreward")).setExecutor(this);
 
+    }
+
+    public boolean hasPreviousBump(BumpInfo bumpInfo) {
+        for (BumpInfo info : bumpInfos) {
+            if (info.getDateTime().isBefore(bumpInfo.getDateTime())) {
+                if (info.getDateTime().plusHours(4).isAfter(bumpInfo.getDateTime())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -69,44 +68,65 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                 return;
             }
 
+            Player player = (Player) sender;
+            UUID uuid = player.getUniqueId();
+
             if (System.currentTimeMillis() - lastUpdate > 1000 * 30) {
                 updateInformation();
             }
 
-            String lastBumpReward = UniversalParameter.getParameter(args[0], "lastBumpReward");
-            if (lastBumpReward != null && !lastBumpReward.isEmpty()) {
-                LocalDate parse = LocalDate.parse(lastBumpReward, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                if (parse.isEqual(LocalDate.now())) {
-                    sender.sendMessage("该MCBBS账号的今日奖励已被领取。");
-                    return;
-                }
-            }
 
             for (BumpInfo bumpInfo : bumpInfos) {
                 if (args[0].equalsIgnoreCase("debug")) {
                     System.out.println(bumpInfo);
                 }
-                if (bumpInfo.dateTime.toLocalDate().isEqual(LocalDate.now()) && bumpInfo.username.equalsIgnoreCase(args[0])) {
-                    String format = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    UniversalParameter.setParameter(args[0], "lastBumpReward", format);
-                    Player player = (Player) sender;
-                    player.getInventory().addItem(new ItemStack(Material.SHULKER_BOX, 1));
 
-                    ServerBumpObject serverBumpObject = new ServerBumpObject();
-                    serverBumpObject.setPlayer(sender.getName());
-                    serverBumpObject.setUser(args[0]);
-                    serverBumpObject.setItems(new ArrayList<>());
+                if (!bumpInfo.getDateTime().toLocalDate().isEqual(LocalDate.now())) {
+                    continue;
+
+                }
+
+                //claimed, skip
+                try {
+                    if (BumpDao.exist(bumpInfo)) {
+                        continue;
+                    }
+                } catch (SQLException e) {
+                    MessageUtils.fail(sender,"数据库错误，请联系管理员。");
+                    return;
+                }
+                //not owned, skip
+                if (!bumpInfo.getUsername().equalsIgnoreCase(args[0])) {
+                    continue;
+                }
+
+
+                int bonus = 1;
+                if (!hasPreviousBump(bumpInfo)) {
+                    bonus = 2;
+                }
+
+                try {
+                    BumpDao.addBumpInfo(bumpInfo);
+                } catch (SQLException e) {
+                    MessageUtils.fail(sender,"数据库错误，请联系管理员。");
+                    return;
+                }
+
+                ServerBumpObject serverBumpObject = new ServerBumpObject();
+                serverBumpObject.setPlayer(sender.getName());
+                serverBumpObject.setUser(args[0]);
+                serverBumpObject.setItems(new ArrayList<>());
+                ArrayList<ItemStack> itemStacks = new ArrayList<>();
+                Random random = new Random();
+                for (int i = 0; i < bonus; i++) {
+                    itemStacks.add(new ItemStack(Material.SHULKER_BOX));
                     serverBumpObject.getItems().add("潜影盒");
-
-                    Random random = new Random();
-
-                    ArrayList<ItemStack> itemStacks = new ArrayList<>();
-
                     if (random.nextInt(100) < 10) {
                         itemStacks.add(new ItemStack(Material.BEACON, 1));
                         serverBumpObject.getItems().add("信标");
-                        UniversalParameter.addParameter("Molean", "beacon", player.getName());
-                        UniversalParameter.setParameter(player.getName(), "beaconReason", "顶贴");
+                        UniversalParameter.addParameter(uuid, "beacon", "true");
+                        UniversalParameter.setParameter(uuid, "beaconReason", "顶贴");
                     }
                     if (random.nextInt(100) < 5) {
                         itemStacks.add(new ItemStack(Material.BUNDLE, 1));
@@ -119,23 +139,22 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                     if (random.nextInt(100) == 0) {
                         itemStacks.add(new ItemStack(Material.ELYTRA, 1));
                         serverBumpObject.getItems().add("鞘翅");
-                        UniversalParameter.addParameter("Molean", "elytra", player.getName());
-                        UniversalParameter.setParameter(player.getName(), "elytraReason", "顶贴");
+                        UniversalParameter.addParameter(uuid, "elytra","true");
+                        UniversalParameter.setParameter(uuid, "elytraReason", "顶贴");
                     }
-
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
-                        for (ItemStack value : values) {
-                            player.getLocation().getWorld().dropItem(player.getLocation(), value);
-                        }
-                    });
-
-
-                    ServerMessageUtils.sendMessage("waterfall", "ServerBump", serverBumpObject);
-                    return;
                 }
+
+
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
+                    for (ItemStack value : values) {
+                        player.getLocation().getWorld().dropItem(player.getLocation(), value);
+                    }
+                });
+                ServerMessageUtils.sendMessage("waterfall", "ServerBump", serverBumpObject);
+                return;
             }
-            sender.sendMessage("你还没有顶帖，或者ID输入错误，请查证后重新领取。");
+            MessageUtils.fail(sender,"你还没有顶帖，或者ID输入错误，请查证后重新领取。");
         });
         return true;
     }
@@ -173,17 +192,19 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
             String username = matcher1.group(2);
             LocalDateTime dateTime = LocalDateTime.parse(matcher1.group(3), DateTimeFormatter.ofPattern("yyyy-M-d HH:mm"));
 
-            bumpInfos.add(new BumpInfo(uid, username, dateTime));
+            if (dateTime.toLocalDate().isEqual(LocalDate.now())) {
+                bumpInfos.add(new BumpInfo(uid, username, dateTime));
+            }
         }
         while (matcher2.find()) {
             int uid = Integer.parseInt(matcher2.group(1));
             String username = matcher2.group(2);
             LocalDateTime dateTime = LocalDateTime.parse(matcher2.group(3), DateTimeFormatter.ofPattern("yyyy-M-d HH:mm"));
 
-            bumpInfos.add(new BumpInfo(uid, username, dateTime));
+            if (dateTime.toLocalDate().isEqual(LocalDate.now())) {
+                bumpInfos.add(new BumpInfo(uid, username, dateTime));
+            }
         }
         lastUpdate = System.currentTimeMillis();
     }
-
-
 }

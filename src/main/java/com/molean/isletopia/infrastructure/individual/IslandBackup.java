@@ -1,14 +1,14 @@
 package com.molean.isletopia.infrastructure.individual;
 
-import com.google.common.io.Files;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.IslandBackupDao;
-import com.molean.isletopia.database.PlayerBackupDao;
-import com.molean.isletopia.island.Island;
-import com.molean.isletopia.island.IslandId;
+import com.molean.isletopia.shared.database.PlayerBackupDao;
+import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PlayerSerializeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -57,7 +57,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
         BukkitTask bukkitTask2 = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Set<IslandId> plotIdSet = new HashSet<>();
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
+                LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
                 if (currentPlot == null) {
                     continue;
                 }
@@ -68,7 +68,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                     backup(plotId);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Island island = IslandManager.INSTANCE.getIsland(plotId);
+                    LocalIsland island = IslandManager.INSTANCE.getIsland(plotId);
                     if (island == null) {
                         return;
                     }
@@ -122,7 +122,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
 
         switch (args[0].toLowerCase(Locale.ROOT)) {
             case "island" -> {
-                Island plot = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland plot = IslandManager.INSTANCE.getCurrentIsland(player);
                 assert plot != null;
                 try {
                     backup(plot.getIslandId());
@@ -135,7 +135,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                 return true;
             }
             case "listisland"->{
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
                     player.sendMessage("?");
                     return true;
@@ -226,8 +226,8 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                 int id = Integer.parseInt(args[2]);
 
                 try {
-                    PlayerBackupDao.restore(targetPlayer, id);
-                    targetPlayer.loadData();
+                    byte[] bytes = PlayerBackupDao.get(id);
+                    PlayerSerializeUtils.deserialize(targetPlayer, bytes);
                 } catch (Exception e) {
                     player.sendMessage("失败!");
                     return true;

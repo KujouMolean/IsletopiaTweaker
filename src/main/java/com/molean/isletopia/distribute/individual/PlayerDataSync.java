@@ -1,7 +1,7 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.PlayerDataDao;
+import com.molean.isletopia.shared.database.PlayerDataDao;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.utils.MessageUtils;
@@ -14,22 +14,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class PlayerDataSync implements Listener {
 
-    private final Map<String, String> passwdMap = new HashMap<>();
+    private final Map<UUID, String> passwdMap = new HashMap<>();
 
     public PlayerDataSync() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
@@ -48,7 +46,7 @@ public class PlayerDataSync implements Listener {
 
         IsletopiaTweakers.addDisableTask("Save player data to database", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (passwdMap.containsKey(onlinePlayer.getName())) {
+                if (passwdMap.containsKey(onlinePlayer.getUniqueId())) {
                     onLeft(onlinePlayer);
                 }
             }
@@ -70,11 +68,9 @@ public class PlayerDataSync implements Listener {
 
             Player player = queue.poll();
 
-            if (player.isOnline() && passwdMap.containsKey(player.getName())) {
+            if (player.isOnline() && passwdMap.containsKey(player.getUniqueId())) {
 
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    update(player);
-                });
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> update(player));
 
             }
         }, 20, 20);
@@ -85,7 +81,7 @@ public class PlayerDataSync implements Listener {
         try {
             byte[] serialize = PlayerSerializeUtils.serialize(player);
 
-            if (!PlayerDataDao.update(player.getName(), serialize, passwdMap.get(player.getName()))) {
+            if (!PlayerDataDao.update(player.getUniqueId(), serialize, passwdMap.get(player.getUniqueId()))) {
                 throw new RuntimeException("Unexpected complete player data error!");
             }
 
@@ -98,14 +94,20 @@ public class PlayerDataSync implements Listener {
         }
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void on(PlayerGameModeChangeEvent event) {
+        Player player = event.getPlayer();
+        RedisUtils.getCommand().set(player.getName()+":GameMode", event.getNewGameMode().getValue() + "");
+    }
+
     public void onLeft(Player player) {
         try {
             byte[] serialize = PlayerSerializeUtils.serialize(player);
 
-            if (!PlayerDataDao.complete(player.getName(), serialize, passwdMap.get(player.getName()))) {
+            if (!PlayerDataDao.complete(player.getUniqueId(), serialize, passwdMap.get(player.getUniqueId()))) {
                 throw new RuntimeException("Unexpected complete player data error!");
             }
-            passwdMap.remove(player.getName());
+            passwdMap.remove(player.getUniqueId());
 
 
             //store game mode
@@ -117,19 +119,18 @@ public class PlayerDataSync implements Listener {
 
     public void onJoin(Player player) {
         Location location = player.getLocation().clone();
-        GameMode gameMode = player.getGameMode();
         try {
-            if (!PlayerDataDao.exist(player.getName())) {
+            if (!PlayerDataDao.exist(player.getUniqueId())) {
                 //插入数据
                 byte[] serialize = PlayerSerializeUtils.serialize(player);
-                PlayerDataDao.insert(player.getName(), serialize);
+                PlayerDataDao.insert(player.getUniqueId(), serialize);
             }
 
             player.setGameMode(GameMode.SPECTATOR);
             //拿锁
-            String passwd = PlayerDataDao.getLock(player.getName());
+            String passwd = PlayerDataDao.getLock(player.getUniqueId());
             if (passwd != null) {
-                loadData(player, passwd, gameMode, location);
+                loadData(player, passwd, location);
                 // end
             } else {
                 //没拿到, 开始等锁
@@ -140,10 +141,10 @@ public class PlayerDataSync implements Listener {
                     public void accept(BukkitTask task) {
                         try {
                             //尝试拿锁
-                            String lock = PlayerDataDao.getLock(player.getName());
+                            String lock = PlayerDataDao.getLock(player.getUniqueId());
 
                             if (lock != null) {
-                                loadData(player, lock, gameMode, location);
+                                loadData(player, lock, location);
                                 task.cancel();
 
                                 //end
@@ -154,14 +155,15 @@ public class PlayerDataSync implements Listener {
                             if (times > 15) {
                                 task.cancel();
                                 //等待超时, 可能是上个服务器崩了, 强制拿锁
-                                String lockForce = PlayerDataDao.getLockForce(player.getName());
+                                String lockForce = PlayerDataDao.getLockForce(player.getUniqueId());
+
                                 if (lockForce == null) {
                                     //强制拿锁失败, 出大问题
                                     throw new RuntimeException("Unexpected error! Force get lock failed.");
                                     //end (failed)
                                 }
 
-                                loadData(player, lockForce, gameMode, location);
+                                loadData(player, lockForce, location);
 
 
                                 //end (success)
@@ -192,11 +194,11 @@ public class PlayerDataSync implements Listener {
         }
     }
 
-    private void loadData(Player player, String passwd, GameMode gameMode, Location location) throws SQLException, IOException {
-        passwdMap.put(player.getName(), passwd);
+    private void loadData(Player player, String passwd, Location location) throws SQLException, IOException {
+        passwdMap.put(player.getUniqueId(), passwd);
         //强制拿到锁了, 加载数据
 
-        byte[] query = PlayerDataDao.query(player.getName(), passwd);
+        byte[] query = PlayerDataDao.query(player.getUniqueId(), passwd);
 
 
         if (query == null) {
@@ -206,6 +208,8 @@ public class PlayerDataSync implements Listener {
 
         PlayerSerializeUtils.deserialize(player, query);
         //deserialize player from db
+
+
         player.teleport(location);
         if (RedisUtils.getCommand().exists("GameMode:" + player.getName()) > 0) {
 
@@ -218,6 +222,8 @@ public class PlayerDataSync implements Listener {
         }
         PlayerDataSyncCompleteEvent playerDataSyncCompleteEvent = new PlayerDataSyncCompleteEvent(player);
         Bukkit.getPluginManager().callEvent(playerDataSyncCompleteEvent);
+
+
     }
 
 
@@ -228,7 +234,7 @@ public class PlayerDataSync implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent event) {
-        if (passwdMap.containsKey(event.getPlayer().getName())) {
+        if (passwdMap.containsKey(event.getPlayer().getUniqueId())) {
             onLeft(event.getPlayer());
         }
     }

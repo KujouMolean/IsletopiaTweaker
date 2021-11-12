@@ -16,11 +16,10 @@ public class RemoveUnbreakable implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(EntityDamageEvent event) {
         Entity entity = event.getEntity();
-        if (entity instanceof Player) {
-            Player player = (Player) entity;
+        if (entity instanceof Player player) {
             for (ItemStack armorContent : player.getInventory().getArmorContents()) {
                 if(armorContent!=null){
                     ItemMeta itemMeta = armorContent.getItemMeta();
@@ -32,7 +31,7 @@ public class RemoveUnbreakable implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(PlayerInteractEvent event) {
         ItemStack item = event.getItem();
         if (item == null) {

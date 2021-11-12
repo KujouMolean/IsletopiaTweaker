@@ -20,6 +20,7 @@ import static org.bukkit.Material.*;
 
 public class RichWanderingTrader implements Listener {
     private static final List<Material> additions = new ArrayList<>();
+
     public RichWanderingTrader() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
 
@@ -53,10 +54,12 @@ public class RichWanderingTrader implements Listener {
             sources.add(itemStacks);
 
             LocalRecipe.addRecipe(icons, types, sources, result);
+
+
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onSpawn(EntitySpawnEvent event) {
         if (!event.getEntityType().equals(EntityType.WANDERING_TRADER)) {
             return;

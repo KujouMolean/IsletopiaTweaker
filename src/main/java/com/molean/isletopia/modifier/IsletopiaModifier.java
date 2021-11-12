@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 public class IsletopiaModifier {
     public IsletopiaModifier() {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
+        long l = System.currentTimeMillis();
         try {
             new PlayerHeadDrop();
             new RichWanderingTrader();
@@ -39,6 +40,6 @@ public class IsletopiaModifier {
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");
         }
-        logger.info("Initialize isletopia modifier successfully!");
+        logger.info("Initialize isletopia modifier successfully in "+(System.currentTimeMillis()-l)+"ms");
     }
 }

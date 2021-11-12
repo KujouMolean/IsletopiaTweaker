@@ -28,46 +28,50 @@ public class RichPiglin implements Listener {
             List<ItemStack> result = new ArrayList<>();
             List<ItemStack> types = new ArrayList<>();
             types.add(HeadUtils.getSkullFromValue("猪灵", PlayerHeadDrop.drops.get(EntityType.PIGLIN)));
-            icons.add(new ItemStack(SMALL_AMETHYST_BUD));
-            icons.add(new ItemStack(MEDIUM_AMETHYST_BUD));
-            icons.add(new ItemStack(LARGE_AMETHYST_BUD));
-            icons.add(new ItemStack(AMETHYST_CLUSTER));
-            result.add(new ItemStack(SMALL_AMETHYST_BUD));
-            result.add(new ItemStack(MEDIUM_AMETHYST_BUD));
-            result.add(new ItemStack(LARGE_AMETHYST_BUD));
-            result.add(new ItemStack(AMETHYST_CLUSTER));
-            List<ItemStack[]> sources = new ArrayList<>();
-            for (int i = 0; i < 4; i++) {
-                ItemStack[] itemStacks = new ItemStack[9];
-                for (int j = 0; j < itemStacks.length; j++) {
-                    itemStacks[j] = new ItemStack(AIR);
+                icons.add(new ItemStack(SMALL_AMETHYST_BUD));
+                icons.add(new ItemStack(MEDIUM_AMETHYST_BUD));
+                icons.add(new ItemStack(LARGE_AMETHYST_BUD));
+                icons.add(new ItemStack(AMETHYST_CLUSTER));
+                result.add(new ItemStack(SMALL_AMETHYST_BUD));
+                result.add(new ItemStack(MEDIUM_AMETHYST_BUD));
+                result.add(new ItemStack(LARGE_AMETHYST_BUD));
+                result.add(new ItemStack(AMETHYST_CLUSTER));
+                List<ItemStack[]> sources = new ArrayList<>();
+                for (int i = 0; i < 4; i++) {
+                    ItemStack[] itemStacks = new ItemStack[9];
+                    for (int j = 0; j < itemStacks.length; j++) {
+                        itemStacks[j] = new ItemStack(AIR);
+                    }
+                    itemStacks[4] = new ItemStack(GOLD_BLOCK);
+                    sources.add(itemStacks);
                 }
-                itemStacks[4] = new ItemStack(GOLD_BLOCK);
-                sources.add(itemStacks);
-            }
-            LocalRecipe.addRecipe(icons, types, sources, result);
+                LocalRecipe.addRecipe(icons, types, sources, result);
+
+
         }
         {
             List<ItemStack> icons = new ArrayList<>();
             List<ItemStack> result = new ArrayList<>();
             List<ItemStack> types = new ArrayList<>();
             types.add(HeadUtils.getSkullFromValue("猪灵", PlayerHeadDrop.drops.get(EntityType.PIGLIN)));
-            icons.add(new ItemStack(ENCHANTED_GOLDEN_APPLE));
-            result.add(new ItemStack(ENCHANTED_GOLDEN_APPLE));
-            result.add(new ItemStack(APPLE));
-            List<ItemStack[]> sources = new ArrayList<>();
-            ItemStack[] itemStacks = new ItemStack[9];
-            for (int j = 0; j < itemStacks.length; j++) {
-                itemStacks[j] = new ItemStack(AIR);
-            }
-            itemStacks[4] = new ItemStack(GOLDEN_APPLE);
-            sources.add(itemStacks);
 
-            LocalRecipe.addRecipe(icons, types, sources, result);
+                icons.add(new ItemStack(ENCHANTED_GOLDEN_APPLE));
+                result.add(new ItemStack(ENCHANTED_GOLDEN_APPLE));
+                result.add(new ItemStack(APPLE));
+                List<ItemStack[]> sources = new ArrayList<>();
+                ItemStack[] itemStacks = new ItemStack[9];
+                for (int j = 0; j < itemStacks.length; j++) {
+                    itemStacks[j] = new ItemStack(AIR);
+                }
+                itemStacks[4] = new ItemStack(GOLDEN_APPLE);
+                sources.add(itemStacks);
+
+                LocalRecipe.addRecipe(icons, types, sources, result);
+
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(EntitySpawnEvent event) {
         EntityType entityType = event.getEntityType();
         if (entityType.equals(EntityType.PIGLIN)) {
@@ -78,7 +82,7 @@ public class RichPiglin implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(PiglinBarterEvent event) {
         if (event.getInput().getType().equals(GOLDEN_APPLE)) {
             List<ItemStack> outcome = event.getOutcome();
@@ -110,18 +114,10 @@ public class RichPiglin implements Listener {
             outcome.clear();
             Random random = new Random();
             switch (random.nextInt(4)) {
-                case 0:
-                    outcome.add(new ItemStack(SMALL_AMETHYST_BUD));
-                    break;
-                case 1:
-                    outcome.add(new ItemStack(MEDIUM_AMETHYST_BUD));
-                    break;
-                case 2:
-                    outcome.add(new ItemStack(LARGE_AMETHYST_BUD));
-                    break;
-                case 3:
-                    outcome.add(new ItemStack(AMETHYST_CLUSTER));
-                    break;
+                case 0 -> outcome.add(new ItemStack(SMALL_AMETHYST_BUD));
+                case 1 -> outcome.add(new ItemStack(MEDIUM_AMETHYST_BUD));
+                case 2 -> outcome.add(new ItemStack(LARGE_AMETHYST_BUD));
+                case 3 -> outcome.add(new ItemStack(AMETHYST_CLUSTER));
             }
         }
 

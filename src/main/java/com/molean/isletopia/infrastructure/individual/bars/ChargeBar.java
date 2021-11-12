@@ -1,8 +1,11 @@
-package com.molean.isletopia.charge;
+package com.molean.isletopia.infrastructure.individual.bars;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.charge.ChargeDetailCommitter;
+import com.molean.isletopia.charge.ChargeDetailUtils;
+import com.molean.isletopia.shared.service.UniversalParameter;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -14,13 +17,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 
 public class ChargeBar implements CommandExecutor, Listener {
     private static final HashMap<Player, BossBar> powerBars = new HashMap<>();
@@ -35,12 +38,12 @@ public class ChargeBar implements CommandExecutor, Listener {
         }
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             powerBars.forEach((player, bossBar) -> {
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
                     bossBar.setVisible(false);
                     return;
                 }
-                String owner = currentIsland.getOwner();
+                UUID owner = currentIsland.getUuid();
                 long totalPower = ChargeDetailUtils.getTotalPower(ChargeDetailCommitter.get(owner));
                 long totalPowerUsage = ChargeDetailUtils.getTotalPowerUsage(ChargeDetailCommitter.get(owner));
                 bossBar.setTitle("电表: " + totalPowerUsage + "/" + totalPower);
@@ -57,12 +60,12 @@ public class ChargeBar implements CommandExecutor, Listener {
             });
 
             waterBars.forEach((player, bossBar) -> {
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
                     bossBar.setVisible(false);
                     return;
                 }
-                String owner = currentIsland.getOwner();
+                UUID owner = currentIsland.getUuid();
                 long totalWater = ChargeDetailUtils.getTotalWater(ChargeDetailCommitter.get(owner));
                 long totalWaterUsage = ChargeDetailUtils.getTotalWaterUsage(ChargeDetailCommitter.get(owner));
                 bossBar.setTitle("水表: " + totalWaterUsage + "/" + totalWater);
@@ -79,12 +82,14 @@ public class ChargeBar implements CommandExecutor, Listener {
             });
         }, 0, 20);
 
-        IsletopiaTweakers.addDisableTask("Stop charge bar, and remove all bars",() -> {
+        IsletopiaTweakers.addDisableTask("Stop charge bar, and remove all bars", () -> {
             bukkitTask.cancel();
             powerBars.forEach((player, bossBar) -> {
+                bossBar.setVisible(false);
                 bossBar.removeAll();
             });
             waterBars.forEach((player, bossBar) -> {
+                bossBar.setVisible(false);
                 bossBar.removeAll();
             });
         });
@@ -93,7 +98,7 @@ public class ChargeBar implements CommandExecutor, Listener {
     }
 
     public void checkPlayerBar(Player player) {
-        String waterBar = UniversalParameter.getParameter(player.getName(), "WaterBar");
+        String waterBar = UniversalParameter.getParameter(player.getUniqueId(), "WaterBar");
         BossBar waterBossBar = waterBars.get(player);
         if (waterBar != null && !waterBar.isEmpty()) {
             if (waterBossBar == null) {
@@ -109,7 +114,7 @@ public class ChargeBar implements CommandExecutor, Listener {
         }
 
         BossBar powerBossBar = powerBars.get(player);
-        String powerBar = UniversalParameter.getParameter(player.getName(), "PowerBar");
+        String powerBar = UniversalParameter.getParameter(player.getUniqueId(), "PowerBar");
         if (powerBar != null && !powerBar.isEmpty()) {
             if (powerBossBar == null) {
                 powerBars.put(player, Bukkit.createBossBar(null, BarColor.RED, BarStyle.SOLID));
@@ -125,7 +130,7 @@ public class ChargeBar implements CommandExecutor, Listener {
 
 
     @EventHandler
-    public void on(PlayerJoinEvent event) {
+    public void on(PlayerDataSyncCompleteEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             checkPlayerBar(event.getPlayer());
         });
@@ -143,21 +148,21 @@ public class ChargeBar implements CommandExecutor, Listener {
 
         if (command.getName().equals("waterbar")) {
 
-            String waterBar = UniversalParameter.getParameter(player.getName(), "WaterBar");
+            String waterBar = UniversalParameter.getParameter(player.getUniqueId(), "WaterBar");
             if (waterBar != null && !waterBar.isEmpty()) {
-                UniversalParameter.unsetParameter(player.getName(), "WaterBar");
+                UniversalParameter.unsetParameter(player.getUniqueId(), "WaterBar");
             } else {
-                UniversalParameter.setParameter(player.getName(), "WaterBar", "true");
+                UniversalParameter.setParameter(player.getUniqueId(), "WaterBar", "true");
             }
             checkPlayerBar(player);
         }
 
         if (command.getName().equals("powerbar")) {
-            String powerBar = UniversalParameter.getParameter(player.getName(), "PowerBar");
+            String powerBar = UniversalParameter.getParameter(player.getUniqueId(), "PowerBar");
             if (powerBar != null && !powerBar.isEmpty()) {
-                UniversalParameter.unsetParameter(player.getName(), "PowerBar");
+                UniversalParameter.unsetParameter(player.getUniqueId(), "PowerBar");
             } else {
-                UniversalParameter.setParameter(player.getName(), "PowerBar", "true");
+                UniversalParameter.setParameter(player.getUniqueId(), "PowerBar", "true");
             }
             checkPlayerBar(player);
         }

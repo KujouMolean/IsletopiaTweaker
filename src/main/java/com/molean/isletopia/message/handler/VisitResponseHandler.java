@@ -27,9 +27,7 @@ public class VisitResponseHandler implements MessageHandler<VisitResponse> {
             if (!Objects.equals("accepted", visitResponse.getResponse())) {
                 player.sendMessage(visitResponse.getResponseMessage());
             } else {
-                if (!ServerInfoUpdater.getServerName().equalsIgnoreCase(wrappedMessageObject.getFrom())) {
-                    ServerMessageUtils.switchServer(player.getName(), wrappedMessageObject.getFrom());
-                }
+                ServerMessageUtils.switchServer(player.getName(), wrappedMessageObject.getFrom());
             }
         }
     }

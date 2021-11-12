@@ -1,7 +1,7 @@
 package com.molean.isletopia.tutor.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,7 +23,7 @@ public class StoneTutor implements Listener {
 
     private static final Set<Player> PLAYERS = new HashSet<>();
     private static final Map<Player, BossBar> BARS = new HashMap<>();
-    private final static int TARGET_STONE = 64 * 32;
+    private final static int TARGET_STONE = 64 * 8;
 
 
     public StoneTutor() {
@@ -42,9 +42,9 @@ public class StoneTutor implements Listener {
 
     public static void onJoin(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String tutorStatus = UniversalParameter.getParameter(player.getName(), "TutorStatus");
+            String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (Objects.equals(tutorStatus, "Stone") && player.isOnline()) {
-                BossBar bossBar = Bukkit.createBossBar("新手引导: 制造刷石机并获取32组圆石.", BarColor.GREEN, BarStyle.SEGMENTED_20);
+                BossBar bossBar = Bukkit.createBossBar("新手引导: 制造刷石机并获取8组圆石.", BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);
                 PLAYERS.add(player);
                 BARS.put(player, bossBar);
@@ -59,7 +59,7 @@ public class StoneTutor implements Listener {
         }
         BossBar bossBar = BARS.get(player);
         int pre;
-        String parameter = UniversalParameter.getParameter(player.getName(), "Tutor-Stone");
+        String parameter = UniversalParameter.getParameter(player.getUniqueId(), "Tutor-Stone");
         if (parameter == null || parameter.isEmpty()) {
             pre = 0;
         } else {
@@ -72,7 +72,7 @@ public class StoneTutor implements Listener {
 
             MessageUtils.info(player, "你已经挖到了足够多的石头，尝试建造一个刷怪塔。");
             MessageUtils.info(player, "如果有困难，请前往哔哩哔哩动画学习。");
-            UniversalParameter.setParameter(player.getName(), "TutorStatus", "MobFarm");
+            UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "MobFarm");
             MobFarmTutor.onJoin(player);
             return;
         }
@@ -88,14 +88,14 @@ public class StoneTutor implements Listener {
 
     public static void addProgress(Player player, int amount) {
         int pre;
-        String parameter = UniversalParameter.getParameter(player.getName(), "Tutor-Stone");
+        String parameter = UniversalParameter.getParameter(player.getUniqueId(), "Tutor-Stone");
         if (parameter == null || parameter.isEmpty()) {
             pre = 0;
         } else {
             pre = Integer.parseInt(parameter);
         }
         pre += amount;
-        UniversalParameter.setParameter(player.getName(), "Tutor-Stone", pre + "");
+        UniversalParameter.setParameter(player.getUniqueId(), "Tutor-Stone", pre + "");
         updateProgress(player);
     }
 

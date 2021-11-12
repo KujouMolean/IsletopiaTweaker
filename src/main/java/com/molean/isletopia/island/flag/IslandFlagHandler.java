@@ -1,15 +1,15 @@
 package com.molean.isletopia.island.flag;
 
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import org.jetbrains.annotations.NotNull;
 
 public interface IslandFlagHandler {
 
-    default void onFlagAdd(Island island, String ...data){
+    default void onFlagAdd(LocalIsland island, String ...data){
 
     }
 
-    default void onFlagRemove(Island island, String ...data){
+    default void onFlagRemove(LocalIsland island, String ...data){
 
     }
 

@@ -1,7 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -11,11 +11,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FirstSapling implements Listener {
 
-    private static final Map<OfflinePlayer, Boolean> caches = new ConcurrentHashMap<>();
+    private static final Map<UUID, Boolean> caches = new ConcurrentHashMap<>();
 
     public FirstSapling() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
@@ -28,18 +29,18 @@ public class FirstSapling implements Listener {
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            if (!caches.containsKey(event.getPlayer())) {
-                String firstSapling = UniversalParameter.getParameter(event.getPlayer().getName(), "FirstSapling");
-                caches.put(event.getPlayer(), firstSapling != null && !firstSapling.isEmpty());
+            if (!caches.containsKey(event.getPlayer().getUniqueId())) {
+                String firstSapling = UniversalParameter.getParameter(event.getPlayer().getUniqueId(), "FirstSapling");
+                caches.put(event.getPlayer().getUniqueId(), firstSapling != null && !firstSapling.isEmpty());
 
             }
-            if (!caches.get(event.getPlayer())) {
+            if (!caches.get(event.getPlayer().getUniqueId())) {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                     event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), new ItemStack(Material.OAK_SAPLING));
                 });
 
-                UniversalParameter.setParameter(event.getPlayer().getName(), "FirstSapling", "true");
-                caches.put(event.getPlayer(), true);
+                UniversalParameter.setParameter(event.getPlayer().getUniqueId(), "FirstSapling", "true");
+                caches.put(event.getPlayer().getUniqueId(), true);
             }
 
         });

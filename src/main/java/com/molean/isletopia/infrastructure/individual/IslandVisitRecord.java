@@ -2,7 +2,7 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +14,7 @@ public class IslandVisitRecord implements Listener {
 
     @EventHandler
     public void on(PlayerIslandChangeEvent event) {
-        Island to = event.getTo();
+        LocalIsland to = event.getTo();
         if (to == null) {
             return;
         }

@@ -11,12 +11,12 @@ public class RemoveJoinLeftMessage implements Listener {
     public RemoveJoinLeftMessage() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onJoin(PlayerJoinEvent event) {
         event.joinMessage(null);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onLeft(PlayerQuitEvent event) {
         event.quitMessage(null);
     }

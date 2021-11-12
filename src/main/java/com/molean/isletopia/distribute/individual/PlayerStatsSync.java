@@ -1,37 +1,27 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.PlayerStatsDao;
+import com.molean.isletopia.shared.database.PlayerStatsDao;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.utils.MessageUtils;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.stats.ServerStatisticManager;
-import net.minecraft.stats.StatisticManager;
+import com.molean.isletopia.utils.StatsSerializeUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.sql.SQLException;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class PlayerStatsSync implements Listener {
 
-    private final Map<String, String> passwdMap = new HashMap<>();
+    private final Map<UUID, String> passwdMap = new HashMap<>();
 
     public PlayerStatsSync() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
@@ -48,7 +38,7 @@ public class PlayerStatsSync implements Listener {
 
         IsletopiaTweakers.addDisableTask("Save player stats to database", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (passwdMap.containsKey(onlinePlayer.getName())) {
+                if (passwdMap.containsKey(onlinePlayer.getUniqueId())) {
                     onLeft(onlinePlayer);
                 }
             }
@@ -69,11 +59,10 @@ public class PlayerStatsSync implements Listener {
 
             Player player = queue.poll();
 
-            if (player.isOnline() && passwdMap.containsKey(player.getName())) {
+            if (player.isOnline() && passwdMap.containsKey(player.getUniqueId())) {
 
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    update(player);
-                });
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
+                        update(player));
 
             }
         }, 20, 20);
@@ -83,8 +72,8 @@ public class PlayerStatsSync implements Listener {
 
     public void update(Player player) {
         try {
-            String stats = getStats(player);
-            if (!PlayerStatsDao.update(player.getName(), stats, passwdMap.get(player.getName()))) {
+            String stats = StatsSerializeUtils.getStats(player);
+            if (!PlayerStatsDao.update(player.getUniqueId(), stats, passwdMap.get(player.getUniqueId()))) {
                 throw new RuntimeException("Unexpected complete player stats error!");
             }
         } catch (Exception e) {
@@ -95,26 +84,25 @@ public class PlayerStatsSync implements Listener {
 
     public void onLeft(Player player) {
         try {
-            String stats = getStats(player);
-            if (!PlayerStatsDao.complete(player.getName(), stats, passwdMap.get(player.getName()))) {
+            String stats = StatsSerializeUtils.getStats(player);
+            if (!PlayerStatsDao.complete(player.getUniqueId(), stats, passwdMap.get(player.getUniqueId()))) {
                 throw new RuntimeException("Unexpected complete player stats error!");
             }
-            passwdMap.remove(player.getName());
+            passwdMap.remove(player.getUniqueId());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void onJoin(Player player) {
-
         try {
-            if (!PlayerStatsDao.exist(player.getName())) {
+            if (!PlayerStatsDao.exist(player.getUniqueId())) {
                 //插入数据
-                String stats = getStats(player);
-                PlayerStatsDao.insert(player.getName(), stats);
+                String stats = StatsSerializeUtils.getStats(player);
+                PlayerStatsDao.insert(player.getUniqueId(), stats);
             }
             //拿锁
-            String passwd = PlayerStatsDao.getLock(player.getName());
+            String passwd = PlayerStatsDao.getLock(player.getUniqueId());
             if (passwd != null) {
                 loadData(player, passwd);
                 // end
@@ -127,7 +115,7 @@ public class PlayerStatsSync implements Listener {
                     public void accept(BukkitTask task) {
                         try {
                             //尝试拿锁
-                            String lock = PlayerStatsDao.getLock(player.getName());
+                            String lock = PlayerStatsDao.getLock(player.getUniqueId());
                             if (lock != null) {
                                 loadData(player, lock);
                                 task.cancel();
@@ -138,7 +126,7 @@ public class PlayerStatsSync implements Listener {
                             if (times > 15) {
                                 task.cancel();
                                 //等待超时, 可能是上个服务器崩了, 强制拿锁
-                                String lockForce = PlayerStatsDao.getLockForce(player.getName());
+                                String lockForce = PlayerStatsDao.getLockForce(player.getUniqueId());
                                 if (lockForce == null) {
                                     //强制拿锁失败, 出大问题
                                     throw new RuntimeException("Unexpected error! Force get lock failed.");
@@ -161,75 +149,33 @@ public class PlayerStatsSync implements Listener {
     }
 
     private void loadData(Player player, String passwd) throws SQLException, IOException {
-        passwdMap.put(player.getName(), passwd);
+        passwdMap.put(player.getUniqueId(), passwd);
         //强制拿到锁了, 加载数据
 
-        String stats = PlayerStatsDao.query(player.getName(), passwd);
+        String stats = PlayerStatsDao.query(player.getUniqueId(), passwd);
 
         if (stats == null) {
             throw new RuntimeException("Unexpected get player data failed!");
             //end (failed)
         }
-        loadStats(player, stats);
+        StatsSerializeUtils.loadStats(player, stats);
     }
 
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void on(PlayerJoinEvent event) {
+    public void on(PlayerDataSyncCompleteEvent event) {
         onJoin(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent event) {
-        if (passwdMap.containsKey(event.getPlayer().getName())) {
+        if (passwdMap.containsKey(event.getPlayer().getUniqueId())) {
             onLeft(event.getPlayer());
         }
     }
 
 
-    //utils below
-    private static final String TO_JSON_METHOD = "b";
-    private static final String STATS_FIELD = "a";
 
 
-    public static String getStats(Player player) {
-        if (!Bukkit.isPrimaryThread()) {
-            throw new RuntimeException("Must run in main thread");
-        }
-        try {
-            CraftPlayer craftPlayer = (CraftPlayer) player;
-            assert craftPlayer != null;
-            EntityPlayer entityPlayer = craftPlayer.getHandle();
-            ServerStatisticManager statisticManager = entityPlayer.getStatisticManager();
-            Method toJsonMethod = ServerStatisticManager.class.getDeclaredMethod(TO_JSON_METHOD);
-            toJsonMethod.setAccessible(true);
-            return (String) toJsonMethod.invoke(statisticManager);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Can't get stats by nms!");
-        }
-    }
-
-    public static void loadStats(Player player, String json) {
-        if (!Bukkit.isPrimaryThread()) {
-            throw new RuntimeException("Must run in main thread");
-        }
-        try {
-            CraftPlayer craftPlayer = (CraftPlayer) player;
-            assert craftPlayer != null;
-            EntityPlayer entityPlayer = craftPlayer.getHandle();
-            MinecraftServer minecraftServer = entityPlayer.c;
-            ServerStatisticManager statisticManager = entityPlayer.getStatisticManager();
-            Field stats = StatisticManager.class.getDeclaredField(STATS_FIELD);
-            stats.setAccessible(true);
-            @SuppressWarnings("all")
-            Object2IntMap o = (Object2IntMap) stats.get(statisticManager);
-            o.clear();
-            statisticManager.a(minecraftServer.getDataFixer(), json);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Can't load stats by nms!");
-        }
-    }
 }
 

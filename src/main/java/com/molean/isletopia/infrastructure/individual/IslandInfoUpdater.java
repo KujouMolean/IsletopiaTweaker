@@ -1,19 +1,12 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
-import com.molean.isletopia.island.Island;
-import com.molean.isletopia.protect.individual.BeaconIslandOption;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class IslandInfoUpdater {
@@ -46,72 +39,72 @@ public class IslandInfoUpdater {
 
     }
 
-    public static void cacheCollections(Player player) {
-        String collection = UniversalParameter.getParameter(player.getName(), "collection");
-        if (collection == null || collection.isEmpty()) {
-            return;
-        }
-        RedisUtils.getCommand().set("Collection-" + player.getName(), collection);
-    }
+//    public static void cacheCollections(Player player) {
+////        String collection = UniversalParameter.getParameter(player, "collection");
+//        if (collection == null || collection.isEmpty()) {
+//            return;
+//        }
+//        RedisUtils.getCommand().set("Collection-" + player.getName(), collection);
+//    }
 
-    public static void cacheCreation(Island currentPlot) {
-        if (currentPlot == null) {
-            return;
-        }
-        String owner = currentPlot.getOwner();
-            Timestamp timestamp = currentPlot.getCreation();
-            LocalDateTime localDateTime = timestamp.toLocalDateTime();
-            String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        RedisUtils.getCommand().set("Creation-" + owner, format);
+//    public static void cacheCreation(Island currentPlot) {
+//        if (currentPlot == null) {
+//            return;
+//        }
+//        String owner = currentPlot.getOwner();
+//            Timestamp timestamp = currentPlot.getCreation();
+//            LocalDateTime localDateTime = timestamp.toLocalDateTime();
+//            String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+//        RedisUtils.getCommand().set("Creation-" + owner, format);
+//
+//
+//    }
+
+//    public static void cacheOptions(Island currentPlot) {
+//        if (currentPlot == null) {
+//            return;
+//        }
+////        String owner = currentPlot.getOwner();
+//            if (BeaconIslandOption.isAntiFire(currentPlot)) {
+//                RedisUtils.getCommand().set("AntiFire-" + owner, "true");
+//            } else {
+//                RedisUtils.getCommand().set("AntiFire-" + owner, "false");
+//            }
+//
+//            if (BeaconIslandOption.isEnablePvP(currentPlot)) {
+//                RedisUtils.getCommand().set("EnablePvP-" + owner, "true");
+//            } else {
+//                RedisUtils.getCommand().set("EnablePvP-" + owner, "false");
+//            }
+//    }
 
 
-    }
-
-    public static void cacheOptions(Island currentPlot) {
-        if (currentPlot == null) {
-            return;
-        }
-        String owner = currentPlot.getOwner();
-            if (BeaconIslandOption.isAntiFire(currentPlot)) {
-                RedisUtils.getCommand().set("AntiFire-" + owner, "true");
-            } else {
-                RedisUtils.getCommand().set("AntiFire-" + owner, "false");
-            }
-
-            if (BeaconIslandOption.isEnablePvP(currentPlot)) {
-                RedisUtils.getCommand().set("EnablePvP-" + owner, "true");
-            } else {
-                RedisUtils.getCommand().set("EnablePvP-" + owner, "false");
-            }
-    }
-
-
-    public static boolean cacheArea(Island currentPlot) {
-        assert world != null;
-        if (currentPlot == null) {
-            return false;
-        }
-        String owner = currentPlot.getOwner();
-
-            if (RedisUtils.getCommand().exists("Area-" + owner)>0) {
-                return false;
-            }
-
-        Location top = currentPlot.getTopLocation();
-        Location bot = currentPlot.getBottomLocation();
-        long areaCount = 0;
-        for (int i = bot.getBlockX(); i < top.getBlockX(); i++) {
-            for (int j = bot.getBlockZ(); j < top.getBlockZ(); j++) {
-                int highestBlockYAt = world.getHighestBlockYAt(i, j);
-                if (highestBlockYAt > 0) {
-                    areaCount++;
-                }
-            }
-        }
-
-        RedisUtils.getCommand().setex("Area-" + owner, 60 * 15L, "" + areaCount);
-        return true;
-    }
+//    public static boolean cacheArea(Island currentPlot) {
+//        assert world != null;
+//        if (currentPlot == null) {
+//            return false;
+//        }
+//        String owner = currentPlot.getOwner();
+//
+//            if (RedisUtils.getCommand().exists("Area-" + owner)>0) {
+//                return false;
+//            }
+//
+//        Location top = currentPlot.getTopLocation();
+//        Location bot = currentPlot.getBottomLocation();
+//        long areaCount = 0;
+//        for (int i = bot.getBlockX(); i < top.getBlockX(); i++) {
+//            for (int j = bot.getBlockZ(); j < top.getBlockZ(); j++) {
+//                int highestBlockYAt = world.getHighestBlockYAt(i, j);
+//                if (highestBlockYAt > 0) {
+//                    areaCount++;
+//                }
+//            }
+//        }
+//
+//        RedisUtils.getCommand().setex("Area-" + owner, 60 * 15L, "" + areaCount);
+//        return true;
+//    }
 
     public static String getCreation(UUID owner) {
             if (RedisUtils.getCommand().exists("Creation-" + owner)>0) {

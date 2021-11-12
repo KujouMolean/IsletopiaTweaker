@@ -1,6 +1,6 @@
 package com.molean.isletopia.event;
 
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
@@ -18,12 +18,12 @@ public class PlayerIslandChangeEvent extends PlayerEvent implements Cancellable 
     }
 
     @Nullable
-    private final Island from;
+    private final LocalIsland from;
     @Nullable
-    private final Island to;
+    private final LocalIsland to;
     private boolean canceled = false;
 
-    public PlayerIslandChangeEvent(@NotNull Player player, @Nullable Island from, @Nullable Island to) {
+    public PlayerIslandChangeEvent(@NotNull Player player, @Nullable LocalIsland from, @Nullable LocalIsland to) {
         super(player);
         this.from = from;
         this.to = to;
@@ -31,12 +31,12 @@ public class PlayerIslandChangeEvent extends PlayerEvent implements Cancellable 
     }
 
     @Nullable
-    public Island getFrom() {
+    public LocalIsland getFrom() {
         return from;
     }
 
     @Nullable
-    public Island getTo() {
+    public LocalIsland getTo() {
         return to;
     }
 

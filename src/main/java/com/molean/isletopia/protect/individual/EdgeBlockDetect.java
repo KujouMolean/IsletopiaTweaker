@@ -22,10 +22,7 @@ public class EdgeBlockDetect implements Listener {
 
     public EdgeBlockDetect() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-
     }
-
-
 
     //disable piston push edge block
     @EventHandler(ignoreCancelled = true)
@@ -55,7 +52,7 @@ public class EdgeBlockDetect implements Listener {
     }
 
 
-    //disable pistion pull edge block
+    //disable piston pull edge block
     @EventHandler(ignoreCancelled = true)
     public void on(BlockPistonRetractEvent event) {
 

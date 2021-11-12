@@ -1,10 +1,11 @@
 package com.molean.isletopia.menu.settings.member;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -20,6 +21,7 @@ import org.bukkit.inventory.Inventory;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 public class MemberRemoveMenu implements Listener {
 
@@ -29,9 +31,13 @@ public class MemberRemoveMenu implements Listener {
     private final int page;
 
     private static List<String> getPlayer(Player player) {
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
-        return new ArrayList<>(currentPlot.getMembers());
+        ArrayList<String> strings = new ArrayList<>();
+        for (UUID member : currentPlot.getMembers()) {
+            strings.add(UUIDUtils.get(member));
+        }
+        return strings;
     }
 
     public MemberRemoveMenu(Player player) {
@@ -62,7 +68,7 @@ public class MemberRemoveMenu implements Listener {
         }
 
         for (int i = 0; i + page * 52 < members.size() && i < inventory.getSize() - 2; i++) {
-            inventory.setItem(i, HeadUtils.getSkullWithIslandInfo(members.get(i + page * 52)));
+                inventory.setItem(i, HeadUtils.getSkullWithIslandInfo(members.get(i + page * 52)));
         }
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());

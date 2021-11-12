@@ -7,7 +7,7 @@ package com.molean.isletopia.message.handler;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.shared.MessageHandler;
 import com.molean.isletopia.shared.message.RedisMessageListener;
@@ -15,28 +15,39 @@ import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.VisitRequest;
 import com.molean.isletopia.shared.pojo.resp.VisitResponse;
-import com.molean.isletopia.shared.utils.RedisUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.*;
 
 public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listener {
-    private final Map<String, Island> locationMap = new HashMap<>();
+    private final Map<String, LocalIsland> locationMap = new HashMap<>();
     private final Map<String, Long> expire = new HashMap<>();
 
     public VisitRequestHandler() {
         RedisMessageListener.setHandler("VisitRequest", this, VisitRequest.class);
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+    @EventHandler
+    public void on(PlayerJoinEvent event) {
+        String name = event.getPlayer().getName();
+        LocalIsland island = this.locationMap.get(name);
+        if (island != null) {
+            if (System.currentTimeMillis() - this.expire.getOrDefault(name, 0L) < 10000L) {
+                island.tp(event.getPlayer());
+            }
+        }
+    }
 
     @EventHandler
     public void on(PlayerDataSyncCompleteEvent event) {
         String name = event.getPlayer().getName();
-        Island island = this.locationMap.get(name);
+        LocalIsland island = this.locationMap.get(name);
         if (island != null) {
             if (System.currentTimeMillis() - this.expire.getOrDefault(name, 0L) < 10000L) {
                 island.tp(event.getPlayer());
@@ -54,9 +65,9 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
         boolean allow = true;
 
 
-        List<Island> playerLocalServerIslands = IslandManager.INSTANCE.getPlayerLocalServerIslands(targetPlayer);
-        Island island = null;
-        for (Island playerLocalServerIsland : playerLocalServerIslands) {
+        List<LocalIsland> playerLocalServerIslands = IslandManager.INSTANCE.getPlayerLocalServerIslands(UUIDUtils.get(targetPlayer));
+        LocalIsland island = null;
+        for (LocalIsland playerLocalServerIsland : playerLocalServerIslands) {
             if (playerLocalServerIsland.getId() == visitRequest.getId()) {
                 island = playerLocalServerIsland;
             }
@@ -67,7 +78,9 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
             visitResponse.setResponseMessage("§8[§3岛屿助手§8] §7对方没有岛屿.");
             ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
         } else {
-            List<String> members = island.getMembers();
+
+
+            Set<UUID> membersMap = island.getMembers();
 
             if (island.containsFlag("Lock")) {
                 allow = false;
@@ -78,7 +91,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
                 operators.add(operator.getName());
             }
 
-            if (members.contains(sourcePlayer) || targetPlayer.equalsIgnoreCase(sourcePlayer) || operators.contains(sourcePlayer)) {
+            if (membersMap.contains(UUIDUtils.get(sourcePlayer)) || targetPlayer.equalsIgnoreCase(sourcePlayer) || operators.contains(sourcePlayer)) {
                 allow = true;
             }
 
@@ -87,14 +100,8 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
                 visitResponse.setResponse("refused");
                 visitResponse.setResponseMessage("§8[§3岛屿助手§8] §7对方拒绝了你的访问.");
                 ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
-
-                RedisUtils.getCommand().set("Lock-" + targetPlayer, "true");
-
             } else {
-                RedisUtils.getCommand().set("Lock-" + targetPlayer, "false");
-
                 Player player = Bukkit.getPlayerExact(sourcePlayer);
-
                 if (player != null && player.isOnline()) {
                     System.out.println("handle visit request handler: " + sourcePlayer + " " + player.getName());
                     island.tp(player);

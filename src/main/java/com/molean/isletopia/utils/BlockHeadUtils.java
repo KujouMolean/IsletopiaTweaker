@@ -343,7 +343,6 @@ public class BlockHeadUtils {
         map.put(CAVE_VINES_PLANT, null);
         map.put(BIG_DRIPLEAF_STEM, null);
 
-        outer:
         for (Material value : Material.values()) {
             if (!value.isBlock()) {
                 continue;

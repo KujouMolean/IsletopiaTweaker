@@ -1,7 +1,7 @@
 package com.molean.isletopia.menu;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.charge.PlayerChargeMenu;
 import com.molean.isletopia.menu.favorite.FavoriteMenu;
@@ -60,9 +60,9 @@ public class PlayerMenu implements Listener {
         ItemStackSheet settings = new ItemStackSheet(Material.LEVER, "§f设置");
         settings.addLore("§7更改你岛屿的选项");
         settings.addLore("§7例如添加岛员,更改生物群系");
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
-        if (!player.getName().equals(currentPlot.getOwner())) {
+        if (!player.getUniqueId().equals(currentPlot.getUuid())) {
             settings.setDisplay("§f§m设置");
             settings.addLore("§c你只能修改自己的岛屿");
         }
@@ -81,13 +81,13 @@ public class PlayerMenu implements Listener {
         others.addLore("§7§m缴纳水费和电费");
         others.addLore("§7§m缴纳水费和电费");
         inventory.setItem(38, bills.build());
-        ItemStack skull = HeadUtils.getSkullWithIslandInfo(player.getName());
-        SkullMeta itemMeta = (SkullMeta) skull.getItemMeta();
+        ItemStack skullWithIslandInfo = HeadUtils.getSkullWithIslandInfo(player.getName());
+
+        SkullMeta itemMeta = (SkullMeta) skullWithIslandInfo.getItemMeta();
         assert itemMeta != null;
         itemMeta.displayName(Component.text("§f回城"));
-        skull.setItemMeta(itemMeta);
-        inventory.setItem(40, skull);
-
+        skullWithIslandInfo.setItemMeta(itemMeta);
+        inventory.setItem(40, skullWithIslandInfo);
 
         ItemStackSheet mail = new ItemStackSheet(Material.CHEST, "§f邮件");
         mail.addLore("§7活动奖励通过邮件发放");
@@ -119,9 +119,9 @@ public class PlayerMenu implements Listener {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new VisitMenu(player).open());
                 break;
             case 24:
-                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
                 assert currentPlot != null;
-                if (Objects.equals(currentPlot.getOwner(), player.getName())) {
+                if (Objects.equals(currentPlot.getUuid(), player.getUniqueId())) {
                     Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new SettingsMenu(player).open());
                 }
                 break;

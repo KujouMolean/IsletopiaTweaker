@@ -14,7 +14,6 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 public class BucketUsageProtect implements Listener {
     public BucketUsageProtect() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

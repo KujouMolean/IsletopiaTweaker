@@ -1,8 +1,8 @@
 package com.molean.isletopia.menu.settings.biome;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
-import com.molean.isletopia.island.IslandId;
+import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.settings.SettingsMenu;
@@ -124,7 +124,7 @@ public class BiomeMenu implements Listener {
             return;
         }
 
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
 
         assert currentPlot != null;
 
@@ -141,7 +141,7 @@ public class BiomeMenu implements Listener {
         } catch (IllegalArgumentException ignore) {
         }
 
-        if (player.getName().equals(currentPlot.getOwner())) {
+        if (player.getUniqueId().equals(currentPlot.getUuid())) {
             MessageUtils.info(player, "尝试修改岛屿生物群系...(需要180秒)");
             String finalName = name;
             Biome biome = biomes.get(slot + page * 52);

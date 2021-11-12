@@ -1,11 +1,12 @@
 package com.molean.isletopia.menu.settings.member;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,10 +19,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class MemberAddMenu implements Listener {
 
@@ -33,9 +31,12 @@ public class MemberAddMenu implements Listener {
     private static List<String> getPlayers(Player player) {
         List<String> players = ServerInfoUpdater.getOnlinePlayers();
         players.remove(player.getName());
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
-        HashSet<String> trusted = new HashSet<>(currentPlot.getMembers());
+        HashSet<String> trusted = new HashSet<>();
+        for (UUID member : currentPlot.getMembers()) {
+            trusted.add(UUIDUtils.get(member));
+        }
         players.removeIf(trusted::contains);
         return players;
     }
@@ -67,6 +68,8 @@ public class MemberAddMenu implements Listener {
 
         for (int i = 0; i + page * 52 < players.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkullWithIslandInfo(players.get(i + page * 52)));
+
+
         }
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());

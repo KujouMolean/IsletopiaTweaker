@@ -14,11 +14,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Shulker;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPistonEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +27,12 @@ import static org.bukkit.Material.*;
 public class ShulkerRespawn implements Listener {
     public ShulkerRespawn() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        ItemStack shulkerHead = HeadUtils.getSkullFromValue("潜影贝", PlayerHeadDrop.drops.get(EntityType.SHULKER));
-        LocalRecipe.addRecipe(SHULKER_SPAWN_EGG, PURPUR_BLOCK, shulkerHead,
+        LocalRecipe.addRecipe(SHULKER_SPAWN_EGG, PURPUR_BLOCK, HeadUtils.getSkullFromValue("潜影贝", PlayerHeadDrop.drops.get(EntityType.SHULKER)),
                 AIR, AIR, AIR,
                 AIR, SHULKER_BOX, AIR,
                 AIR, AIR, AIR);
+
+
     }
 
     public void stainPurpurBlock(Block purpurBlock, Block target) {
@@ -89,29 +88,30 @@ public class ShulkerRespawn implements Listener {
         shulker.setColor(color);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void placeShulkerBox(BlockPlaceEvent event) {
-        stainShulkerBox(event.getBlock(),event.getBlock());
+        stainShulkerBox(event.getBlock(), event.getBlock());
 
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void placePurpurBlock(BlockPlaceEvent event) {
-        stainPurpurBlock(event.getBlock(),event.getBlock());
+        stainPurpurBlock(event.getBlock(), event.getBlock());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(BlockPistonExtendEvent event) {
         Block block = event.getBlock().getRelative(event.getDirection());
-        if(block.getType().equals(PURPUR_BLOCK)){
-            stainPurpurBlock(block,block.getRelative(event.getDirection()));
+        if (block.getType().equals(PURPUR_BLOCK)) {
+            stainPurpurBlock(block, block.getRelative(event.getDirection()));
         }
     }
-    @EventHandler
+
+    @EventHandler(ignoreCancelled = true)
     public void on(BlockPistonRetractEvent event) {
         Block block = event.getBlock().getRelative(event.getDirection()).getRelative(event.getDirection());
-        if(block.getType().equals(PURPUR_BLOCK)){
-            stainPurpurBlock(block,block.getRelative(event.getDirection().getOppositeFace()));
+        if (block.getType().equals(PURPUR_BLOCK)) {
+            stainPurpurBlock(block, block.getRelative(event.getDirection().getOppositeFace()));
         }
 
     }

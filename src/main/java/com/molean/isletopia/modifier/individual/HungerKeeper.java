@@ -8,13 +8,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.potion.PotionEffect;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class HungerKeeper implements Listener {
-    private static final Map<String, Pair<Integer, Float>> hungerMap = new HashMap<>();
-
+    private static final Map<UUID, Pair<Integer, Float>> hungerMap = new HashMap<>();
+    private static final Map<UUID, Collection<PotionEffect>> effect = new HashMap<>();
     public HungerKeeper() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
@@ -23,22 +23,23 @@ public class HungerKeeper implements Listener {
     public void onPlayerDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
         Pair<Integer, Float> hunger = new Pair<>(player.getFoodLevel(), player.getSaturation());
-        hungerMap.put(player.getName(), hunger);
+        hungerMap.put(player.getUniqueId(), hunger);
+        effect.put(player.getUniqueId(), player.getActivePotionEffects());
     }
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent e) {
         Player player = e.getPlayer();
-        Pair<Integer, Float> hunger = hungerMap.get(player.getName());
+        Pair<Integer, Float> hunger = hungerMap.get(player.getUniqueId());
         if (hunger != null) {
             Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
-                if (hunger.getKey() < 6) {
-                    player.setFoodLevel(6);
-                } else {
-                    player.setFoodLevel(hunger.getKey());
-                }
+                player.setFoodLevel(hunger.getKey());
                 player.setSaturation(hunger.getValue());
-            },3L);
+                Collection<PotionEffect> potionEffects = effect.getOrDefault(player.getUniqueId(), List.of());
+                for (PotionEffect potionEffect : potionEffects) {
+                    player.addPotionEffect(potionEffect);
+                }
+            }, 3L);
         }
     }
 }

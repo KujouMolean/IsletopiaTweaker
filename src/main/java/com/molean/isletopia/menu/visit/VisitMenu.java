@@ -1,9 +1,9 @@
 package com.molean.isletopia.menu.visit;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.HeadUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -52,6 +52,7 @@ public class VisitMenu implements Listener {
         }
         for (int i = 0; page * 52 + i < onlinePlayers.size() && i < inventory.getSize() - 2; i++) {
             inventory.setItem(i, HeadUtils.getSkullWithIslandInfo(onlinePlayers.get(page * 52 + i)));
+
         }
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());

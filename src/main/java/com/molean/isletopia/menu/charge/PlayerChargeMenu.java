@@ -4,10 +4,11 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.charge.ChargeDetail;
 import com.molean.isletopia.charge.ChargeDetailCommitter;
 import com.molean.isletopia.charge.ChargeDetailUtils;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -21,17 +22,19 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.UUID;
+
 public class PlayerChargeMenu implements Listener {
     private final Player player;
     private final Inventory inventory;
-    private final String ownerName;
-    private boolean hasLastWeek;
+    private final UUID owner;
     private BukkitTask bukkitTask;
 
     public PlayerChargeMenu(Player player) {
         this.player = player;
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
-        ownerName = currentPlot.getOwner();
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+        assert currentPlot != null;
+        owner = currentPlot.getUuid();
         inventory = Bukkit.createInventory(player, 27, Component.text("§f水电系统"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
@@ -88,8 +91,8 @@ public class PlayerChargeMenu implements Listener {
         inventory.setItem(10, introduction.build());
 
         bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            ChargeDetail chargeDetail = ChargeDetailCommitter.get(ownerName);
-            ItemStackSheet billThisWeek = fromPlayerChargeDetail(chargeDetail, Material.PAPER, "§f本周费用(" + ownerName + ")");
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
+            ItemStackSheet billThisWeek = fromPlayerChargeDetail(chargeDetail, Material.PAPER, "§f本周费用(" + UUIDUtils.get(owner) + ")");
             inventory.setItem(13, billThisWeek.build());
 
         }, 0, 20);
@@ -136,7 +139,7 @@ public class PlayerChargeMenu implements Listener {
         switch (event.getClick()) {
             case LEFT -> {
                 if (slot == 13) {
-                    ChargeDetail chargeDetail = ChargeDetailCommitter.get(ownerName);
+                    ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
                     if (takeItem(player, Material.DIAMOND, chargeDetail.getPowerChargeTimes() + 1)) {
                         chargeDetail.setPowerChargeTimes(chargeDetail.getPowerChargeTimes() + 1);
                     } else {
@@ -149,7 +152,7 @@ public class PlayerChargeMenu implements Listener {
             }
             case RIGHT -> {
                 if (slot == 13) {
-                    ChargeDetail chargeDetail = ChargeDetailCommitter.get(ownerName);
+                    ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
                     if (takeItem(player, Material.DIAMOND, chargeDetail.getWaterChargeTimes() + 1)) {
 
                         chargeDetail.setWaterChargeTimes(chargeDetail.getWaterChargeTimes() + 1);
@@ -161,8 +164,9 @@ public class PlayerChargeMenu implements Listener {
             }
         }
 
-        ChargeDetail chargeDetail = ChargeDetailCommitter.get(ownerName);
-        ItemStackSheet billThisWeek = fromPlayerChargeDetail(chargeDetail, Material.PAPER, "§f本周费用(" + ownerName + ")");
+        ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
+        ItemStackSheet billThisWeek = fromPlayerChargeDetail(chargeDetail, Material.PAPER, "§f本周费用(" + UUIDUtils.get(owner) + ")");
+
         inventory.setItem(13, billThisWeek.build());
     }
 

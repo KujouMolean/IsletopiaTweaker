@@ -3,11 +3,11 @@ package com.molean.isletopia.infrastructure.individual;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -40,7 +40,7 @@ public class ServerLikeReward implements CommandExecutor {
 
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 
-            UUIDUtils.getOnlineUUID(sender.getName(), uuid -> {
+            UUIDUtils.getOnline(sender.getName(), uuid -> {
                 if (uuid == null) {
                     MessageUtils.fail(sender, "读取你的UUID失败!");
                     return;
@@ -59,14 +59,15 @@ public class ServerLikeReward implements CommandExecutor {
                     return;
                 }
 
-                List<String> parameterAsList = UniversalParameter.getParameterAsList("Molean", "ServerLikes");
+                List<String> parameterAsList = UniversalParameter.getParameterAsList(UUIDUtils.get("Molean"), "ServerLikes");
                 if (parameterAsList.contains(uuid.toString())) {
                     MessageUtils.fail(sender, "你已经领取过了!");
                     return;
                 }
                 Player player = (Player) sender;
-                UniversalParameter.addParameter("Molean", "ServerLikes", uuid.toString());
-
+                UUID molean = UUIDUtils.get("Molean");
+                assert molean != null;
+                UniversalParameter.addParameter(molean, "ServerLikes", uuid.toString());
                 CommonResponseObject commonResponseObject = new CommonResponseObject();
                 commonResponseObject.setMessage("玩家" + player.getName() + "在NameMC为服务器点赞,获得龙首奖励! 地址:https://zh-cn.namemc.com/server/play.molean.com");
                 ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonResponseObject);

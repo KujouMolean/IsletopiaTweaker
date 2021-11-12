@@ -1,7 +1,7 @@
 package com.molean.isletopia.tutor.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -28,11 +27,8 @@ public class IronTutor implements Listener {
 
     public IronTutor() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        IsletopiaTweakers.addDisableTask("Remove all iron tutor bars", () -> {
-            BARS.forEach((player, bossBar) -> {
-                bossBar.removeAll();
-            });
-        });
+        IsletopiaTweakers.addDisableTask("Remove all iron tutor bars",
+                () -> BARS.forEach((player, bossBar) -> bossBar.removeAll()));
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onJoin(onlinePlayer);
         }
@@ -40,7 +36,7 @@ public class IronTutor implements Listener {
 
     public static void onJoin(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String tutorStatus = UniversalParameter.getParameter(player.getName(), "TutorStatus");
+            String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (Objects.equals(tutorStatus, "Iron") && player.isOnline()) {
                 BossBar bossBar = Bukkit.createBossBar("新手引导: 合成一块铁锭.", BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);
@@ -71,9 +67,11 @@ public class IronTutor implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void on(CraftItemEvent event) {
         HumanEntity whoClicked = event.getWhoClicked();
+
         if (!(whoClicked instanceof Player player)) {
             return;
         }
+
         if (!PLAYERS.contains(player)) {
             return;
         }
@@ -83,11 +81,13 @@ public class IronTutor implements Listener {
 
         }
         boolean hasDye = false;
+
         for (ItemStack value : shapedRecipe.getIngredientMap().values()) {
-            if (value.getType().name().contains("DYE")) {
+            if (value != null && value.getType().name().contains("DYE")) {
                 hasDye = true;
             }
         }
+
         if (!hasDye) {
             return;
         }
@@ -97,10 +97,9 @@ public class IronTutor implements Listener {
             MessageUtils.info(player, "用女巫的虚弱药水和金苹果将僵尸村民转化为村民为你所用。");
             PLAYERS.remove(player);
             BARS.get(player).removeAll();
-            UniversalParameter.setParameter(player.getName(), "TutorStatus", "Villager");
+            UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "Villager");
             VillagerTutor.onJoin(player);
         });
-
 
 
     }

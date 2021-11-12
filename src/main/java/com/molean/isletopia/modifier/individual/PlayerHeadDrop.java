@@ -4,16 +4,18 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.BlockHeadUtils;
 import com.molean.isletopia.utils.HeadUtils;
-import com.molean.isletopia.utils.LangUtils;
+import com.molean.isletopia.shared.utils.LangUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -24,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import static org.bukkit.Material.*;
+import static org.bukkit.Material.AIR;
 
 public class PlayerHeadDrop implements Listener {
     public static final Map<EntityType, String> drops = new HashMap<>();
@@ -92,11 +94,11 @@ public class PlayerHeadDrop implements Listener {
                     ArrayList<String> strings = new ArrayList<>(blocks.get(block.getType()));
                     String s = strings.get(new Random().nextInt(strings.size()));
                     if (s != null && !s.isEmpty()) {
-                        ItemStack skull = HeadUtils.getSkullFromValue(block.getType().name(), s);
-                        ItemMeta itemMeta = skull.getItemMeta();
+                        ItemStack itemStack = HeadUtils.getSkullFromValue(block.getType().name(), s);
+                        ItemMeta itemMeta = itemStack.getItemMeta();
                         itemMeta.displayName(null);
-                        skull.setItemMeta(itemMeta);
-                        event.getEntity().getWorld().dropItem(block.getLocation(), skull);
+                        itemStack.setItemMeta(itemMeta);
+                        event.getEntity().getWorld().dropItem(block.getLocation(), itemStack);
                         block.setType(AIR);
                         break;
                     }
@@ -125,15 +127,19 @@ public class PlayerHeadDrop implements Listener {
         if (creeper.hasMetadata("player-head")) {
             event.setCancelled(true);
         } else if (livingEntity.getType().equals(EntityType.PLAYER)) {
-            ItemStack skull = HeadUtils.getSkull(livingEntity.getName());
-            livingEntity.getWorld().dropItem(livingEntity.getLocation(), skull);
-        } else if (drops.containsKey(livingEntity.getType())) {
-            String name = LangUtils.get(livingEntity.getType().name().toLowerCase());
-            ItemStack skullFromValue = HeadUtils.getSkullFromValue(name, drops.get(livingEntity.getType()));
-            ItemMeta itemMeta = skullFromValue.getItemMeta();
+            ItemStack itemStack = HeadUtils.getSkull(livingEntity.getName());
+            ItemMeta itemMeta = itemStack.getItemMeta();
             itemMeta.displayName(null);
-            skullFromValue.setItemMeta(itemMeta);
-            livingEntity.getWorld().dropItem(livingEntity.getLocation(), skullFromValue);
+            itemStack.setItemMeta(itemMeta);
+            livingEntity.getWorld().dropItem(livingEntity.getLocation(), itemStack);
+        } else if (drops.containsKey(livingEntity.getType())) {
+            String name = LangUtils.get(livingEntity.getType().translationKey());
+            ItemStack itemStack = HeadUtils.getSkullFromValue(name, drops.get(livingEntity.getType()));
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.displayName(null);
+            itemStack.setItemMeta(itemMeta);
+            livingEntity.getWorld().dropItem(livingEntity.getLocation(), itemStack);
+
         } else {
             return;
         }

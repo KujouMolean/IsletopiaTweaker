@@ -1,8 +1,8 @@
 package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
-import com.molean.isletopia.island.IslandId;
+import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.task.PlotLoadedChunkTask;
 import io.papermc.paper.event.block.BeaconActivatedEvent;
@@ -36,7 +36,7 @@ public class BeaconIslandOption implements Listener {
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (IslandManager.INSTANCE.hasCurrentIslandPermission(onlinePlayer)) {
-                    Island island = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
+                    LocalIsland island = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
                     assert island != null;
                     if (isEnablePvP(island)) {
                         onlinePlayer.sendActionBar(Component.text("§c此岛屿已开启PVP, 生物不受保护!"));
@@ -50,7 +50,7 @@ public class BeaconIslandOption implements Listener {
     private static final Map<IslandId, Set<PotionEffectType>> stringHashSetMap = new HashMap<>();
     private static final HashSet<IslandId> updatingPlot = new HashSet<>();
 
-    public static void updatePrimaryBeaconEffects(Island plot) {
+    public static void updatePrimaryBeaconEffects(LocalIsland plot) {
         if (updatingPlot.contains(plot.getIslandId())) {
             return;
         }
@@ -74,7 +74,7 @@ public class BeaconIslandOption implements Listener {
         }, 20 * 60).run();
     }
 
-    public static boolean isAntiFire(Island plot) {
+    public static boolean isAntiFire(LocalIsland plot) {
         if (!stringHashSetMap.containsKey(plot.getIslandId())) {
             updatePrimaryBeaconEffects(plot);
             return true;
@@ -82,7 +82,7 @@ public class BeaconIslandOption implements Listener {
         return stringHashSetMap.get(plot.getIslandId()).contains(PotionEffectType.DAMAGE_RESISTANCE);
     }
 
-    public static boolean isEnablePvP(@Nullable Island plot) {
+    public static boolean isEnablePvP(@Nullable LocalIsland plot) {
         if (plot == null) {
             return false;
         }
@@ -95,7 +95,7 @@ public class BeaconIslandOption implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void on(BlockBurnEvent event) {
         org.bukkit.Location location = event.getBlock().getLocation();
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
         if (currentPlot==null||isAntiFire(currentPlot)) {
             event.setCancelled(true);
         }
@@ -104,7 +104,7 @@ public class BeaconIslandOption implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void on(BeaconActivatedEvent event) {
         org.bukkit.Location location = event.getBlock().getLocation();
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
         if (currentPlot == null) {
             return;
         }
@@ -115,7 +115,7 @@ public class BeaconIslandOption implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void on(BeaconDeactivatedEvent event) {
         org.bukkit.Location location = event.getBlock().getLocation();
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
         if (currentPlot == null) {
             return;
         }
@@ -129,7 +129,7 @@ public class BeaconIslandOption implements Listener {
             return;
         }
         org.bukkit.Location location = beacon.getLocation();
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
         if (currentPlot == null) {
             return;
         }

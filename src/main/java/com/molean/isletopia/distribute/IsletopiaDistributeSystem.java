@@ -11,6 +11,7 @@ public class IsletopiaDistributeSystem {
 
 
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
+        long l = System.currentTimeMillis();
         try {
 
             new NewbieOperation();
@@ -24,6 +25,6 @@ public class IsletopiaDistributeSystem {
             exception.printStackTrace();
             logger.severe("Initialize isletopia distribute failed!");
         }
-        logger.info("Initialize isletopia distribute successfully!");
+        logger.info("Initialize isletopia distribute successfully in " + (System.currentTimeMillis()-l) + "ms");
     }
 }

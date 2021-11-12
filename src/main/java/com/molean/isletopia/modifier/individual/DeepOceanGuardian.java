@@ -14,7 +14,7 @@ public class DeepOceanGuardian implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(EntitySpawnEvent event) {
         if (!(event.getEntity() instanceof Squid))
             return;

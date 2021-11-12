@@ -2,13 +2,15 @@ package com.molean.isletopia.island;
 
 import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.IslandDao;
+import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.obj.CuboidRegion;
 import com.molean.isletopia.island.obj.CuboidShape;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.model.Island;
+import com.molean.isletopia.shared.utils.ResourceUtils;
 import com.molean.isletopia.task.PlotChunkTask;
-import com.molean.isletopia.utils.ResourceUtils;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,62 +26,26 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
-public class Island {
-    private final int id;
-    private final int x;
-    private final int z;
-    @NotNull
-    private final String server;
-    private double spawnX;
-    private double spawnY;
-    private double spawnZ;
-    private float yaw;
-    private float pitch;
-    @NotNull
-    private String owner;
-    @Nullable
-    private String name;
-    @NotNull
-    private Biome biome = Biome.PLAINS;
-    @NotNull
-    private final Timestamp creation;
-    @NotNull
-    private final Set<String> members = new HashSet<>();
-    @NotNull
-    private final Set<String> islandFlags = new HashSet<>();
+public class LocalIsland extends Island {
 
-    public Island(int id, int x, int z, double spawnX, double spawnY, double spawnZ, float yaw, float pitch, @NotNull String server, @NotNull String owner, @Nullable String name, @Nullable Biome biome, @NotNull Timestamp creation, Set<String> members, Set<String> islandFlags) {
-        this.id = id;
-        this.x = x;
-        this.z = z;
-        this.spawnX = spawnX;
-        this.spawnY = spawnY;
-        this.spawnZ = spawnZ;
-        this.yaw = yaw;
-        this.pitch = pitch;
-        this.server = server;
-        this.owner = owner;
-        this.name = name;
-        if (biome != null) {
-            this.biome = biome;
-        }
-        this.creation = creation;
-        this.members.addAll(members);
-        this.islandFlags.addAll(islandFlags);
+    public LocalIsland(Island island) {
+        super(island);
     }
 
-    public IslandId getIslandId() {
-        return new IslandId(server, x, z);
+    public LocalIsland(int id, int x, int z, double spawnX, double spawnY, double spawnZ, float yaw, float pitch, @NotNull String server, @NotNull UUID uuid, @Nullable String name, @Nullable String biome, @NotNull Timestamp creation, Set<UUID> members, Set<String> islandFlags) {
+        super(id,x,z,spawnX,spawnY,spawnZ,yaw, pitch, server, uuid, name, biome, creation, members, islandFlags);
     }
-
 
     @Nullable
     private Location getSafeLandingPosition(@NotNull Location location) {
         for (int i = 0; i < location.getY(); i++) {
             Location add = location.clone().add(0, -i, 0);
-            if (add.getBlock().getRelative(BlockFace.DOWN).isSolid() && add.getBlock().getType().isAir() && add.getBlock().getRelative(BlockFace.UP).getType().isAir()) {
+            if (!add.getBlock().getRelative(BlockFace.DOWN).isPassable() && add.getBlock().isPassable() && add.getBlock().getRelative(BlockFace.UP).isPassable()) {
                 return add;
             }
         }
@@ -89,13 +55,12 @@ public class Island {
     private Location getHigherLandingPosition(Location location) {
         for (int i = 0; i < 256 - location.getY(); i++) {
             Location add = location.clone().add(0, i, 0);
-            if (add.getBlock().getRelative(BlockFace.DOWN).isSolid() && add.getBlock().getType().isAir() && add.getBlock().getRelative(BlockFace.UP).getType().isAir()) {
+            if (!add.getBlock().getRelative(BlockFace.DOWN).isPassable() && add.getBlock().isPassable() && add.getBlock().getRelative(BlockFace.UP).isPassable()) {
                 return add;
             }
         }
         return null;
     }
-
 
     public void tp(Entity entity) {
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
@@ -108,16 +73,14 @@ public class Island {
                     Location higherLandingPosition = getHigherLandingPosition(location);
                     if (higherLandingPosition == null) {
                         location.getBlock().getRelative(BlockFace.DOWN).setType(Material.STONE);
-                    }else{
+                        MessageUtils.info(entity, "该岛屿无落脚点，已为你自动生成了一个。");
+                    } else {
                         location = higherLandingPosition;
                     }
                 } else {
                     location = safeLandingPosition;
                 }
-
                 entity.teleport(location);
-
-
             } else {
                 throw new RuntimeException("Can't teleport to island in other server");
             }
@@ -140,12 +103,20 @@ public class Island {
             addIslandFlag("DisableLiquidFlow");
 
         }
+        Biome biome;
+        try {
+            biome = Biome.valueOf(this.getBiome());
+        } catch (IllegalArgumentException e) {
+            biome = Biome.PLAINS;
+        }
+
+        Biome finalBiome = biome;
         new PlotChunkTask(this, (chunk -> {
             for (int i = 0; i < 16; i++) {
                 for (int j = 0; j < 256; j++) {
                     for (int k = 0; k < 16; k++) {
                         chunk.getBlock(i, j, k).setType(Material.AIR);
-                        chunk.getBlock(i, j, k).setBiome(biome);
+                        chunk.getBlock(i, j, k).setBiome(finalBiome);
                     }
                 }
             }
@@ -167,15 +138,9 @@ public class Island {
 
     public void clearAndApplyNewIsland(Runnable runnable, int timeoutTicks) {
 
-        clear(() -> {
-            applyIsland(runnable);
-        }, timeoutTicks);
+        clear(() -> applyIsland(runnable), timeoutTicks);
     }
 
-
-    public double getSpawnX() {
-        return spawnX;
-    }
 
     public void setSpawnX(double spawnX) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
@@ -183,10 +148,6 @@ public class Island {
         }
         this.spawnX = spawnX;
         IslandManager.INSTANCE.update(this);
-    }
-
-    public double getSpawnY() {
-        return spawnY;
     }
 
     public void setSpawnY(double spawnY) {
@@ -197,20 +158,12 @@ public class Island {
         IslandManager.INSTANCE.update(this);
     }
 
-    public double getSpawnZ() {
-        return spawnZ;
-    }
-
     public void setSpawnZ(double spawnZ) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
             throw new RuntimeException("Can't edit other servers island!");
         }
         this.spawnZ = spawnZ;
         IslandManager.INSTANCE.update(this);
-    }
-
-    public float getYaw() {
-        return yaw;
     }
 
     public void setYaw(float yaw) {
@@ -221,9 +174,6 @@ public class Island {
         IslandManager.INSTANCE.update(this);
     }
 
-    public float getPitch() {
-        return pitch;
-    }
 
     public void setPitch(float pitch) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
@@ -247,24 +197,13 @@ public class Island {
         return new Location(skyWorld, blockX, 256, blockZ);
     }
 
-    public boolean hasPermission(String target) {
-        if (target.equals(owner)) {
+    public boolean hasPermission(Player target) {
+        if (target.getUniqueId().equals(uuid)) {
             return true;
         }
-        return members.contains(target);
+        return members.contains(target.getUniqueId());
     }
 
-    public boolean hasPermission(Player target) {
-        return hasPermission(target.getName());
-    }
-
-    public @NotNull String getServer() {
-        return server;
-    }
-
-    public @Nullable String getName() {
-        return name;
-    }
 
     public void setName(@Nullable String name) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
@@ -275,11 +214,7 @@ public class Island {
     }
 
 
-    public @NotNull Biome getBiome() {
-        return biome;
-    }
-
-    public void setBiome(@Nullable Biome biome) {
+    public void setBiome(@Nullable String biome) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
             throw new RuntimeException("Can't edit other servers island!");
         }
@@ -287,49 +222,17 @@ public class Island {
         IslandManager.INSTANCE.update(this);
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getZ() {
-        return z;
-    }
-
-
-    public @NotNull String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(@NotNull String owner) {
+    public void addMember(UUID uuid) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
             throw new RuntimeException("Can't edit other servers island!");
         }
-        this.owner = owner;
-        IslandManager.INSTANCE.update(this);
-    }
-
-    public @NotNull Timestamp getCreation() {
-        return creation;
-    }
-
-    public @NotNull List<String> getMembers() {
-        return new ArrayList<>(members);
-    }
-
-    public void addMember(String member) {
-        if (!ServerInfoUpdater.getServerName().equals(server)) {
-            throw new RuntimeException("Can't edit other servers island!");
-        }
-        members.add(member);
+        members.add(uuid);
         IslandManager.INSTANCE.update(this);
 
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            Player player = Bukkit.getPlayerExact(member);
+            Player player = Bukkit.getPlayer(uuid);
             if (player != null && Objects.equals(IslandManager.INSTANCE.getCurrentIsland(player), this)) {
                 PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, this, this);
                 Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);
@@ -338,15 +241,15 @@ public class Island {
 
     }
 
-    public void removeMember(String member) {
+    public void removeMember(UUID uuid) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
             throw new RuntimeException("Can't edit other servers island!");
         }
-        members.remove(member);
+        members.remove(uuid);
         IslandManager.INSTANCE.update(this);
 
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            Player player = Bukkit.getPlayerExact(member);
+            Player player = Bukkit.getPlayer(uuid);
             if (player != null && Objects.equals(IslandManager.INSTANCE.getCurrentIsland(player), this)) {
                 PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, this, this);
                 Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);
@@ -354,10 +257,6 @@ public class Island {
         });
     }
 
-
-    public @NotNull Set<String> getIslandFlags() {
-        return new HashSet<>(islandFlags);
-    }
 
     public void addIslandFlag(@NotNull String islandFlag) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
@@ -368,15 +267,6 @@ public class Island {
         IslandManager.INSTANCE.update(this);
     }
 
-    public boolean containsFlag(String key) {
-        for (String islandFlag : islandFlags) {
-            String[] split = islandFlag.split("#");
-            if (split[0].equals(key)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public void removeIslandFlag(@NotNull String islandFlag) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
@@ -397,26 +287,6 @@ public class Island {
         IslandManager.INSTANCE.persist(this);
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Island island = (Island) o;
-
-        if (x != island.x) return false;
-        if (z != island.z) return false;
-        return server.equals(island.server);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = x;
-        result = 31 * result + z;
-        result = 31 * result + server.hashCode();
-        return result;
-    }
 
     public HashSet<Player> getPlayersInIsland() {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
@@ -440,15 +310,6 @@ public class Island {
         return new CuboidRegion(bot, top);
     }
 
-    @Override
-    public String toString() {
-        return "Island{" +
-                "id=" + id +
-                ", x=" + x +
-                ", z=" + z +
-                ", server='" + server + '\'' +
-                '}';
-    }
 
     public void addVisitRecord(String player) {
         try {
@@ -462,7 +323,6 @@ public class Island {
     public String getFilename() {
         return "r." + x + "." + z + ".mca";
     }
-
 
     private File getOrCreateFile(String filename) {
         File regionSource = new File(filename);
@@ -485,6 +345,12 @@ public class Island {
     }
 
     public File getEntitiesFile() {
+
         return getOrCreateFile("SkyWorld/entities/" + getFilename());
+    }
+
+    public void setUuid(@NotNull UUID uuid) {
+        this.uuid = uuid;
+        IslandManager.INSTANCE.update(this);
     }
 }

@@ -96,7 +96,7 @@ public class EquipmentWeaker implements Listener {
         }, 20L);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(PlayerArmorChangeEvent event) {
         if (!syncComplete.getOrDefault(event.getPlayer(), false)) {
             return;

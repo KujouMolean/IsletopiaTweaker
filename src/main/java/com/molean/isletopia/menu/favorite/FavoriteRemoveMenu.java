@@ -1,9 +1,10 @@
 package com.molean.isletopia.menu.favorite;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,12 +16,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 public class FavoriteRemoveMenu implements Listener {
 
@@ -30,15 +30,17 @@ public class FavoriteRemoveMenu implements Listener {
     private final int page;
 
     public FavoriteRemoveMenu(Player player) {
-        this(player, UniversalParameter.getParameterAsList(player.getName(), "collection"), 0);
+        this(player, new ArrayList<>(CollectionDao.getPlayerCollections(player.getUniqueId())), 0);
     }
 
-    public FavoriteRemoveMenu(Player player, List<String> collections, int page) {
+    public FavoriteRemoveMenu(Player player, List<UUID> collections, int page) {
 
         inventory = Bukkit.createInventory(player, 54, Component.text("选择你不再想收藏的岛屿:"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
-        this.collections.addAll(collections);
+        for (UUID collection : collections) {
+            this.collections.add(UUIDUtils.get(collection));
+        }
         this.collections.sort(Comparator.comparing(String::toLowerCase));
         if (page > collections.size() / 52) {
             page = 0;
@@ -56,6 +58,7 @@ public class FavoriteRemoveMenu implements Listener {
             inventory.setItem(i, itemStackSheet.build());
         }
         for (int i = 0; i + page * 52 < collections.size() && i < inventory.getSize() - 2; i++) {
+
             inventory.setItem(i, HeadUtils.getSkullWithIslandInfo(collections.get(i + page * 52)));
         }
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
@@ -83,7 +86,11 @@ public class FavoriteRemoveMenu implements Listener {
             return;
         }
         if (slot == inventory.getSize() - 2) {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteRemoveMenu(player, collections, page + 1).open());
+            ArrayList<UUID> uuids = new ArrayList<>();
+            for (String collection : collections) {
+                uuids.add(UUIDUtils.get(collection));
+            }
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteRemoveMenu(player, uuids, page + 1).open());
             return;
         }
         if (slot == inventory.getSize() - 1) {
@@ -92,7 +99,7 @@ public class FavoriteRemoveMenu implements Listener {
         }
         if (slot < collections.size() && slot < 52) {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                UniversalParameter.removeParameter(player.getName(), "collection", collections.get(slot + page * 52));
+                CollectionDao.removeCollection(player.getUniqueId(), UUIDUtils.get(collections.get(slot + page * 52)));
                 new FavoriteRemoveMenu(player).open();
             });
         }

@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,6 +29,13 @@ public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
         if (args.length < 1)
             return true;
         String target = args[0];
+
+        if (!target.startsWith("#")) {
+            if (UUIDUtils.get(target) == null) {
+                target = "#" + target;
+            }
+        }
+
         int order = 0;
         if (args.length >= 2) {
             try {

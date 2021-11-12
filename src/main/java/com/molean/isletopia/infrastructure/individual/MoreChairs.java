@@ -20,28 +20,32 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MoreChairs implements Listener {
 
     public MoreChairs() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
-            map.forEach((player, armorStand) -> {
+            map.forEach((uuid, armorStand) -> {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player == null) {
+                    return;
+                }
                 armorStand.setRotation(player.getLocation().getYaw(), player.getLocation().getPitch());
             });
         }, 0, 1);
         IsletopiaTweakers.addDisableTask("Stop update chair position..", bukkitTask::cancel);
     }
 
-    private static final Map<Player, ArmorStand> map = new HashMap<>();
-    private static final Map<Player, Location> originLocation = new HashMap<>();
-    private static final Map<Player, Long> sneakTime = new HashMap<>();
+    private static final Map<UUID, ArmorStand> map = new HashMap<>();
+    private static final Map<UUID, Location> originLocation = new HashMap<>();
+    private static final Map<UUID, Long> sneakTime = new HashMap<>();
 
 
     @SuppressWarnings("deprecation")
     @EventHandler
     public void on(PlayerToggleSneakEvent event) {
-
         if (event.getPlayer().getGameMode().equals(GameMode.SPECTATOR)) {
             return;
         }
@@ -59,9 +63,9 @@ public class MoreChairs implements Listener {
             return;
         }
         if (event.isSneaking()) {
-            sneakTime.put(event.getPlayer(), currentTimeMillis);
+            sneakTime.put(event.getPlayer().getUniqueId(), currentTimeMillis);
             Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
-                if (sneakTime.getOrDefault(event.getPlayer(), 0L).equals(currentTimeMillis)) {
+                if (sneakTime.getOrDefault(event.getPlayer().getUniqueId(), 0L).equals(currentTimeMillis)) {
                     Location location = event.getPlayer().getLocation();
                     Sound sound = Sound.ITEM_ARMOR_EQUIP_TURTLE;
                     event.getPlayer().playSound(location, sound, SoundCategory.PLAYERS, 1.0F, 1.0F);
@@ -69,8 +73,8 @@ public class MoreChairs implements Listener {
             }, 20L);
             return;
         }
-        long duration = currentTimeMillis - sneakTime.getOrDefault(event.getPlayer(), currentTimeMillis);
-        sneakTime.remove(event.getPlayer());
+        long duration = currentTimeMillis - sneakTime.getOrDefault(event.getPlayer().getUniqueId(), currentTimeMillis);
+        sneakTime.remove(event.getPlayer().getUniqueId());
         if (duration < 1000) {
             return;
         }
@@ -82,7 +86,7 @@ public class MoreChairs implements Listener {
             Location location = event.getPlayer().getLocation().add(0, -1.7, 0);
             Entity entity = event.getPlayer().getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
             ArmorStand armorStand = (ArmorStand) entity;
-            originLocation.put(event.getPlayer(), event.getPlayer().getLocation());
+            originLocation.put(event.getPlayer().getUniqueId(), event.getPlayer().getLocation());
             armorStand.addPassenger(event.getPlayer());
             armorStand.setGravity(false);
             armorStand.setCanMove(false);
@@ -93,7 +97,7 @@ public class MoreChairs implements Listener {
             armorStand.setVisualFire(false);
             armorStand.setDisabledSlots(EquipmentSlot.values());
             armorStand.setVisible(false);
-            map.put(event.getPlayer(), armorStand);
+            map.put(event.getPlayer().getUniqueId(), armorStand);
     }
 
     @EventHandler
@@ -127,11 +131,11 @@ public class MoreChairs implements Listener {
         Entity dismounted = event.getDismounted();
         if (dismounted.getType().equals(EntityType.ARMOR_STAND)) {
             if (event.getEntity() instanceof Player player) {
-                Location origin = originLocation.get(player);
+                Location origin = originLocation.get(player.getUniqueId());
                 Location location = player.getLocation();
                 location.set(origin.getX(), origin.getY(), origin.getZ());
                 player.teleport(location);
-                map.remove(player);
+                map.remove(player.getUniqueId());
                 dismounted.remove();
             }
         }
@@ -144,7 +148,7 @@ public class MoreChairs implements Listener {
         if (vehicle instanceof ArmorStand) {
             vehicle.eject();
             vehicle.remove();
-            map.remove(event.getPlayer());
+            map.remove(event.getPlayer().getUniqueId());
         }
     }
 
@@ -154,16 +158,18 @@ public class MoreChairs implements Listener {
         if (vehicle instanceof ArmorStand) {
             vehicle.eject();
             vehicle.remove();
-            map.remove(event.getPlayer());
         }
+        map.remove(event.getPlayer().getUniqueId());
+        originLocation.remove(event.getPlayer().getUniqueId());
+        sneakTime.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
     public void on(PluginDisableEvent event) {
         Plugin plugin = event.getPlugin();
         if (plugin instanceof IsletopiaTweakers) {
-            for (Player player : map.keySet()) {
-                ArmorStand armorStand = map.get(player);
+            for (UUID uuid : map.keySet()) {
+                ArmorStand armorStand = map.get(uuid);
                 armorStand.eject();
                 armorStand.remove();
             }

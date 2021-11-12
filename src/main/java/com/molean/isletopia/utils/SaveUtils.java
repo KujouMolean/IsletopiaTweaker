@@ -2,18 +2,22 @@
 
 package com.molean.isletopia.utils;
 
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
-import java.io.File;
-import java.util.UUID;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
-public class SaveUtils {
-    public SaveUtils() {
-    }
+import java.io.File;
+import java.util.UUID;
+import java.util.function.Consumer;
 
-    public static File getPlayerDataFile(String name) {
-        return getPlayerDataFile(UUIDUtils.get(name));
+public class SaveUtils {
+
+    public static File getPlayerDataFile(String name, Consumer<File> consumer) {
+        UUID uuid = UUIDUtils.get(name);
+        if (uuid == null) {
+            return null;
+        }
+        return getPlayerDataFile(uuid);
     }
 
     public static File getPlayerDataFile(UUID uuid) {
@@ -22,8 +26,11 @@ public class SaveUtils {
         return new File(worldFolder + String.format("/playerdata/%s.dat", uuid.toString()));
     }
 
-    public static File getPlayerStatsFile(String name) {
-        return getPlayerStatsFile(UUIDUtils.get(name));
+    public static File getPlayerStatsFile(String name, Consumer<File> consumer) {
+        UUID uuid = UUIDUtils.get(name);
+        File playerStatsFile = getPlayerStatsFile(uuid);
+            return playerStatsFile;
+
     }
 
     public static File getPlayerStatsFile(UUID uuid) {

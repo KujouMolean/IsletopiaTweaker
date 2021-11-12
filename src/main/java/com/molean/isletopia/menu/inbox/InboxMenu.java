@@ -2,7 +2,7 @@ package com.molean.isletopia.menu.inbox;
 
 import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.mail.InboxObject;
 import com.molean.isletopia.mail.MailObject;
 import com.molean.isletopia.menu.ItemStackSheet;
@@ -45,7 +45,7 @@ public class InboxMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        String inbox = UniversalParameter.getParameter(player.getName(), "Inbox");
+        String inbox = UniversalParameter.getParameter(player.getUniqueId(), "Inbox");
         if (inbox != null && !inbox.isEmpty()) {
             InboxObject inboxObject = GSON.fromJson(inbox, InboxObject.class);
             List<MailObject> mailObjectList = inboxObject.getMailObjectList();
@@ -93,7 +93,7 @@ public class InboxMenu implements Listener {
         }
         if (map.containsKey(slot)) {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                String inbox = UniversalParameter.getParameter(player.getName(), "Inbox");
+                String inbox = UniversalParameter.getParameter(player.getUniqueId(), "Inbox");
                 InboxObject inboxObject = GSON.fromJson(inbox, InboxObject.class);
                 List<MailObject> mailObjectList = inboxObject.getMailObjectList();
                 if (map.get(slot).equals(mailObjectList.get(slot).getUuid())) {
@@ -101,7 +101,7 @@ public class InboxMenu implements Listener {
                     mailObjectList.remove(slot);
                     String s = GSON.toJson(inboxObject);
 
-                    UniversalParameter.setParameter(player.getName(), "Inbox", s);
+                    UniversalParameter.setParameter(player.getUniqueId(), "Inbox", s);
                     List<String> itemStackList = mailObject.getItemStackList();
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                         for (String string : itemStackList) {

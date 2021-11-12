@@ -1,7 +1,7 @@
 package com.molean.isletopia.menu.settings;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.menu.PlayerMenu;
@@ -56,9 +56,9 @@ public class SettingsMenu implements Listener {
             inventory.setItem(i, itemStackSheet.build());
         }
 
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
-        if (!currentPlot.getOwner().equals(player.getName())) {
+        if (!currentPlot.getUuid().equals(player.getUniqueId())) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
                     player.kick(Component.text("错误, 非岛主更改岛屿设置.")));
             return;
@@ -135,7 +135,7 @@ public class SettingsMenu implements Listener {
 
             }
             case 6 -> {
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
                     break;
                 }

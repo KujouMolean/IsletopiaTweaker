@@ -1,7 +1,7 @@
 package com.molean.isletopia.tutor.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -36,7 +36,7 @@ public class HelpTutor implements Listener {
 
     public static void onJoin(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String tutorStatus = UniversalParameter.getParameter(player.getName(), "TutorStatus");
+            String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (Objects.equals(tutorStatus, "Help") && player.isOnline()) {
                 BossBar bossBar = Bukkit.createBossBar("新手引导: 使用/is help 查看帮助.", BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);
@@ -75,11 +75,11 @@ public class HelpTutor implements Listener {
         switch (message.toLowerCase(Locale.ROOT)) {
             case "/is help", "/islet help", "/isletopia help" -> {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    MessageUtils.strong(event.getPlayer(), "梦幻之屿Wiki中有很多重要信息，如果你打算玩下去，非常建议仔细阅读。");
-                    MessageUtils.info(event.getPlayer(), "接下来，请边挖石头边看梦幻之屿wiki吧。");
+                    MessageUtils.strong(event.getPlayer(), "Wiki中有很多重要信息, 非常建议仔细阅读。");
+                    MessageUtils.info(event.getPlayer(), "接下来, 请边挖石头边看梦幻之屿wiki吧。");
                     PLAYERS.remove(event.getPlayer());
                     BARS.get(event.getPlayer()).removeAll();
-                    UniversalParameter.setParameter(event.getPlayer().getName(), "TutorStatus", "Stone");
+                    UniversalParameter.setParameter(event.getPlayer().getUniqueId(), "TutorStatus", "Stone");
                     StoneTutor.onJoin(event.getPlayer());
                 });
             }

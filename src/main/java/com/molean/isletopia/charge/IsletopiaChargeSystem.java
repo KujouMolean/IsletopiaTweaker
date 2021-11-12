@@ -1,6 +1,7 @@
 package com.molean.isletopia.charge;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.infrastructure.individual.bars.ChargeBar;
 
 import java.util.logging.Logger;
 
@@ -9,6 +10,7 @@ public class IsletopiaChargeSystem {
     @SuppressWarnings("all")
     public IsletopiaChargeSystem() {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
+        long l = System.currentTimeMillis();
         try{
             new ChargeDetailCommitter();
             new ChargeDetail();
@@ -18,6 +20,6 @@ public class IsletopiaChargeSystem {
             exception.printStackTrace();
             logger.severe("Initialize isletopia charge system failed!");
         }
-        logger.info("Initialize isletopia charge system successfully!");
+        logger.info("Initialize isletopia charge system successfully in " + (System.currentTimeMillis()-l) + "ms");
     }
 }

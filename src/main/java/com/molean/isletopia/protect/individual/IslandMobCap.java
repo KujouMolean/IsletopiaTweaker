@@ -1,15 +1,15 @@
 package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
-import com.molean.isletopia.island.IslandId;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.shared.utils.ObjectUtils;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.task.CustomTask;
-import com.molean.isletopia.utils.LangUtils;
+import com.molean.isletopia.shared.utils.LangUtils;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.ObjectUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -37,8 +37,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class
-IslandMobCap implements Listener, CommandExecutor, TabCompleter {
+public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
     private static final Map<EntityType, Integer> map = new HashMap<>();
     private static final List<EntityType> ignoredType = new ArrayList<>();
@@ -80,7 +79,7 @@ IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         ignoredReason.add(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
+                LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
                 if (currentPlot != null) {
                     shouldUpdatePlot.add(currentPlot.getIslandId());
                 }
@@ -101,9 +100,9 @@ IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         IsletopiaTweakers.addDisableTask("Stop record mob cap data..", bukkitTask::cancel);
     }
 
-    private static final Map<Island, Long> lastNotifyTimeMap = new HashMap<>();
+    private static final Map<LocalIsland, Long> lastNotifyTimeMap = new HashMap<>();
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(ChunkUnloadEvent event) {
         int x = event.getChunk().getX();
         int z = event.getChunk().getZ();
@@ -168,7 +167,7 @@ IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         }
     }
 
-    private static void warn(Island currentPlot) {
+    private static void warn(LocalIsland currentPlot) {
         Long lastNotifyTime = lastNotifyTimeMap.getOrDefault(currentPlot, 0L);
         if (System.currentTimeMillis() - lastNotifyTime > 3 * 60 * 1000L) {
 
@@ -187,7 +186,7 @@ IslandMobCap implements Listener, CommandExecutor, TabCompleter {
     public void onItem(ItemSpawnEvent event) {
         Item entity = event.getEntity();
         Location location = entity.getLocation();
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
         if (currentPlot == null) {
             return;
         }
@@ -217,16 +216,16 @@ IslandMobCap implements Listener, CommandExecutor, TabCompleter {
     }
 
 
+
     @EventHandler(ignoreCancelled = true)
     public void onMobSpawn(CreatureSpawnEvent event) {
-        Island plot = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
+        LocalIsland plot = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
         if (plot == null) {
             return;
         }
         if (ignoredReason.contains(event.getSpawnReason())) {
             return;
         }
-
         shouldUpdatePlot.add(plot.getIslandId());
         Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(plot.getIslandId());
         if (entityTypeIntegerMap == null) {
@@ -299,11 +298,33 @@ IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
     }
 
+    public static Map<String, Integer> getSnapshot(@NotNull IslandId islandId) {
+        Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(islandId);
+        if (entityTypeIntegerMap == null) {
+            return null;
+        }
+        int total = plotsEntityCount.get(islandId);
+        Map<String, Integer> map = new HashMap<>();
+        ArrayList<EntityType> keys = new ArrayList<>(entityTypeIntegerMap.keySet());
+        keys.sort((o1, o2) -> entityTypeIntegerMap.get(o2) - entityTypeIntegerMap.get(o1));
+        for (EntityType key : keys) {
+            String c = (IslandMobCap.map.get(key) != null
+                    && IslandMobCap.map.get(key) <= entityTypeIntegerMap.get(key))
+                    ? "c" : "a";
+
+            String name = LangUtils.get(key.translationKey());
+            map.put("§" + c + name, entityTypeIntegerMap.get(key));
+        }
+        map.put("§" + (total < 512 ? "a" : "c") + "总计", total);
+
+        return map;
+    }
+
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
-        Island currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentPlot == null) {
             return true;
         }
@@ -317,14 +338,7 @@ IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         keys.sort((o1, o2) -> entityTypeIntegerMap.get(o2) - entityTypeIntegerMap.get(o1));
         player.sendMessage(String.format("§a>§e%s §" + (total < 512 ? "a" : "c") + "%s", "总计", total));
         for (int i = 0; i < 10 && i < keys.size(); i++) {
-            @SuppressWarnings("deprecation")
-            String internalName = keys.get(i).getName();
-            String name;
-            if (internalName != null) {
-                name = LangUtils.get("entity.minecraft." + internalName.toLowerCase());
-            } else {
-                name = "未知";
-            }
+            String name = LangUtils.get(keys.get(i).translationKey());
             String c = (map.get(keys.get(i)) != null && map.get(keys.get(i)) <= entityTypeIntegerMap.get(keys.get(i))) ? "c" : "a";
             String message = String.format("§a>§e%s §" + c + "%s", name, entityTypeIntegerMap.get(keys.get(i)));
             player.sendMessage(message);

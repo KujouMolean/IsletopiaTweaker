@@ -1,7 +1,7 @@
 package com.molean.isletopia.island.flag;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,7 +17,7 @@ public class DisableRedstone implements IslandFlagHandler, Listener {
     @EventHandler
     public void on(BlockRedstoneEvent event) {
         Location location = event.getBlock().getLocation();
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
         if (currentIsland == null) {
             return;
         }

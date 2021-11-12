@@ -2,7 +2,7 @@ package com.molean.isletopia.protect.individual;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
@@ -69,7 +69,7 @@ public class AnimalProtect implements Listener {
 
         ProjectileSource shooter = event.getEntity().getShooter();
         if (shooter instanceof Player) {
-            Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
+            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
             if (BeaconIslandOption.isEnablePvP(currentIsland)) {
                 return;
             }
@@ -96,7 +96,7 @@ public class AnimalProtect implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayer(EntityKnockbackByEntityEvent event) {
         if (event.getHitBy() instanceof Player player) {
-            Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
             if (BeaconIslandOption.isEnablePvP(currentIsland)) {
                 return;
             }

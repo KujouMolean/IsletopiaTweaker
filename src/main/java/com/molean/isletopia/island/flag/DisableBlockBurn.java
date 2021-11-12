@@ -1,7 +1,7 @@
 package com.molean.isletopia.island.flag;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -16,7 +16,7 @@ public class DisableBlockBurn implements IslandFlagHandler, Listener {
 
     @EventHandler
     public void on(BlockBurnEvent event) {
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getBlock().getLocation());
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getBlock().getLocation());
         if (currentIsland == null) {
             return;
         }

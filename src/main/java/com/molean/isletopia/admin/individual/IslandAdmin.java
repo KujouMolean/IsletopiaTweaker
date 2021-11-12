@@ -1,22 +1,18 @@
 package com.molean.isletopia.admin.individual;
 
-import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.ConvertDao;
-import com.molean.isletopia.database.IslandDao;
-import com.molean.isletopia.island.*;
+import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
-import com.molean.isletopia.task.PlotChunkTask;
+import com.molean.isletopia.shared.database.IslandDao;
+import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.ResourceUtils;
-import com.mysql.cj.result.Field;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,165 +38,161 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
         switch (strings[0].toLowerCase(Locale.ROOT)) {
             case "setowner" -> {
                 if (strings.length < 2) {
-                    commandSender.sendMessage("参数不足");
+
+                    MessageUtils.fail(commandSender,"参数不足");
                     return true;
                 }
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    player.sendMessage("当前岛屿未被领取");
+                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
                     return true;
                 }
-                currentIsland.setOwner(strings[1]);
-                player.sendMessage("应该成功了");
+                UUID uuid = UUIDUtils.get(strings[1]);
+                if (uuid == null) {
+                    MessageUtils.fail(commandSender,"失败,未找到uuid");
+                    return true;
+                }
+                currentIsland.setUuid(uuid);
+                MessageUtils.success(commandSender,"应该成功了");
             }
             case "claim" -> {
-                IslandId islandId = IslandId.fromLocation(player.getLocation().getBlockX(), player.getLocation().getBlockZ());
-                IslandManager.INSTANCE.createNewIsland(islandId, player.getName(), (island) -> {
+                String serverName = ServerInfoUpdater.getServerName();
+                IslandId islandId = IslandId.fromLocation(serverName, player.getLocation().getBlockX(), player.getLocation().getBlockZ());
+                IslandManager.INSTANCE.createNewIsland(islandId, player.getUniqueId(), (island) -> {
                     if (island == null) {
-                        player.sendMessage("领取失败");
+                        MessageUtils.fail(commandSender,"领取失败");
                     } else {
                         island.tp(player);
-                        player.sendMessage("应该成功了");
+                        MessageUtils.success(commandSender,"应该成功了");
                     }
                 });
 
             }
             case "clear" -> {
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    player.sendMessage("岛屿尚未被领取");
+                    MessageUtils.fail(commandSender,"岛屿尚未被领取");
                     break;
                 }
-                player.sendMessage("开始清空岛屿..");
+                MessageUtils.fail(commandSender,"开始清空岛屿..");
                 currentIsland.clearAndApplyNewIsland(() -> {
-                    player.sendMessage("清空成功!");
+                    MessageUtils.success(commandSender,"清空成功!");
                 }, 60);
 
             }
 
             case "add" -> {
                 if (strings.length < 2) {
-                    commandSender.sendMessage("参数不足");
+                    MessageUtils.fail(commandSender,"参数不足");
                     return true;
                 }
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    player.sendMessage("当前岛屿未被领取");
+                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
                     return true;
                 }
-                currentIsland.addMember(strings[1]);
-                player.sendMessage("应该成功了");
+                String string = strings[1];
+
+
+                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+                    UUID uuid = UUIDUtils.get(string);//checked
+                    currentIsland.addMember(uuid);
+                    MessageUtils.success(commandSender,"应该成功了");
+                });
+
+
             }
             case "remove" -> {
                 if (strings.length < 2) {
-                    commandSender.sendMessage("参数不足");
+                    MessageUtils.fail(commandSender,"参数不足");
                     return true;
                 }
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    player.sendMessage("当前岛屿未被领取");
+                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
                     return true;
                 }
+                UUID uuid = UUIDUtils.get(strings[1]);
+                currentIsland.removeMember(uuid);
 
-                currentIsland.removeMember(strings[1]);
-                player.sendMessage("应该成功了");
+                MessageUtils.success(commandSender,"应该成功了");
             }
-            case "addflag"->{
+            case "addflag" -> {
                 if (strings.length < 2) {
-                    commandSender.sendMessage("参数不足");
+                    MessageUtils.fail(commandSender,"参数不足");
                     return true;
                 }
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    commandSender.sendMessage("当前岛屿未被领取");
+                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
                     return true;
                 }
                 currentIsland.addIslandFlag(strings[1]);
-                commandSender.sendMessage("添加成功");
+                MessageUtils.success(commandSender,"添加成功");
             }
-            case "removeflag"->{
+            case "removeflag" -> {
                 if (strings.length < 2) {
-                    commandSender.sendMessage("参数不足");
+                    MessageUtils.fail(commandSender,"参数不足");
                     return true;
                 }
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    commandSender.sendMessage("当前岛屿未被领取");
+                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
                     return true;
                 }
 
                 if (currentIsland.containsFlag(strings[1])) {
                     currentIsland.removeIslandFlag(strings[1]);
-                    commandSender.sendMessage("删除成功");
-                }else{
-                    commandSender.sendMessage("岛屿不包含该标记");
+                    MessageUtils.success(commandSender,"删除成功");
+                } else {
+                    MessageUtils.fail(commandSender,"岛屿不包含该标记");
                 }
             }
-            case "list"->{
+            case "list" -> {
                 if (strings.length < 2) {
-                    commandSender.sendMessage("参数不足");
+                    MessageUtils.fail(commandSender,"参数不足");
                     return true;
                 }
                 String target = strings[1];
 
-                List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(target);
+                List<LocalIsland> playerIslands = IslandManager.INSTANCE.getPlayerIslands(UUIDUtils.get(target));
 
 
                 MessageUtils.info(player, target + " 共有 " + playerIslands.size() + " 个岛屿");
 
-                for (Island playerIsland : playerIslands) {
+                for (LocalIsland playerIsland : playerIslands) {
                     MessageUtils.info(player, " - " + playerIsland.getIslandId().toLocalString());
                 }
             }
 
-            case "delete" ->{
-                Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+            case "delete" -> {
+                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    commandSender.sendMessage("当前岛屿未被领取");
+                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
                     return true;
                 }
 
-                IslandManager.INSTANCE.deleteIsland(currentIsland,()->{
-                    commandSender.sendMessage("岛屿已被删除");
+                IslandManager.INSTANCE.deleteIsland(currentIsland, () -> {
+                    MessageUtils.success(commandSender,"岛屿已被删除");
 
                 });
 
             }
-            case "import" ->{
-                if (strings.length < 2) {
-                    commandSender.sendMessage("参数不足");
-                    return true;
-                }
-                try {
-                    ConvertDao.importFromPlot(strings[1]);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            case "trim"->{
+
+            case "trim" -> {
                 int tobeDelete = 0;
                 if (strings.length >= 2) {
                     tobeDelete = Integer.parseInt(strings[1]);
                 }
-
-
-
                 try {
                     HashSet<String> islandStringIds = new HashSet<>();
                     HashSet<String> wantDeleteIds = new HashSet<>();
-
-
                     Set<IslandId> localServerIslandIds = IslandDao.getLocalServerIslandIds(ServerInfoUpdater.getServerName());
                     for (IslandId localServerIslandId : localServerIslandIds) {
                         islandStringIds.add(localServerIslandId.getX() + "." + localServerIslandId.getZ());
                     }
                     File file = new File(IsletopiaTweakers.getWorld().getWorldFolder() + "/region/");
-                    File[] files = file.listFiles((dir, name) -> {
-                        if (name.matches("r\\.[0-9]+\\.[0-9]+\\.mca")) {
-                            return true;
-                        }
-                        return false;
-                    });
+                    File[] files = file.listFiles((dir, name) -> name.matches("r\\.[0-9]+\\.[0-9]+\\.mca"));
 
                     assert files != null;
                     for (File file1 : files) {

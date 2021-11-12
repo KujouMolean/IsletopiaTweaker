@@ -1,8 +1,8 @@
 package com.molean.isletopia.menu;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.IslandDao;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.shared.database.IslandDao;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.HeadUtils;
@@ -24,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +33,11 @@ public class VisitorMenu implements Listener {
     private final Player player;
     private final Inventory inventory;
     private List<Pair<String, Timestamp>> pairs;
-    private int page;
+    private final int page;
 
     public VisitorMenu(Player player, int page) {
         this.player = player;
-        inventory = Bukkit.createInventory(player, 54, Component.text("最近三天的访客记录(第" + page + "页)"));
+        inventory = Bukkit.createInventory(player, 54, Component.text("最近三天的访客记录(第" + (page + 1) + "页)"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.page = page;
     }
@@ -50,8 +48,7 @@ public class VisitorMenu implements Listener {
             inventory.setItem(i, itemStackSheet.build());
         }
 
-
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
         if (currentIsland == null || !(currentIsland.hasPermission(player) || player.isOp())) {
             MessageUtils.fail(player, "你只能查看自己岛屿的访客记录!");
@@ -67,21 +64,24 @@ public class VisitorMenu implements Listener {
         }
 
         if (page > pairs.size() / 52) {
-            page = 0;
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new VisitorMenu(player, 0).open());
+            return;
         }
 
         for (int i = 0; page * 52 + i < pairs.size() && i < inventory.getSize() - 2; i++) {
-            ItemStack skullWithIslandInfo = HeadUtils.getSkullWithIslandInfo(pairs.get(page * 52 + i).getKey());
             ArrayList<Component> components = new ArrayList<>();
-            if (skullWithIslandInfo.lore() != null) {
-                components.addAll(skullWithIslandInfo.lore());
+            ItemStack itemStack = HeadUtils.getSkullWithIslandInfo(pairs.get(page * 52 + i).getKey());
+            if (itemStack.lore() != null) {
+                components.addAll(itemStack.lore());
             }
             Timestamp value = pairs.get(page * 52 + i).getValue();
             LocalDateTime localDateTime = value.toLocalDateTime().minusHours(8);
             String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
             components.add(Component.text("访问时间: " + format));
-            skullWithIslandInfo.lore(components);
-            inventory.setItem(i, skullWithIslandInfo);
+            itemStack.lore(components);
+            inventory.setItem(i, itemStack);
+
         }
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());

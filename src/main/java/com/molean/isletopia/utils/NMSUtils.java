@@ -17,4 +17,5 @@ public class NMSUtils {
     public static Class<?> getBukkitClass(String name) throws ClassNotFoundException {
         return Class.forName("org.bukkit.craftbukkit." + VERSION + "." + name);
     }
+
 }

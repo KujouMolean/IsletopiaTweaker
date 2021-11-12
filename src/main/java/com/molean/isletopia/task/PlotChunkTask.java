@@ -1,7 +1,7 @@
 package com.molean.isletopia.task;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -25,7 +25,7 @@ public class PlotChunkTask extends BukkitRunnable {
     private final Runnable runnable;
     private int chunkPerTick;
 
-    public PlotChunkTask(@NotNull Island plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
+    public PlotChunkTask(@NotNull LocalIsland plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
         Location bottomLocation = plot.getBottomLocation();
         Location topLocation = plot.getTopLocation();
         World world = Bukkit.getWorld("SkyWorld");

@@ -20,6 +20,11 @@ public class UserTokenGenerator implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
+        if (!sender.getName().startsWith("#")) {
+            MessageUtils.fail(sender, "仅离线用户可设置皮肤");
+            return true;
+        }
+
         int token = new Random().nextInt(90000000) + 10000000;
         RedisUtils.getCommand().setex("UserToken:" + token, 60 * 5L, sender.getName());
         MessageUtils.notify(sender, "你的用户凭证为: " + token);

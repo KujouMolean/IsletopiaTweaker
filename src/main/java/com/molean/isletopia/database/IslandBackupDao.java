@@ -1,6 +1,7 @@
 package com.molean.isletopia.database;
 
-import com.molean.isletopia.island.IslandId;
+import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.shared.database.DataSourceUtils;
 import com.molean.isletopia.shared.utils.Pair;
 
 import java.io.File;
@@ -8,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,21 +29,6 @@ public class IslandBackupDao {
                        );
                      """;
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.execute();
-            trim();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    public static void trim() {
-        try (Connection connection = DataSourceUtils.getConnection("backup")) {
-            String sql = "delete from island_backup where time<?;";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime localDateTime = now.minusDays(1);
-            Timestamp timestamp = Timestamp.valueOf(localDateTime);
-            preparedStatement.setTimestamp(1, timestamp);
             preparedStatement.execute();
         } catch (Exception exception) {
             exception.printStackTrace();

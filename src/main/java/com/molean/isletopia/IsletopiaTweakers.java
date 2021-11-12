@@ -2,9 +2,8 @@ package com.molean.isletopia;
 
 import com.molean.isletopia.admin.IsletopiaAdmin;
 import com.molean.isletopia.charge.IsletopiaChargeSystem;
-import com.molean.isletopia.database.DataSourceUtils;
 import com.molean.isletopia.distribute.IsletopiaDistributeSystem;
-import com.molean.isletopia.distribute.parameter.IsletopiaParamter;
+import com.molean.isletopia.distribute.parameter.IsletopiaParameter;
 import com.molean.isletopia.infrastructure.IsletopiaInfrastructure;
 import com.molean.isletopia.island.IsletopiaIslandSystem;
 import com.molean.isletopia.mail.MailCommand;
@@ -24,10 +23,8 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public final class IsletopiaTweakers extends JavaPlugin {
 
@@ -42,37 +39,6 @@ public final class IsletopiaTweakers extends JavaPlugin {
     public static World getWorld() {
         return world;
     }
-
-    private static Long l;
-
-    @SuppressWarnings("all")
-    private static final Thread autoShutDownThread = new Thread(() -> {
-        while (true) {
-            try {
-                Thread.sleep(60 * 1000);
-            } catch (InterruptedException e) {
-                return;
-            }
-            if (System.currentTimeMillis() - l > 1000 * 60) {
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(60 * 1000);
-                        Class<?> aClass = Class.forName("java.lang.Shutdown");
-                        Method halt = aClass.getDeclaredMethod("halt", int.class);
-                        halt.setAccessible(true);
-                        halt.invoke(null, -1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }).start();
-                Bukkit.getScheduler().runTask(getPlugin(), () -> {
-                    Objects.requireNonNull(Bukkit.getWorld("SkyWorld")).save();
-                    Bukkit.shutdown();
-                });
-            }
-        }
-
-    });
 
     private static final Map<String, Runnable> SHUTDOWN_MAP = new HashMap<>();
 
@@ -91,12 +57,11 @@ public final class IsletopiaTweakers extends JavaPlugin {
         Bukkit.getScheduler().runTask(getPlugin(), () -> {
             world = Bukkit.getWorld("SkyWorld");
             getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-            DataSourceUtils.checkDatabase();
             new IsletopiaMessage();
             new IsletopiaInfrastructure();
             new IsletopiaModifier();
             new IsletopiaDistributeSystem();
-            new IsletopiaParamter();
+            new IsletopiaParameter();
             new IsletopiaProtect();
             new IsletopiaStatistics();
             new IsletopiaAdmin();
@@ -107,11 +72,10 @@ public final class IsletopiaTweakers extends JavaPlugin {
             new MailCommand();
             new IsletopiaTutorialSystem();
 
-//            auto shutdown
             Bukkit.getScheduler().runTaskTimer(this, () -> {
-                l = System.currentTimeMillis();
+                long l = System.currentTimeMillis();
+                RedisUtils.getCommand().set("ServerStatus:LastUpdate:" + ServerInfoUpdater.getServerName(), l + "");
             }, 0, 20);
-            autoShutDownThread.start();
         });
     }
 
@@ -128,15 +92,11 @@ public final class IsletopiaTweakers extends JavaPlugin {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onlinePlayer.closeInventory();
         }
-        getLogger().info("Add restart flag to redis..");
-        RedisUtils.getCommand().setex("Restarting-" + ServerInfoUpdater.getServerName(), 15L, "true");
         SHUTDOWN_MAP.forEach((s, runnable) -> {
             getLogger().info("Running shutdown task: " + s);
+            long l = System.currentTimeMillis();
             runnable.run();
+            getLogger().info(s + " complete in " + (System.currentTimeMillis()-l) + "ms");
         });
-        getLogger().info("Disable auto shutdown thread..");
-        autoShutDownThread.interrupt();
-        RedisUtils.destroy();
-
     }
 }

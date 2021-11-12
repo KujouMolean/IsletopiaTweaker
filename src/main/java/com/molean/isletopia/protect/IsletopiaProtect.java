@@ -11,6 +11,7 @@ public class IsletopiaProtect {
 
 
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
+        long l = System.currentTimeMillis();
         try {
             new AnimalProtect();
             new LavaProtect();
@@ -24,11 +25,12 @@ public class IsletopiaProtect {
             new BeaconIslandOption();
             new DragonEggLimiter();
             new EdgeBlockDetect();
+            new DragonHeadLimiter();
         }catch (Exception exception){
             exception.printStackTrace();
             logger.severe("Initialize isletopia protect failed!");
         }
-        logger.info("Initialize isletopia protect successfully!");
+        logger.info("Initialize isletopia protect successfully in " + (System.currentTimeMillis()-l) + "ms");
 
     }
 }

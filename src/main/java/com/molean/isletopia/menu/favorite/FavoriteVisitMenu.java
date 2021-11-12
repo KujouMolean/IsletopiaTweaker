@@ -1,9 +1,10 @@
 package com.molean.isletopia.menu.favorite;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,31 +16,28 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 public class FavoriteVisitMenu implements Listener {
 
     private final Player player;
     private final Inventory inventory;
-    private final List<String> collections = new ArrayList<>();
+    private final List<UUID> collections = new ArrayList<>();
     private final int page;
 
     public FavoriteVisitMenu(Player player) {
-        this(player, UniversalParameter.getParameterAsList(player.getName(), "collection"), 0);
+        this(player, new ArrayList<>(CollectionDao.getPlayerCollections(player.getUniqueId())), 0);
     }
 
-    public FavoriteVisitMenu(Player player, List<String> collections, int page) {
+    public FavoriteVisitMenu(Player player, List<UUID> collections, int page) {
 
         inventory = Bukkit.createInventory(player, 54, Component.text("§f收藏夹"));
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         this.player = player;
         this.collections.addAll(collections);
-        this.collections.sort(Comparator.comparing(String::toLowerCase));
         if (page > collections.size() / 52) {
             page = 0;
         }
@@ -55,8 +53,8 @@ public class FavoriteVisitMenu implements Listener {
             ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
             inventory.setItem(i, itemStackSheet.build());
         }
-        for (int i = 0; i+page*52 < collections.size() && i < inventory.getSize() - 2; i++) {
-            inventory.setItem(i, HeadUtils.getSkullWithIslandInfo(collections.get(i+page*52)));
+        for (int i = 0; i + page * 52 < collections.size() && i < inventory.getSize() - 2; i++) {
+            inventory.setItem(i, HeadUtils.getSkullWithIslandInfo(UUIDUtils.get(collections.get(i + page * 52))));
         }
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
@@ -89,8 +87,8 @@ public class FavoriteVisitMenu implements Listener {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new FavoriteMenu(player).open());
             return;
         }
-        if (slot < collections.size()&&slot<52) {
-            player.performCommand("visit " + collections.get(slot + page * 52));
+        if (slot < collections.size() && slot < 52) {
+            player.performCommand("visit " + UUIDUtils.get(collections.get(slot + page * 52)));
         }
 
     }

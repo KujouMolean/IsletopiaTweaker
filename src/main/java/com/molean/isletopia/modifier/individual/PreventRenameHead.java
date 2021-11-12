@@ -15,7 +15,7 @@ public class PreventRenameHead implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(PrepareAnvilEvent event) {
         ItemStack firstItem = event.getInventory().getFirstItem();
         if (firstItem != null && firstItem.getType().equals(Material.PLAYER_HEAD)) {

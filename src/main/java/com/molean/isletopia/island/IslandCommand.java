@@ -1,7 +1,7 @@
 package com.molean.isletopia.island;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.menu.VisitorMenu;
 import com.molean.isletopia.menu.charge.PlayerChargeMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
@@ -12,6 +12,7 @@ import com.molean.isletopia.other.ConfirmDialog;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
@@ -26,10 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class IslandCommand implements CommandExecutor, TabCompleter {
     public IslandCommand() {
@@ -147,14 +145,14 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                     help(subject);
                     return true;
                 }
-                star(subject,object);
+                star(subject, object);
                 break;
             case "unstar":
                 if (args.length < 2) {
                     help(subject);
                     return true;
                 }
-                unstar(subject,object);
+                unstar(subject, object);
                 break;
         }
         return true;
@@ -164,9 +162,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
 
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
@@ -200,7 +198,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void info(String subject) {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null) {
             player.sendMessage("当前岛屿尚未被领取");
             return;
@@ -208,20 +206,21 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("===========start===========");
         String localServerName = IsletopiaTweakersUtils.getLocalServerName();
         player.sendMessage("岛屿坐标:" + localServerName + ":" + currentIsland.getX() + "," + currentIsland.getZ());
-        player.sendMessage("岛屿主人:" + currentIsland.getOwner());
-        List<String> members = currentIsland.getMembers();
+        player.sendMessage("岛屿主人:" + UUIDUtils.get(currentIsland.getUuid()));
+        List<UUID> members = new ArrayList<>(currentIsland.getMembers());
         if (members.isEmpty()) {
             player.sendMessage("岛屿成员:" + "无");
         } else {
             player.sendMessage("岛屿成员:");
-            for (String member : members) {
-                player.sendMessage(" - " + member);
+            for (UUID uuid : members) {
+                player.sendMessage(" - " + UUIDUtils.get(uuid));
+
             }
         }
 
         LocalBiome localBiome = null;
         try {
-            localBiome = LocalBiome.valueOf(currentIsland.getBiome().name());
+            localBiome = LocalBiome.valueOf(currentIsland.getBiome());
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -257,9 +256,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
 
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
@@ -278,9 +277,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
@@ -299,9 +298,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
@@ -319,9 +318,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
@@ -339,20 +338,26 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void trust(String source, String target) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        UUID targetUUID = UUIDUtils.get(target);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
-        if (currentIsland.getMembers().contains(target) || currentIsland.getOwner().equals(target)) {
+        if (targetUUID == null) {
+            MessageUtils.success(player, "无效, 对方未在梦幻之屿注册.");
+            return;
+        }
+        if (currentIsland.getMembers().contains(targetUUID) || currentIsland.getUuid().equals(targetUUID)) {
             MessageUtils.success(player, "无效,对方已经在你的信任列表中.");
             return;
         }
-        if (!target.matches("[a-zA-Z0-9_]{3,16}")) {
+        if (!target.matches("[#a-zA-Z0-9_]{3,16}")) {
             MessageUtils.success(player, "无效,该用户名不合法.");
             return;
         }
-        int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(target);
+
+        int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(targetUUID);
         if (playerIslandCount == 0) {
             MessageUtils.success(player, "无效, 对方未在梦幻之屿注册.");
             return;
@@ -362,8 +367,15 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 添加岛屿成员后，你的岛员将能够随意破坏你的岛屿。
                 请不要随意乱加岛员，如果因为乱给权限导致岛屿被破坏，所有后果自行承担，服务器将不给予任何帮助。
                 """)).accept(player1 -> {
-            currentIsland.addMember(target);
+            UUID uuid = UUIDUtils.get(target);
+            if (uuid == null) {
+                MessageUtils.fail(player1, "添加失败，对方从未加入梦幻之屿.");
+                return;
+            }
+            currentIsland.addMember(uuid);
             MessageUtils.success(player1, "已经添加 " + target + " 为信任.");
+
+
         }).open(player);
 
     }
@@ -371,14 +383,20 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void distrust(String source, String target) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
-        if (currentIsland.getMembers().contains(target)) {
-            currentIsland.removeMember(target);
+        UUID uuid = UUIDUtils.get(target);
+        if (uuid == null) {
+            MessageUtils.fail(player, "失败，数据库找不到该用户信息.");
+            return;
+        }
+        if (currentIsland.getMembers().contains(UUIDUtils.get(target))) {
+            currentIsland.removeMember(uuid);
             MessageUtils.success(player, "已经取消对 " + target + " 的信任.");
+
         } else {
             MessageUtils.success(player, "你没有添加 " + target + " 为信任.");
         }
@@ -388,8 +406,8 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
@@ -401,9 +419,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
 
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
         }
@@ -415,19 +433,19 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void trusts(String source) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-        if (currentIsland == null || !(currentIsland.getOwner().equals(player.getName()) || player.isOp())) {
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行操作.");
             return;
         }
-        List<String> members = currentIsland.getMembers();
+        List<UUID> members = new ArrayList<>(currentIsland.getMembers());
 
         if (members.isEmpty()) {
             MessageUtils.info(player, "你的岛屿没有成员");
         } else {
             MessageUtils.info(player, "你的岛屿成员列表如下:");
-            for (String member : members) {
-                MessageUtils.info(player, " - " + member);
+            for (UUID uuid : members) {
+                MessageUtils.info(player, " - " + UUIDUtils.get(uuid));
             }
         }
     }
@@ -441,8 +459,12 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     public static void cacheCollections(Player player) {
-        String collection = UniversalParameter.getParameter(player.getName(), "collection");
-        if (collection == null || collection.isEmpty()) {
+        ArrayList<String> strings = new ArrayList<>();
+        for (UUID playerCollection : CollectionDao.getPlayerCollections(player.getUniqueId())) {
+            strings.add(UUIDUtils.get(playerCollection));
+        }
+        String collection = String.join(",", strings);
+        if (collection.isEmpty()) {
             return;
         }
         RedisUtils.getCommand().set("Collection-" + player.getName(), collection);
@@ -453,18 +475,20 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         //check player exist
-        int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(target);
+        UUID targetUUID = UUIDUtils.get(target);
+        int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(targetUUID);
         if (playerIslandCount == 0) {
-            MessageUtils.fail(player, "失败, "+target + " 未在梦幻之屿注册!");
+            MessageUtils.fail(player, "失败, " + target + " 未在梦幻之屿注册!");
             return;
         }
-        List<String> collection = UniversalParameter.getParameterAsList(player.getName(), "collection");
-        if (collection.contains(target)) {
+        Set<UUID> collection = CollectionDao.getPlayerCollections(player.getUniqueId());
+        if (collection.contains(targetUUID)) {
+
             MessageUtils.fail(player, "失败, " + target + " 已在你的收藏列表中了!");
             return;
         }
 
-        UniversalParameter.addParameter(player.getName(), "collection", target);
+        CollectionDao.addCollection(player.getUniqueId(), targetUUID);
         cacheCollections(player);
         MessageUtils.success(player, "成功, " + target + " 已添加到你收藏列表!");
     }
@@ -472,13 +496,14 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void unstar(String source, String target) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        List<String> collection = UniversalParameter.getParameterAsList(player.getName(), "collection");
-        if (!collection.contains(target)) {
+        UUID targetUUID = UUIDUtils.get(target);
+        Set<UUID> collection = CollectionDao.getPlayerCollections(player.getUniqueId());
+        if (!collection.contains(targetUUID)) {
             MessageUtils.fail(player, "失败, " + target + " 不在你的收藏列表中!");
             return;
         }
 
-        UniversalParameter.removeParameter(player.getName(), "collection", target);
+        CollectionDao.removeCollection(player.getUniqueId(), targetUUID);
         cacheCollections(player);
         MessageUtils.success(player, "成功, " + target + " 已从你的收藏列表中删除!");
     }
@@ -486,13 +511,13 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void stars(String source) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        List<String> collection = UniversalParameter.getParameterAsList(player.getName(), "collection");
+        Set<UUID> collection = CollectionDao.getPlayerCollections(player.getUniqueId());
         if (collection.isEmpty()) {
             MessageUtils.info(player, "你的收藏夹是空的!");
         } else {
             MessageUtils.info(player, "你的收藏夹里有这些玩家:");
-            for (String member : collection) {
-                MessageUtils.info(player, " - " + member);
+            for (UUID member : collection) {
+                MessageUtils.info(player, " - " + UUIDUtils.get(member));
             }
         }
         cacheCollections(player);
@@ -527,10 +552,10 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> subCommand = List.of("home", "visit", "trust", "distrust", "help", "invite",
             "kick", "lock", "unlock", "setHome", "resetHome",
-            "visits","trusts","visitors","consume","stars","star","unstar","spectatorVisitor","setBiome");
+            "visits", "trusts", "visitors", "consume", "stars", "star", "unstar", "spectatorVisitor", "setBiome");
 
     private static final List<String> playerCommand = List.of("trust", "distrust",
-            "kick", "invite", "visit","star","unstar");
+            "kick", "invite", "visit", "star", "unstar");
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {

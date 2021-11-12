@@ -1,5 +1,7 @@
 package com.molean.isletopia.distribute.parameter;
 
+import com.molean.isletopia.shared.service.UniversalParameter;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -38,28 +40,30 @@ public class ParameterCommand implements CommandExecutor {
         switch (opt) {
             case "set":
                 if (target != null && key != null && value != null) {
-                    UniversalParameter.setParameter(target, key, value);
+                    UniversalParameter.setParameter(UUIDUtils.get(target), key, value);
                 }
                 break;
             case "unset":
                 if (target != null && key != null) {
-                    UniversalParameter.unsetParameter(target, key);
+                    UniversalParameter.unsetParameter(UUIDUtils.get(target), key);
                 }
                 break;
             case "view":
                 if (target != null && key != null) {
-                    String s = UniversalParameter.getParameter(target, key);
+                    String s = UniversalParameter.getParameter(UUIDUtils.get(target), key);
                     sender.sendMessage(s);
                 }
                 break;
             case "add":
                 if (target != null && key != null && value != null) {
-                    UniversalParameter.addParameter(target, key, value);
+                    UniversalParameter.addParameter(UUIDUtils.get(target), key, value);
+
                 }
                 break;
             case "remove":
                 if (target != null && key != null && value != null) {
-                    UniversalParameter.removeParameter(target, key, value);
+                    UniversalParameter.removeParameter(UUIDUtils.get(target), target, key, value);
+
                 }
                 break;
         }

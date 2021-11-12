@@ -1,7 +1,7 @@
 package com.molean.isletopia.tutor.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -44,9 +44,9 @@ public class LogTutor implements Listener {
 
     public static void onJoin(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String tutorStatus = UniversalParameter.getParameter(player.getName(), "TutorStatus");
+            String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (tutorStatus == null || tutorStatus.isEmpty()) {
-                UniversalParameter.setParameter(player.getName(), "TutorStatus", "Log");
+                UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "Log");
                 MessageUtils.strong(player, "你已开启新手引导,使用/skiptutor跳过引导.");
                 tutorStatus = "Log";
             }
@@ -68,7 +68,7 @@ public class LogTutor implements Listener {
         }
         BossBar bossBar = BARS.get(player);
         int pre;
-        String parameter = UniversalParameter.getParameter(player.getName(), "Tutor-Log");
+        String parameter = UniversalParameter.getParameter(player.getUniqueId(), "Tutor-Log");
         if (parameter == null || parameter.isEmpty()) {
             pre = 0;
         } else {
@@ -80,7 +80,7 @@ public class LogTutor implements Listener {
                 PLAYERS.remove(player);
                 BARS.remove(player);
             });
-            UniversalParameter.setParameter(player.getName(), "TutorStatus", "Help");
+            UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "Help");
             HelpTutor.onJoin(player);
             return;
         }
@@ -96,14 +96,14 @@ public class LogTutor implements Listener {
 
     public static void addProgress(Player player, int amount) {
         int pre;
-        String parameter = UniversalParameter.getParameter(player.getName(), "Tutor-Log");
+        String parameter = UniversalParameter.getParameter(player.getUniqueId(), "Tutor-Log");
         if (parameter == null || parameter.isEmpty()) {
             pre = 0;
         } else {
             pre = Integer.parseInt(parameter);
         }
         pre += amount;
-        UniversalParameter.setParameter(player.getName(), "Tutor-Log", pre + "");
+        UniversalParameter.setParameter(player.getUniqueId(), "Tutor-Log", pre + "");
         updateProgress(player);
     }
 

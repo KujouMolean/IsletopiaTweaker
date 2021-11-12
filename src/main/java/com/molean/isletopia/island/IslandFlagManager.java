@@ -39,7 +39,7 @@ public enum IslandFlagManager {
 
     }
 
-    public void addFlag(@NotNull Island island, @NotNull String islandFlag) {
+    public void addFlag(@NotNull LocalIsland island, @NotNull String islandFlag) {
         String[] split = islandFlag.split("#");
         IslandFlagHandler islandFlagHandler = map.get(split[0]);
         if (islandFlagHandler != null) {
@@ -47,7 +47,7 @@ public enum IslandFlagManager {
         }
     }
 
-    public void removeFlag(@NotNull Island island, @NotNull String islandFlag) {
+    public void removeFlag(@NotNull LocalIsland island, @NotNull String islandFlag) {
         String[] split = islandFlag.split("#");
         IslandFlagHandler islandFlagHandler = map.get(split[0]);
         if (islandFlagHandler != null) {

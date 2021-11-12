@@ -1,9 +1,9 @@
 package com.molean.isletopia.distribute.parameter;
 
-import com.molean.isletopia.database.ParameterDao;
+import com.molean.isletopia.shared.database.ParameterDao;
 
-public class IsletopiaParamter {
-    public IsletopiaParamter() {
+public class IsletopiaParameter {
+    public IsletopiaParameter() {
         new ParameterCommand();
         ParameterDao.checkTable();
     }

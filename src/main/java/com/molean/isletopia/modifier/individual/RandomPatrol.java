@@ -17,7 +17,7 @@ public class RandomPatrol implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(EntitySpawnEvent event) {
         if (event.getEntity() instanceof WanderingTrader) {
             if (new Random().nextBoolean()) {

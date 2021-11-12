@@ -2,6 +2,7 @@ package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.MessageUtils;
+import io.papermc.paper.event.player.PlayerDeepSleepEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -14,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.world.TimeSkipEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +52,7 @@ public class SleepAnyTime implements Listener, CommandExecutor {
     }
 
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(PlayerBedEnterEvent event) {
         PlayerBedEnterEvent.BedEnterResult bedEnterResult = event.getBedEnterResult();
         if (event.getPlayer().isSleeping()) {
@@ -72,14 +74,16 @@ public class SleepAnyTime implements Listener, CommandExecutor {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void on(PlayerBedLeaveEvent event) {
         if (sleepingPlayers.contains(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
-    @EventHandler
+
+
+    @EventHandler(ignoreCancelled = true)
     public void on(TimeSkipEvent event) {
         if (event.getSkipReason().equals(TimeSkipEvent.SkipReason.NIGHT_SKIP)) {
             event.setCancelled(true);

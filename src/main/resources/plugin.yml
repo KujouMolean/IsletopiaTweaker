@@ -65,5 +65,7 @@ commands:
     permission: isletopia.admin
   usertoken: { }
   skiptutor: { }
-
+  claim: { }
+  entitybar: { }
+  sleep: { }
 

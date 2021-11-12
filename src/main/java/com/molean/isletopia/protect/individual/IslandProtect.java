@@ -2,7 +2,7 @@ package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
-import com.molean.isletopia.island.Island;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
@@ -36,7 +36,7 @@ public class IslandProtect implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void on(BlockPlaceEvent event) {
         Location location = event.getBlockPlaced().getLocation();
-        Island currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
         if (currentIsland == null) {
             event.setCancelled(true);
         }
@@ -79,7 +79,7 @@ public class IslandProtect implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(EntityChangeBlockEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
             return;
@@ -90,7 +90,7 @@ public class IslandProtect implements Listener {
     }
 
     //disable vehicle damage
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(VehicleDamageEvent event) {
         if (!(event.getAttacker() instanceof Player player)) {
             return;
@@ -102,7 +102,7 @@ public class IslandProtect implements Listener {
 
 
     //disable armor stand interact
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerArmorStandManipulateEvent event) {
         if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getRightClicked().getLocation())) {
             event.setCancelled(true);
@@ -115,16 +115,16 @@ public class IslandProtect implements Listener {
         if (event.getEntity() instanceof Player player) {
             Location location = event.getEntity().getLocation();
             if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, location)) {
-                return;
+                event.setCollisionCancelled(true);
             }
-            event.setCollisionCancelled(true);
+
         }
     }
 
     //disable collision
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerIslandChangeEvent event) {
-        Island to = event.getTo();
+        LocalIsland to = event.getTo();
         event.getPlayer().setCollidable(to != null && to.hasPermission(event.getPlayer()));
     }
 
@@ -168,7 +168,7 @@ public class IslandProtect implements Listener {
             return;
         }
 
-        Island to = event.getTo();
+        LocalIsland to = event.getTo();
         if (to == null) {
             return;
         }

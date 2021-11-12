@@ -1,8 +1,9 @@
 package com.molean.isletopia.mail;
 
 import com.google.gson.Gson;
-import com.molean.isletopia.distribute.parameter.UniversalParameter;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.other.ConfirmDialog;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -50,7 +51,7 @@ public class MailCommand implements CommandExecutor, TabCompleter {
 
             MailObject mailObject = new MailObject(player.getName(), title, message.toString(), itemStacks);
 
-            String inbox = UniversalParameter.getParameter(target, "Inbox");
+            String inbox = UniversalParameter.getParameter(UUIDUtils.get(target), "Inbox");
 
             InboxObject inboxObject;
             if (inbox != null && !inbox.isEmpty()) {
@@ -63,7 +64,7 @@ public class MailCommand implements CommandExecutor, TabCompleter {
 
             }
             inboxObject.getMailObjectList().add(mailObject);
-            UniversalParameter.setParameter(target, "Inbox", new Gson().toJson(inboxObject));
+            UniversalParameter.setParameter(UUIDUtils.get(target), "Inbox", new Gson().toJson(inboxObject));
         }).open((Player) sender);
 
 

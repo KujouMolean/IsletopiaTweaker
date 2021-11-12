@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 public class IsletopiaTutorialSystem {
     public IsletopiaTutorialSystem() {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
+        long l = System.currentTimeMillis();
         try {
             new LogTutor();
             new HelpTutor();
@@ -20,6 +21,6 @@ public class IsletopiaTutorialSystem {
             exception.printStackTrace();
             logger.severe("Initialize isletopia tutorial system failed!");
         }
-        logger.info("Initialize isletopia tutorial system successfully!");
+        logger.info("Initialize isletopia tutorial system successfully in " + (System.currentTimeMillis()-l) + "ms");
     }
 }
