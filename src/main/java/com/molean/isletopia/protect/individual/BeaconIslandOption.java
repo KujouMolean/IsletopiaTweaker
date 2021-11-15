@@ -33,18 +33,18 @@ public class BeaconIslandOption implements Listener {
 
     public BeaconIslandOption() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (IslandManager.INSTANCE.hasCurrentIslandPermission(onlinePlayer)) {
-                    LocalIsland island = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
-                    assert island != null;
-                    if (isEnablePvP(island)) {
-                        onlinePlayer.sendActionBar(Component.text("§c此岛屿已开启PVP, 生物不受保护!"));
-                    }
-                }
-            }
-        }, 60 * 20, 60 * 3 * 20);
-        IsletopiaTweakers.addDisableTask("Stop update beacon options..",bukkitTask::cancel);
+//        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+//            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+//                if (IslandManager.INSTANCE.hasCurrentIslandPermission(onlinePlayer)) {
+//                    LocalIsland island = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
+//                    assert island != null;
+//                    if (isEnablePvP(island)) {
+//                        onlinePlayer.sendActionBar(Component.text("§c此岛屿已开启PVP, 生物不受保护!"));
+//                    }
+//                }
+//            }
+//        }, 60 * 20, 60 * 3 * 20);
+//        IsletopiaTweakers.addDisableTask("Stop update beacon options..",bukkitTask::cancel);
     }
 
     private static final Map<IslandId, Set<PotionEffectType>> stringHashSetMap = new HashMap<>();
@@ -63,15 +63,18 @@ public class BeaconIslandOption implements Listener {
                     Beacon beacon = (Beacon) tileEntity;
                     PotionEffect primaryEffect = beacon.getPrimaryEffect();
                     PotionEffect secondaryEffect = beacon.getSecondaryEffect();
-                    if (secondaryEffect == null && primaryEffect != null) {
+                    if ( primaryEffect != null) {
                         potionEffectTypes.add(primaryEffect.getType());
+                    }
+                    if (secondaryEffect != null) {
+                        potionEffectTypes.add(secondaryEffect.getType());
                     }
                 }
             }
         }, () -> {
             stringHashSetMap.put(plot.getIslandId(), potionEffectTypes);
             updatingPlot.remove(plot.getIslandId());
-        }, 20 * 60).run();
+        }, 20 * 15).run();
     }
 
     public static boolean isAntiFire(LocalIsland plot) {
@@ -82,15 +85,15 @@ public class BeaconIslandOption implements Listener {
         return stringHashSetMap.get(plot.getIslandId()).contains(PotionEffectType.DAMAGE_RESISTANCE);
     }
 
-    public static boolean isEnablePvP(@Nullable LocalIsland plot) {
-        if (plot == null) {
-            return false;
-        }
-        if (!stringHashSetMap.containsKey(plot.getIslandId())) {
-            return false;
-        }
-        return stringHashSetMap.get(plot.getIslandId()).contains(PotionEffectType.INCREASE_DAMAGE);
-    }
+//    public static boolean isEnablePvP(@Nullable LocalIsland plot) {
+//        if (plot == null) {
+//            return false;
+//        }
+//        if (!stringHashSetMap.containsKey(plot.getIslandId())) {
+//            return false;
+//        }
+//        return stringHashSetMap.get(plot.getIslandId()).contains(PotionEffectType.INCREASE_DAMAGE);
+//    }
 
     @EventHandler(ignoreCancelled = true)
     public void on(BlockBurnEvent event) {

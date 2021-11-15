@@ -1,5 +1,6 @@
 package com.molean.isletopia.protect.individual;
 
+import com.google.common.collect.Sets;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.shared.utils.UUIDUtils;
@@ -17,13 +18,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class ElytraLimiter implements Listener {
-    private static final List<UUID> denied = new ArrayList<>();
+    private static final Set<UUID> denied = Collections.synchronizedSet(Sets.newHashSet());
 
     public ElytraLimiter() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());

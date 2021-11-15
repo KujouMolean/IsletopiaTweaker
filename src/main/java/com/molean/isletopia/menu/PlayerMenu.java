@@ -67,11 +67,6 @@ public class PlayerMenu implements Listener {
             settings.addLore("§c你只能修改自己的岛屿");
         }
         inventory.setItem(24, settings.build());
-//        ItemStackSheet projects = new ItemStackSheet(Material.END_PORTAL_FRAME, "§f历史长廊");
-//        projects.addLore("§7在这里发现曾在梦幻之屿留下足迹的岛屿");
-//        projects.addLore("§7在这里为自己的岛屿在梦幻之屿留下足迹");
-//        projects.addLore("§7该功能正在开发...(暂时无法使用)");
-//        inventory.setItem(26, projects.build());
 
         ItemStackSheet projects = new ItemStackSheet(Material.END_PORTAL_FRAME, "§f历史访客");
         projects.addLore("§7在这里发现最近三天你的岛屿访客");
@@ -85,7 +80,7 @@ public class PlayerMenu implements Listener {
 
         SkullMeta itemMeta = (SkullMeta) skullWithIslandInfo.getItemMeta();
         assert itemMeta != null;
-        itemMeta.displayName(Component.text("§f回城"));
+        itemMeta.displayName(Component.text("§f回岛"));
         skullWithIslandInfo.setItemMeta(itemMeta);
         inventory.setItem(40, skullWithIslandInfo);
 

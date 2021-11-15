@@ -1,6 +1,7 @@
 package com.molean.isletopia.protect.individual;
 
 import com.destroystokyo.paper.event.block.BeaconEffectEvent;
+import com.google.common.collect.Sets;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.island.LocalIsland;
@@ -24,9 +25,10 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class BeaconLimiter implements Listener {
-    private static final Set<UUID> denied = new HashSet<>();
+    private static final Set<UUID> denied = Collections.synchronizedSet(Sets.newHashSet());
     private static final Map<String, Long> notifyTime = new ConcurrentHashMap<>();
 
     public BeaconLimiter() {

@@ -62,17 +62,9 @@ public class AnimalProtect implements Listener {
     //disable fire projectile
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(ProjectileLaunchEvent event) {
-        boolean fireball = event.getEntity().getType().equals(EntityType.FIREWORK);
-        if (fireball) {
-            return;
-        }
-
         ProjectileSource shooter = event.getEntity().getShooter();
         if (shooter instanceof Player) {
             LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
-            if (BeaconIslandOption.isEnablePvP(currentIsland)) {
-                return;
-            }
             if (!IslandManager.INSTANCE.hasCurrentIslandPermission((Player) shooter)) {
                 event.setCancelled(true);
             }
@@ -83,9 +75,6 @@ public class AnimalProtect implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerAttack(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player player) {
-            if (BeaconIslandOption.isEnablePvP(IslandManager.INSTANCE.getCurrentIsland(player))) {
-                return;
-            }
             if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getEntity().getLocation())) {
                 event.setCancelled(true);
             }
@@ -97,9 +86,6 @@ public class AnimalProtect implements Listener {
     public void onPlayer(EntityKnockbackByEntityEvent event) {
         if (event.getHitBy() instanceof Player player) {
             LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-            if (BeaconIslandOption.isEnablePvP(currentIsland)) {
-                return;
-            }
             if (!IslandManager.INSTANCE.hasTargetIslandPermission((Player) event.getHitBy(), event.getEntity().getLocation())) {
                 event.setCancelled(true);
             }

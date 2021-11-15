@@ -85,7 +85,7 @@ public class VisitorMenu implements Listener {
         }
         ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
         inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f关闭菜单");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f<<返回主菜单<<");
         inventory.setItem(inventory.getSize() - 1, father.build());
 
         //here place icon
@@ -110,7 +110,7 @@ public class VisitorMenu implements Listener {
             return;
         }
         if (slot == inventory.getSize() - 1) {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), (@NotNull Runnable) player::closeInventory);
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerMenu(player).open());
             return;
         }
         if (slot < 52 && page * 52 + slot < pairs.size()) {

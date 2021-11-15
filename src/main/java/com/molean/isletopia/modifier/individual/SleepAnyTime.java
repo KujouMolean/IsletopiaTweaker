@@ -52,7 +52,7 @@ public class SleepAnyTime implements Listener, CommandExecutor {
     }
 
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler
     public void on(PlayerBedEnterEvent event) {
         PlayerBedEnterEvent.BedEnterResult bedEnterResult = event.getBedEnterResult();
         if (event.getPlayer().isSleeping()) {

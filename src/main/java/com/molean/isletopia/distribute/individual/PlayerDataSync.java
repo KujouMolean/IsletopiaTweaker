@@ -1,8 +1,8 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.shared.database.PlayerDataDao;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.shared.database.PlayerDataDao;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
@@ -47,7 +47,12 @@ public class PlayerDataSync implements Listener {
         IsletopiaTweakers.addDisableTask("Save player data to database", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (passwdMap.containsKey(onlinePlayer.getUniqueId())) {
-                    onLeft(onlinePlayer);
+                    try {
+                        byte[] serialize = PlayerSerializeUtils.serialize(onlinePlayer);
+                        onLeft(onlinePlayer, serialize);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -80,14 +85,17 @@ public class PlayerDataSync implements Listener {
     public void update(Player player) {
         try {
             byte[] serialize = PlayerSerializeUtils.serialize(player);
-
-            if (!PlayerDataDao.update(player.getUniqueId(), serialize, passwdMap.get(player.getUniqueId()))) {
-                throw new RuntimeException("Unexpected complete player data error!");
-            }
-
-            //update game mode
-            RedisUtils.getCommand().set("GameMode:" + player.getName(), player.getGameMode().name());
-
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+                try {
+                    if (!PlayerDataDao.update(player.getUniqueId(), serialize, passwdMap.get(player.getUniqueId()))) {
+                        throw new RuntimeException("Unexpected complete player data error!");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    MessageUtils.warn(player, "你的背包数据保存失败，请尽快联系管理员处理！");
+                }
+                RedisUtils.getCommand().set("GameMode:" + player.getName(), player.getGameMode().name());
+            });
         } catch (Exception e) {
             e.printStackTrace();
             MessageUtils.warn(player, "你的背包数据保存失败，请尽快联系管理员处理！");
@@ -97,24 +105,20 @@ public class PlayerDataSync implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
-        RedisUtils.getCommand().set(player.getName()+":GameMode", event.getNewGameMode().getValue() + "");
+        RedisUtils.getCommand().set(player.getName() + ":GameMode", event.getNewGameMode().getValue() + "");
     }
 
-    public void onLeft(Player player) {
+    public void onLeft(Player player, byte[] data) {
         try {
-            byte[] serialize = PlayerSerializeUtils.serialize(player);
-
-            if (!PlayerDataDao.complete(player.getUniqueId(), serialize, passwdMap.get(player.getUniqueId()))) {
+            if (!PlayerDataDao.complete(player.getUniqueId(), data, passwdMap.get(player.getUniqueId()))) {
                 throw new RuntimeException("Unexpected complete player data error!");
             }
-            passwdMap.remove(player.getUniqueId());
-
-
-            //store game mode
-            RedisUtils.getCommand().set("GameMode:" + player.getName(), player.getGameMode().name());
-        } catch (IOException | SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+        passwdMap.remove(player.getUniqueId());
+        //store game mode
+        RedisUtils.getCommand().set("GameMode:" + player.getName(), player.getGameMode().name());
     }
 
     public void onJoin(Player player) {
@@ -235,7 +239,15 @@ public class PlayerDataSync implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent event) {
         if (passwdMap.containsKey(event.getPlayer().getUniqueId())) {
-            onLeft(event.getPlayer());
+            try {
+                byte[] serialize = PlayerSerializeUtils.serialize(event.getPlayer());
+                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+                    onLeft(event.getPlayer(), serialize);
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 }

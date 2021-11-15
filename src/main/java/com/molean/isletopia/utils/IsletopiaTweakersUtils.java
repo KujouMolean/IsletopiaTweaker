@@ -16,22 +16,23 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class IsletopiaTweakersUtils {
     public static String getLocalServerName(String server) {
         return switch (server) {
-            case "server1" -> "衔心岠";
-            case "server2" -> "梦华沢";
-            case "server3" -> "凌沧州";
-            case "server4" -> "净琉璃世界";
-            case "server5" -> "东海蓬莱";
-            case "server6" -> "佳和苑";
-            case "server7" -> "楠故㟓";
-            case "server8" -> "胧月花栞";
-            case "server9" -> "第⑨区";
-            case "server10" -> "第十区";
-            case "server11" -> "十一区";
-            case "server12" -> "十二区";
+            case "server1" -> "①";
+            case "server2" -> "②";
+            case "server3" -> "③";
+            case "server4" -> "④";
+            case "server5" -> "⑤";
+            case "server6" -> "⑥";
+            case "server7" -> "⑦";
+            case "server8" -> "⑧";
+            case "server9" -> "⑨";
+            case "server10" -> "⑩";
+            case "server11" -> "⑪";
+            case "server12" -> "⑫";
             default -> "未知";
         };
     }
@@ -89,9 +90,13 @@ public class IsletopiaTweakersUtils {
     public static void universalPlotVisitByMessage(Player sourcePlayer, String target, int order) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String source = sourcePlayer.getName();
+            UUID targetUUID = UUIDUtils.get(target);
 
-            List<LocalIsland> playerIslands = IslandManager.INSTANCE.getPlayerIslands(UUIDUtils.get(target));
-
+            if (targetUUID == null) {
+                MessageUtils.fail(sourcePlayer, "对方没有在梦幻之屿注册.");
+                return;
+            }
+            List<LocalIsland> playerIslands = IslandManager.INSTANCE.getPlayerIslands(targetUUID);
             if (order >= playerIslands.size()) {
                 if (order == 0) {
                     MessageUtils.fail(sourcePlayer, "对方岛屿不存在.");

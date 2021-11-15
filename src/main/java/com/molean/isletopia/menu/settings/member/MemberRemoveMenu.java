@@ -105,7 +105,7 @@ public class MemberRemoveMenu implements Listener {
 
         if (slot < members.size() && slot < 52) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.performCommand("is distrust " + members.get(slot + page * 52));
+                player.performCommand("is distrust " + UUIDUtils.get(members.get(slot + page * 52)));
                 player.closeInventory();
             });
         }

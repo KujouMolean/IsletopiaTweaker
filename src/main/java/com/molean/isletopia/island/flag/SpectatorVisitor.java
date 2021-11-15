@@ -21,11 +21,9 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
     @Override
     public void onFlagAdd(LocalIsland island, String... data) {
         for (Player player : island.getPlayersInIsland()) {
-
-
             if (!island.hasPermission(player)) {
                 if (player.isOp()) {
-                    MessageUtils.info(player,"You are by passing a spectator visitor flag!");
+                    MessageUtils.info(player, "You are by passing a spectator visitor flag!");
                     continue;
                 }
                 player.setGameMode(GameMode.SPECTATOR);
@@ -38,7 +36,7 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
         for (Player player : island.getPlayersInIsland()) {
             if (!island.hasPermission(player) && player.getGameMode().equals(GameMode.SPECTATOR)) {
                 if (player.isOp()) {
-                    MessageUtils.info(player,"You are by passing a spectator visitor flag!");
+                    MessageUtils.info(player, "You are by passing a spectator visitor flag!");
                     continue;
                 }
                 player.setGameMode(GameMode.SURVIVAL);
@@ -49,16 +47,14 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerIslandChangeEvent event) {
         LocalIsland to = event.getTo();
-        if (to != null && to.containsFlag(getKey())) {
-            // contains this flag
-            if (!to.hasPermission(event.getPlayer())) {
-                //and has no permission
-                if (event.getPlayer().isOp()) {
-                    MessageUtils.info(event.getPlayer(),"You are by passing a spectator visitor flag!");
-                    return;
-                }
-                event.getPlayer().setGameMode(GameMode.SPECTATOR);
+        //island is not null, and island has the flag, and has no permission
+        if (to != null && to.containsFlag(getKey()) && !to.hasPermission(event.getPlayer())) {
+
+            if (event.getPlayer().isOp()) {
+                MessageUtils.info(event.getPlayer(), "You are by passing a spectator visitor flag!");
+                return;
             }
+            event.getPlayer().setGameMode(GameMode.SPECTATOR);
         } else {
             if (event.getPlayer().isOp()) {
                 return;

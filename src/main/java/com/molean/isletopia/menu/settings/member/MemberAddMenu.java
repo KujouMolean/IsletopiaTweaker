@@ -101,8 +101,7 @@ public class MemberAddMenu implements Listener {
         }
         if (slot < players.size() && slot < 52) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.performCommand("is trust " + players.get(slot + page * 52));
-                player.closeInventory();
+                player.performCommand("is trust " + UUIDUtils.get(players.get(slot + page * 52)));
             });
 
         }

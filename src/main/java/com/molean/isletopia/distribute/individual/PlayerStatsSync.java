@@ -1,8 +1,8 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.shared.database.PlayerStatsDao;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.shared.database.PlayerStatsDao;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.StatsSerializeUtils;
 import org.bukkit.Bukkit;
@@ -15,13 +15,17 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class PlayerStatsSync implements Listener {
 
-    private final Map<UUID, String> passwdMap = new HashMap<>();
+    private final Map<UUID, String> passwdMap = new ConcurrentHashMap<>();
 
     public PlayerStatsSync() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
@@ -39,7 +43,8 @@ public class PlayerStatsSync implements Listener {
         IsletopiaTweakers.addDisableTask("Save player stats to database", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (passwdMap.containsKey(onlinePlayer.getUniqueId())) {
-                    onLeft(onlinePlayer);
+                    String stats = StatsSerializeUtils.getStats(onlinePlayer);
+                    onLeft(onlinePlayer, stats);
                 }
             }
         });
@@ -61,8 +66,7 @@ public class PlayerStatsSync implements Listener {
 
             if (player.isOnline() && passwdMap.containsKey(player.getUniqueId())) {
 
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () ->
-                        update(player));
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> update(player));
 
             }
         }, 20, 20);
@@ -73,25 +77,32 @@ public class PlayerStatsSync implements Listener {
     public void update(Player player) {
         try {
             String stats = StatsSerializeUtils.getStats(player);
-            if (!PlayerStatsDao.update(player.getUniqueId(), stats, passwdMap.get(player.getUniqueId()))) {
-                throw new RuntimeException("Unexpected complete player stats error!");
-            }
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+                try {
+                    if (!PlayerStatsDao.update(player.getUniqueId(), stats, passwdMap.get(player.getUniqueId()))) {
+                        throw new RuntimeException("Unexpected complete player stats error!");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    MessageUtils.warn(player, "你的统计保存失败，请尽快联系管理员处理！");
+                }
+            });
+
         } catch (Exception e) {
             e.printStackTrace();
             MessageUtils.warn(player, "你的统计保存失败，请尽快联系管理员处理！");
         }
     }
 
-    public void onLeft(Player player) {
+    public void onLeft(Player player, String stats) {
         try {
-            String stats = StatsSerializeUtils.getStats(player);
             if (!PlayerStatsDao.complete(player.getUniqueId(), stats, passwdMap.get(player.getUniqueId()))) {
                 throw new RuntimeException("Unexpected complete player stats error!");
             }
-            passwdMap.remove(player.getUniqueId());
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+        passwdMap.remove(player.getUniqueId());
     }
 
     public void onJoin(Player player) {
@@ -170,11 +181,12 @@ public class PlayerStatsSync implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent event) {
         if (passwdMap.containsKey(event.getPlayer().getUniqueId())) {
-            onLeft(event.getPlayer());
+            String stats = StatsSerializeUtils.getStats(event.getPlayer());
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+                onLeft(event.getPlayer(), stats);
+            });
         }
     }
-
-
 
 
 }
