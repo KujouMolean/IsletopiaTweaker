@@ -41,7 +41,6 @@ public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
                     if (server.startsWith("server")) {
                         ServerMessageUtils.sendMessage(server, "CommandExecuteRequest", obj);
                     }
-
                 }
             }
             case "all" -> {

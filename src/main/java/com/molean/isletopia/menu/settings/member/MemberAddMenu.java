@@ -1,12 +1,12 @@
 package com.molean.isletopia.menu.settings.member;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.menu.ItemStackSheet;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
-import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.utils.HeadUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -101,7 +101,7 @@ public class MemberAddMenu implements Listener {
         }
         if (slot < players.size() && slot < 52) {
             Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                player.performCommand("is trust " + UUIDUtils.get(players.get(slot + page * 52)));
+                player.performCommand("is trust " + players.get(slot + page * 52));
             });
 
         }

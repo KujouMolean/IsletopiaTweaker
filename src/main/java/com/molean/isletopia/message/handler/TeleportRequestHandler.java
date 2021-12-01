@@ -3,11 +3,14 @@ package com.molean.isletopia.message.handler;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.shared.MessageHandler;
+import com.molean.isletopia.shared.database.PlayerDataDao;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.TeleportRequest;
 import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
+import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.utils.PlayerSerializeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -15,8 +18,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, Listener {
 
@@ -51,6 +57,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
         }
     }
 
+
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject, TeleportRequest teleportRequest) {
         TeleportResponse teleportResponse = new TeleportResponse();
@@ -71,6 +78,18 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
                     source.teleport(target.getLocation());
                 });
             } else {
+                UUID sourceUUID = UUIDUtils.get(sourcePlayer);
+                try {
+                    if (sourceUUID != null && PlayerDataDao.exist(sourceUUID)) {
+                        byte[] query = PlayerDataDao.query(sourceUUID);
+                        double x = target.getLocation().getX();
+                        double y = target.getLocation().getY();
+                        double z = target.getLocation().getZ();
+                        PlayerSerializeUtils.modifySpawnLocation(sourceUUID, query, x, y, z);
+                    }
+                } catch (SQLException | IOException e) {
+                    e.printStackTrace();
+                }
                 this.locationMap.put(sourcePlayer, target.getLocation());
                 this.expire.put(sourcePlayer, System.currentTimeMillis());
             }

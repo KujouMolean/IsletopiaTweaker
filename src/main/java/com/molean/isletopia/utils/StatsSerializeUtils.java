@@ -18,6 +18,7 @@ public class StatsSerializeUtils {
     private static Field statsField;
     private static Method loadStatsMethod;
     private static Method getDataFixerMethod;
+    private static Method getWorldServerMethod;
 
     static {
         try {
@@ -27,20 +28,24 @@ public class StatsSerializeUtils {
             Class<?> statisticManagerClass = NMSUtils.getNMSClass("stats.StatisticManager");
             Class<?> dataFixerClass = Class.forName("com.mojang.datafixers.DataFixer");
             Class<?> minecraftServerClass = NMSUtils.getNMSClass("server.MinecraftServer");
+            Class<?> worldServerClass = NMSUtils.getNMSClass("server.level.WorldServer");
             Class<?> entityClass = NMSUtils.getNMSClass("world.entity.Entity");
+
+            getWorldServerMethod = entityPlayerClass.getDeclaredMethod("x");
+            getWorldServerMethod.setAccessible(true);
             getHandleMethod = craftPlayerClass.getDeclaredMethod("getHandle");
             getHandleMethod.setAccessible(true);
-            getStatisticManagerMethod = entityPlayerClass.getDeclaredMethod("getStatisticManager");
+            getStatisticManagerMethod = entityPlayerClass.getDeclaredMethod("D");
             getStatisticManagerMethod.setAccessible(true);
             toJsonMethod = serverStatisticManagerClass.getDeclaredMethod(TO_JSON_METHOD);
             toJsonMethod.setAccessible(true);
-            getMinecraftServerMethod = entityClass.getDeclaredMethod("getMinecraftServer");
+            getMinecraftServerMethod = worldServerClass.getDeclaredMethod("n");
             getMinecraftServerMethod.setAccessible(true);
             statsField = statisticManagerClass.getDeclaredField(STATS_FIELD);
             statsField.setAccessible(true);
             loadStatsMethod = serverStatisticManagerClass.getDeclaredMethod(LOAD_STATS_METHOD, dataFixerClass, String.class);
             loadStatsMethod.setAccessible(true);
-            getDataFixerMethod = minecraftServerClass.getDeclaredMethod("getDataFixer");
+            getDataFixerMethod = minecraftServerClass.getDeclaredMethod("aw");
             getDataFixerMethod.setAccessible(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,7 +73,8 @@ public class StatsSerializeUtils {
         }
         try {
             Object entityPlayer = getHandleMethod.invoke(player);
-            Object minecraftServer = getMinecraftServerMethod.invoke(entityPlayer);
+            Object worldServer = getWorldServerMethod.invoke(entityPlayer);
+            Object minecraftServer = getMinecraftServerMethod.invoke(worldServer);
             Object statisticManager = getStatisticManagerMethod.invoke(entityPlayer);
             statsField.setAccessible(true);
             Map<?, ?> o = (Map<?, ?>) statsField.get(statisticManager);

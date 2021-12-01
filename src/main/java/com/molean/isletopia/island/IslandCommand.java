@@ -467,7 +467,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         if (collection.isEmpty()) {
             return;
         }
-        RedisUtils.getCommand().set("Collection-" + player.getName(), collection);
+        RedisUtils.asyncSet("Collection-" + player.getName(), collection);
     }
 
 

@@ -24,7 +24,6 @@ public class CustomTask extends BukkitRunnable {
         if (runnableList.size() % timeoutTicks != 0) {
             taskPerTick++;
         }
-
         int finalTaskPerTick = taskPerTick;
         Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), (task) -> {
             int count = 0;

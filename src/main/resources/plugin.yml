@@ -68,4 +68,5 @@ commands:
   claim: { }
   entitybar: { }
   sleep: { }
+  music: { }
 

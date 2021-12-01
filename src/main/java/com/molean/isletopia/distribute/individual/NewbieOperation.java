@@ -8,6 +8,7 @@ import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PlayerUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -26,14 +27,17 @@ public class NewbieOperation implements Listener {
 
 
     public void onClaim(Player player, LocalIsland island) {
-        island.tp(player);
-        MessageUtils.success(player, "岛屿分配完毕，开始你的游戏！");
-        MessageUtils.strong(player, "记住，你没有重开的机会。");
-        player.getInventory().addItem(new ItemStack(Material.WATER_BUCKET, 1));
-        player.getInventory().addItem(new ItemStack(Material.WATER_BUCKET, 1));
-        player.getInventory().addItem(new ItemStack(Material.LAVA_BUCKET, 1));
-        player.getInventory().addItem(new ItemStack(Material.APPLE, 64));
-        player.getInventory().addItem(ClockMenu.getClock());
+        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            island.tp(player);
+            MessageUtils.success(player, "岛屿分配完毕，开始你的游戏！");
+            MessageUtils.strong(player, "记住，你没有重开的机会。");
+            player.getInventory().addItem(new ItemStack(Material.WATER_BUCKET, 1));
+            player.getInventory().addItem(new ItemStack(Material.WATER_BUCKET, 1));
+            player.getInventory().addItem(new ItemStack(Material.LAVA_BUCKET, 1));
+            player.getInventory().addItem(new ItemStack(Material.APPLE, 64));
+            player.getInventory().addItem(ClockMenu.getClock());
+        });
+
     }
 
     @EventHandler
@@ -48,6 +52,7 @@ public class NewbieOperation implements Listener {
                 });
                 return;
             }
+
             if (!server.equals(ServerInfoUpdater.getServerName())) {
                 if (playerIslandCount == 0) {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
@@ -62,38 +67,24 @@ public class NewbieOperation implements Listener {
             if (Objects.equals(manualClaim, "true")) {
                 LocalIsland localServerFirstIsland = IslandManager.INSTANCE.getPlayerLocalServerFirstIsland(player.getUniqueId());
                 if (localServerFirstIsland == null) {
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kick(Component.text("#发生错误，你是预选岛屿账号，但岛屿不存在，请联系管理员。"));
-                    });
+                    PlayerUtils.kickAsync(player, "#发生错误，你是预选岛屿账号，但岛屿不存在，请联系管理员。");
                     return;
                 }
                 UniversalParameter.unsetParameter(player.getUniqueId(), "ManualClaim");
 
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    onClaim(event.getPlayer(), localServerFirstIsland);
-                });
+                onClaim(event.getPlayer(), localServerFirstIsland);
                 return;
 
             }
 
             if (playerIslandCount == 0) {
-                try {
-                    IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), (island -> {
-                        if (island == null) {
-                            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                                player.kick(Component.text("#岛屿创建失败，请联系管理员。"));
-                            });
-                            return;
-                        }
-                        onClaim(player, island);
-
-                    }));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kick(Component.text("#岛屿创建失败，请联系管理员。"));
-                    });
-                }
+                IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), (island -> {
+                    if (island == null) {
+                        PlayerUtils.kickAsync(player, "#岛屿创建失败，请联系管理员。");
+                        return;
+                    }
+                    onClaim(player, island);
+                }));
             }
 
         });

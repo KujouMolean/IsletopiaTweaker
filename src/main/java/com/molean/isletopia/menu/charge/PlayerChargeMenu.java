@@ -73,21 +73,20 @@ public class PlayerChargeMenu implements Listener {
             inventory.setItem(i, itemStackSheet.build());
         }
         ItemStackSheet introduction = new ItemStackSheet(Material.BOOK);
-        introduction.setDisplay("§f水电系统说明");
-        introduction.addLore("§c前排提示: 目前系统还在测试中,无需缴费,不会停电停水");
+        introduction.setDisplay("§d§l水电系统说明");
+        introduction.addLore("有关此收费系统的详细标准详见梦幻之屿Wiki");
         introduction.addLore("");
-        introduction.addLore("§f1.水电费每周周日结算,未缴纳水电费的岛屿次周将停水停电");
-        introduction.addLore("§f  如无特殊情况,请在周日前交纳,以防造成机器损坏");
-        introduction.addLore("§f2.有玩家在岛屿上时每分钟赠送50度电和50吨水");
-        introduction.addLore("§f  多个玩家在同一岛屿上只送一次");
-        introduction.addLore("§f3.在岛上放置信标/潮涌核心可额外赠送水电");
-        introduction.addLore("§f  信标25度电/个,潮涌核心25吨水/个");
-        introduction.addLore("§f4.采用梯度用电用水,每次购买后单价加1钻石");
-        introduction.addLore("§f  每次购买可以获得10000度电");
-        introduction.addLore("§f5.历史账单不追究,如果超过一周未缴纳");
-        introduction.addLore("§f  则账单作废,可以不用再交纳欠下的水电费");
-        introduction.addLore("§f6.闲时用电免费, 每日0~8点不计水电费");
-        introduction.addLore("§f  如有大功耗机器,请夜间使用");
+        introduction.addLore("§3§l简要说明:");
+        introduction.addLore("§b - §7每周水电数据完全重置，赠送100,000水和电");
+        introduction.addLore("§b - §7岛屿上有玩家在线时，每分钟赠送50度电和50吨水");
+        introduction.addLore("§b - §7在岛上放置信标/潮涌核心可额外赠送25水或电");
+        introduction.addLore("§b - §7采用梯度用电用水,每次购买后单价加1钻石");
+        introduction.addLore("§b - §7闲时水电全免, 每日0~8点不计水电费");
+        introduction.addLore("");
+        introduction.addLore("§3§l注意事项:");
+        introduction.addLore("§b - §7该系统不会影响正常红石玩家发展，放心食用");
+        introduction.addLore("§b - §7用于购买水电的等价物可能会更换，不会通知");
+        introduction.addLore("§b - §7超大规模红石岛屿请确保水电足够，以防装置损坏");
         inventory.setItem(10, introduction.build());
 
         bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {

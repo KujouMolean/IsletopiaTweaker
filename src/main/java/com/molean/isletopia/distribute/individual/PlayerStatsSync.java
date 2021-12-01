@@ -3,6 +3,9 @@ package com.molean.isletopia.distribute.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.shared.database.PlayerStatsDao;
+import com.molean.isletopia.task.AsyncTryTask;
+import com.molean.isletopia.task.ConditionalAsyncTask;
+import com.molean.isletopia.task.SyncThenAsyncTask;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.StatsSerializeUtils;
 import org.bukkit.Bukkit;
@@ -11,7 +14,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -20,7 +22,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class PlayerStatsSync implements Listener {
@@ -65,9 +66,7 @@ public class PlayerStatsSync implements Listener {
             Player player = queue.poll();
 
             if (player.isOnline() && passwdMap.containsKey(player.getUniqueId())) {
-
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> update(player));
-
             }
         }, 20, 20);
 
@@ -105,71 +104,77 @@ public class PlayerStatsSync implements Listener {
         passwdMap.remove(player.getUniqueId());
     }
 
-    public void onJoin(Player player) {
-        try {
-            if (!PlayerStatsDao.exist(player.getUniqueId())) {
-                //插入数据
-                String stats = StatsSerializeUtils.getStats(player);
-                PlayerStatsDao.insert(player.getUniqueId(), stats);
-            }
-            //拿锁
-            String passwd = PlayerStatsDao.getLock(player.getUniqueId());
-            if (passwd != null) {
-                loadData(player, passwd);
-                // end
-            } else {
-                //没拿到, 开始等锁
-                Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), new Consumer<>() {
-                    private int times = 0;
-
-                    @Override
-                    public void accept(BukkitTask task) {
-                        try {
-                            //尝试拿锁
-                            String lock = PlayerStatsDao.getLock(player.getUniqueId());
-                            if (lock != null) {
-                                loadData(player, lock);
-                                task.cancel();
-                                //end
-                                return;
-                            }
-                            times++;
-                            if (times > 15) {
-                                task.cancel();
-                                //等待超时, 可能是上个服务器崩了, 强制拿锁
-                                String lockForce = PlayerStatsDao.getLockForce(player.getUniqueId());
-                                if (lockForce == null) {
-                                    //强制拿锁失败, 出大问题
-                                    throw new RuntimeException("Unexpected error! Force get lock failed.");
-                                    //end (failed)
-                                }
-                                loadData(player, lockForce);
-                                //end (success)
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            MessageUtils.warn(player, "你的统计信息读取错误, 可能已经被污染.");
-                        }
-                    }
-                }, 20, 20);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void waitLockThenLoadData(Player player) {
+        Runnable exceptionHandler = () -> {
             MessageUtils.warn(player, "你的统计信息读取错误, 可能已经被污染.");
-        }
+        };
+
+        new AsyncTryTask(() -> {
+            try {
+                //尝试拿锁
+                String lock = PlayerStatsDao.getLock(player.getUniqueId());
+                if (lock != null) {
+                    loadDataAsync(player, lock);
+                    return true;
+                }
+                return false;
+            } catch (Exception e) {
+                e.printStackTrace();
+                exceptionHandler.run();
+                return true;
+                //return true to end task
+            }
+        }, 20, 15).onFailed(() -> {
+            try {
+                String lockForce = PlayerStatsDao.getLockForce(player.getUniqueId());
+                if (lockForce == null) {
+                    //强制拿锁失败, 出大问题
+                    throw new RuntimeException("Unexpected error! Force get lock failed.");
+                    //end (failed)
+                }
+                loadDataAsync(player, lockForce);
+            } catch (SQLException | IOException e) {
+                e.printStackTrace();
+                exceptionHandler.run();
+            }
+        }).run();
     }
 
-    private void loadData(Player player, String passwd) throws SQLException, IOException {
+    public void onJoin(Player player) {
+        new ConditionalAsyncTask(() -> {
+            try {
+                return !PlayerStatsDao.exist(player.getUniqueId());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }).then(() -> {
+            //插入数据
+            new SyncThenAsyncTask<>(() -> StatsSerializeUtils.getStats(player), stats -> {
+                try {
+                    PlayerStatsDao.insert(player.getUniqueId(), stats);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }).then(() -> {
+                waitLockThenLoadData(player);
+            }).run();
+        }).orElse(() -> {
+            waitLockThenLoadData(player);
+        }).run();
+    }
+
+    private void loadDataAsync(Player player, String passwd) throws SQLException, IOException {
         passwdMap.put(player.getUniqueId(), passwd);
         //强制拿到锁了, 加载数据
-
         String stats = PlayerStatsDao.query(player.getUniqueId(), passwd);
-
         if (stats == null) {
             throw new RuntimeException("Unexpected get player data failed!");
             //end (failed)
         }
-        StatsSerializeUtils.loadStats(player, stats);
+        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            StatsSerializeUtils.loadStats(player, stats);
+        });
     }
 
 

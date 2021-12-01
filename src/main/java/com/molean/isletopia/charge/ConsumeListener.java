@@ -282,6 +282,10 @@ public class ConsumeListener implements Listener {
         }
     }
 
+    public void on() {
+
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void on(InventoryMoveItemEvent event) {
         if (!shouldRecord) {

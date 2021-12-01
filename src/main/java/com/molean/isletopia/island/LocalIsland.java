@@ -10,7 +10,6 @@ import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.utils.ResourceUtils;
 import com.molean.isletopia.task.PlotChunkTask;
-import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -62,25 +61,30 @@ public class LocalIsland extends Island {
         return null;
     }
 
+    public Location getSafeSpawnLocation() {
+        World skyWorld = Bukkit.getWorld("SkyWorld");
+        Location location = new Location(skyWorld, (x << 9) + spawnX, spawnY, (z << 9) + spawnZ, yaw, pitch);
+        Location safeLandingPosition = getSafeLandingPosition(location);
+        if (safeLandingPosition == null) {
+            Location higherLandingPosition = getHigherLandingPosition(location);
+            if (higherLandingPosition == null) {
+                Location finalLocation = location;
+                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    finalLocation.getBlock().getRelative(BlockFace.DOWN).setType(Material.STONE);
+                });
+            } else {
+                location = higherLandingPosition;
+            }
+        } else {
+            location = safeLandingPosition;
+        }
+        return location;
+    }
+
     public void tp(Entity entity) {
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             if (server.equals(ServerInfoUpdater.getServerName())) {
-                World skyWorld = Bukkit.getWorld("SkyWorld");
-                Location location = new Location(skyWorld, (x << 9) + spawnX, spawnY, (z << 9) + spawnZ, yaw, pitch);
-
-                Location safeLandingPosition = getSafeLandingPosition(location);
-                if (safeLandingPosition == null) {
-                    Location higherLandingPosition = getHigherLandingPosition(location);
-                    if (higherLandingPosition == null) {
-                        location.getBlock().getRelative(BlockFace.DOWN).setType(Material.STONE);
-                        MessageUtils.info(entity, "该岛屿无落脚点，已为你自动生成了一个。");
-                    } else {
-                        location = higherLandingPosition;
-                    }
-                } else {
-                    location = safeLandingPosition;
-                }
-                entity.teleport(location);
+                entity.teleport(getSafeSpawnLocation());
             } else {
                 throw new RuntimeException("Can't teleport to island in other server");
             }

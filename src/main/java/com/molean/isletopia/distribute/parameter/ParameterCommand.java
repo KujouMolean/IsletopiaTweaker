@@ -51,19 +51,19 @@ public class ParameterCommand implements CommandExecutor {
             case "view":
                 if (target != null && key != null) {
                     String s = UniversalParameter.getParameter(UUIDUtils.get(target), key);
+                    assert s != null;
                     sender.sendMessage(s);
                 }
                 break;
             case "add":
                 if (target != null && key != null && value != null) {
-                    UniversalParameter.addParameter(UUIDUtils.get(target), key, value);
+                    UniversalParameter.addParameter(Objects.requireNonNull(UUIDUtils.get(target)), key, value);
 
                 }
                 break;
             case "remove":
                 if (target != null && key != null && value != null) {
-                    UniversalParameter.removeParameter(UUIDUtils.get(target), target, key, value);
-
+                    UniversalParameter.removeParameter(UUIDUtils.get(target), key, value);
                 }
                 break;
         }

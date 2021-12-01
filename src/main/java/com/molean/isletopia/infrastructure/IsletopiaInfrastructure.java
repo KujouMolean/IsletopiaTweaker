@@ -35,6 +35,7 @@ public class IsletopiaInfrastructure {
             new UserTokenGenerator();
             new EntityBar();
             new ForceSleep();
+            new Music();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

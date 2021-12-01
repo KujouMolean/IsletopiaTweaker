@@ -7,12 +7,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class NMSTagUtils {
-    private static Method asNMSCopyMethod ;
-    private static Method asBukkitCopyMethod ;
+    private static Method asNMSCopyMethod;
+    private static Method asBukkitCopyMethod;
     private static Method getTagMethod;
-    private static Method setTagMethod ;
+    private static Method setTagMethod;
     private static Method setStringMethod;
-    private static Method getStringMethod ;
+    private static Method getStringMethod;
     private static Method hasKey;
 
     static {
@@ -22,11 +22,11 @@ public class NMSTagUtils {
             Class<?> nmsItemClass = NMSUtils.getNMSClass("world.item.ItemStack");
             asNMSCopyMethod = craftItemClass.getDeclaredMethod("asNMSCopy", ItemStack.class);
             asBukkitCopyMethod = nmsItemClass.getDeclaredMethod("asBukkitCopy");
-            getTagMethod = nmsItemClass.getDeclaredMethod("getOrCreateTag");
-            setTagMethod = nmsItemClass.getDeclaredMethod("setTag", nbtTagCompoundClass);
-            setStringMethod = nbtTagCompoundClass.getDeclaredMethod("setString", String.class, String.class);
-            getStringMethod = nbtTagCompoundClass.getDeclaredMethod("getString", String.class);
-            hasKey = nbtTagCompoundClass.getDeclaredMethod("hasKey", String.class);
+            getTagMethod = nmsItemClass.getDeclaredMethod("t");
+            setTagMethod = nmsItemClass.getDeclaredMethod("a", nbtTagCompoundClass);
+            setStringMethod = nbtTagCompoundClass.getDeclaredMethod("a", String.class, String.class);
+            getStringMethod = nbtTagCompoundClass.getDeclaredMethod("l", String.class);
+            hasKey = nbtTagCompoundClass.getDeclaredMethod("e", String.class);
         } catch (Exception exception) {
             exception.printStackTrace();
         }

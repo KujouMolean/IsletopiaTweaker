@@ -57,6 +57,7 @@ public class EntityBar implements CommandExecutor, TabCompleter, Listener {
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
         if (!"EntityBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(uuid))) {
+            ScoreboardUtils.clearPlayerUniqueSidebar(player);
             SidebarManager.INSTANCE.setSidebar(uuid, "EntityBar");
         } else {
             SidebarManager.INSTANCE.setSidebar(uuid, null);

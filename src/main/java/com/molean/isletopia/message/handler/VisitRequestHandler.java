@@ -7,22 +7,27 @@ package com.molean.isletopia.message.handler;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
-import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.MessageHandler;
+import com.molean.isletopia.shared.database.PlayerDataDao;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.VisitRequest;
 import com.molean.isletopia.shared.pojo.resp.VisitResponse;
 import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.utils.PlayerSerializeUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listener {
@@ -33,6 +38,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
         RedisMessageListener.setHandler("VisitRequest", this, VisitRequest.class);
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
     @EventHandler
     public void on(PlayerJoinEvent event) {
         String name = event.getPlayer().getName();
@@ -106,6 +112,19 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
                     System.out.println("handle visit request handler: " + sourcePlayer + " " + player.getName());
                     island.tp(player);
                 } else {
+                    UUID sourceUUID = UUIDUtils.get(sourcePlayer);
+                    try {
+                        if (sourceUUID != null && PlayerDataDao.exist(sourceUUID)) {
+                            byte[] query = PlayerDataDao.query(sourceUUID);
+                            Location safeSpawnLocation = island.getSafeSpawnLocation();
+                            double x = safeSpawnLocation.getX();
+                            double y = safeSpawnLocation.getY();
+                            double z = safeSpawnLocation.getZ();
+                            PlayerSerializeUtils.modifySpawnLocation(sourceUUID, query, x, y, z);
+                        }
+                    } catch (SQLException | IOException e) {
+                        e.printStackTrace();
+                    }
                     this.locationMap.put(sourcePlayer, island);
                     this.expire.put(sourcePlayer, System.currentTimeMillis());
                 }

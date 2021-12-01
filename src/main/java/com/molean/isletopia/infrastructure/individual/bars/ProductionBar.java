@@ -127,6 +127,7 @@ public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
         UUID uuid = player.getUniqueId();
 
         if (!"ProductionBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(uuid))) {
+            ScoreboardUtils.clearPlayerUniqueSidebar(player);
             SidebarManager.INSTANCE.setSidebar(uuid, "ProductionBar");
         } else {
             SidebarManager.INSTANCE.setSidebar(uuid, null);

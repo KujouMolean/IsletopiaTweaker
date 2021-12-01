@@ -1,6 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.other.ConfirmDialog;
 import com.molean.isletopia.shared.database.BumpDao;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.model.BumpInfo;
@@ -61,101 +62,103 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                              @NotNull String label,
                              @NotNull String[] args) {
 
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            if (args.length < 1) {
-                sender.sendMessage("请按要求输入：/bumpreward MCBBS用户名");
-                sender.sendMessage("例如 /bumpreward Molean");
-                return;
-            }
-
-            Player player = (Player) sender;
-            UUID uuid = player.getUniqueId();
-
-            if (System.currentTimeMillis() - lastUpdate > 1000 * 30) {
-                updateInformation();
-            }
-
-
-            for (BumpInfo bumpInfo : bumpInfos) {
-                if (args[0].equalsIgnoreCase("debug")) {
-                    System.out.println(bumpInfo);
+        new ConfirmDialog("""
+                领取顶帖奖励前，你必须要知道的几件事情：1.请不要在论坛过度水贴以至于被封号；2.请不要在论坛开小号为服务器顶帖；3.不要花钱购买第三方顶帖卡。违反以上规则你会被封禁。
+                """).accept(player -> {
+            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+                if (args.length < 1) {
+                    sender.sendMessage("请按要求输入：/bumpreward MCBBS用户名");
+                    sender.sendMessage("例如 /bumpreward Molean");
+                    return;
+                }
+                UUID uuid = player.getUniqueId();
+                if (System.currentTimeMillis() - lastUpdate > 1000 * 30) {
+                    updateInformation();
                 }
 
-                if (!bumpInfo.getDateTime().toLocalDate().isEqual(LocalDate.now())) {
-                    continue;
 
-                }
+                for (BumpInfo bumpInfo : bumpInfos) {
+                    if (args[0].equalsIgnoreCase("debug")) {
+                        System.out.println(bumpInfo);
+                    }
 
-                //claimed, skip
-                try {
-                    if (BumpDao.exist(bumpInfo)) {
+                    if (!bumpInfo.getDateTime().toLocalDate().isEqual(LocalDate.now())) {
+                        continue;
+
+                    }
+
+                    //claimed, skip
+                    try {
+                        if (BumpDao.exist(bumpInfo)) {
+                            continue;
+                        }
+                    } catch (SQLException e) {
+                        MessageUtils.fail(sender,"数据库错误，请联系管理员。");
+                        return;
+                    }
+                    //not owned, skip
+                    if (!bumpInfo.getUsername().equalsIgnoreCase(args[0])) {
                         continue;
                     }
-                } catch (SQLException e) {
-                    MessageUtils.fail(sender,"数据库错误，请联系管理员。");
+
+
+                    int bonus = 1;
+                    if (!hasPreviousBump(bumpInfo)) {
+                        bonus = 2;
+                    }
+
+                    try {
+                        BumpDao.addBumpInfo(bumpInfo);
+                    } catch (SQLException e) {
+                        MessageUtils.fail(sender,"数据库错误，请联系管理员。");
+                        return;
+                    }
+
+                    ServerBumpObject serverBumpObject = new ServerBumpObject();
+                    serverBumpObject.setPlayer(sender.getName());
+                    serverBumpObject.setUser(args[0]);
+                    serverBumpObject.setItems(new ArrayList<>());
+                    ArrayList<ItemStack> itemStacks = new ArrayList<>();
+                    Random random = new Random();
+                    for (int i = 0; i < bonus; i++) {
+                        itemStacks.add(new ItemStack(Material.SHULKER_BOX));
+                        serverBumpObject.getItems().add("潜影盒");
+                        if (random.nextInt(100) < 10) {
+                            itemStacks.add(new ItemStack(Material.BEACON, 1));
+                            serverBumpObject.getItems().add("信标");
+                            UniversalParameter.addParameter(uuid, "beacon", "true");
+                            UniversalParameter.setParameter(uuid, "beaconReason", "顶贴");
+                        }
+                        if (random.nextInt(100) < 5) {
+                            itemStacks.add(new ItemStack(Material.BUNDLE, 1));
+                            serverBumpObject.getItems().add("收纳袋");
+                        }
+                        if (random.nextInt(100) < 10) {
+                            itemStacks.add(new ItemStack(Material.HEART_OF_THE_SEA, 1));
+                            serverBumpObject.getItems().add("海洋之心");
+                        }
+                        if (random.nextInt(100) == 0) {
+                            itemStacks.add(new ItemStack(Material.ELYTRA, 1));
+                            serverBumpObject.getItems().add("鞘翅");
+                            UniversalParameter.addParameter(uuid, "elytra","true");
+                            UniversalParameter.setParameter(uuid, "elytraReason", "顶贴");
+                        }
+                    }
+
+
+                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                        Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
+                        for (ItemStack value : values) {
+                            player.getLocation().getWorld().dropItem(player.getLocation(), value);
+                        }
+                    });
+                    ServerMessageUtils.sendMessage("waterfall", "ServerBump", serverBumpObject);
                     return;
                 }
-                //not owned, skip
-                if (!bumpInfo.getUsername().equalsIgnoreCase(args[0])) {
-                    continue;
-                }
+                MessageUtils.fail(sender,"你还没有顶帖，或者ID输入错误，请查证后重新领取。");
+            });
+        }).open((Player) sender);
 
-
-                int bonus = 1;
-                if (!hasPreviousBump(bumpInfo)) {
-                    bonus = 2;
-                }
-
-                try {
-                    BumpDao.addBumpInfo(bumpInfo);
-                } catch (SQLException e) {
-                    MessageUtils.fail(sender,"数据库错误，请联系管理员。");
-                    return;
-                }
-
-                ServerBumpObject serverBumpObject = new ServerBumpObject();
-                serverBumpObject.setPlayer(sender.getName());
-                serverBumpObject.setUser(args[0]);
-                serverBumpObject.setItems(new ArrayList<>());
-                ArrayList<ItemStack> itemStacks = new ArrayList<>();
-                Random random = new Random();
-                for (int i = 0; i < bonus; i++) {
-                    itemStacks.add(new ItemStack(Material.SHULKER_BOX));
-                    serverBumpObject.getItems().add("潜影盒");
-                    if (random.nextInt(100) < 10) {
-                        itemStacks.add(new ItemStack(Material.BEACON, 1));
-                        serverBumpObject.getItems().add("信标");
-                        UniversalParameter.addParameter(uuid, "beacon", "true");
-                        UniversalParameter.setParameter(uuid, "beaconReason", "顶贴");
-                    }
-                    if (random.nextInt(100) < 5) {
-                        itemStacks.add(new ItemStack(Material.BUNDLE, 1));
-                        serverBumpObject.getItems().add("收纳袋");
-                    }
-                    if (random.nextInt(100) < 10) {
-                        itemStacks.add(new ItemStack(Material.HEART_OF_THE_SEA, 1));
-                        serverBumpObject.getItems().add("海洋之心");
-                    }
-                    if (random.nextInt(100) == 0) {
-                        itemStacks.add(new ItemStack(Material.ELYTRA, 1));
-                        serverBumpObject.getItems().add("鞘翅");
-                        UniversalParameter.addParameter(uuid, "elytra","true");
-                        UniversalParameter.setParameter(uuid, "elytraReason", "顶贴");
-                    }
-                }
-
-
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
-                    for (ItemStack value : values) {
-                        player.getLocation().getWorld().dropItem(player.getLocation(), value);
-                    }
-                });
-                ServerMessageUtils.sendMessage("waterfall", "ServerBump", serverBumpObject);
-                return;
-            }
-            MessageUtils.fail(sender,"你还没有顶帖，或者ID输入错误，请查证后重新领取。");
-        });
         return true;
     }
 

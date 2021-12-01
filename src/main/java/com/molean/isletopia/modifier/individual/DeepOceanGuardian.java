@@ -7,6 +7,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Squid;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
 public class DeepOceanGuardian implements Listener {
@@ -15,13 +16,14 @@ public class DeepOceanGuardian implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void on(EntitySpawnEvent event) {
+    public void on(CreatureSpawnEvent event) {
         if (!(event.getEntity() instanceof Squid))
             return;
         Location location = event.getLocation();
         if (!location.getBlock().getBiome().getKey().getKey().toLowerCase().contains("deep"))
             return;
-        location.getWorld().spawnEntity(location, EntityType.GUARDIAN);
+        location.getWorld().spawnEntity(location, EntityType.GUARDIAN, CreatureSpawnEvent.SpawnReason.CUSTOM);
+
         event.getEntity().remove();
     }
 }

@@ -5,10 +5,10 @@ import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.shared.utils.LangUtils;
 import com.molean.isletopia.shared.utils.ObjectUtils;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.task.CustomTask;
-import com.molean.isletopia.shared.utils.LangUtils;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -18,14 +18,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.scheduler.BukkitTask;
@@ -41,7 +38,6 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
     private static final Map<EntityType, Integer> map = new HashMap<>();
     private static final List<EntityType> ignoredType = new ArrayList<>();
-    private static final List<CreatureSpawnEvent.SpawnReason> ignoredReason = new ArrayList<>();
     private static final Map<IslandId, Map<EntityType, Integer>> plotsEntities = new ConcurrentHashMap<>();
     private static final Map<String, Map<EntityType, Integer>> unloadedLocalCache = new ConcurrentHashMap<>();
     private static final Map<IslandId, Integer> plotsEntityCount = new ConcurrentHashMap<>();
@@ -76,7 +72,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         setMobCap(EntityType.MUSHROOM_COW, 15);
         ignoredType.add(EntityType.ITEM_FRAME);
         ignoredType.add(EntityType.GLOW_ITEM_FRAME);
-        ignoredReason.add(CreatureSpawnEvent.SpawnReason.SLIME_SPLIT);
+        ignoredType.add(EntityType.DROPPED_ITEM);
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
@@ -136,13 +132,13 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
                 consumer.accept(entityTypeIntegerHashMap);
             });
         } else {
-            // try load from cache
-
+            // try load from local memory cache
             if (unloadedLocalCache.containsKey(stringKey)) {
                 consumer.accept(unloadedLocalCache.get(stringKey));
                 return;
             }
 
+            //else load from redis server
             if (RedisUtils.getByteCommand().exists(key) > 0) {
                 byte[] bytes = RedisUtils.getByteCommand().get(key);
                 HashMap<EntityType, Integer> deserialize = (HashMap<EntityType, Integer>) ObjectUtils.deserialize(bytes);
@@ -153,6 +149,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
                 return;
             }
 
+            //else manually load chunk and count
             Chunk chunkAt = world.getChunkAt(x, z);
             HashMap<EntityType, Integer> entityTypeIntegerHashMap = new HashMap<>();
             for (Entity entity : chunkAt.getEntities()) {
@@ -216,17 +213,12 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
     }
 
 
-
-    @EventHandler(ignoreCancelled = true)
-    public void onMobSpawn(CreatureSpawnEvent event) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onEntitySpawn(EntitySpawnEvent event) {
         LocalIsland plot = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
         if (plot == null) {
             return;
         }
-        if (ignoredReason.contains(event.getSpawnReason())) {
-            return;
-        }
-        shouldUpdatePlot.add(plot.getIslandId());
         Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(plot.getIslandId());
         if (entityTypeIntegerMap == null) {
             return;
@@ -240,13 +232,36 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         if (map.containsKey(entityType)) {
             if (entityTypeIntegerMap.getOrDefault(entityType, 0) >= map.get(entityType)) {
                 event.setCancelled(true);
+            } else {
+                entityTypeIntegerMap.put(entityType, entityTypeIntegerMap.get(entityType) + 1);
+                plotsEntityCount.put(plot.getIslandId(), plotsEntityCount.get(plot.getIslandId()) + 1);
             }
         }
+        shouldUpdatePlot.add(plot.getIslandId());
+    }
 
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onMobDeath(EntityDeathEvent event) {
+        LocalIsland plot = IslandManager.INSTANCE.getCurrentIsland(event.getEntity().getLocation());
+        if (plot == null) {
+            return;
+        }
+        shouldUpdatePlot.add(plot.getIslandId());
+        Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(plot.getIslandId());
+        if (entityTypeIntegerMap == null) {
+            return;
+        }
+        if (entityTypeIntegerMap.containsKey(event.getEntityType())) {
+            entityTypeIntegerMap.put(event.getEntityType(), entityTypeIntegerMap.get(event.getEntityType()) - 1);
+            plotsEntityCount.put(plot.getIslandId(), plotsEntityCount.get(plot.getIslandId()) - 1);
+
+        }
     }
 
 
     public static void newCountEntities(IslandId plotId) {
+
         HashMap<EntityType, Integer> plotEntities = new HashMap<>();
 
         if (!plotId.getServer().equals(ServerInfoUpdater.getServerName())) {
@@ -292,9 +307,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
                     }
                 }
             }
-        }.
-
-                run();
+        }.run();
 
     }
 

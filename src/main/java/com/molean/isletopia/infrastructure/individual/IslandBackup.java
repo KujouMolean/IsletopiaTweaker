@@ -2,10 +2,10 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.IslandBackupDao;
-import com.molean.isletopia.shared.database.PlayerBackupDao;
-import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.shared.database.PlayerBackupDao;
+import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
@@ -134,7 +134,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                 player.sendMessage("§c备份成功!");
                 return true;
             }
-            case "listisland"->{
+            case "listisland" -> {
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
                     player.sendMessage("?");
@@ -150,7 +150,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                 }
 
             }
-            case "download"->{
+            case "download" -> {
                 if (args.length <= 1) {
                     player.sendMessage("参数不足");
                     return true;
@@ -215,25 +215,16 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                     player.sendMessage("参数不足");
                     return true;
                 }
-
                 Player targetPlayer = Bukkit.getPlayerExact(args[1]);
-
                 if (targetPlayer == null) {
                     player.sendMessage("玩家不在线!");
                     return true;
                 }
-
                 int id = Integer.parseInt(args[2]);
-
-                try {
-                    byte[] bytes = PlayerBackupDao.get(id);
-                    PlayerSerializeUtils.deserialize(targetPlayer, bytes);
-                } catch (Exception e) {
-                    player.sendMessage("失败!");
-                    return true;
-                }
-
-                player.sendMessage("成功!");
+                byte[] bytes = PlayerBackupDao.get(id);
+                PlayerSerializeUtils.deserialize(targetPlayer, bytes, () -> {
+                    player.sendMessage("成功!");
+                });
                 return true;
             }
 

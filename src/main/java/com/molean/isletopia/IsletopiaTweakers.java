@@ -73,8 +73,10 @@ public final class IsletopiaTweakers extends JavaPlugin {
             new IsletopiaTutorialSystem();
 
             Bukkit.getScheduler().runTaskTimer(this, () -> {
-                long l = System.currentTimeMillis();
-                RedisUtils.getCommand().set("ServerStatus:LastUpdate:" + ServerInfoUpdater.getServerName(), l + "");
+                Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                    long l = System.currentTimeMillis();
+                    RedisUtils.getCommand().set("ServerStatus:LastUpdate:" + ServerInfoUpdater.getServerName(), l + "");
+                });
             }, 0, 20);
         });
     }
@@ -96,7 +98,7 @@ public final class IsletopiaTweakers extends JavaPlugin {
             getLogger().info("Running shutdown task: " + s);
             long l = System.currentTimeMillis();
             runnable.run();
-            getLogger().info(s + " complete in " + (System.currentTimeMillis()-l) + "ms");
+            getLogger().info(s + " complete in " + (System.currentTimeMillis() - l) + "ms");
         });
     }
 }

@@ -17,8 +17,6 @@ public class IsletopiaMessage {
         try {
             new PlaySoundHandler();
             new GiveItemHandler();
-            new BeaconRequestHandler();
-            new ElytraRequestHandler();
             new VisitRequestHandler();
             new VisitResponseHandler();
             new TeleportRequestHandler();
@@ -26,7 +24,6 @@ public class IsletopiaMessage {
             new PlaySoundRequestHandler();
             new CommandExecuteRequestHandler();
             new TellMessageRequestHandler();
-            new PlayTimeRequestHandler();
 
             //load class
             new ServerMessageUtils();
