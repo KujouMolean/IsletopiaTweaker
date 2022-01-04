@@ -2,9 +2,10 @@ package com.molean.isletopia.utils;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
-import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.model.Island;
+import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.pojo.req.PlaySoundRequest;
 import com.molean.isletopia.shared.pojo.req.TeleportRequest;
 import com.molean.isletopia.shared.pojo.req.TellMessageRequest;
@@ -87,28 +88,10 @@ public class IsletopiaTweakersUtils {
         });
     }
 
-    public static void universalPlotVisitByMessage(Player sourcePlayer, String target, int order) {
+    public static void universalPlotVisitByMessage(Player sourcePlayer, IslandId islandId) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            String source = sourcePlayer.getName();
-            UUID targetUUID = UUIDUtils.get(target);
-
-            if (targetUUID == null) {
-                MessageUtils.fail(sourcePlayer, "对方没有在梦幻之屿注册.");
-                return;
-            }
-            List<LocalIsland> playerIslands = IslandManager.INSTANCE.getPlayerIslands(targetUUID);
-            if (order >= playerIslands.size()) {
-                if (order == 0) {
-                    MessageUtils.fail(sourcePlayer, "对方岛屿不存在.");
-                } else {
-                    MessageUtils.fail(sourcePlayer, "对方岛屿不存在第 " + order + " 个岛屿.");
-                }
-                return;
-            }
-            LocalIsland island = playerIslands.get(order);
-            String targetServer = island.getServer();
-            VisitRequest visitRequest = new VisitRequest(source, target, island.getId());
-            ServerMessageUtils.sendMessage(targetServer, "VisitRequest", visitRequest);
+            VisitRequest visitRequest = new VisitRequest(sourcePlayer.getUniqueId(), islandId);
+            ServerMessageUtils.sendMessage(islandId.getServer(), "VisitRequest", visitRequest);
         });
     }
 }

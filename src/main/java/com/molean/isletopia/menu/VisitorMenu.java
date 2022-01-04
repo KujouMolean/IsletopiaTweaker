@@ -1,25 +1,17 @@
 package com.molean.isletopia.menu;
 
-import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.virtualmenu.ListMenu;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -28,109 +20,47 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VisitorMenu implements Listener {
+public class VisitorMenu extends ListMenu<Pair<String, Timestamp>> {
 
-    private final Player player;
-    private final Inventory inventory;
+
     private List<Pair<String, Timestamp>> pairs;
-    private final int page;
 
-    public VisitorMenu(Player player, int page) {
-        this.player = player;
-        inventory = Bukkit.createInventory(player, 54, Component.text("最近三天的访客记录(第" + (page + 1) + "页)"));
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        this.page = page;
-    }
-
-    public void open() {
-        for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStackSheet itemStackSheet = new ItemStackSheet(Material.GRAY_STAINED_GLASS_PANE, " ");
-            inventory.setItem(i, itemStackSheet.build());
-        }
-
+    public VisitorMenu(Player player) {
+        super(player, Component.text("访客列表"));
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-
         if (currentIsland == null || !(currentIsland.hasPermission(player) || player.isOp())) {
             MessageUtils.fail(player, "你只能查看自己岛屿的访客记录!");
-            return;
+            throw new RuntimeException("not owner");
         }
 
         try {
-            pairs = IslandDao.queryVisit(currentIsland.getId(), 3);
+            this.components(IslandDao.queryVisit(currentIsland.getId(), 3));
         } catch (SQLException e) {
             e.printStackTrace();
-            MessageUtils.fail(player, "发生错误，请联系管理员!");
-            return;
+            throw new RuntimeException("sql error");
         }
-
-        if (page > pairs.size() / 52) {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new VisitorMenu(player, 0).open());
-            return;
-        }
-
-        for (int i = 0; page * 52 + i < pairs.size() && i < inventory.getSize() - 2; i++) {
+        this.onClickSync(stringTimestampPair -> {
+            String key = stringTimestampPair.getKey();
+            player.performCommand("visit " + key);
+        });
+        this.convertFunction(stringTimestampPair -> {
             ArrayList<Component> components = new ArrayList<>();
-            ItemStack itemStack = HeadUtils.getSkullWithIslandInfo(pairs.get(page * 52 + i).getKey());
+            ItemStack itemStack = HeadUtils.getSkullWithIslandInfo(stringTimestampPair.getKey());
             if (itemStack.lore() != null) {
                 components.addAll(itemStack.lore());
             }
-            Timestamp value = pairs.get(page * 52 + i).getValue();
-            LocalDateTime localDateTime = value.toLocalDateTime().minusHours(8);
+            Timestamp value = stringTimestampPair.getValue();
+            LocalDateTime localDateTime = value.toLocalDateTime();
             String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
             components.add(Component.text("访问时间: " + format));
             itemStack.lore(components);
-            inventory.setItem(i, itemStack);
+            return itemStack;
+        });
 
-        }
-        ItemStackSheet next = new ItemStackSheet(Material.LADDER, "§f下一页");
-        inventory.setItem(inventory.getSize() - 2, next.build());
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f<<返回主菜单<<");
-        inventory.setItem(inventory.getSize() - 1, father.build());
-
-        //here place icon
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> player.openInventory(inventory));
-    }
-
-    @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        if (event.getInventory() != inventory) {
-            return;
-        }
-        event.setCancelled(true);
-        if (!event.getClick().equals(ClickType.LEFT)) {
-            return;
-        }
-        int slot = event.getSlot();
-        if (slot < 0) {
-            return;
-        }
-        if (slot == inventory.getSize() - 2) {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new VisitorMenu(player, page + 1).open());
-            return;
-        }
-        if (slot == inventory.getSize() - 1) {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> new PlayerMenu(player).open());
-            return;
-        }
-        if (slot < 52 && page * 52 + slot < pairs.size()) {
-            player.performCommand("visit " + pairs.get(page * 52 + slot).getKey());
-        }
-    }
-
-    @EventHandler
-    public void onDrag(InventoryDragEvent event) {
-        if (event.getInventory() != inventory) {
-            return;
-        }
-        event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onClose(InventoryCloseEvent event) {
-        if (event.getInventory() != inventory) {
-            return;
-        }
-        event.getHandlers().unregister(this);
+        this.closeItemStack(new ItemStackSheet(Material.BARRIER, "§f返回主菜单").build());
+        this.onCloseSync(() -> {
+            new PlayerMenu(player).open();
+        });
     }
 }

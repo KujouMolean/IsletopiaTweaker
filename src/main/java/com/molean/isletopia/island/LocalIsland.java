@@ -36,8 +36,8 @@ public class LocalIsland extends Island {
         super(island);
     }
 
-    public LocalIsland(int id, int x, int z, double spawnX, double spawnY, double spawnZ, float yaw, float pitch, @NotNull String server, @NotNull UUID uuid, @Nullable String name, @Nullable String biome, @NotNull Timestamp creation, Set<UUID> members, Set<String> islandFlags) {
-        super(id,x,z,spawnX,spawnY,spawnZ,yaw, pitch, server, uuid, name, biome, creation, members, islandFlags);
+    public LocalIsland(int id, int x, int z, double spawnX, double spawnY, double spawnZ, float yaw, float pitch, @NotNull String server, @NotNull UUID uuid, @Nullable String name, @Nullable String biome, @NotNull Timestamp creation, Set<UUID> members, Set<String> islandFlags,String icon) {
+        super(id,x,z,spawnX,spawnY,spawnZ,yaw, pitch, server, uuid, name, biome, creation, members, islandFlags,icon);
     }
 
     @Nullable
@@ -117,7 +117,7 @@ public class LocalIsland extends Island {
         Biome finalBiome = biome;
         new PlotChunkTask(this, (chunk -> {
             for (int i = 0; i < 16; i++) {
-                for (int j = 0; j < 256; j++) {
+                for (int j = -64; j < 320; j++) {
                     for (int k = 0; k < 16; k++) {
                         chunk.getBlock(i, j, k).setType(Material.AIR);
                         chunk.getBlock(i, j, k).setBiome(finalBiome);
@@ -355,6 +355,11 @@ public class LocalIsland extends Island {
 
     public void setUuid(@NotNull UUID uuid) {
         this.uuid = uuid;
+        IslandManager.INSTANCE.update(this);
+    }
+
+    public void setIcon(@NotNull String icon) {
+        this.icon = icon;
         IslandManager.INSTANCE.update(this);
     }
 }

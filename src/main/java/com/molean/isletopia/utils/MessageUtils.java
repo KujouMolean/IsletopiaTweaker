@@ -16,6 +16,9 @@ public class MessageUtils {
     public static void notify(Audience player, String message) {
         player.sendMessage(Component.text("§8[§3温馨提示§8] §e" + message), MessageType.SYSTEM);
     }
+    public static void action(Audience player, String message) {
+        player.sendActionBar(Component.text("§a" + message));
+    }
 
     public static void strong(Audience player, String message) {
         player.sendMessage(Component.text("§8[§3温馨提示§8] §e§l" + message), MessageType.SYSTEM);

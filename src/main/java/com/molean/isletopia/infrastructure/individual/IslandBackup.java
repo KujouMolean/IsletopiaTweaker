@@ -68,7 +68,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                     backup(plotId);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    LocalIsland island = IslandManager.INSTANCE.getIsland(plotId);
+                    LocalIsland island = IslandManager.INSTANCE.getLocalIsland(plotId);
                     if (island == null) {
                         return;
                     }

@@ -102,6 +102,7 @@ public class PlayerDataSync implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    @SuppressWarnings("all")
     public void on(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
         RedisUtils.asyncSet(player.getName() + ":GameMode", event.getNewGameMode().getValue() + "");
@@ -219,9 +220,7 @@ public class PlayerDataSync implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent event) {
         if (passwdMap.containsKey(event.getPlayer().getUniqueId())) {
-            PlayerSerializeUtils.serialize(event.getPlayer(), bytes -> {
-                onQuit(event.getPlayer(), bytes);
-            });
+            PlayerSerializeUtils.serialize(event.getPlayer(), bytes -> onQuit(event.getPlayer(), bytes));
         }
     }
 }

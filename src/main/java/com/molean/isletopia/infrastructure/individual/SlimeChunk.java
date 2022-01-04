@@ -29,8 +29,6 @@ public class SlimeChunk implements CommandExecutor {
             if (!player.isOnline()) {
                 return;
             }
-
-
             for (int i = x - 4; i < x + 5; i++) {
                 for (int j = z - 4; j < z + 5; j++) {
                     Chunk chunk = world.getChunkAt(i, j);
@@ -45,7 +43,6 @@ public class SlimeChunk implements CommandExecutor {
                 }
             }
         }, 30 * 20L);
-
         BlockData blockData = Bukkit.createBlockData(Material.SLIME_BLOCK);
         for (int i = x - 4; i < x + 5; i++) {
             for (int j = z - 4; j < z + 5; j++) {

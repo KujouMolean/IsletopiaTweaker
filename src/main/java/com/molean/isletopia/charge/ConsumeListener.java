@@ -60,7 +60,7 @@ public class ConsumeListener implements Listener {
 
     public void arrearsDetect(UUID owner) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            LocalIsland playerLocalServerFirstIsland = IslandManager.INSTANCE.getPlayerLocalServerFirstIsland(owner);
+            LocalIsland playerLocalServerFirstIsland = IslandManager.INSTANCE.getPlayerFirstLocalIsland(owner);
             if (shouldRecord && ChargeDetailUtils.getLeftPower(ChargeDetailCommitter.get(owner)) < 0) {
                 playerLocalServerFirstIsland.addIslandFlag("DisableRedstone");
                 for (Player player : playerLocalServerFirstIsland.getPlayersInIsland()) {
@@ -150,11 +150,12 @@ public class ConsumeListener implements Listener {
 
     private void warning(UUID owner) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            LocalIsland playerLocalServerFirstIsland = IslandManager.INSTANCE.getPlayerLocalServerFirstIsland(owner);
+            LocalIsland playerLocalServerFirstIsland = IslandManager.INSTANCE.getPlayerFirstLocalIsland(owner);
             long leftPower = ChargeDetailUtils.getLeftPower(ChargeDetailCommitter.get(owner));
             long leftWater = ChargeDetailUtils.getLeftWater(ChargeDetailCommitter.get(owner));
             if (leftPower < 500 && leftPower > 0) {
 
+                assert playerLocalServerFirstIsland != null;
                 for (Player player : playerLocalServerFirstIsland.getPlayersInIsland()) {
                     if (playerLocalServerFirstIsland.hasPermission(player)) {
                         MessageUtils.warn(player, "岛屿剩余电量较低，即将停电，请及时缴费。");
@@ -183,7 +184,7 @@ public class ConsumeListener implements Listener {
         if (cached != null) {
             return plotOwnerCache.get(islandId);
         }
-        LocalIsland island = IslandManager.INSTANCE.getIsland(islandId);
+        LocalIsland island = IslandManager.INSTANCE.getLocalIsland(islandId);
         plotOwnerCache.put(islandId, null);
         if (island == null) {
             return null;

@@ -56,23 +56,9 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         Objects.requireNonNull(Bukkit.getPluginCommand("mobcap")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("mobcap")).setExecutor(this);
-        setMobCap(EntityType.ZOMBIFIED_PIGLIN, 30);
-        setMobCap(EntityType.PIGLIN, 30);
-        setMobCap(EntityType.HOGLIN, 30);
-        setMobCap(EntityType.ZOGLIN, 30);
-        setMobCap(EntityType.MAGMA_CUBE, 30);
-        setMobCap(EntityType.GHAST, 30);
-        setMobCap(EntityType.STRIDER, 30);
-        setMobCap(EntityType.GUARDIAN, 30);
-        setMobCap(EntityType.SPIDER, 30);
-        setMobCap(EntityType.COD, 30);
-        setMobCap(EntityType.TROPICAL_FISH, 30);
-        setMobCap(EntityType.SALMON, 30);
-        setMobCap(EntityType.VILLAGER, 50);
-        setMobCap(EntityType.MUSHROOM_COW, 15);
+        setMobCap(EntityType.GUARDIAN, 50);
         ignoredType.add(EntityType.ITEM_FRAME);
         ignoredType.add(EntityType.GLOW_ITEM_FRAME);
-        ignoredType.add(EntityType.DROPPED_ITEM);
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
@@ -233,8 +219,8 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
             if (entityTypeIntegerMap.getOrDefault(entityType, 0) >= map.get(entityType)) {
                 event.setCancelled(true);
             } else {
-                entityTypeIntegerMap.put(entityType, entityTypeIntegerMap.get(entityType) + 1);
-                plotsEntityCount.put(plot.getIslandId(), plotsEntityCount.get(plot.getIslandId()) + 1);
+                entityTypeIntegerMap.put(entityType, entityTypeIntegerMap.getOrDefault(entityType, 0) + 1);
+                plotsEntityCount.put(plot.getIslandId(), plotsEntityCount.getOrDefault(plot.getIslandId(), 0) + 1);
             }
         }
         shouldUpdatePlot.add(plot.getIslandId());
@@ -253,8 +239,8 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
             return;
         }
         if (entityTypeIntegerMap.containsKey(event.getEntityType())) {
-            entityTypeIntegerMap.put(event.getEntityType(), entityTypeIntegerMap.get(event.getEntityType()) - 1);
-            plotsEntityCount.put(plot.getIslandId(), plotsEntityCount.get(plot.getIslandId()) - 1);
+            entityTypeIntegerMap.put(event.getEntityType(), entityTypeIntegerMap.getOrDefault(event.getEntityType(), 0) - 1);
+            plotsEntityCount.put(plot.getIslandId(), plotsEntityCount.getOrDefault(plot.getIslandId(), 0) - 1);
 
         }
     }

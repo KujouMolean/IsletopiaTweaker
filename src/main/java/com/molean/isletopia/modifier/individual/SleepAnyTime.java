@@ -31,6 +31,7 @@ public class SleepAnyTime implements Listener, CommandExecutor {
     public SleepAnyTime() {
         world = IsletopiaTweakers.getWorld();
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        Objects.requireNonNull(Bukkit.getPluginCommand("sleep")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("getup")).setExecutor(this);
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             sleepingPlayers.removeIf(player -> !player.isOnline());
@@ -93,14 +94,19 @@ public class SleepAnyTime implements Listener, CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
-        sleepingPlayers.remove(player);
-        if (player.isSleeping()) {
-            player.teleport(Objects.requireNonNull(player.getBedSpawnLocation()));
-            int sleepTicks = Bukkit.getCurrentTick() - sleepTickTimeMap.get(player);
-            long sleepDayTime = world.getFullTime() - sleepDayTimeMap.get(player);
-            MessageUtils.info(player,"早上好, 你实际睡眠" + sleepTicks + "gt, 总共过去了" + sleepDayTime + "gt.");
-            MessageUtils.info(player, "昨晚的睡眠质量" + (sleepTicks % 2 == 0 ? "很不错" : "很差") + ".");
+        switch (command.getName()) {
+            case "getup":
+                sleepingPlayers.remove(player);
+                if (player.isSleeping()) {
+                    player.teleport(Objects.requireNonNull(player.getBedSpawnLocation()));
+                    int sleepTicks = Bukkit.getCurrentTick() - sleepTickTimeMap.get(player);
+                    long sleepDayTime = world.getFullTime() - sleepDayTimeMap.get(player);
+                    MessageUtils.info(player,"早上好, 你实际睡眠" + sleepTicks + "gt, 总共过去了" + sleepDayTime + "gt.");
+                    MessageUtils.info(player, "昨晚的睡眠质量" + (sleepTicks % 2 == 0 ? "很不错" : "很差") + ".");
+                }
+            case "sleep":
+                player.sleep(player.getLocation(), true);
         }
-        return true;
+       return true;
     }
 }

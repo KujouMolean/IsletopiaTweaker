@@ -34,9 +34,9 @@ public class MobFarmTutor implements Listener {
                     continue;
                 }
                 Map<Material, Integer> materialIntegerMap = ProductionBar.productionPerMin(currentIsland.getIslandId());
-                boolean bone = materialIntegerMap.getOrDefault(Material.BONE, 0) > 10;
-                boolean rottenFlesh = materialIntegerMap.getOrDefault(Material.ROTTEN_FLESH, 0) > 10;
-                boolean gunpowder = materialIntegerMap.getOrDefault(Material.GUNPOWDER, 0) > 10;
+                boolean bone = materialIntegerMap.getOrDefault(Material.BONE, 0) > 7;
+                boolean rottenFlesh = materialIntegerMap.getOrDefault(Material.ROTTEN_FLESH, 0) > 7;
+                boolean gunpowder = materialIntegerMap.getOrDefault(Material.GUNPOWDER, 0) > 7;
                 if (bone && rottenFlesh && gunpowder) {
                     BossBar bossBar = BARS.get(player);
                     bossBar.removeAll();

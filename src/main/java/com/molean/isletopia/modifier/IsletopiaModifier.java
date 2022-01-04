@@ -1,7 +1,6 @@
 package com.molean.isletopia.modifier;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.infrastructure.individual.FirstSapling;
 import com.molean.isletopia.modifier.individual.*;
 
 import java.util.logging.Logger;
@@ -17,17 +16,13 @@ public class IsletopiaModifier {
             new RemoveUnbreakable();
             new FertilizeFlower();
             new HungerKeeper();
-
             new RemoveJoinLeftMessage();
             new RandomPatrol();
             new DeepOceanGuardian();
             new AntiZombification();
             new DragonHeadExtractBreath();
             new EquipmentWeaker();
-
             new PreventRenameHead();
-//            new AdvancedDispenser();
-
             new TestListener();
             new NetherPortal();
             new ShulkerRespawn();
@@ -40,6 +35,6 @@ public class IsletopiaModifier {
             exception.printStackTrace();
             logger.severe("Initialize isletopia modifier failed!");
         }
-        logger.info("Initialize isletopia modifier successfully in "+(System.currentTimeMillis()-l)+"ms");
+        logger.info("Initialize isletopia modifier successfully in " + (System.currentTimeMillis() - l) + "ms");
     }
 }

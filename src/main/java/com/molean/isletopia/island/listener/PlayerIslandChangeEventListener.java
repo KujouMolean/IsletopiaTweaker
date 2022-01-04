@@ -72,8 +72,8 @@ public class PlayerIslandChangeEventListener implements Listener {
         }
         String serverName = ServerInfoUpdater.getServerName();
 
-        LocalIsland fromIsland = IslandManager.INSTANCE.getIsland(new IslandId(serverName, fromIslandX, fromIslandZ));
-        LocalIsland toIsland = IslandManager.INSTANCE.getIsland(new IslandId(serverName, toIslandX, toIslandZ));
+        LocalIsland fromIsland = IslandManager.INSTANCE.getLocalIsland(new IslandId(serverName, fromIslandX, fromIslandZ));
+        LocalIsland toIsland = IslandManager.INSTANCE.getLocalIsland(new IslandId(serverName, toIslandX, toIslandZ));
 
         PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, fromIsland, toIsland);
         Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);

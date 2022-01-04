@@ -1,7 +1,6 @@
 package com.molean.isletopia.island;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.menu.VisitorMenu;
 import com.molean.isletopia.menu.charge.PlayerChargeMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
@@ -9,19 +8,24 @@ import com.molean.isletopia.menu.settings.biome.LocalBiome;
 import com.molean.isletopia.menu.visit.VisitMenu;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.other.ConfirmDialog;
+import com.molean.isletopia.shared.database.CollectionDao;
+import com.molean.isletopia.shared.model.Island;
+import com.molean.isletopia.shared.service.AccountService;
 import com.molean.isletopia.shared.utils.RedisUtils;
+import com.molean.isletopia.shared.utils.UUIDUtils;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
@@ -60,9 +64,14 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
 
         switch (verb) {
-
             case "home":
                 home(subject);
+                break;
+            case "preferred":
+                preferred(subject);
+                break;
+            case "create":
+                create(subject);
                 break;
             case "visits":
                 visits(subject);
@@ -73,7 +82,6 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 } else {
                     name(subject, object);
                 }
-
                 break;
             case "visit":
             case "tp":
@@ -106,16 +114,12 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             case "open":
                 unlock(subject);
                 break;
-
-            default:
-            case "help":
-                help(subject);
-                break;
-
             case "spectatorvisitor":
                 spectatorVisitor(subject);
                 break;
-
+            case "seticon":
+                setIcon(subject);
+                break;
             case "sethome":
                 setHome(subject);
                 break;
@@ -124,6 +128,13 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 break;
             case "setbiome":
                 setBiome(subject);
+                break;
+            case "claimoffline":
+                if (args.length < 2) {
+                    MessageUtils.info(sourcePlayer, "/is claimOffline [密码]");
+                    return true;
+                }
+                claimOffline(subject, object);
                 break;
             case "info":
                 info(subject);
@@ -154,9 +165,63 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 }
                 unstar(subject, object);
                 break;
+            default:
+            case "help":
+                help(subject);
+                break;
+
         }
         return true;
     }
+
+    private void claimOffline(String subject, String password) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null) {
+            MessageUtils.fail(player, "该岛屿未被领取.");
+            return;
+        }
+        UUID uuid = currentIsland.getUuid();
+        String name = UUIDUtils.get(uuid);
+        if (name == null || !name.startsWith("#")) {
+            MessageUtils.fail(player, "该岛主不是离线玩家，不能被领取.");
+            return;
+        }
+        if (!AccountService.login(name, password)) {
+            MessageUtils.fail(player, "密码不对.");
+            return;
+        }
+        ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+        if (!itemInOffHand.getType().equals(Material.BEACON)) {
+            MessageUtils.fail(player, "副手需要放一个信标，该信标会被消耗掉.");
+            return;
+        }
+        itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+        player.getInventory().setItemInOffHand(itemInOffHand);
+        currentIsland.setUuid(player.getUniqueId());
+        MessageUtils.fail(player, "成功领取岛屿.");
+
+    }
+
+    private void create(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+        if (!itemInOffHand.getType().equals(Material.BEACON)) {
+            MessageUtils.fail(player, "副手需要放一个信标，该信标会被消耗掉.");
+            return;
+        }
+        itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+        player.getInventory().setItemInOffHand(itemInOffHand);
+
+        IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), localIsland -> {
+            localIsland.tp(player);
+            MessageUtils.fail(player, "创建成功.");
+        });
+    }
+
 
     private void spectatorVisitor(String subject) {
         Player player = Bukkit.getPlayerExact(subject);
@@ -183,7 +248,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            new VisitorMenu(player, 0).open();
+            new VisitorMenu(player).open();
         });
     }
 
@@ -193,6 +258,26 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             new PlayerChargeMenu(player).open();
         });
+    }
+
+
+    public static void preferred(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            return;
+        }
+        if (!currentIsland.containsFlag("Preferred")) {
+            currentIsland.addIslandFlag("Preferred");
+            MessageUtils.success(player, "成功设置为首选岛屿.");
+        } else {
+            currentIsland.removeIslandFlag("Preferred");
+            MessageUtils.success(player, "成功取消首选岛屿设置.");
+        }
     }
 
     public static void info(String subject) {
@@ -214,10 +299,8 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             player.sendMessage("岛屿成员:");
             for (UUID uuid : members) {
                 player.sendMessage(" - " + UUIDUtils.get(uuid));
-
             }
         }
-
         LocalBiome localBiome = null;
         try {
             localBiome = LocalBiome.valueOf(currentIsland.getBiome());
@@ -238,12 +321,10 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(" - " + islandFlag);
             }
         }
-
         Timestamp creation = currentIsland.getCreation();
         LocalDateTime localDateTime = creation.toLocalDateTime();
         String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
         player.sendMessage("创建时间:" + format);
-
         player.sendMessage("===========end===========");
     }
 
@@ -273,6 +354,39 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         visit(source, source);
     }
 
+
+    public static void setIcon(String source) {
+        Player player = Bukkit.getPlayerExact(source);
+        assert player != null;
+        {
+            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+            if (itemInOffHand.getType().isAir()) {
+                MessageUtils.fail(player, "副手需要持有一个物品");
+                return;
+            }
+        }
+        new ConfirmDialog(Component.text("""
+                设置图标需要献祭你副手的这个物品，直接消耗掉。
+                """)).accept(player1 -> {
+            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player1);
+
+            if (currentIsland == null || !(currentIsland.getUuid().equals(player1.getUniqueId()) || player1.isOp())) {
+                MessageUtils.fail(player1, "阁下只能对自己的岛屿进行设置.");
+                return;
+            }
+            ItemStack itemInOffHand = player1.getInventory().getItemInOffHand();
+            Material type = itemInOffHand.getType();
+            if (itemInOffHand.getType().isAir()) {
+                MessageUtils.fail(player1, "副手需要持有一个物品");
+                return;
+            }
+            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+            player1.getInventory().setItemInOffHand(itemInOffHand);
+            currentIsland.setIcon(type.name());
+        }).open(player);
+
+    }
+
     public static void setHome(String source) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
@@ -290,7 +404,6 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         currentIsland.setSpawnZ(player.getLocation().getZ() - bottomLocation.getZ());
         currentIsland.setYaw(player.getLocation().getYaw());
         currentIsland.setPitch(player.getLocation().getPitch());
-
         MessageUtils.success(player, "成功更改重生位置.");
     }
 
@@ -310,16 +423,13 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         currentIsland.setSpawnY(128);
         currentIsland.setYaw(0);
         currentIsland.setPitch(0);
-
         MessageUtils.success(player, "成功更改重生位置.");
     }
 
     public static void setBiome(String source) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
@@ -332,7 +442,20 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private static void visit(String source, String target) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        IsletopiaTweakersUtils.universalPlotVisitByMessage(player, target, 0);
+        UUID targetUUID = UUIDUtils.get(target);
+        List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(targetUUID);
+        if (playerIslands.size() == 0) {
+            MessageUtils.fail(player, "对方没有岛屿。");
+            return;
+        }
+        for (Island playerIsland : playerIslands) {
+            if (playerIsland.containsFlag("Preferred")) {
+                IsletopiaTweakersUtils.universalPlotVisitByMessage(player, playerIslands.get(0).getIslandId());
+                return;
+            }
+        }
+
+        IsletopiaTweakersUtils.universalPlotVisitByMessage(player, playerIslands.get(0).getIslandId());
     }
 
     public static void trust(String source, String target) {
@@ -374,8 +497,6 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             }
             currentIsland.addMember(uuid);
             MessageUtils.success(player1, "已经添加 " + target + " 为信任.");
-
-
         }).open(player);
 
     }
@@ -405,7 +526,6 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void lock(String source) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
@@ -418,9 +538,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void unlock(String source) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
             MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
             return;
@@ -454,7 +572,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            new VisitMenu(player, ServerInfoUpdater.getOnlinePlayers(), 0).open();
+            new VisitMenu(player).open();
         });
     }
 
@@ -528,22 +646,15 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert player != null;
         player.sendMessage("§7§m§l----------§b梦幻之屿§7§m§l----------");
         player.sendMessage("§e> 快速回家 /is home");
-        player.sendMessage("§e> 闭关锁岛 /is lock");
-        player.sendMessage("§e> 开放岛屿 /is unlock");
         player.sendMessage("§e> 查看岛屿信息 /is info");
-        player.sendMessage("§e> 打开访问菜单 /is visits");
-        player.sendMessage("§e> 访问某人岛屿 /is visit [玩家]");
-        player.sendMessage("§e> 查看岛屿成员 /is trusts");
-        player.sendMessage("§e> 添加岛屿成员 /is trust [玩家]");
-        player.sendMessage("§e> 删除岛屿成员 /is distrust [玩家]");
-        player.sendMessage("§e> 查看近期访客 /is visitors");
-        player.sendMessage("§e> 修改复活位置 /is setHome");
-        player.sendMessage("§e> 重置复活位置 /is resetHome");
+        player.sendMessage("§e> 修改锁岛状态 /is lock|unlock");
         player.sendMessage("§e> 修改生物群系 /is setBiome");
+        player.sendMessage("§e> 打开访问菜单 /is visits|visit (玩家)");
+        player.sendMessage("§e> 查看近期访客 /is visitors");
+        player.sendMessage("§e> 添加删除成员 /is trust|distrust|trusts (玩家)");
         player.sendMessage("§e> 缴纳水电费用 /is consume");
-        player.sendMessage("§e> 查看收藏列表 /is stars");
-        player.sendMessage("§e> 添加收藏列表 /is star [玩家]");
-        player.sendMessage("§e> 删除收藏列表 /is unstar [玩家]");
+        player.sendMessage("§e> 修改复活位置 /is setHome|resetHome");
+        player.sendMessage("§e> 收藏岛屿列表 /is star|unstar|stars (玩家)");
         player.sendMessage(Component.text("§e§n点击此处查看梦幻之屿服务器指南(WiKi)")
                 .clickEvent(ClickEvent.openUrl("http://wiki.islet.world")));
         player.sendMessage("§7§m§l--------------------------");
@@ -552,13 +663,15 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> subCommand = List.of("home", "visit", "trust", "distrust", "help", "invite",
             "kick", "lock", "unlock", "setHome", "resetHome",
-            "visits", "trusts", "visitors", "consume", "stars", "star", "unstar", "spectatorVisitor", "setBiome");
+            "visits", "trusts", "visitors", "consume", "stars", "star", "unstar", "spectatorVisitor", "setBiome",
+            "setIcon", "name", "preferred", "create", "claimOffline");
 
     private static final List<String> playerCommand = List.of("trust", "distrust",
             "kick", "invite", "visit", "star", "unstar");
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String
+            alias, String[] args) {
         List<String> strings = new ArrayList<>();
         if (args.length == 1) {
             for (String s : subCommand) {
@@ -566,8 +679,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                     strings.add(s);
                 }
             }
-        }
-        if (args.length == 2) {
+        } else if (args.length == 2) {
             if (playerCommand.contains(args[0])) {
                 List<String> onlinePlayers = ServerInfoUpdater.getOnlinePlayers();
                 for (String onlinePlayer : onlinePlayers) {

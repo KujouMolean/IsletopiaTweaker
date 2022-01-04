@@ -2,7 +2,7 @@ package com.molean.isletopia.menu.club;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.service.UniversalParameter;
-import com.molean.isletopia.menu.ItemStackSheet;
+import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.shared.utils.UUIDUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;

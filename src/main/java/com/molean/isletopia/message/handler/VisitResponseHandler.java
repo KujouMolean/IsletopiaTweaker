@@ -10,6 +10,7 @@ import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.resp.VisitResponse;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -22,10 +23,10 @@ public class VisitResponseHandler implements MessageHandler<VisitResponse> {
 
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject, VisitResponse visitResponse) {
-        Player player = Bukkit.getPlayerExact(visitResponse.getTarget());
+        Player player = Bukkit.getPlayer(visitResponse.getTarget());
         if (player != null) {
             if (!Objects.equals("accepted", visitResponse.getResponse())) {
-                player.sendMessage(visitResponse.getResponseMessage());
+                MessageUtils.fail(player, visitResponse.getResponseMessage());
             } else {
                 ServerMessageUtils.switchServer(player.getName(), wrappedMessageObject.getFrom());
             }

@@ -73,25 +73,6 @@ public class ElytraLimiter implements Listener {
         if (denied.contains(player.getUniqueId())) {
             event.setCancelled(true);
             MessageUtils.fail(player, "§c抱歉, 使用鞘翅需要经过管理员审核!");
-            return;
         }
-
-        ItemStack chestplate = player.getInventory().getChestplate();
-        if (chestplate == null || !chestplate.getType().equals(Material.ELYTRA)) {
-            return;
-        }
-        String bind = NMSTagUtils.get(chestplate, "bind");
-        if (bind == null || bind.length() < 20) {
-            ItemStack newChestplate = NMSTagUtils.set(chestplate, "bind", player.getUniqueId().toString());
-            player.getInventory().setChestplate(newChestplate);
-            return;
-        }
-        if (!bind.equalsIgnoreCase(player.getUniqueId().toString())) {
-            event.setCancelled(true);
-            MessageUtils.fail(player, "§c这是" + UUIDUtils.get(bind) + "的鞘翅，你不能使用!");
-            return;
-        }
-
-
     }
 }

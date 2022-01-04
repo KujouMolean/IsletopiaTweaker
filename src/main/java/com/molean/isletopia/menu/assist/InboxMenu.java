@@ -1,12 +1,12 @@
-package com.molean.isletopia.menu.inbox;
+package com.molean.isletopia.menu.assist;
 
 import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.mail.InboxObject;
 import com.molean.isletopia.mail.MailObject;
-import com.molean.isletopia.menu.ItemStackSheet;
-import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.utils.ItemStackSheet;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

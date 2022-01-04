@@ -1,10 +1,14 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.menu.visit.MultiVisitMenu;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.model.Island;
+import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,31 +27,43 @@ public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
         Objects.requireNonNull(Bukkit.getPluginCommand("visit")).setTabCompleter(this);
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
     }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        //visit player
+        //visit server3 1 5
+        //visit player n
+        //visit #123123
         Player sourcePlayer = (Player) sender;
-        if (args.length < 1)
-            return true;
-        String target = args[0];
-
-        if (!target.startsWith("#")) {
-            if (UUIDUtils.get(target) == null) {
-                target = "#" + target;
+        Tasks.INSTANCE.async(() -> {
+            if (args.length < 1) {
+                return;
             }
-        }
 
-        int order = 0;
-        if (args.length >= 2) {
-            try {
-                order = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                MessageUtils.fail(sender, args[1] + "不是有效数字");
-                return true;
+            //try player name
+            String target = args[0];
+            UUID targetUUID = UUIDUtils.get(target);
+            if (targetUUID == null) {
+                targetUUID = UUIDUtils.get("#" + target);
             }
-        }
-        IsletopiaTweakersUtils.universalPlotVisitByMessage(sourcePlayer, target, order);
+            if (targetUUID == null) {
+                MessageUtils.fail(sourcePlayer, "该ID未注册.");
+                return;
+            }
+
+            List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(targetUUID);
+            if (playerIslands.size() == 0) {
+                MessageUtils.fail(sourcePlayer, "对方没有岛屿.");
+
+                return;
+            }
+            playerIslands.sort(Comparator.comparingInt(Island::getId));
+            new MultiVisitMenu(sourcePlayer, playerIslands).open();
+        });
+
         return true;
     }
+
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
@@ -59,7 +75,4 @@ public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
             return new ArrayList<>();
         }
     }
-
-
-
 }

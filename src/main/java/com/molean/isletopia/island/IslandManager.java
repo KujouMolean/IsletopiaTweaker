@@ -55,7 +55,10 @@ public enum IslandManager {
     }
 
     @Nullable
-    public LocalIsland getIsland(IslandId islandId) {
+    public LocalIsland getLocalIsland(IslandId islandId) {
+        if (!islandId.getServer().equals(ServerInfoUpdater.getServerName())) {
+            throw new RuntimeException("island not in current server");
+        }
         if (!islandSet.containsKey(islandId)) {
             try {
                 Island islandByIslandId = IslandDao.getIslandByIslandId(islandId);
@@ -70,6 +73,26 @@ public enum IslandManager {
             lastQuery.put(islandId, System.currentTimeMillis());
         }
         return islandSet.get(islandId);
+    }
+
+    @Nullable
+    public Island getIsland(IslandId islandId) {
+        try {
+            return IslandDao.getIslandByIslandId(islandId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Nullable
+    public Island getIsland(int id) {
+        try {
+            return IslandDao.getIslandById(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -142,13 +165,14 @@ public enum IslandManager {
         }
         List<LocalIsland> islands = new ArrayList<>();
         for (IslandId localServerIslandId : localServerIslandIds) {
-            islands.add(getIsland(localServerIslandId));
+            islands.add(getLocalIsland(localServerIslandId));
         }
         return islands;
     }
 
 
-    public LocalIsland getPlayerLocalServerFirstIsland(UUID player) {
+    @Nullable
+    public LocalIsland getPlayerFirstLocalIsland(UUID player) {
         IslandId playerFirstIsland = null;
         try {
             playerFirstIsland = IslandDao.getPlayerLocalServerFirstIsland(ServerInfoUpdater.getServerName(), player);
@@ -156,11 +180,14 @@ public enum IslandManager {
             e.printStackTrace();
             throw new RuntimeException("Unexpected database error");
         }
-        return getIsland(playerFirstIsland);
+        if (playerFirstIsland == null) {
+            return null;
+        }
+        return getLocalIsland(playerFirstIsland);
     }
 
     @Nullable
-    public LocalIsland getPlayerFirstIsland(UUID player) {
+    public Island getPlayerFirstIsland(UUID player) {
         IslandId playerFirstIsland = null;
         try {
             playerFirstIsland = IslandDao.getPlayerFirstIsland(player);
@@ -171,18 +198,20 @@ public enum IslandManager {
         return getIsland(playerFirstIsland);
     }
 
-    public List<LocalIsland> getPlayerIslands(UUID uuid) {
-        List<IslandId> playerIslandIds = null;
+
+    public List<Island> getPlayerIslands(UUID uuid) {
+        List<IslandId> playerIslandIds;
         try {
             playerIslandIds = IslandDao.getPlayerIslandIds(uuid);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Unexpected database error!");
         }
-        List<LocalIsland> islands = new ArrayList<>();
+        List<Island> islands = new ArrayList<>();
         for (IslandId playerIslandId : playerIslandIds) {
             islands.add(getIsland(playerIslandId));
         }
+        islands.sort(Comparator.comparingInt(Island::getId));
         return islands;
     }
 
@@ -202,9 +231,7 @@ public enum IslandManager {
     }
 
     public void update(LocalIsland island) {
-//        tobeUpdate.add(island);
         persist(island);
-
     }
 
     public boolean hasCurrentIslandPermission(Player player) {
@@ -245,7 +272,7 @@ public enum IslandManager {
                 ServerInfoUpdater.getServerName(), uuid, null, Biome.PLAINS.name(),
                 new Timestamp(System.currentTimeMillis()),
                 new HashSet<>(),
-                new HashSet<>());
+                new HashSet<>(), "GRASS_BLOCK");
 
         try {
             IslandDao.createIsland(temp);
@@ -254,7 +281,7 @@ public enum IslandManager {
         }
 
         LocalIsland islandByIslandId = null;
-        islandByIslandId = getIsland(islandId);
+        islandByIslandId = getLocalIsland(islandId);
 
         if (islandByIslandId == null) {
             throw new RuntimeException("Unexpected error, island creation is failed");
@@ -279,6 +306,6 @@ public enum IslandManager {
     @Nullable
     public LocalIsland getCurrentIsland(Location location) {
         IslandId islandId = IslandId.fromLocation(ServerInfoUpdater.getServerName(), location.getBlockX(), location.getBlockZ());
-        return getIsland(islandId);
+        return getLocalIsland(islandId);
     }
 }

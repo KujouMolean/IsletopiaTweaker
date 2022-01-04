@@ -1,24 +1,18 @@
 package com.molean.isletopia.admin.individual;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.infrastructure.individual.ClockMenu;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.database.UUIDDao;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.shared.utils.UUIDUtils;
 import com.molean.isletopia.utils.MessageUtils;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,9 +24,18 @@ public class ClaimFor implements CommandExecutor, TabCompleter {
         Objects.requireNonNull(Bukkit.getPluginCommand("claim")).setTabCompleter(this);
     }
 
+    @SuppressWarnings("all")
+    private final boolean disable= true;
+
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String string, @NotNull String[] strings) {
-        //claim north for Molean
+
+        if (disable) {
+            MessageUtils.info(commandSender, "出于安全考虑该指令已被永久禁用");
+            MessageUtils.info(commandSender, "如需建造超大规模建筑群，请另择服务器");
+            return true;
+        }
+
         if (strings.length != 3 || !strings[1].equalsIgnoreCase("for")) {
             MessageUtils.info(commandSender, "为一位未注册的玩家预选岛屿为你的邻居");
             MessageUtils.info(commandSender, " - 指令: /claim 方向 for 玩家ID");
@@ -47,7 +50,7 @@ public class ClaimFor implements CommandExecutor, TabCompleter {
 
         Player player = (Player) commandSender;
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-        if (currentIsland == null||!currentIsland.getUuid().equals(player.getUniqueId())) {
+        if (currentIsland == null || !currentIsland.getUuid().equals(player.getUniqueId())) {
             MessageUtils.fail(player, "你必须在自己岛上执行该命令!");
             return true;
         }
@@ -80,7 +83,7 @@ public class ClaimFor implements CommandExecutor, TabCompleter {
             }
         }
         IslandId newIslandId = new IslandId(islandId.getServer(), x, z);
-        if (IslandManager.INSTANCE.getIsland(newIslandId) != null) {
+        if (IslandManager.INSTANCE.getLocalIsland(newIslandId) != null) {
             MessageUtils.fail(commandSender, "失败，该方向岛屿已被领取！");
             return true;
         }
@@ -127,10 +130,13 @@ public class ClaimFor implements CommandExecutor, TabCompleter {
             if (newIsland == null) {
                 MessageUtils.fail(commandSender, "失败，未知错误请联系管理员！");
             } else {
-                MessageUtils.success(commandSender, "操作成功！");
+                MessageUtils.success(commandSender, "操作成功，该玩家加入服务器将会成为你的邻居！");
+                MessageUtils.notify(commandSender, "请勿在两岛交界处建造生物农场规避生物上限，否则你会被封禁！");
                 UniversalParameter.setParameter(targetUUID, "ManualClaim", "true");
             }
         });
+
+
         return true;
     }
 

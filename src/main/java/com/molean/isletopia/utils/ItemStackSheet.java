@@ -1,4 +1,4 @@
-package com.molean.isletopia.menu;
+package com.molean.isletopia.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -21,6 +21,23 @@ public class ItemStackSheet {
     private int amount = 1;
     private final Map<Enchantment, Integer> enchantments = new HashMap<>();
     private final List<ItemFlag> itemFlags = new ArrayList<>();
+
+
+    public static ItemStackSheet fromString(Material material, String titleAndContent) {
+        ItemStackSheet itemStackSheet = new ItemStackSheet(material);
+        String[] split = titleAndContent.split("\n");
+        if (split.length >= 1) {
+            itemStackSheet.setDisplay(split[0]);
+        }
+        for (int i = 1; i < split.length; i++) {
+            itemStackSheet.addLore(split[i]);
+        }
+        return itemStackSheet;
+    }
+
+    public static ItemStackSheet fromString(Material material, String titleAndContent, Object... args) {
+        return fromString(material, titleAndContent.formatted(args));
+    }
 
     public ItemStackSheet(Material material) {
         this.material = material;
@@ -56,7 +73,10 @@ public class ItemStackSheet {
         ItemStack itemStack = new ItemStack(material, amount);
         ItemMeta itemMeta = itemStack.getItemMeta();
         assert itemMeta != null;
-        itemMeta.displayName(Component.text(display));
+        if (display != null) {
+
+            itemMeta.displayName(Component.text(display));
+        }
         itemMeta.lore(lores);
         for (ItemFlag itemFlag : itemFlags) {
             itemMeta.addItemFlags(itemFlag);

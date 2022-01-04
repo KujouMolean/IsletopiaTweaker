@@ -8,15 +8,14 @@ import com.molean.isletopia.infrastructure.IsletopiaInfrastructure;
 import com.molean.isletopia.island.IsletopiaIslandSystem;
 import com.molean.isletopia.mail.MailCommand;
 import com.molean.isletopia.message.IsletopiaMessage;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.modifier.IsletopiaModifier;
 import com.molean.isletopia.other.CommandListener;
 import com.molean.isletopia.protect.IsletopiaProtect;
 import com.molean.isletopia.shared.message.RedisMessageListener;
-import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.statistics.IsletopiaStatistics;
 import com.molean.isletopia.tutor.IsletopiaTutorialSystem;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
@@ -42,13 +41,8 @@ public final class IsletopiaTweakers extends JavaPlugin {
 
     private static final Map<String, Runnable> SHUTDOWN_MAP = new HashMap<>();
 
-
     public static void addDisableTask(String key, Runnable runnable) {
         SHUTDOWN_MAP.put(key, runnable);
-    }
-
-    public static void removeDisableTask(String key) {
-        SHUTDOWN_MAP.remove(key);
     }
 
     @Override
@@ -71,13 +65,6 @@ public final class IsletopiaTweakers extends JavaPlugin {
             new CommandListener();
             new MailCommand();
             new IsletopiaTutorialSystem();
-
-            Bukkit.getScheduler().runTaskTimer(this, () -> {
-                Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-                    long l = System.currentTimeMillis();
-                    RedisUtils.getCommand().set("ServerStatus:LastUpdate:" + ServerInfoUpdater.getServerName(), l + "");
-                });
-            }, 0, 20);
         });
     }
 
@@ -100,5 +87,8 @@ public final class IsletopiaTweakers extends JavaPlugin {
             runnable.run();
             getLogger().info(s + " complete in " + (System.currentTimeMillis() - l) + "ms");
         });
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            onlinePlayer.setGameMode(GameMode.SPECTATOR);
+        }
     }
 }

@@ -46,7 +46,10 @@ public class SaveDownload implements CommandExecutor, TabCompleter {
             try {
                 DownloadDao.uploadSave(currentIsland, token -> {
                     player.sendMessage("成功！请点击下方链接进行下载，此链接仅在10分钟内有效。");
-                    player.sendMessage("http://save.molean.com/" + UUIDUtils.get(currentIsland.getUuid()) + "?token=" + token);
+                    String username = UUIDUtils.get(currentIsland.getUuid());
+                    assert username != null;
+                    username = username.replaceAll("#", "@");
+                    player.sendMessage("http://save.molean.com/" + username + "?token=" + token);
                 });
             } catch (IOException exception) {
                 player.sendMessage("生成下载链接失败！");

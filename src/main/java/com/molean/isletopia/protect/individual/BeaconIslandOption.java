@@ -33,18 +33,6 @@ public class BeaconIslandOption implements Listener {
 
     public BeaconIslandOption() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-//        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-//            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-//                if (IslandManager.INSTANCE.hasCurrentIslandPermission(onlinePlayer)) {
-//                    LocalIsland island = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
-//                    assert island != null;
-//                    if (isEnablePvP(island)) {
-//                        onlinePlayer.sendActionBar(Component.text("§c此岛屿已开启PVP, 生物不受保护!"));
-//                    }
-//                }
-//            }
-//        }, 60 * 20, 60 * 3 * 20);
-//        IsletopiaTweakers.addDisableTask("Stop update beacon options..",bukkitTask::cancel);
     }
 
     private static final Map<IslandId, Set<PotionEffectType>> stringHashSetMap = new HashMap<>();
@@ -85,15 +73,6 @@ public class BeaconIslandOption implements Listener {
         return stringHashSetMap.get(plot.getIslandId()).contains(PotionEffectType.DAMAGE_RESISTANCE);
     }
 
-//    public static boolean isEnablePvP(@Nullable LocalIsland plot) {
-//        if (plot == null) {
-//            return false;
-//        }
-//        if (!stringHashSetMap.containsKey(plot.getIslandId())) {
-//            return false;
-//        }
-//        return stringHashSetMap.get(plot.getIslandId()).contains(PotionEffectType.INCREASE_DAMAGE);
-//    }
 
     @EventHandler(ignoreCancelled = true)
     public void on(BlockBurnEvent event) {
@@ -111,7 +90,6 @@ public class BeaconIslandOption implements Listener {
         if (currentPlot == null) {
             return;
         }
-
         updatePrimaryBeaconEffects(currentPlot);
     }
 

@@ -2,8 +2,8 @@ package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
-import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -25,6 +26,7 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.projectiles.ProjectileSource;
 
 public class IslandProtect implements Listener {
     public IslandProtect() {
@@ -56,14 +58,25 @@ public class IslandProtect implements Listener {
             if (item != null && item.getType().equals(Material.FIREWORK_ROCKET)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setUseItemInHand(Event.Result.ALLOW);
-                return;
+            } else {
+                event.setCancelled(true);
             }
-            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void on(ProjectileLaunchEvent event) {
+        ProjectileSource shooter = event.getEntity().getShooter();
+        if (shooter instanceof Player player) {
+            if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getEntity().getLocation())) {
+                event.getEntity().remove();
+            }
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerInteractEntityEvent event) {
+
         if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getRightClicked().getLocation())) {
             event.setCancelled(true);
         }

@@ -26,7 +26,7 @@ public class IronElevator implements Listener {
         }
         World world = event.getPlayer().getWorld();
         Location location = event.getPlayer().getLocation();
-        for (int i = location.getBlockY() - 2; i >= 0; i--) {
+        for (int i = location.getBlockY() - 2; i >= -64; i--) {
             location.setY(i);
             Block block = world.getBlockAt(location);
             if (block.getType().equals(Material.IRON_BLOCK)) {
@@ -49,7 +49,7 @@ public class IronElevator implements Listener {
         }
         World world = event.getPlayer().getWorld();
         Location location = event.getPlayer().getLocation();
-        for (int i = location.getBlockY(); i < 256; i++) {
+        for (int i = location.getBlockY(); i < 320; i++) {
             location.setY(i);
             Block block = world.getBlockAt(location);
             if (block.getType().equals(Material.IRON_BLOCK)) {

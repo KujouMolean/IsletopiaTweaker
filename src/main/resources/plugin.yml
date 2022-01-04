@@ -68,5 +68,7 @@ commands:
   claim: { }
   entitybar: { }
   sleep: { }
+  goodnight: { }
   music: { }
+  blueprint: { }
 

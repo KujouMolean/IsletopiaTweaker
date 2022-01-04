@@ -45,38 +45,17 @@ public class NewbieOperation implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             Player player = event.getPlayer();
             int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(player.getUniqueId());
-            String server = UniversalParameter.getParameter(player.getUniqueId(), "server");
-            if (server == null) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                    player.kick(Component.text("#发生错误, 转发器未指定你的岛屿所在服务器."));
-                });
-                return;
-            }
-
-            if (!server.equals(ServerInfoUpdater.getServerName())) {
-                if (playerIslandCount == 0) {
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kick(Component.text("#发生错误, 你被转发器发送到了错误的服务器, 请联系管理员."));
-                    });
-                }
-                return;
-            }
-
             String manualClaim = UniversalParameter.getParameter(player.getUniqueId(), "ManualClaim");
-
             if (Objects.equals(manualClaim, "true")) {
-                LocalIsland localServerFirstIsland = IslandManager.INSTANCE.getPlayerLocalServerFirstIsland(player.getUniqueId());
+                LocalIsland localServerFirstIsland = IslandManager.INSTANCE.getPlayerFirstLocalIsland(player.getUniqueId());
                 if (localServerFirstIsland == null) {
                     PlayerUtils.kickAsync(player, "#发生错误，你是预选岛屿账号，但岛屿不存在，请联系管理员。");
                     return;
                 }
                 UniversalParameter.unsetParameter(player.getUniqueId(), "ManualClaim");
-
                 onClaim(event.getPlayer(), localServerFirstIsland);
                 return;
-
             }
-
             if (playerIslandCount == 0) {
                 IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), (island -> {
                     if (island == null) {
@@ -86,7 +65,6 @@ public class NewbieOperation implements Listener {
                     onClaim(player, island);
                 }));
             }
-
         });
     }
 }

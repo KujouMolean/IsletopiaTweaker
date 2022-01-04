@@ -5,6 +5,7 @@ import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.message.handler.ServerInfoUpdater;
 import com.molean.isletopia.shared.database.IslandDao;
+import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.UUIDUtils;
 import com.molean.isletopia.utils.MessageUtils;
@@ -155,12 +156,12 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
                 }
                 String target = strings[1];
 
-                List<LocalIsland> playerIslands = IslandManager.INSTANCE.getPlayerIslands(UUIDUtils.get(target));
+                List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(UUIDUtils.get(target));
 
 
                 MessageUtils.info(player, target + " 共有 " + playerIslands.size() + " 个岛屿");
 
-                for (LocalIsland playerIsland : playerIslands) {
+                for (Island playerIsland : playerIslands) {
                     MessageUtils.info(player, " - " + playerIsland.getIslandId().toLocalString());
                 }
             }
@@ -174,7 +175,6 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
 
                 IslandManager.INSTANCE.deleteIsland(currentIsland, () -> {
                     MessageUtils.success(commandSender,"岛屿已被删除");
-
                 });
 
             }

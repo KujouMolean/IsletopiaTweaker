@@ -23,8 +23,8 @@ public class PlayTime implements Listener {
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onJoin(onlinePlayer);
-
         }
+
         IsletopiaTweakers.addDisableTask("Commit play time statistics..", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 onQuit(onlinePlayer);

@@ -57,7 +57,7 @@ public class CompletelyTransform implements CommandExecutor {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             UUID sourceUUID = UUIDUtils.get(source);
             if (sourceUUID == null) {
-                MessageUtils.fail(sender, "未找到source用户");
+                MessageUtils.fail(sender, "source not found!");
                 return;
             }
             UUID targetUUID = UUIDUtils.get(target);
@@ -65,7 +65,7 @@ public class CompletelyTransform implements CommandExecutor {
                 targetUUID = UUIDUtils.getOnlineSync(target);
             }
             if (IslandManager.INSTANCE.getPlayerIslandCount(targetUUID) > 0) {
-                MessageUtils.fail(sender, "target用户存在岛屿,请手动删除.");
+                MessageUtils.fail(sender, "target has island, delete it manually.");
                 return;
             }
             try {
@@ -73,10 +73,9 @@ public class CompletelyTransform implements CommandExecutor {
                 completelyReplaceAccount(sourceUUID, targetUUID);
                 MessageUtils.success(sender, "OK!");
             } catch (SQLException | IOException e) {
-                MessageUtils.fail(sender, "Some error!");
+                MessageUtils.fail(sender, "some error occurred!");
                 e.printStackTrace();
             }
-
         });
 
 

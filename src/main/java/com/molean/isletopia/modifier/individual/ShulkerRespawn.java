@@ -9,14 +9,17 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.block.data.type.Dispenser;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Shulker;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,17 @@ public class ShulkerRespawn implements Listener {
             if (relative.getType().name().toUpperCase(Locale.ROOT).contains("SHULKER_BOX")) {
                 ShulkerBox shulkerBox = (ShulkerBox) relative.getState();
                 DyeColor color = shulkerBox.getColor();
+                ArrayList<ItemStack> itemStacks = new ArrayList<>();
+                for (ItemStack content : shulkerBox.getInventory().getContents()) {
+                    if (content != null) {
+                        itemStacks.add(new ItemStack(content));
+                    }
+                }
+                shulkerBox.getInventory().clear();
+                for (ItemStack itemStack : itemStacks) {
+                    relative.getWorld().dropItem(relative.getLocation(), itemStack);
+
+                }
                 relative.setType(Material.AIR);
                 Entity entity = relative.getWorld().spawnEntity(relative.getLocation(), EntityType.SHULKER);
                 Shulker shulker = (Shulker) entity;
@@ -80,8 +94,20 @@ public class ShulkerRespawn implements Listener {
         if (!hasPurpurBlock) {
             return;
         }
+
         ShulkerBox shulkerBox = (ShulkerBox) shulkerBlock.getState();
         DyeColor color = shulkerBox.getColor();
+        ArrayList<ItemStack> itemStacks = new ArrayList<>();
+        for (ItemStack content : shulkerBox.getInventory().getContents()) {
+            if (content != null) {
+                itemStacks.add(new ItemStack(content));
+            }
+        }
+        shulkerBox.getInventory().clear();
+        for (ItemStack itemStack : itemStacks) {
+            shulkerBlock.getWorld().dropItem(shulkerBlock.getLocation(), itemStack);
+
+        }
         shulkerBlock.setType(Material.AIR);
         Entity entity = shulkerBlock.getWorld().spawnEntity(shulkerBlock.getLocation(), EntityType.SHULKER);
         Shulker shulker = (Shulker) entity;
@@ -101,18 +127,33 @@ public class ShulkerRespawn implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void on(BlockPistonExtendEvent event) {
-        Block block = event.getBlock().getRelative(event.getDirection());
-        if (block.getType().equals(PURPUR_BLOCK)) {
-            stainPurpurBlock(block, block.getRelative(event.getDirection()));
+        for (Block block : event.getBlocks()) {
+            if (block.getType().equals(PURPUR_BLOCK)) {
+                stainPurpurBlock(block, block.getRelative(event.getDirection()));
+            }
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void on(BlockPistonRetractEvent event) {
-        Block block = event.getBlock().getRelative(event.getDirection()).getRelative(event.getDirection());
-        if (block.getType().equals(PURPUR_BLOCK)) {
-            stainPurpurBlock(block, block.getRelative(event.getDirection().getOppositeFace()));
+        for (Block block : event.getBlocks()) {
+            if (block.getType().equals(PURPUR_BLOCK)) {
+                stainPurpurBlock(block, block.getRelative(event.getDirection().getOppositeFace()));
+            }
         }
+    }
 
+    @EventHandler(ignoreCancelled = true)
+    public void on(BlockDispenseEvent event) {
+        if (!(event.getBlock().getBlockData() instanceof Dispenser dispenser)) {
+            return;
+        }
+        Block shulkerBox = event.getBlock().getRelative(dispenser.getFacing());
+        if (event.getItem().getType().name().toLowerCase(Locale.ROOT).contains("shulker_box")) {
+            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                stainShulkerBox(shulkerBox, shulkerBox);
+
+            });
+        }
     }
 }

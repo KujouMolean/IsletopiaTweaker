@@ -22,7 +22,7 @@ public class IsletopiaInfrastructure {
             new ServerBumpReward();
             new MenuCommand();
 //            new IslandInfoUpdater();
-            new PlayerRidePlayer();
+            new PlayerRider();
             new IronElevator();
             new RailWay();
             new FirstSapling();
@@ -32,10 +32,10 @@ public class IsletopiaInfrastructure {
             new IslandVisitRecord();
             new ProductionBar();
             new ServerLikeReward();
-            new UserTokenGenerator();
             new EntityBar();
             new ForceSleep();
             new Music();
+            new ItemRemover();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

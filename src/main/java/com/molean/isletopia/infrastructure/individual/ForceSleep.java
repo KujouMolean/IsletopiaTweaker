@@ -40,8 +40,8 @@ public class ForceSleep implements Listener, CommandExecutor, TabCompleter {
 
     public ForceSleep() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        Objects.requireNonNull(Bukkit.getPluginCommand("sleep")).setTabCompleter(this);
-        Objects.requireNonNull(Bukkit.getPluginCommand("sleep")).setExecutor(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("goodnight")).setTabCompleter(this);
+        Objects.requireNonNull(Bukkit.getPluginCommand("goodnight")).setExecutor(this);
     }
 
     @EventHandler
@@ -54,9 +54,7 @@ public class ForceSleep implements Listener, CommandExecutor, TabCompleter {
             LocalDateTime parse = LocalDateTime.parse(sleepDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
 
             if (parse.isBefore(LocalDateTime.now())) {
-
                 UniversalParameter.unsetParameter(event.getPlayer().getUniqueId(), "WakeUpTime");
-
             } else {
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                     event.getPlayer().kick(Component.text("#你其实在睡觉，现在是在梦里。"));

@@ -67,8 +67,8 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                 """).accept(player -> {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
                 if (args.length < 1) {
-                    sender.sendMessage("请按要求输入：/bumpreward MCBBS用户名");
-                    sender.sendMessage("例如 /bumpreward Molean");
+                   MessageUtils.info(sender,"请按要求输入：/bumpreward MCBBS用户名");
+                    MessageUtils.info(sender,"例如 /bumpreward Molean");
                     return;
                 }
                 UUID uuid = player.getUniqueId();

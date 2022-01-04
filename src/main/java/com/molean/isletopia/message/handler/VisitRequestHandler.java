@@ -13,10 +13,10 @@ import com.molean.isletopia.shared.MessageHandler;
 import com.molean.isletopia.shared.database.PlayerDataDao;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.VisitRequest;
 import com.molean.isletopia.shared.pojo.resp.VisitResponse;
-import com.molean.isletopia.shared.utils.UUIDUtils;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -31,8 +31,8 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listener {
-    private final Map<String, LocalIsland> locationMap = new HashMap<>();
-    private final Map<String, Long> expire = new HashMap<>();
+    private final Map<UUID, LocalIsland> locationMap = new HashMap<>();
+    private final Map<UUID, Long> expire = new HashMap<>();
 
     public VisitRequestHandler() {
         RedisMessageListener.setHandler("VisitRequest", this, VisitRequest.class);
@@ -41,10 +41,10 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
 
     @EventHandler
     public void on(PlayerJoinEvent event) {
-        String name = event.getPlayer().getName();
-        LocalIsland island = this.locationMap.get(name);
+        UUID uuid = event.getPlayer().getUniqueId();
+        LocalIsland island = this.locationMap.get(uuid);
         if (island != null) {
-            if (System.currentTimeMillis() - this.expire.getOrDefault(name, 0L) < 10000L) {
+            if (System.currentTimeMillis() - this.expire.getOrDefault(uuid, 0L) < 10000L) {
                 island.tp(event.getPlayer());
             }
         }
@@ -52,75 +52,72 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
 
     @EventHandler
     public void on(PlayerDataSyncCompleteEvent event) {
-        String name = event.getPlayer().getName();
-        LocalIsland island = this.locationMap.get(name);
+        UUID uuid = event.getPlayer().getUniqueId();
+        LocalIsland island = this.locationMap.get(uuid);
         if (island != null) {
-            if (System.currentTimeMillis() - this.expire.getOrDefault(name, 0L) < 10000L) {
+            if (System.currentTimeMillis() - this.expire.getOrDefault(uuid, 0L) < 10000L) {
                 island.tp(event.getPlayer());
             }
-            this.locationMap.remove(name);
+            this.locationMap.remove(uuid);
         }
     }
 
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject, VisitRequest visitRequest) {
-        String sourcePlayer = visitRequest.getSourcePlayer();
-        String targetPlayer = visitRequest.getTargetPlayer();
+        UUID sourcePlayer = visitRequest.getSourcePlayer();
+        IslandId islandId = visitRequest.getIslandId();
         VisitResponse visitResponse = new VisitResponse();
-        visitResponse.setTarget(sourcePlayer);
-        boolean allow = true;
-
-
-        List<LocalIsland> playerLocalServerIslands = IslandManager.INSTANCE.getPlayerLocalServerIslands(UUIDUtils.get(targetPlayer));
-        LocalIsland island = null;
-        for (LocalIsland playerLocalServerIsland : playerLocalServerIslands) {
-            if (playerLocalServerIsland.getId() == visitRequest.getId()) {
-                island = playerLocalServerIsland;
-            }
+        if (!islandId.getServer().equals(ServerInfoUpdater.getServerName())) {
+            visitResponse.setResponse("invalid");
+            visitResponse.setResponseMessage("出现错误。");
+            ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
         }
 
+        visitResponse.setTarget(sourcePlayer);
+
+        LocalIsland island = IslandManager.INSTANCE.getLocalIsland(islandId);
         if (island == null) {
             visitResponse.setResponse("invalid");
-            visitResponse.setResponseMessage("§8[§3岛屿助手§8] §7对方没有岛屿.");
+            visitResponse.setResponseMessage("该岛屿不存在.");
             ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
         } else {
-
-
+            boolean allow = true;
             Set<UUID> membersMap = island.getMembers();
 
             if (island.containsFlag("Lock")) {
                 allow = false;
             }
-
-            Set<String> operators = new HashSet<>();
-            for (OfflinePlayer operator : Bukkit.getOperators()) {
-                operators.add(operator.getName());
-            }
-
-            if (membersMap.contains(UUIDUtils.get(sourcePlayer)) || targetPlayer.equalsIgnoreCase(sourcePlayer) || operators.contains(sourcePlayer)) {
+            if (membersMap.contains(sourcePlayer)) {
                 allow = true;
             }
-
+            if (sourcePlayer.equals(island.getUuid())) {
+                allow = true;
+            }
+            for (OfflinePlayer operator : Bukkit.getOperators()) {
+                if (operator.getUniqueId().equals(sourcePlayer)) {
+                    allow = true;
+                    break;
+                }
+            }
 
             if (!allow) {
                 visitResponse.setResponse("refused");
-                visitResponse.setResponseMessage("§8[§3岛屿助手§8] §7对方拒绝了你的访问.");
+                visitResponse.setResponseMessage("对方拒绝了你的访问.");
                 ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
             } else {
-                Player player = Bukkit.getPlayerExact(sourcePlayer);
+                Player player = Bukkit.getPlayer(sourcePlayer);
                 if (player != null && player.isOnline()) {
                     System.out.println("handle visit request handler: " + sourcePlayer + " " + player.getName());
                     island.tp(player);
                 } else {
-                    UUID sourceUUID = UUIDUtils.get(sourcePlayer);
                     try {
-                        if (sourceUUID != null && PlayerDataDao.exist(sourceUUID)) {
-                            byte[] query = PlayerDataDao.query(sourceUUID);
+                        if (PlayerDataDao.exist(sourcePlayer)) {
+                            byte[] query = PlayerDataDao.query(sourcePlayer);
                             Location safeSpawnLocation = island.getSafeSpawnLocation();
                             double x = safeSpawnLocation.getX();
                             double y = safeSpawnLocation.getY();
                             double z = safeSpawnLocation.getZ();
-                            PlayerSerializeUtils.modifySpawnLocation(sourceUUID, query, x, y, z);
+                            PlayerSerializeUtils.modifySpawnLocation(sourcePlayer, query, x, y, z);
                         }
                     } catch (SQLException | IOException e) {
                         e.printStackTrace();

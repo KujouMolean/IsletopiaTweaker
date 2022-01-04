@@ -17,8 +17,9 @@ public class DeepOceanGuardian implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void on(CreatureSpawnEvent event) {
-        if (!(event.getEntity() instanceof Squid))
+        if (!(event.getEntityType().equals(EntityType.SQUID))) {
             return;
+        }
         Location location = event.getLocation();
         if (!location.getBlock().getBiome().getKey().getKey().toLowerCase().contains("deep"))
             return;

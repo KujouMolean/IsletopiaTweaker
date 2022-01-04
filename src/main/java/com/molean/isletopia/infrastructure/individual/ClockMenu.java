@@ -1,15 +1,12 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.distribute.individual.NewbieOperation;
-import com.molean.isletopia.menu.ItemStackSheet;
-import net.kyori.adventure.text.Component;
+import com.molean.isletopia.utils.ItemStackSheet;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -19,7 +16,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Objects;
 
 public class ClockMenu implements Listener, CommandExecutor {

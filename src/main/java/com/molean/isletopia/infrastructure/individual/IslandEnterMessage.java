@@ -22,7 +22,7 @@ public class IslandEnterMessage implements Listener {
 
     public void sendEnterMessage(Player player, IslandId to) {
 
-        LocalIsland island = IslandManager.INSTANCE.getIsland(to);
+        LocalIsland island = IslandManager.INSTANCE.getLocalIsland(to);
         if (island == null) {
             return;
         }
