@@ -21,8 +21,11 @@ public class FavoriteAddMenu extends ListMenu<String> {
         List<String> collect = CollectionDao.getPlayerCollections(player.getUniqueId())
                 .stream()
                 .map(UUIDUtils::get)
+                .filter(Objects::nonNull)
+                .sorted(String::compareToIgnoreCase)
                 .collect(Collectors.toList());
         onlinePlayers.removeIf(collect::contains);
+
         return onlinePlayers;
     }
 

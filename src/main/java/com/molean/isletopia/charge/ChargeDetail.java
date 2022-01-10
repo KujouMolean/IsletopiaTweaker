@@ -1,5 +1,7 @@
 package com.molean.isletopia.charge;
 
+import java.time.LocalDateTime;
+
 //pojo 记录岛屿详细的数据
 public class ChargeDetail {
     private long dispenser = 0;
@@ -21,8 +23,9 @@ public class ChargeDetail {
 
     private int onlineMinutes = 0;
 
-    private Long startTime = 0L;
-    private Long lastCommitTime = 0L;
+    private LocalDateTime startTime = LocalDateTime.now();
+    private LocalDateTime lastCommitTime = LocalDateTime.now();
+
 
     public long getDispenser() {
         return dispenser;
@@ -112,19 +115,19 @@ public class ChargeDetail {
         this.waterChargeTimes = waterChargeTimes;
     }
 
-    public Long getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Long startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Long getLastCommitTime() {
+    public LocalDateTime getLastCommitTime() {
         return lastCommitTime;
     }
 
-    public void setLastCommitTime(Long lastCommitTime) {
+    public void setLastCommitTime(LocalDateTime lastCommitTime) {
         this.lastCommitTime = lastCommitTime;
     }
 

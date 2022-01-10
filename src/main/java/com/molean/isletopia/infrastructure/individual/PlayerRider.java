@@ -3,6 +3,7 @@ package com.molean.isletopia.infrastructure.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -84,6 +85,10 @@ public class PlayerRider implements Listener {
         if (!event.getPlayer().isSneaking()) {
             return;
         }
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisablePlayerRide")) {
+            return;
+        }
+
         Entity rightClicked = event.getRightClicked();
         Entity source = event.getPlayer();
         while (!source.getPassengers().isEmpty()) {

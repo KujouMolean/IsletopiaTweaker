@@ -1,6 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.Direction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -26,6 +27,9 @@ public class RailWay implements Listener {
             return;
         Block init = event.getPlayer().getLocation().getBlock();
         if (!init.getType().name().toLowerCase().contains("rail")) {
+            return;
+        }
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableRailWay")) {
             return;
         }
         Block lastBlock = init;

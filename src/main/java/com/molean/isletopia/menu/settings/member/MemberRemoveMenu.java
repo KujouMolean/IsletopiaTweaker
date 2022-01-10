@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MemberRemoveMenu extends ListMenu<String> {
@@ -20,7 +21,11 @@ public class MemberRemoveMenu extends ListMenu<String> {
     public static List<String> getAvailablePlayer(Player player) {
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland != null) {
-            return currentIsland.getMembers().stream().map(UUIDUtils::get).collect(Collectors.toList());
+            return currentIsland.getMembers().stream()
+                    .map(UUIDUtils::get)
+                    .filter(Objects::nonNull)
+                    .sorted(String::compareToIgnoreCase)
+                    .collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
@@ -32,7 +37,8 @@ public class MemberRemoveMenu extends ListMenu<String> {
                 .convertFunction(HeadUtils::getSkullWithIslandInfo)
                 .closeItemStack(new ItemStackSheet(Material.BARRIER, "§f返回成员菜单").build())
                 .onCloseAsync(() -> new MemberMenu(player).open())
-                .onCloseSync(() -> {})
+                .onCloseSync(() -> {
+                })
                 .onClickSync(s -> new SyncThenAsyncTask<>(() -> {
                     player.performCommand("is distrust " + s);
                     return null;

@@ -46,8 +46,9 @@ public abstract class InventoryMenu implements Menu {
         beforeOpen();
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             this.player.openInventory(inventory);
+            afterOpen();
         });
-        afterOpen();
+
     }
 
 

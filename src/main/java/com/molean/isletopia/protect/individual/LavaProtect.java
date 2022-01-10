@@ -2,6 +2,7 @@ package com.molean.isletopia.protect.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -34,12 +35,16 @@ public class LavaProtect implements Listener {
             return;
         if (!Material.BUCKET.equals(event.getMaterial()))
             return;
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableLavaProtect")) {
+            return;
+        }
         assert event.getClickedBlock() != null;
         if (!Material.OBSIDIAN.equals(event.getClickedBlock().getType()))
             return;
         if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
             return;
         }
+
         event.getClickedBlock().setType(Material.LAVA);
         event.setCancelled(true);
     }
@@ -49,6 +54,9 @@ public class LavaProtect implements Listener {
     @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
     public void onLavaReplacing(BlockPlaceEvent event) {
         if(event.getPlayer().isOp()){
+            return;
+        }
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableLavaProtect")) {
             return;
         }
         BlockState blockReplacedState = event.getBlockReplacedState();
@@ -64,6 +72,9 @@ public class LavaProtect implements Listener {
     @EventHandler
     public void onWateringLava(PlayerBucketEmptyEvent event) {
         if(event.getPlayer().isOp()){
+            return;
+        }
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableLavaProtect")) {
             return;
         }
         String asString = event.getBlock().getBlockData().getAsString();

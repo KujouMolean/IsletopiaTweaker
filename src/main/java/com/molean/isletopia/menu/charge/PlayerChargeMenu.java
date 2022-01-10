@@ -23,13 +23,13 @@ import java.util.UUID;
 
 public class PlayerChargeMenu extends ChestMenu {
     private BukkitTask bukkitTask;
-    private final UUID owner;
+    private final LocalIsland island;
 
     public PlayerChargeMenu(Player player) {
         super(player, 3, Component.text("§f水电系统"));
         LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
-        owner = currentPlot.getUuid();
+        island = currentPlot;
 
         ItemStackSheet introduction = ItemStackSheet.fromString(Material.BOOK, """
                 §d§l水电系统说明
@@ -56,8 +56,8 @@ public class PlayerChargeMenu extends ChestMenu {
 
 
     public void updateBill() {
-        ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
-        ItemStackSheet billThisWeek = fromPlayerChargeDetail(chargeDetail, Material.PAPER, "§f本周费用(" + UUIDUtils.get(owner) + ")");
+        ChargeDetail chargeDetail = ChargeDetailCommitter.get(island.getIslandId());
+        ItemStackSheet billThisWeek = fromPlayerChargeDetail(chargeDetail, Material.PAPER, "§f本周费用(" + UUIDUtils.get(island.getUuid()) + ")");
         item(13, billThisWeek.build());
     }
 
@@ -129,7 +129,7 @@ public class PlayerChargeMenu extends ChestMenu {
     public void onLeftClick(int slot) {
         super.onLeftClick(slot);
         if (slot == 13) {
-            ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(island.getIslandId());
             if (InventoryUtils.takeItem(player, Material.DIAMOND, chargeDetail.getPowerChargeTimes() + 1)) {
                 chargeDetail.setPowerChargeTimes(chargeDetail.getPowerChargeTimes() + 1);
             } else {
@@ -147,7 +147,7 @@ public class PlayerChargeMenu extends ChestMenu {
     public void onRightClick(int slot) {
         super.onRightClick(slot);
         if (slot == 13) {
-            ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(island.getIslandId());
             if (InventoryUtils.takeItem(player, Material.DIAMOND, chargeDetail.getWaterChargeTimes() + 1)) {
 
                 chargeDetail.setWaterChargeTimes(chargeDetail.getWaterChargeTimes() + 1);

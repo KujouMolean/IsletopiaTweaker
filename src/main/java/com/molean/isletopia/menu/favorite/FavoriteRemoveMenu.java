@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FavoriteRemoveMenu extends ListMenu<String> {
@@ -18,6 +19,8 @@ public class FavoriteRemoveMenu extends ListMenu<String> {
         return CollectionDao.getPlayerCollections(player.getUniqueId())
                 .stream()
                 .map(UUIDUtils::get)
+                .filter(Objects::nonNull)
+                .sorted(String::compareToIgnoreCase)
                 .collect(Collectors.toList());
     }
 

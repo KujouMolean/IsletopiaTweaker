@@ -24,6 +24,8 @@ public class MemberAddMenu extends ListMenu<String> {
             List<String> collect = currentIsland.getMembers().stream().map(UUIDUtils::get).collect(Collectors.toList());
             onlinePlayers.removeIf(collect::contains);
         }
+        onlinePlayers.sort(String::compareToIgnoreCase);
+
         return onlinePlayers;
     }
 

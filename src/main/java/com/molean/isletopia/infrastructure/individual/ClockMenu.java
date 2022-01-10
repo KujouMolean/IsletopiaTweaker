@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -34,21 +35,23 @@ public class ClockMenu implements Listener, CommandExecutor {
         if (event.useItemInHand() == Event.Result.DENY) {
             return;
         }
-        if (event.getPlayer().isSneaking()) {
-            if (action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.LEFT_CLICK_BLOCK)) {
+        if (action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.LEFT_CLICK_BLOCK)) {
+            if (event.getPlayer().isSneaking()) {
+                event.getPlayer().performCommand("is");
+            } else {
                 event.getPlayer().performCommand("visit " + event.getPlayer().getName());
-
             }
         }
-
         if (action.equals(Action.RIGHT_CLICK_AIR) || action.equals(Action.RIGHT_CLICK_BLOCK)) {
             event.getPlayer().performCommand("menu");
         }
         event.setCancelled(true);
     }
+
     public static ItemStack getClock() {
         ItemStackSheet itemStackSheet = new ItemStackSheet(Material.CLOCK, "§f[§d主菜单§f]§r");
-        itemStackSheet.addLore("§f[§f西弗特左键单击§f]§r §f回到§r §f主岛屿§r");
+        itemStackSheet.addLore("§f[§7左键单击§f]§r §f打开§r §f岛屿列表§r");
+        itemStackSheet.addLore("§f[§7潜行+左键单击§f]§r §f回到§r §f第一个岛屿§r");
         itemStackSheet.addLore("§f[§7右键单击§f]§r §f打开§r §f主菜单§r");
         return itemStackSheet.build();
     }

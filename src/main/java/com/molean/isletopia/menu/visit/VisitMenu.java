@@ -23,6 +23,7 @@ public class VisitMenu extends ListMenu<String> {
         super(player, Component.text("选择你想访问的玩家"));
 
         List<String> onlinePlayers = ServerInfoUpdater.getOnlinePlayers();
+        onlinePlayers.sort(String::compareToIgnoreCase);
         this.components(onlinePlayers);
         this.convertFunction(HeadUtils::getSkullWithIslandInfo)
                 .onClickAsync(s -> {

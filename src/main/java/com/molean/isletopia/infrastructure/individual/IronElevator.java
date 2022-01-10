@@ -2,6 +2,7 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -22,6 +23,9 @@ public class IronElevator implements Listener {
             return;
         Block relative = event.getPlayer().getLocation().getBlock().getRelative(BlockFace.DOWN);
         if (!relative.getType().equals(Material.IRON_BLOCK)) {
+            return;
+        }
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableIronElevator")) {
             return;
         }
         World world = event.getPlayer().getWorld();
@@ -45,6 +49,9 @@ public class IronElevator implements Listener {
     public void onUp(PlayerJumpEvent event) {
         Block relative = event.getPlayer().getLocation().getBlock().getRelative(BlockFace.DOWN);
         if (!relative.getType().equals(Material.IRON_BLOCK)) {
+            return;
+        }
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableIronElevator")) {
             return;
         }
         World world = event.getPlayer().getWorld();

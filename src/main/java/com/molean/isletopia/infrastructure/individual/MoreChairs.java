@@ -3,6 +3,7 @@ package com.molean.isletopia.infrastructure.individual;
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -59,7 +60,9 @@ public class MoreChairs implements Listener {
             return;
         }
         if (event.getPlayer().getLocation().getPitch() < 75) {
-
+            return;
+        }
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableChairs")) {
             return;
         }
         if (event.isSneaking()) {

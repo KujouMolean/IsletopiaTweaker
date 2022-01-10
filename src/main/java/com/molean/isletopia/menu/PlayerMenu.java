@@ -5,7 +5,6 @@ import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.menu.assist.AssistMenu;
 import com.molean.isletopia.menu.charge.PlayerChargeMenu;
 import com.molean.isletopia.menu.favorite.FavoriteMenu;
-import com.molean.isletopia.menu.assist.InboxMenu;
 import com.molean.isletopia.menu.recipe.RecipeListMenu;
 import com.molean.isletopia.menu.settings.SettingsMenu;
 import com.molean.isletopia.menu.visit.VisitMenu;
@@ -19,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.List;
 
 public class PlayerMenu extends ChestMenu {
 
@@ -67,11 +68,10 @@ public class PlayerMenu extends ChestMenu {
 
         ItemStackSheet bills = ItemStackSheet.fromString(Material.PAPER, """
                 §f生活缴费-此岛-本周
-                §7§m缴纳水费和电费
-                §7§m缴纳水费和电费
+                §7缴纳水费和电费
                 """);
 
-        ItemStackSheet assist = ItemStackSheet.fromString(Material.CHEST, """
+        ItemStackSheet assist = ItemStackSheet.fromString(Material.BEACON, """
                 §f辅助功能
                 §7帮助你更舒适地游玩此服务器
                 """);
@@ -86,10 +86,10 @@ public class PlayerMenu extends ChestMenu {
         ItemStack skullWithIslandInfo = HeadUtils.getSkullWithIslandInfo(player.getName());
         SkullMeta itemMeta = (SkullMeta) skullWithIslandInfo.getItemMeta();
         assert itemMeta != null;
-        itemMeta.displayName(Component.text("§f回到你的第一个岛"));
+        itemMeta.displayName(Component.text("§f回岛"));
+        itemMeta.lore(List.of(Component.text("§f左键回到第一个岛")));
+        itemMeta.lore(List.of(Component.text("§f右键打开岛屿列表")));
         skullWithIslandInfo.setItemMeta(itemMeta);
-
-
         this
                 .item(18, bookShelf.build())
                 .clickEventAsync(ClickType.LEFT, 18, () -> {
@@ -103,7 +103,16 @@ public class PlayerMenu extends ChestMenu {
                 .itemWithAsyncClickEvent(24, settings.build(), () -> new SettingsMenu(player).open())
                 .itemWithAsyncClickEvent(26, projects.build(), () -> new VisitorMenu(player).open())
                 .itemWithAsyncClickEvent(38, bills.build(), () -> new PlayerChargeMenu(player).open())
-                .item(40, skullWithIslandInfo, () -> player.performCommand("is"))
+                .item(40, skullWithIslandInfo)
+                .clickEventSync(40, clickType -> {
+                    if (clickType.equals(ClickType.LEFT)) {
+                        player.performCommand("is");
+                        close();
+                    } else if (clickType.equals(ClickType.RIGHT)) {
+                        player.performCommand("visit " + player.getName());
+                        close();
+                    }
+                })
                 .itemWithAsyncClickEvent(42, assist.build(), () -> new AssistMenu(player).open());
     }
 }

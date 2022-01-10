@@ -1,6 +1,7 @@
 package com.molean.isletopia.menu.visit;
 
 import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.UUIDUtils;
@@ -20,6 +21,20 @@ import java.util.UUID;
 public class MultiVisitMenu extends ListMenu<Island> {
     public MultiVisitMenu(Player player, List<Island> islandList) {
         super(player, Component.text("选择你要访问的岛屿"));
+        islandList.sort((o1, o2) -> {
+            String name1 = o1.getName();
+            if (name1 == null) {
+                name1 = "未命名";
+            }
+
+            String name2 = o2.getName();
+            if (name2 == null) {
+                name2 = "未命名";
+            }
+
+            return name1.compareToIgnoreCase(name2);
+        });
+
         this.components(islandList);
         this.convertFunction(island -> {
             String icon = island.getIcon();
@@ -56,9 +71,16 @@ public class MultiVisitMenu extends ListMenu<Island> {
                     }
                 }
                 if (island.getMembers().size() > 16) {
-                    itemStackSheet.addLore(" §7- ...");
+                    itemStackSheet.addLore(" §7- ...(共 " + island.getMembers().size() + " 成员)");
                 }
             }
+            if (island.getIslandFlags().size() != 0) {
+                itemStackSheet.addLore("§7岛屿标记: ");
+                for (String islandFlag : island.getIslandFlags()) {
+                    itemStackSheet.addLore(" §7- " + islandFlag);
+                }
+            }
+
             Timestamp creation = island.getCreation();
             String format = creation.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             itemStackSheet.addLore("§7创建日期: " + format);
@@ -71,7 +93,21 @@ public class MultiVisitMenu extends ListMenu<Island> {
 
         this.onClickSync(island -> IsletopiaTweakersUtils.universalPlotVisitByMessage(player, island.getIslandId()));
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, "§f返回主菜单").build())
-                .onCloseSync(() -> {})
+                .onCloseSync(() -> {
+                })
                 .onCloseAsync(() -> new PlayerMenu(player).open());
+    }
+
+    @Override
+    public void afterOpen() {
+        super.afterOpen();
+        if (components().size() != 1) {
+            return;
+        }
+        if (!PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableSingleIslandMenu")) {
+            return;
+        }
+        IsletopiaTweakersUtils.universalPlotVisitByMessage(player, components().get(0).getIslandId());
+        close();
     }
 }

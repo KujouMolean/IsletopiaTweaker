@@ -73,6 +73,7 @@ public class SettingsMenu extends ChestMenu {
         icon.addLore("§7副手手持需要的图标");
         icon.addLore("§7设置成功后会消耗掉副手物品");
         item(4, icon.build(), () -> {
+            close();
             player.performCommand("is setIcon");
         });
 
@@ -80,6 +81,15 @@ public class SettingsMenu extends ChestMenu {
         name.addLore("§7自行使用指令：/is name XXX");
         item(5, name.build(), () -> {
             MessageUtils.info(player, "使用: is name XXX");
+            close();
+        });
+
+        ItemStackSheet preferred = new ItemStackSheet(Material.APPLE, "§f设置/取消首选岛屿");
+        name.addLore("§7设置/取消当前岛屿为首选岛屿");
+        name.addLore("§7如果你有多个岛屿，你会优先传送到首选岛屿上");
+        name.addLore("§7如果你设置了多个首选岛屿，则会传送到第一个首选岛屿");
+        item(6, preferred.build(), () -> {
+            player.performCommand("is preferred");
             close();
         });
 

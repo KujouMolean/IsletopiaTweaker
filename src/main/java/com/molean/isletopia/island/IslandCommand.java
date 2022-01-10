@@ -208,6 +208,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private void create(String subject) {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
+
         ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
         if (!itemInOffHand.getType().equals(Material.BEACON)) {
             MessageUtils.fail(player, "副手需要放一个信标，该信标会被消耗掉.");
@@ -215,6 +216,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
         itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
         player.getInventory().setItemInOffHand(itemInOffHand);
+
 
         IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), localIsland -> {
             localIsland.tp(player);
@@ -450,7 +452,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
         for (Island playerIsland : playerIslands) {
             if (playerIsland.containsFlag("Preferred")) {
-                IsletopiaTweakersUtils.universalPlotVisitByMessage(player, playerIslands.get(0).getIslandId());
+                IsletopiaTweakersUtils.universalPlotVisitByMessage(player, playerIsland.getIslandId());
                 return;
             }
         }

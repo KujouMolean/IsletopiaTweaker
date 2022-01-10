@@ -52,28 +52,28 @@ public class MoreRecipe {
                 GRASS_BLOCK, GRASS_BLOCK, GRASS_BLOCK,
                 CRYING_OBSIDIAN, COMPARATOR, CRYING_OBSIDIAN,
                 AIR, DAYLIGHT_DETECTOR, AIR);
-        //海绵
-        registerShaped(new ItemStack(SPONGE),
-                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS,
-                PRISMARINE_SHARD, HEART_OF_THE_SEA, PRISMARINE_SHARD,
-                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS);
+//        //海绵
+//        registerShaped(new ItemStack(SPONGE),
+//                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS,
+//                PRISMARINE_SHARD, HEART_OF_THE_SEA, PRISMARINE_SHARD,
+//                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS);
+//
+//        LocalRecipe.addRecipe(SPONGE, CRAFTING_TABLE, new ItemStack(SPONGE),
+//                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS,
+//                PRISMARINE_SHARD, HEART_OF_THE_SEA, PRISMARINE_SHARD,
+//                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS);
 
-        LocalRecipe.addRecipe(SPONGE, CRAFTING_TABLE, new ItemStack(SPONGE),
-                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS,
-                PRISMARINE_SHARD, HEART_OF_THE_SEA, PRISMARINE_SHARD,
-                PRISMARINE_CRYSTALS, PRISMARINE_SHARD, PRISMARINE_CRYSTALS);
 
-
-        //紫水晶
-        registerShaped(new ItemStack(AMETHYST_SHARD),
-                PURPLE_DYE, QUARTZ, PURPLE_DYE,
-                QUARTZ, QUARTZ, QUARTZ,
-                PURPLE_DYE, QUARTZ, PURPLE_DYE);
-
-        LocalRecipe.addRecipe(AMETHYST_SHARD, CRAFTING_TABLE, new ItemStack(AMETHYST_SHARD),
-                PURPLE_DYE, QUARTZ, PURPLE_DYE,
-                QUARTZ, QUARTZ, QUARTZ,
-                PURPLE_DYE, QUARTZ, PURPLE_DYE);
+//        //紫水晶
+//        registerShaped(new ItemStack(AMETHYST_SHARD),
+//                PURPLE_DYE, QUARTZ, PURPLE_DYE,
+//                QUARTZ, QUARTZ, QUARTZ,
+//                PURPLE_DYE, QUARTZ, PURPLE_DYE);
+//
+//        LocalRecipe.addRecipe(AMETHYST_SHARD, CRAFTING_TABLE, new ItemStack(AMETHYST_SHARD),
+//                PURPLE_DYE, QUARTZ, PURPLE_DYE,
+//                QUARTZ, QUARTZ, QUARTZ,
+//                PURPLE_DYE, QUARTZ, PURPLE_DYE);
 
         //远古残骸
         registerShaped(new ItemStack(ANCIENT_DEBRIS),
@@ -139,7 +139,7 @@ public class MoreRecipe {
                 DIRT, SLIME_BALL, DIRT,
                 DIRT, DIRT, DIRT);
 
-        //合成凋零头
+//        合成凋零头
         registerShaped(new ItemStack(WITHER_SKELETON_SKULL),
                 BLACK_DYE, BLACK_DYE, BLACK_DYE,
                 BLACK_DYE, SKELETON_SKULL, BLACK_DYE,

@@ -3,10 +3,10 @@ package com.molean.isletopia.infrastructure.individual.bars;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.charge.ChargeDetailCommitter;
 import com.molean.isletopia.charge.ChargeDetailUtils;
-import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
-import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -43,9 +43,8 @@ public class ChargeBar implements CommandExecutor, Listener {
                     bossBar.setVisible(false);
                     return;
                 }
-                UUID owner = currentIsland.getUuid();
-                long totalPower = ChargeDetailUtils.getTotalPower(ChargeDetailCommitter.get(owner));
-                long totalPowerUsage = ChargeDetailUtils.getTotalPowerUsage(ChargeDetailCommitter.get(owner));
+                long totalPower = ChargeDetailUtils.getTotalPower(ChargeDetailCommitter.get(currentIsland.getIslandId()));
+                long totalPowerUsage = ChargeDetailUtils.getTotalPowerUsage(ChargeDetailCommitter.get(currentIsland.getIslandId()));
                 bossBar.setTitle("电表: " + totalPowerUsage + "/" + totalPower);
                 double progress = totalPowerUsage / (double) totalPower;
                 if (progress < 0) {
@@ -66,8 +65,8 @@ public class ChargeBar implements CommandExecutor, Listener {
                     return;
                 }
                 UUID owner = currentIsland.getUuid();
-                long totalWater = ChargeDetailUtils.getTotalWater(ChargeDetailCommitter.get(owner));
-                long totalWaterUsage = ChargeDetailUtils.getTotalWaterUsage(ChargeDetailCommitter.get(owner));
+                long totalWater = ChargeDetailUtils.getTotalWater(ChargeDetailCommitter.get(currentIsland.getIslandId()));
+                long totalWaterUsage = ChargeDetailUtils.getTotalWaterUsage(ChargeDetailCommitter.get(currentIsland.getIslandId()));
                 bossBar.setTitle("水表: " + totalWaterUsage + "/" + totalWater);
                 double progress = totalWaterUsage / (double) totalWater;
                 if (progress < 0) {

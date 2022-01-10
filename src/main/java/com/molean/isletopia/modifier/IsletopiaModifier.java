@@ -30,6 +30,9 @@ public class IsletopiaModifier {
             new LuckyColor();
             new RichPiglin();
             new SleepAnyTime();
+            new ElderGuardianSpawner();
+            new CaveSpiderSpawner();
+            new PlayerDeathMob();
 
         } catch (Exception exception) {
             exception.printStackTrace();

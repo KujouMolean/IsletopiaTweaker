@@ -6,6 +6,7 @@ import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.IslandId;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
@@ -301,6 +302,10 @@ public enum IslandManager {
     @Nullable
     public LocalIsland getCurrentIsland(Player player) {
         return getCurrentIsland(player.getLocation());
+    }
+    @Nullable
+    public LocalIsland getCurrentIsland(Chunk chunk) {
+        return getCurrentIsland(new Location(chunk.getWorld(), chunk.getX() << 4, 0, chunk.getZ() << 4));
     }
 
     @Nullable
