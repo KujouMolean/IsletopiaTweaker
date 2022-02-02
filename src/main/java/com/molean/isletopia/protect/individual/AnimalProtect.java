@@ -2,8 +2,8 @@ package com.molean.isletopia.protect.individual;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.raid.RaidTriggerEvent;
 import org.bukkit.potion.PotionEffect;
@@ -64,7 +65,6 @@ public class AnimalProtect implements Listener {
     public void on(ProjectileLaunchEvent event) {
         ProjectileSource shooter = event.getEntity().getShooter();
         if (shooter instanceof Player) {
-            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
             if (!IslandManager.INSTANCE.hasCurrentIslandPermission((Player) shooter)) {
                 event.setCancelled(true);
             }
@@ -93,7 +93,7 @@ public class AnimalProtect implements Listener {
     }
 
     //disable firework damage from other player
-    @EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(EntityDamageByEntityEvent event) {
         if (event.getDamager().getType().equals(EntityType.FIREWORK)) {
             Firework firework = (Firework) event.getDamager();
@@ -110,7 +110,23 @@ public class AnimalProtect implements Listener {
     //disable player drop item
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerDropItemEvent event) {
-        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getItemDrop().getLocation())) {
+            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getItemDrop().getLocation());
+            if (currentIsland != null && currentIsland.containsFlag("AllowItemDrop")) {
+                return;
+            }
+            event.setCancelled(true);
+        }
+    }
+
+    //disable player pickup item
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void on(PlayerAttemptPickupItemEvent event) {
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getItem().getLocation())) {
+            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(event.getItem().getLocation());
+            if (currentIsland != null && currentIsland.containsFlag("AllowItemPickup")) {
+                return;
+            }
             event.setCancelled(true);
         }
     }

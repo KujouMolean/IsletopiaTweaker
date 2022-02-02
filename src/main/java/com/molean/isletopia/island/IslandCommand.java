@@ -4,9 +4,8 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.VisitorMenu;
 import com.molean.isletopia.menu.charge.PlayerChargeMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
-import com.molean.isletopia.menu.settings.biome.LocalBiome;
 import com.molean.isletopia.menu.visit.VisitMenu;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.other.ConfirmDialog;
 import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.shared.model.Island;
@@ -165,6 +164,15 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 }
                 unstar(subject, object);
                 break;
+            case "allowitempickup":
+                allowItemPickup(subject);
+                break;
+            case "allowitemdrop":
+                allowItemDrop(subject);
+                break;
+            case "antifire":
+                antiFire(subject);
+                break;
             default:
             case "help":
                 help(subject);
@@ -174,7 +182,71 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private void antiFire(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            return;
+        }
+        if (!currentIsland.containsFlag("AntiFire")) {
+            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+            if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
+                MessageUtils.fail(player, "副手需要放一个海洋之心，该物品会被消耗掉.");
+                return;
+            }
+            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+            player.getInventory().setItemInOffHand(itemInOffHand);
+            currentIsland.addIslandFlag("AntiFire");
+            MessageUtils.success(player, "已开启岛屿防火.");
+        } else {
+            currentIsland.removeIslandFlag("AntiFire");
+            MessageUtils.success(player, "已关闭岛屿防火.");
+        }
+    }
+
+
+    private void allowItemPickup(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            return;
+        }
+        if (!currentIsland.containsFlag("AllowItemPickup")) {
+            currentIsland.addIslandFlag("AllowItemPickup");
+            MessageUtils.success(player, "已允许游客拾起物品.");
+        } else {
+            currentIsland.removeIslandFlag("AllowItemPickup");
+            MessageUtils.success(player, "已禁止游客拾起物品.");
+        }
+    }
+
+    private void allowItemDrop(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            return;
+        }
+        if (!currentIsland.containsFlag("AllowItemDrop")) {
+            currentIsland.addIslandFlag("AllowItemDrop");
+            MessageUtils.success(player, "已允许游客丢弃物品.");
+        } else {
+            currentIsland.removeIslandFlag("AllowItemDrop");
+            MessageUtils.success(player, "已禁止游客丢弃物品.");
+        }
+    }
+
     private void claimOffline(String subject, String password) {
+
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
 
@@ -302,17 +374,6 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             for (UUID uuid : members) {
                 player.sendMessage(" - " + UUIDUtils.get(uuid));
             }
-        }
-        LocalBiome localBiome = null;
-        try {
-            localBiome = LocalBiome.valueOf(currentIsland.getBiome());
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        if (localBiome == null) {
-            player.sendMessage("岛屿群系:" + "未知");
-        } else {
-            player.sendMessage("岛屿群系:" + localBiome.getName());
         }
         Set<String> islandFlags = currentIsland.getIslandFlags();
         if (islandFlags.isEmpty()) {
@@ -666,7 +727,8 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private static final List<String> subCommand = List.of("home", "visit", "trust", "distrust", "help", "invite",
             "kick", "lock", "unlock", "setHome", "resetHome",
             "visits", "trusts", "visitors", "consume", "stars", "star", "unstar", "spectatorVisitor", "setBiome",
-            "setIcon", "name", "preferred", "create", "claimOffline");
+            "setIcon", "name", "preferred", "create", "claimOffline",
+            "allowFirework","allowItemPickup","allowItemDrop");
 
     private static final List<String> playerCommand = List.of("trust", "distrust",
             "kick", "invite", "visit", "star", "unstar");

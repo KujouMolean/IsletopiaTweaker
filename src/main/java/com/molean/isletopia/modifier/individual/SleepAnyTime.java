@@ -2,8 +2,6 @@ package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.MessageUtils;
-import io.papermc.paper.event.player.PlayerDeepSleepEvent;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
@@ -15,7 +13,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedLeaveEvent;
-import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.world.TimeSkipEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +80,6 @@ public class SleepAnyTime implements Listener, CommandExecutor {
     }
 
 
-
     @EventHandler(ignoreCancelled = true)
     public void on(TimeSkipEvent event) {
         if (event.getSkipReason().equals(TimeSkipEvent.SkipReason.NIGHT_SKIP)) {
@@ -95,18 +91,18 @@ public class SleepAnyTime implements Listener, CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
         switch (command.getName()) {
-            case "getup":
+            case "getup" -> {
                 sleepingPlayers.remove(player);
                 if (player.isSleeping()) {
                     player.teleport(Objects.requireNonNull(player.getBedSpawnLocation()));
                     int sleepTicks = Bukkit.getCurrentTick() - sleepTickTimeMap.get(player);
                     long sleepDayTime = world.getFullTime() - sleepDayTimeMap.get(player);
-                    MessageUtils.info(player,"早上好, 你实际睡眠" + sleepTicks + "gt, 总共过去了" + sleepDayTime + "gt.");
+                    MessageUtils.info(player, "早上好, 你实际睡眠" + sleepTicks + "gt, 总共过去了" + sleepDayTime + "gt.");
                     MessageUtils.info(player, "昨晚的睡眠质量" + (sleepTicks % 2 == 0 ? "很不错" : "很差") + ".");
                 }
-            case "sleep":
-                player.sleep(player.getLocation(), true);
+            }
+            case "sleep" -> player.sleep(player.getLocation(), true);
         }
-       return true;
+        return true;
     }
 }

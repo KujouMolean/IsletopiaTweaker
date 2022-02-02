@@ -2,11 +2,11 @@ package com.molean.isletopia.island;
 
 import com.google.gson.Gson;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.obj.CuboidRegion;
 import com.molean.isletopia.island.obj.CuboidShape;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.database.IslandDao;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.utils.ResourceUtils;
 import com.molean.isletopia.task.PlotChunkTask;
@@ -36,17 +36,36 @@ public class LocalIsland extends Island {
         super(island);
     }
 
-    public LocalIsland(int id, int x, int z, double spawnX, double spawnY, double spawnZ, float yaw, float pitch, @NotNull String server, @NotNull UUID uuid, @Nullable String name, @Nullable String biome, @NotNull Timestamp creation, Set<UUID> members, Set<String> islandFlags,String icon) {
-        super(id,x,z,spawnX,spawnY,spawnZ,yaw, pitch, server, uuid, name, biome, creation, members, islandFlags,icon);
+    private final Set<Material> blacklistInBlock = Set.of(Material.NETHER_PORTAL);
+    private final Set<Material> blacklistOnBlock = Set.of();
+
+    public LocalIsland(int id, int x, int z, double spawnX, double spawnY, double spawnZ, float yaw, float pitch, @NotNull String server, @NotNull UUID uuid, @Nullable String name, @Nullable String biome, @NotNull Timestamp creation, Set<UUID> members, Set<String> islandFlags, String icon) {
+        super(id, x, z, spawnX, spawnY, spawnZ, yaw, pitch, server, uuid, name, biome, creation, members, islandFlags, icon);
     }
 
     @Nullable
     private Location getSafeLandingPosition(@NotNull Location location) {
         for (int i = 0; i < location.getY(); i++) {
             Location add = location.clone().add(0, -i, 0);
-            if (!add.getBlock().getRelative(BlockFace.DOWN).isPassable() && add.getBlock().isPassable() && add.getBlock().getRelative(BlockFace.UP).isPassable()) {
-                return add;
+            if (add.getBlock().getRelative(BlockFace.DOWN).isPassable()) {
+                continue;
             }
+            if (blacklistOnBlock.contains(add.getBlock().getRelative(BlockFace.DOWN).getType())) {
+                continue;
+            }
+            if (!add.getBlock().isPassable()) {
+                continue;
+            }
+            if (blacklistInBlock.contains(add.getBlock().getType())) {
+                continue;
+            }
+            if (!add.getBlock().getRelative(BlockFace.UP).isPassable()) {
+                continue;
+            }
+            if (blacklistInBlock.contains(add.getBlock().getRelative(BlockFace.UP).getType())) {
+                continue;
+            }
+            return add;
         }
         return null;
     }
@@ -54,9 +73,25 @@ public class LocalIsland extends Island {
     private Location getHigherLandingPosition(Location location) {
         for (int i = 0; i < 256 - location.getY(); i++) {
             Location add = location.clone().add(0, i, 0);
-            if (!add.getBlock().getRelative(BlockFace.DOWN).isPassable() && add.getBlock().isPassable() && add.getBlock().getRelative(BlockFace.UP).isPassable()) {
-                return add;
+            if (add.getBlock().getRelative(BlockFace.DOWN).isPassable()) {
+                continue;
             }
+            if (blacklistOnBlock.contains(add.getBlock().getRelative(BlockFace.DOWN).getType())) {
+                continue;
+            }
+            if (!add.getBlock().isPassable()) {
+                continue;
+            }
+            if (blacklistInBlock.contains(add.getBlock().getType())) {
+                continue;
+            }
+            if (!add.getBlock().getRelative(BlockFace.UP).isPassable()) {
+                continue;
+            }
+            if (blacklistInBlock.contains(add.getBlock().getRelative(BlockFace.UP).getType())) {
+                continue;
+            }
+            return add;
         }
         return null;
     }
@@ -102,7 +137,6 @@ public class LocalIsland extends Island {
 
     public void clear(Runnable runnable, int timeoutTicks) {
         boolean disableLiquidFlow = containsFlag("DisableLiquidFlow");
-
         if (!disableLiquidFlow) {
             addIslandFlag("DisableLiquidFlow");
 
@@ -141,7 +175,6 @@ public class LocalIsland extends Island {
     }
 
     public void clearAndApplyNewIsland(Runnable runnable, int timeoutTicks) {
-
         clear(() -> applyIsland(runnable), timeoutTicks);
     }
 

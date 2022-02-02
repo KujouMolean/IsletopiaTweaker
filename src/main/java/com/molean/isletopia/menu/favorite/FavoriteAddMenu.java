@@ -3,7 +3,7 @@ package com.molean.isletopia.menu.favorite;
 import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.task.SyncThenAsyncTask;
 import com.molean.isletopia.utils.ItemStackSheet;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.shared.utils.UUIDUtils;
 import com.molean.isletopia.virtualmenu.ListMenu;

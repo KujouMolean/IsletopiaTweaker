@@ -19,15 +19,14 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PlayerSerializeUtils {
-    public static void serialize(Player player, Consumer<byte[]> asyncConsumer)  {
+    public static void serialize(Player player, Consumer<byte[]> asyncConsumer) {
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             player.saveData();
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
                 File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
                 String filename = dataFolder + "/playerdata/" + player.getUniqueId() + ".dat";
                 File file = new File(filename);
-                try {
-                    FileInputStream fileInputStream = new FileInputStream(file);
+                try (FileInputStream fileInputStream = new FileInputStream(file)) {
                     asyncConsumer.accept(fileInputStream.readAllBytes());
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -45,16 +44,18 @@ public class PlayerSerializeUtils {
         File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
         String filename = dataFolder + "/playerdata/" + player.getUniqueId() + ".dat";
         File file = new File(filename);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        return fileInputStream.readAllBytes();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            return fileInputStream.readAllBytes();
+        }
     }
 
     public static byte[] serializeOffline(UUID uuid) throws IOException {
         File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
         String filename = dataFolder + "/playerdata/" + uuid + ".dat";
         File file = new File(filename);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        return fileInputStream.readAllBytes();
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            return fileInputStream.readAllBytes();
+        }
     }
 
 
@@ -72,14 +73,15 @@ public class PlayerSerializeUtils {
                 String filename = dataFolder + "/playerdata/" + player.getUniqueId() + ".dat";
                 File file = new File(filename);
                 Long worldUUIDLeast = null;
+                Long worldUUIDMost = null;
                 try {
                     worldUUIDLeast = getLong(file, "WorldUUIDLeast");
+                    worldUUIDMost = getLong(file, "WorldUUIDMost");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                try {
-                    Long worldUUIDMost = getLong(file, "WorldUUIDMost");
-                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+
+                try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
                     fileOutputStream.write(data);
                     updateFile(file, worldUUIDLeast, worldUUIDMost);
                 } catch (IOException e) {
@@ -101,8 +103,9 @@ public class PlayerSerializeUtils {
         String filename = dataFolder + "/playerdata/" + uuid + ".dat";
         File file = new File(filename);
         if (!file.exists()) {
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(data);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                fileOutputStream.write(data);
+            }
         }
         NamedTag read = NBTUtil.read(file);
         CompoundTag compoundTag = (CompoundTag) read.getTag();
@@ -122,12 +125,14 @@ public class PlayerSerializeUtils {
         if (file.exists()) {
             Long worldUUIDLeast = getLong(file, "WorldUUIDLeast");
             Long worldUUIDMost = getLong(file, "WorldUUIDMost");
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(data);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                fileOutputStream.write(data);
+            }
             updateFile(file, worldUUIDLeast, worldUUIDMost);
         } else {
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(data);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                fileOutputStream.write(data);
+            }
         }
     }
 
@@ -138,6 +143,5 @@ public class PlayerSerializeUtils {
         compoundTag.put("WorldUUIDLeast", new LongTag(worldUUIDLeast));
         compoundTag.put("WorldUUIDMost", new LongTag(worldUUIDMost));
         NBTUtil.write(read, file);
-
     }
 }

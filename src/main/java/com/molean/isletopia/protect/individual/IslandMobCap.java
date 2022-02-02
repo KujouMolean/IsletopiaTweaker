@@ -3,7 +3,7 @@ package com.molean.isletopia.protect.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.LangUtils;
 import com.molean.isletopia.shared.utils.ObjectUtils;
@@ -59,6 +59,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         setMobCap(EntityType.GUARDIAN, 50);
         ignoredType.add(EntityType.ITEM_FRAME);
         ignoredType.add(EntityType.GLOW_ITEM_FRAME);
+        ignoredType.add(EntityType.SMALL_FIREBALL);
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);

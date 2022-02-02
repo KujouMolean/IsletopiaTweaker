@@ -13,7 +13,6 @@ public class DisableLiquidFlow implements IslandFlagHandler, Listener {
 
     public DisableLiquidFlow() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-
     }
 
     @EventHandler

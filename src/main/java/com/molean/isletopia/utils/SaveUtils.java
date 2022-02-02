@@ -28,8 +28,7 @@ public class SaveUtils {
 
     public static File getPlayerStatsFile(String name, Consumer<File> consumer) {
         UUID uuid = UUIDUtils.get(name);
-        File playerStatsFile = getPlayerStatsFile(uuid);
-            return playerStatsFile;
+        return getPlayerStatsFile(uuid);
 
     }
 

@@ -18,7 +18,6 @@ public class IsletopiaAdmin {
             new IsDebugCommand();
             new IslandAdmin();
             new ReloadPermissionCommand();
-            new ClaimFor();
 
         } catch (Exception exception) {
             exception.printStackTrace();

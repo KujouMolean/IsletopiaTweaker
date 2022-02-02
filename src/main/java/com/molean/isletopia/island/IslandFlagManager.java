@@ -22,13 +22,15 @@ public enum IslandFlagManager {
             registerHandler(SpectatorVisitor.class);
             registerHandler(DisableMobSpawn.class);
             registerHandler(DisableBlockBurn.class);
+            registerHandler(DisableVillagerAI.class);
+            registerHandler(AntiFire.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void registerHandler(Class<? extends IslandFlagHandler> handler) throws Exception {
-        Constructor<? extends IslandFlagHandler> declaredConstructor = null;
+        Constructor<? extends IslandFlagHandler> declaredConstructor;
         try {
             declaredConstructor = handler.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
@@ -51,7 +53,7 @@ public enum IslandFlagManager {
         String[] split = islandFlag.split("#");
         IslandFlagHandler islandFlagHandler = map.get(split[0]);
         if (islandFlagHandler != null) {
-            islandFlagHandler.onFlagAdd(island, split);
+            islandFlagHandler.onFlagRemove(island, split);
         }
     }
 

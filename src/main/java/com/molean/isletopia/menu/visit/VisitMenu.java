@@ -2,11 +2,10 @@ package com.molean.isletopia.menu.visit;
 
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.PlayerMenu;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.utils.UUIDUtils;
 import com.molean.isletopia.utils.HeadUtils;
-import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ListMenu;

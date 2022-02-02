@@ -5,6 +5,7 @@ import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.shared.database.PlayerDataDao;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.task.AsyncTryTask;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
 import com.molean.isletopia.utils.PlayerUtils;
@@ -164,7 +165,7 @@ public class PlayerDataSync implements Listener {
     /*sync call*/
     public void onJoin(Player player) {
         player.setGameMode(GameMode.SPECTATOR);
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.async(() -> {
             try {
                 if (!PlayerDataDao.exist(player.getUniqueId())) {
                     PlayerSerializeUtils.serialize(player, bytes -> {

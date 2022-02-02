@@ -92,10 +92,10 @@ public class PlayerMenu extends ChestMenu {
         skullWithIslandInfo.setItemMeta(itemMeta);
         this
                 .item(18, bookShelf.build())
-                .clickEventAsync(ClickType.LEFT, 18, () -> {
+                .clickEventSync(ClickType.LEFT, 18, () -> {
                     player.sendMessage(Component.text("=>§n点击查看梦幻之屿Wiki§r<=")
                             .clickEvent(ClickEvent.openUrl("http://wiki.islet.world")));
-                    player.closeInventory();
+                    close();
                 })
                 .clickEventAsync(ClickType.RIGHT, 18, () -> new RecipeListMenu(player).open())
                 .itemWithAsyncClickEvent(20, favorite.build(), () -> new FavoriteMenu(player).open())
@@ -107,12 +107,11 @@ public class PlayerMenu extends ChestMenu {
                 .clickEventSync(40, clickType -> {
                     if (clickType.equals(ClickType.LEFT)) {
                         player.performCommand("is");
-                        close();
                     } else if (clickType.equals(ClickType.RIGHT)) {
                         player.performCommand("visit " + player.getName());
-                        close();
                     }
                 })
                 .itemWithAsyncClickEvent(42, assist.build(), () -> new AssistMenu(player).open());
+
     }
 }

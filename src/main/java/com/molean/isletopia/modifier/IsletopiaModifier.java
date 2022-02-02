@@ -23,10 +23,10 @@ public class IsletopiaModifier {
             new DragonHeadExtractBreath();
             new EquipmentWeaker();
             new PreventRenameHead();
-            new TestListener();
+            new AutoFloor();
             new NetherPortal();
             new ShulkerRespawn();
-            new TestListener();
+            new AutoFloor();
             new LuckyColor();
             new RichPiglin();
             new SleepAnyTime();

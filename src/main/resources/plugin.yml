@@ -46,24 +46,19 @@ commands:
       - is
       - islet
       - isletopia
-  temp: { }
   staticmap: { }
   mobcap: { }
   backup: { }
   download: { }
-  redstone: { }
   bumpreward: { }
   likereward: { }
   luckycolor: { }
   clock: { }
-  test: { }
-  rank: { }
   powerbar: { }
   waterbar: { }
   productionbar: { }
   reloadpermission:
     permission: isletopia.admin
-  usertoken: { }
   skiptutor: { }
   claim: { }
   entitybar: { }

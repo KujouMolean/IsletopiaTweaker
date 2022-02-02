@@ -1,6 +1,6 @@
 package com.molean.isletopia.admin.individual;
 
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.pojo.req.CommandExecuteRequest;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import org.bukkit.Bukkit;

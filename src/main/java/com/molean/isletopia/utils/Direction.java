@@ -1,5 +1,6 @@
 package com.molean.isletopia.utils;
 
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 public enum Direction {
@@ -21,5 +22,23 @@ public enum Direction {
         } else {
             return Direction.SOUTH;
         }
+    }
+
+    public BlockFace toBlockFace() {
+        switch (this) {
+            case SOUTH -> {
+                return BlockFace.SOUTH;
+            }
+            case EAST -> {
+                return BlockFace.EAST;
+            }
+            case NORTH -> {
+                return BlockFace.NORTH;
+            }
+            case WEST ->{
+                return BlockFace.WEST;
+            }
+        }
+        return null;
     }
 }

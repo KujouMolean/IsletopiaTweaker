@@ -1,7 +1,7 @@
 package com.molean.isletopia.distribute;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.distribute.individual.*;
 import org.bukkit.Bukkit;
 

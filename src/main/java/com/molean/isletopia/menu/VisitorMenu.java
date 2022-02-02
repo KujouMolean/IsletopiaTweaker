@@ -23,7 +23,6 @@ import java.util.List;
 public class VisitorMenu extends ListMenu<Pair<String, Timestamp>> {
 
 
-    private List<Pair<String, Timestamp>> pairs;
 
     public VisitorMenu(Player player) {
         super(player, Component.text("访客列表"));
@@ -59,8 +58,6 @@ public class VisitorMenu extends ListMenu<Pair<String, Timestamp>> {
         });
 
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, "§f返回主菜单").build());
-        this.onCloseSync(() -> {
-            new PlayerMenu(player).open();
-        });
+        this.onCloseSync(() -> new PlayerMenu(player).open());
     }
 }

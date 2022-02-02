@@ -51,6 +51,7 @@ public class DragonEggLimiter implements Listener {
     public void on(InventoryMoveItemEvent event) {
         if (event.getItem().getType().equals(Material.DRAGON_EGG)) {
             Location location = event.getDestination().getLocation();
+            assert location != null;
             LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
             if (!allow(currentPlot.getUuid())) {
                 event.setCancelled(true);
@@ -63,6 +64,7 @@ public class DragonEggLimiter implements Listener {
     public void on(InventoryClickEvent event) {
         if (event.getCurrentItem() != null && event.getCurrentItem().getType().equals(Material.DRAGON_EGG)) {
             Location location = event.getInventory().getLocation();
+            assert location != null;
             LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
             if (!allow(currentPlot.getUuid())) {
                 event.setCancelled(true);
@@ -77,7 +79,9 @@ public class DragonEggLimiter implements Listener {
         event.getOldCursor();
         if (event.getOldCursor().getType().equals(Material.DRAGON_EGG)) {
             Location location = event.getInventory().getLocation();
+            assert location != null;
             LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
+            assert currentPlot != null;
             if (!allow(currentPlot.getUuid())) {
                 event.setCancelled(true);
             }
@@ -90,6 +94,7 @@ public class DragonEggLimiter implements Listener {
             Location location = event.getInteractionPoint();
             if (location != null) {
                 LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(location);
+                assert currentPlot != null;
                 if (!allow(currentPlot.getUuid())) {
                     event.setCancelled(true);
                     return;

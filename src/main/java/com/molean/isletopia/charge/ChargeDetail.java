@@ -12,14 +12,15 @@ public class ChargeDetail {
     private long hopper = 0;
     private long vehicle = 0;
     private long water = 0;
+    private long food = 0;
 
     private long otherPowerUsage = 0;
 
     private int powerChargeTimes = 0;
-    private int waterChargeTimes = 0;
+    private int foodChargeTimes = 0;
 
     private int powerProduceTimes = 0;
-    private int waterProduceTimes = 0;
+    private int foodProduceTimes = 0;
 
     private int onlineMinutes = 0;
 
@@ -99,6 +100,14 @@ public class ChargeDetail {
         this.water = water;
     }
 
+    public long getFood() {
+        return food;
+    }
+
+    public void setFood(long food) {
+        this.food = food;
+    }
+
     public int getPowerChargeTimes() {
         return powerChargeTimes;
     }
@@ -107,12 +116,12 @@ public class ChargeDetail {
         this.powerChargeTimes = powerChargeTimes;
     }
 
-    public int getWaterChargeTimes() {
-        return waterChargeTimes;
+    public int getFoodChargeTimes() {
+        return foodChargeTimes;
     }
 
-    public void setWaterChargeTimes(int waterChargeTimes) {
-        this.waterChargeTimes = waterChargeTimes;
+    public void setFoodChargeTimes(int foodChargeTimes) {
+        this.foodChargeTimes = foodChargeTimes;
     }
 
     public LocalDateTime getStartTime() {
@@ -139,12 +148,12 @@ public class ChargeDetail {
         this.powerProduceTimes = powerProduceTimes;
     }
 
-    public int getWaterProduceTimes() {
-        return waterProduceTimes;
+    public int getFoodProduceTimes() {
+        return foodProduceTimes;
     }
 
-    public void setWaterProduceTimes(int waterProduceTimes) {
-        this.waterProduceTimes = waterProduceTimes;
+    public void setFoodProduceTimes(int foodProduceTimes) {
+        this.foodProduceTimes = foodProduceTimes;
     }
 
     public int getOnlineMinutes() {

@@ -1,10 +1,9 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.player.PlayerPropertyManager;
-import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

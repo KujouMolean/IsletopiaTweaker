@@ -8,18 +8,18 @@ public class ChargeDetailUtils {
     public static final long TNT_TIMES = 50;
     public static final long FURNACE_TIMES = 2000;
     public static final long VEHICLE_TIMES = 2000;
-    public static final long WATER_TIMES = 100;
+    public static final long WATER_TIMES = 200;//modified
+    public static final long FOOD_TIMES = 60;
 
     public static final long POWER_INITIAL = 100000;
     public static final long POWER_PER_BUY = 10000;
-    public static final long POWER_PER_PRODUCE = 20;
+    public static final long POWER_PER_PRODUCE = 25;
     public static final long POWER_PER_ONLINE = 100;
 
-    public static final long WATER_INITIAL = 100000;
-    public static final long WATER_PER_BUY = 10000;
-    public static final long WATER_PER_PRODUCE = 20;
-    public static final long WATER_PER_ONLINE = 100;
-
+    public static final long FOOD_INITIAL = 100000;
+    public static final long FOOD_PER_BUY = 10000;
+    public static final long FOOD_PER_PRODUCE = 25;
+    public static final long FOOD_PER_ONLINE = 100;
 
     //获取用户总用电量
     public static long getTotalPowerUsage(ChargeDetail chargeDetail) {
@@ -31,6 +31,7 @@ public class ChargeDetailUtils {
         powerUsage += chargeDetail.getTnt() / TNT_TIMES;
         powerUsage += chargeDetail.getFurnace() / FURNACE_TIMES;
         powerUsage += chargeDetail.getVehicle() / VEHICLE_TIMES;
+        powerUsage += chargeDetail.getWater() / WATER_TIMES;
         return powerUsage;
     }
 
@@ -75,6 +76,12 @@ public class ChargeDetailUtils {
         return chargeDetail.getWater() / WATER_TIMES;
     }
 
+    //获取用户用粮草量
+    public static long getTotalFoodUsage(ChargeDetail chargeDetail) {
+        return chargeDetail.getFood() / FOOD_TIMES;
+    }
+
+
     //获取用户总电量
     public static long getTotalPower(ChargeDetail chargeDetail) {
         long powerTotal = 0;
@@ -85,23 +92,22 @@ public class ChargeDetailUtils {
         return powerTotal;
     }
 
-    public static long getTotalWater(ChargeDetail chargeDetail) {
-        long waterTotal = 0;
-        waterTotal += chargeDetail.getWaterChargeTimes() * WATER_PER_BUY;
-        waterTotal += chargeDetail.getWaterProduceTimes() * WATER_PER_PRODUCE;
-        waterTotal += chargeDetail.getOnlineMinutes() * WATER_PER_ONLINE;
-        waterTotal += WATER_INITIAL;
-        return waterTotal;
+    public static long getTotalFood(ChargeDetail chargeDetail) {
+        long foodTotal = 0;
+        foodTotal += chargeDetail.getFoodChargeTimes() * FOOD_PER_BUY;
+        foodTotal += chargeDetail.getFoodProduceTimes() * FOOD_PER_PRODUCE;
+        foodTotal += chargeDetail.getOnlineMinutes() * FOOD_PER_ONLINE;
+        foodTotal += FOOD_INITIAL;
+        return foodTotal;
     }
 
     public static long getLeftPower(ChargeDetail chargeDetail) {
         return ChargeDetailUtils.getTotalPower(chargeDetail) - ChargeDetailUtils.getTotalPowerUsage(chargeDetail);
     }
 
-    public static long getLeftWater(ChargeDetail chargeDetail) {
-        return ChargeDetailUtils.getTotalWater(chargeDetail) - ChargeDetailUtils.getTotalWaterUsage(chargeDetail);
+    public static long getLeftFood(ChargeDetail chargeDetail) {
+        return ChargeDetailUtils.getTotalFood(chargeDetail) - ChargeDetailUtils.getTotalFoodUsage(chargeDetail);
     }
-
 
     public static long getPowerCost(ChargeDetail chargeDetail) {
         long powerCost = 0;
@@ -115,15 +121,16 @@ public class ChargeDetailUtils {
         return powerCost;
     }
 
-    public static long getWaterCost(ChargeDetail chargeDetail) {
-        long waterCost = 0;
-        long leftWater = getLeftWater(chargeDetail);
-        if (leftWater < 0) {
-            long t = (long) Math.ceil(-leftWater / (double) ChargeDetailUtils.POWER_PER_BUY);
-            for (int i = chargeDetail.getWaterChargeTimes()+1; i <= t; i++) {
-                waterCost += i;
+    public static long getFoodCost(ChargeDetail chargeDetail) {
+        long foodCost = 0;
+        long leftFood = getLeftFood(chargeDetail);
+        if (leftFood < 0) {
+            long t = (long) Math.ceil(-leftFood / (double) ChargeDetailUtils.FOOD_PER_BUY);
+            for (int i = chargeDetail.getPowerChargeTimes() + 1; i <= t; i++) {
+                foodCost += i;
             }
         }
-        return waterCost;
+        return foodCost;
     }
+
 }

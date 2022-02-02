@@ -48,6 +48,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>com.molean:IsletopiaShared</include>
+                                    <include>net.wesjd.anvilgui:anvilgui</include>
                                 </includes>
                             </artifactSet>
                             <minimizeJar>true</minimizeJar>
@@ -88,6 +89,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>codemc-snapshots</id>
+            <url>https://repo.codemc.io/repository/maven-snapshots/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -113,6 +118,12 @@
             <version>1.5.25</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>net.wesjd</groupId>
+            <artifactId>anvilgui</artifactId>
+            <version>1.5.3-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>com.molean</groupId>
             <artifactId>IsletopiaShared</artifactId>

@@ -12,6 +12,7 @@ import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.MessageHandler;
 import com.molean.isletopia.shared.database.PlayerDataDao;
 import com.molean.isletopia.shared.message.RedisMessageListener;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;

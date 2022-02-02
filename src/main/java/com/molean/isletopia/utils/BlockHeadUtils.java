@@ -56,10 +56,9 @@ public class BlockHeadUtils {
     public static Map<Material, Set<String>> getBlockHeadMap() {
         Map<Material, Set<String>> blocks = new HashMap<>();
         Gson gson = new Gson();
-        InputStream resourceAsStream = BlockHeadUtils.class.getClassLoader().getResourceAsStream("blocks.json");
-        assert resourceAsStream != null;
         String blocksJsonString = null;
-        try {
+        try (InputStream resourceAsStream = BlockHeadUtils.class.getClassLoader().getResourceAsStream("blocks.json")) {
+            assert resourceAsStream != null;
             blocksJsonString = new String(resourceAsStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
@@ -69,8 +68,6 @@ public class BlockHeadUtils {
         JsonElement parse = jsonParser.parse(blocksJsonString);
         JsonArray asJsonArray = parse.getAsJsonArray();
         List<HeadBlock> headBlocks = new ArrayList<>();
-
-
         asJsonArray.forEach(jsonElement -> {
             String s1 = jsonElement.toString();
             HeadBlock headBlock = gson.fromJson(s1, HeadBlock.class);

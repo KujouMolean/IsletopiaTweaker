@@ -23,7 +23,7 @@ import java.util.Random;
 public class SettingsMenu extends ChestMenu {
 
     public SettingsMenu(Player player) {
-        super(player, 1, Component.text("岛屿设置"));
+        super(player, 2, Component.text("岛屿设置"));
 
         LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
@@ -33,8 +33,8 @@ public class SettingsMenu extends ChestMenu {
         ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, "§f添加删除成员");
         itemWithAsyncClickEvent(1, member.build(), () -> new MemberMenu(player).open());
 
-        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, "§f| 更改复活位置 |");
-        item(2, bed.build(), () ->{
+        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, "§f更改复活位置");
+        item(2, bed.build(), () -> {
             player.performCommand("is setHome");
             close();
         });
@@ -43,21 +43,18 @@ public class SettingsMenu extends ChestMenu {
             ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, "§f点击开放岛屿");
             cancel.addLore("§7当前岛屿模式: §c锁定");
             cancel.addLore("§7仅岛屿成员可访问此岛屿.");
-            cancel.addLore("§7菜单中不会展示此岛屿.");
             item(3, cancel.build(), () -> {
-                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-                if (currentIsland == null) return;
-                if (currentIsland.containsFlag("Lock")) {
+                if (currentPlot.containsFlag("Lock")) {
                     player.performCommand("is unlock");
                 } else {
                     player.performCommand("is lock");
                 }
+                close();
             });
         } else {
             ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, "§f点击闭关锁岛");
             denyAll.addLore("§7当前岛屿模式: §2开放");
             denyAll.addLore("§7任何人都可以访问此岛屿.");
-            denyAll.addLore("§7菜单中会展示此岛屿.");
             item(3, denyAll.build(), () -> {
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) return;
@@ -73,7 +70,6 @@ public class SettingsMenu extends ChestMenu {
         icon.addLore("§7副手手持需要的图标");
         icon.addLore("§7设置成功后会消耗掉副手物品");
         item(4, icon.build(), () -> {
-            close();
             player.performCommand("is setIcon");
         });
 
@@ -84,17 +80,51 @@ public class SettingsMenu extends ChestMenu {
             close();
         });
 
-        ItemStackSheet preferred = new ItemStackSheet(Material.APPLE, "§f设置/取消首选岛屿");
-        name.addLore("§7设置/取消当前岛屿为首选岛屿");
-        name.addLore("§7如果你有多个岛屿，你会优先传送到首选岛屿上");
-        name.addLore("§7如果你设置了多个首选岛屿，则会传送到第一个首选岛屿");
+        ItemStackSheet preferred = new ItemStackSheet(Material.APPLE, "§f首选岛屿");
+        preferred.addLore("§7如果你有多个岛屿，你会优先传送到首选岛屿上");
+        preferred.addLore("§7当前: " + (currentPlot.containsFlag("Preferred") ? "首选" : "非首选"));
         item(6, preferred.build(), () -> {
             player.performCommand("is preferred");
             close();
         });
 
+
+        ItemStackSheet allowDrop = new ItemStackSheet(Material.DROPPER, "§f游客丢弃物品权限");
+        allowDrop.addLore("§7当前: " + (currentPlot.containsFlag("AllowItemDrop") ? "允许" : "不允许"));
+        item(7, allowDrop.build(), () -> {
+            player.performCommand("is allowItemDrop");
+            close();
+        });
+
+        ItemStackSheet allowPickup = new ItemStackSheet(Material.HOPPER, "§f游客拾起物品权限");
+        allowPickup.addLore("§7当前: " + (currentPlot.containsFlag("AllowItemPickup") ? "允许" : "不允许"));
+        item(8, allowPickup.build(), () -> {
+            player.performCommand("is allowItemPickup");
+            close();
+        });
+
+        ItemStackSheet spectator = new ItemStackSheet(Material.FEATHER, "§f游客旁观模式");
+        spectator.addLore("§7当前: " + (currentPlot.containsFlag("SpectatorVisitor") ? "开启" : "关闭"));
+        item(9, spectator.build(), () -> {
+            player.performCommand("is spectatorVisitor");
+            close();
+        });
+
+        ItemStackSheet antiFire = new ItemStackSheet(Material.CAMPFIRE, "§b[Hex]§f岛屿防火");
+        antiFire.addLore("§7当前: " + (currentPlot.containsFlag("AntiFire") ? "开启" : "关闭"));
+        if (currentPlot.containsFlag("AntiFire")) {
+            antiFire.addLore("§c关闭此选项不会返还海洋之心");
+        } else {
+            antiFire.addLore("§c开启此选项需要消耗宝石海洋之心");
+        }
+        item(10, antiFire.build(), () -> {
+            player.performCommand("is antiFire");
+            close();
+        });
+
+
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
-        itemWithAsyncClickEvent(8, father.build(), () -> new PlayerMenu(player).open());
+        itemWithAsyncClickEvent(17, father.build(), () -> new PlayerMenu(player).open());
     }
 
 

@@ -121,7 +121,7 @@ public class ListMenu<T> extends ChestMenu {
         item(47, prevPageItemStack);
         item(49, closeItemStack);
         item(51, nextPageItemStack);
-        for (int i = 0; i < components.size() && i < 45; i++) {
+        for (int i = 0; page * 45 + i < components.size() && i < 45; i++) {
             item(i, itemStackFunction.apply(components.get(page * 45 + i)));
         }
     }

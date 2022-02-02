@@ -18,7 +18,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -26,7 +25,6 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.projectiles.ProjectileSource;
 
 public class IslandProtect implements Listener {
     public IslandProtect() {
@@ -50,33 +48,39 @@ public class IslandProtect implements Listener {
     //disable interact expect firework
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerInteractEvent event) {
-        if (event.getClickedBlock() == null) {
-            return;
+        Location location;
+
+        if (event.getInteractionPoint() != null) {
+            location = event.getInteractionPoint();
+        } else if (event.getClickedBlock() != null) {
+            location = event.getClickedBlock().getLocation();
+        } else {
+            location = event.getPlayer().getLocation();
         }
-        if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getClickedBlock().getLocation())) {
+
+        if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), location)) {
             ItemStack item = event.getItem();
-            if (item != null && item.getType().equals(Material.FIREWORK_ROCKET)) {
+            if (item == null) {
+                event.setCancelled(true);
+                return;
+            }
+            if (item.getType().equals(Material.CLOCK)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
                 event.setUseItemInHand(Event.Result.ALLOW);
-            } else {
-                event.setCancelled(true);
+                return;
             }
+            if (item.getType().isEdible()) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+                event.setUseItemInHand(Event.Result.ALLOW);
+                return;
+            }
+            event.setCancelled(true);
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void on(ProjectileLaunchEvent event) {
-        ProjectileSource shooter = event.getEntity().getShooter();
-        if (shooter instanceof Player player) {
-            if (!IslandManager.INSTANCE.hasTargetIslandPermission(player, event.getEntity().getLocation())) {
-                event.getEntity().remove();
-            }
-        }
-    }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void on(PlayerInteractEntityEvent event) {
-
         if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getRightClicked().getLocation())) {
             event.setCancelled(true);
         }

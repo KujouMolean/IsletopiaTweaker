@@ -3,12 +3,15 @@ package com.molean.isletopia.menu.assist;
 import com.molean.isletopia.infrastructure.individual.bars.SidebarManager;
 import com.molean.isletopia.menu.PlayerMenu;
 import com.molean.isletopia.player.PlayerPropertyManager;
+import com.molean.isletopia.shared.utils.ChatChannelUtils;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ChestMenu;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+
+import java.util.Set;
 
 public class AssistMenu extends ChestMenu {
     public AssistMenu(Player player) {
@@ -69,6 +72,7 @@ public class AssistMenu extends ChestMenu {
 
         ItemStackSheet claim = ItemStackSheet.fromString(Material.STONE, """
                 §f领取离线小号
+                §7适用于2022年1月5日前的离线玩家
                 §7站在你的离线小号岛屿上，输入/is claimOffline [密码]
                 §7副手持一个信标，消耗该信标即可领取此岛屿。
                 """);
@@ -87,6 +91,8 @@ public class AssistMenu extends ChestMenu {
         boolean disableLavaProtect = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableLavaProtect");
         boolean disableSingleIslandMenu = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableSingleIslandMenu");
         boolean disablePlayerMob = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisablePlayerMob");
+        boolean disableKeepInventory = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableKeepInventory");
+        boolean autoFloor = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "AutoFloor");
 
         //DisableChairs
         ItemStackSheet sit = ItemStackSheet.fromString(Material.BRICK_STAIRS, """
@@ -193,6 +199,43 @@ public class AssistMenu extends ChestMenu {
             MessageUtils.success(player,"搞定!");
             close();
         });
+
+        ItemStackSheet keep = ItemStackSheet.fromString(Material.BUNDLE, """
+                §f背包保护
+                §7开启后死亡不会掉落背包物品
+                §7当前：%s
+                """.formatted(!disableKeepInventory ? "开启" : "禁用"));
+        this.item(14, keep.build(),() -> {
+            PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisableKeepInventory", (!disableKeepInventory) + "");
+            MessageUtils.success(player,"搞定!");
+            close();
+        });
+
+
+        Set<String> channels = ChatChannelUtils.getChannels(player.getUniqueId());
+        ItemStackSheet channel = ItemStackSheet.fromString(Material.SUNFLOWER, """
+                §f聊天频道
+                §7加入其他聊天频道更好地聊天
+                §7当前频道：%s
+                """.formatted(String.join(",", channels)));
+        this.item(15, channel.build(),() -> {
+            new ChatChannel(player).open();
+        });
+
+
+        ItemStackSheet floor = ItemStackSheet.fromString(Material.STONE_SLAB, """
+                §f快捷铺地
+                §7开启后副手放材料即可自动铺路
+                §7当前：%s
+                """.formatted(autoFloor ? "开启" : "禁用"));
+        this.item(16, floor.build(),() -> {
+            PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "AutoFloor", (!autoFloor) + "");
+            MessageUtils.success(player,"搞定!");
+            close();
+        });
+
+
+
 
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
         itemWithAsyncClickEvent(26, father.build(), () -> new PlayerMenu(player).open());

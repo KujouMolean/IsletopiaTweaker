@@ -6,7 +6,7 @@ import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

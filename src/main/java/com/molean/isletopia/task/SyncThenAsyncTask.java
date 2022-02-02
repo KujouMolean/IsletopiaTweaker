@@ -33,7 +33,6 @@ public class SyncThenAsyncTask<T> extends BukkitRunnable {
                 if (runnable != null) {
                     runnable.run();
                 }
-
             });
         });
     }

@@ -3,7 +3,7 @@ package com.molean.isletopia.admin.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.IslandId;

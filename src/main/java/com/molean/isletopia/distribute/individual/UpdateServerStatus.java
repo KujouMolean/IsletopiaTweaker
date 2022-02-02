@@ -1,7 +1,7 @@
 package com.molean.isletopia.distribute.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;

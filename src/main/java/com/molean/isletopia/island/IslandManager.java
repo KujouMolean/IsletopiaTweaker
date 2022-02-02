@@ -1,7 +1,7 @@
 package com.molean.isletopia.island;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.IslandId;
@@ -305,7 +305,8 @@ public enum IslandManager {
     }
     @Nullable
     public LocalIsland getCurrentIsland(Chunk chunk) {
-        return getCurrentIsland(new Location(chunk.getWorld(), chunk.getX() << 4, 0, chunk.getZ() << 4));
+        Location location = chunk.getBlock(0, 0, 0).getLocation();
+        return getCurrentIsland(location);
     }
 
     @Nullable

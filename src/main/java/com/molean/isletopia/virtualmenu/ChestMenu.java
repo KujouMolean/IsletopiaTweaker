@@ -106,8 +106,9 @@ public class ChestMenu extends AbstractChestMenu {
         for (Consumer<Pair<Integer, ClickType>> pairConsumer : clickConsumerSync) {
             pairConsumer.accept(new Pair<>(slot, clickType));
         }
+        ArrayList<Consumer<Pair<Integer, ClickType>>> consumers = new ArrayList<>(clickConsumerAsync);
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            for (Consumer<Pair<Integer, ClickType>> pairConsumer : clickConsumerAsync) {
+            for (Consumer<Pair<Integer, ClickType>> pairConsumer : consumers) {
                 pairConsumer.accept(new Pair<>(slot, clickType));
             }
         });

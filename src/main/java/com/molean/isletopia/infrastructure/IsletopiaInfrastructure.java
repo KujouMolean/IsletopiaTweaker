@@ -36,6 +36,7 @@ public class IsletopiaInfrastructure {
             new ForceSleep();
             new Music();
             new ItemRemover();
+            new KeepInventory();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

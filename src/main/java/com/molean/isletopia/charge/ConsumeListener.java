@@ -4,7 +4,7 @@ import com.destroystokyo.paper.event.block.TNTPrimeEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.message.handler.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
@@ -16,6 +16,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Conduit;
 import org.bukkit.block.Hopper;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -24,7 +25,6 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -32,10 +32,12 @@ import java.util.*;
 public class ConsumeListener implements Listener {
     private static int TICK_SAMPLE_10 = 10;
     private static final Random random = new Random();
-    private static final Map<IslandId, UUID> plotOwnerCache = new HashMap<>();
     private static boolean shouldRecord = true;
 
-    public void producePowerAndWater() {
+    public void producePowerAndFood() {
+        if (!shouldRecord) {
+            return;
+        }
         @NotNull Chunk[] loadedChunks = IsletopiaTweakers.getWorld().getLoadedChunks();
         for (Chunk loadedChunk : loadedChunks) {
             Arrays.stream(loadedChunk.getTileEntities(false))
@@ -60,12 +62,15 @@ public class ConsumeListener implements Listener {
                             return;
                         }
                         ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
-                        chargeDetail.setWaterProduceTimes(chargeDetail.getWaterProduceTimes() + 1);
+                        chargeDetail.setFoodProduceTimes(chargeDetail.getFoodProduceTimes() + 1);
                     });
         }
     }
 
     public void countHopper() {
+        if (!shouldRecord) {
+            return;
+        }
         @NotNull Chunk[] loadedChunks = IsletopiaTweakers.getWorld().getLoadedChunks();
         for (Chunk loadedChunk : loadedChunks) {
             long count = Arrays.stream(loadedChunk.getTileEntities())
@@ -74,12 +79,27 @@ public class ConsumeListener implements Listener {
                     .filter(hopper -> !hopper.isLocked())
                     .count();
             LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(loadedChunk);
-            UUID s = Objects.requireNonNull(currentIsland).getUuid();
+            if (currentIsland == null) {
+                return;
+            }
             ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
             chargeDetail.setHopper(chargeDetail.getHopper() + count * 60 * 2);
         }
     }
 
+    public void countVillager() {
+
+        Collection<Villager> entitiesByClass = IsletopiaTweakers.getWorld().getEntitiesByClass(Villager.class);
+        for (Villager villager : entitiesByClass) {
+            Location location = villager.getLocation();
+            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
+            if (currentIsland == null) {
+                continue;
+            }
+            ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
+            chargeDetail.setFood(chargeDetail.getFood() + 60);
+        }
+    }
 
     public void arrearsDetect(LocalIsland localIsland) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
@@ -87,7 +107,7 @@ public class ConsumeListener implements Listener {
                 localIsland.addIslandFlag("DisableRedstone");
                 for (Player player : localIsland.getPlayersInIsland()) {
                     if (localIsland.hasPermission(player)) {
-                        MessageUtils.warn(player, "当前岛屿已停电，请即使缴纳电费。");
+                        MessageUtils.warn(player, "当前岛屿已停电，请及时缴纳电费。");
                     }
                 }
             } else {
@@ -100,19 +120,19 @@ public class ConsumeListener implements Listener {
                     }
                 }
             }
-            if (shouldRecord && ChargeDetailUtils.getLeftWater(ChargeDetailCommitter.get(localIsland.getIslandId())) < 0) {
-                localIsland.addIslandFlag("DisableWaterFlow");
+            if (shouldRecord && ChargeDetailUtils.getLeftFood(ChargeDetailCommitter.get(localIsland.getIslandId())) < 0) {
+                localIsland.addIslandFlag("DisableVillagerAI");
                 for (Player player : localIsland.getPlayersInIsland()) {
                     if (localIsland.hasPermission(player)) {
-                        MessageUtils.warn(player, "当前岛屿已停水，请及时缴纳水费。");
+                        MessageUtils.warn(player, "当前岛屿已断粮，请及时购买粮草。");
                     }
                 }
             } else {
-                if (localIsland.containsFlag("DisableWaterFlow")) {
-                    localIsland.removeIslandFlag("DisableWaterFlow");
+                if (localIsland.containsFlag("DisableVillagerAI")) {
+                    localIsland.removeIslandFlag("DisableVillagerAI");
                     for (Player player : localIsland.getPlayersInIsland()) {
                         if (localIsland.hasPermission(player)) {
-                            MessageUtils.success(player, "水力供应已恢复。");
+                            MessageUtils.success(player, "粮草供应已恢复。");
                         }
                     }
                 }
@@ -126,7 +146,7 @@ public class ConsumeListener implements Listener {
         Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             TICK_SAMPLE_10 = random.nextInt(20) + 1;
             LocalDateTime now = LocalDateTime.now();
-            shouldRecord = now.getHour() >= 8;
+            shouldRecord = now.getHour() >= 12;
         }, perTicks, perTicks);
     }
 
@@ -152,8 +172,9 @@ public class ConsumeListener implements Listener {
         //online count
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             //get plot distinct
-            producePowerAndWater();
+            producePowerAndFood();
             countHopper();
+            countVillager();
             for (LocalIsland owner : getIslandHasPlayerUnique()) {
                 addOneMinute(owner.getIslandId());
                 arrearsDetect(owner);
@@ -178,7 +199,7 @@ public class ConsumeListener implements Listener {
                 return;
             }
             long leftPower = ChargeDetailUtils.getLeftPower(ChargeDetailCommitter.get(localIsland.getIslandId()));
-            long leftWater = ChargeDetailUtils.getLeftWater(ChargeDetailCommitter.get(localIsland.getIslandId()));
+            long leftFood = ChargeDetailUtils.getLeftFood(ChargeDetailCommitter.get(localIsland.getIslandId()));
             if (leftPower < 500 && leftPower > 0) {
                 for (Player player : localIsland.getPlayersInIsland()) {
                     if (localIsland.hasPermission(player)) {
@@ -186,10 +207,10 @@ public class ConsumeListener implements Listener {
                     }
                 }
             }
-            if (leftWater < 500 && leftWater > 0) {
+            if (leftFood < 500 && leftFood > 0) {
                 for (Player player : localIsland.getPlayersInIsland()) {
                     if (localIsland.hasPermission(player)) {
-                        MessageUtils.warn(player, "岛屿剩余水量较低，即将停电，请及时缴费。");
+                        MessageUtils.warn(player, "岛屿剩余粮草较少，即将断粮，请及时缴费。");
                     }
                 }
             }
@@ -201,21 +222,6 @@ public class ConsumeListener implements Listener {
         return IslandId.fromLocation(ServerInfoUpdater.getServerName(), location.getBlockX(), location.getBlockZ());
     }
 
-    @Nullable
-    public static UUID getPlotOwner(Location location) {
-        IslandId islandId = getPlotId(location);
-        UUID cached = plotOwnerCache.get(islandId);
-        if (cached != null) {
-            return plotOwnerCache.get(islandId);
-        }
-        LocalIsland island = IslandManager.INSTANCE.getLocalIsland(islandId);
-        plotOwnerCache.put(islandId, null);
-        if (island == null) {
-            return null;
-        }
-        plotOwnerCache.put(islandId, island.getUuid());
-        return island.getUuid();
-    }
 
     @EventHandler(ignoreCancelled = true)
     public void on(BlockDispenseEvent event) {
@@ -292,9 +298,6 @@ public class ConsumeListener implements Listener {
         }
     }
 
-    public void on() {
-
-    }
 
     @EventHandler(ignoreCancelled = true)
     public void on(InventoryMoveItemEvent event) {
@@ -341,4 +344,5 @@ public class ConsumeListener implements Listener {
             chargeDetail.setWater(dispenser + TICK_SAMPLE_10);
         }
     }
+
 }

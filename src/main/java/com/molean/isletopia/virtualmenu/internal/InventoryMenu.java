@@ -63,12 +63,12 @@ public abstract class InventoryMenu implements Menu {
 
     @Override
     public void close() {
-        InventoryView openInventory = player.getOpenInventory();
-        if (openInventory.getTopInventory().equals(inventory)) {
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            InventoryView openInventory = player.getOpenInventory();
+            if (openInventory.getTopInventory().equals(inventory)) {
                 player.closeInventory();
-            });
-        }
+            }
+        });
     }
 
     public void onLeftClick(int slot) {

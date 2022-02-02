@@ -39,11 +39,9 @@ public enum VirtualMenuManager implements Listener {
             return;
         }
         event.setCancelled(true);
-
         if (!Objects.equals(event.getClickedInventory(), event.getInventory())) {
             return;
         }
-
         InventoryMenu menu = registerMap.get(inventory);
         menu.beforeClick(event.getClick(), event.getSlot());
         switch (event.getClick()) {
