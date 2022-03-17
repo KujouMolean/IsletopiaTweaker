@@ -1,7 +1,7 @@
 package com.molean.isletopia.admin.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import net.kyori.adventure.text.Component;
+import com.molean.isletopia.menu.PlayerMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,7 +22,7 @@ public class IsDebugCommand implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
-
+        new PlayerMenu(player, player.getUniqueId()).open();
         return true;
     }
 

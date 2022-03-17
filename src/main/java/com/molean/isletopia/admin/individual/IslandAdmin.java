@@ -7,7 +7,7 @@ import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.IslandId;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -31,7 +31,7 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (strings.length == 0) {
-            commandSender.sendMessage("参数不足");
+            commandSender.sendMessage("Args not enough");
             return true;
         }
         Player player = (Player) commandSender;
@@ -40,31 +40,31 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
             case "setowner" -> {
                 if (strings.length < 2) {
 
-                    MessageUtils.fail(commandSender,"参数不足");
+                    MessageUtils.fail(player,"Args not enough");
                     return true;
                 }
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
+                    MessageUtils.fail(player,"Not claimed");
                     return true;
                 }
-                UUID uuid = UUIDUtils.get(strings[1]);
+                UUID uuid = UUIDManager.get(strings[1]);
                 if (uuid == null) {
-                    MessageUtils.fail(commandSender,"失败,未找到uuid");
+                    MessageUtils.fail(player,"UUID not found");
                     return true;
                 }
                 currentIsland.setUuid(uuid);
-                MessageUtils.success(commandSender,"应该成功了");
+                MessageUtils.success(player,"Success");
             }
             case "claim" -> {
                 String serverName = ServerInfoUpdater.getServerName();
                 IslandId islandId = IslandId.fromLocation(serverName, player.getLocation().getBlockX(), player.getLocation().getBlockZ());
                 IslandManager.INSTANCE.createNewIsland(islandId, player.getUniqueId(), (island) -> {
                     if (island == null) {
-                        MessageUtils.fail(commandSender,"领取失败");
+                        MessageUtils.fail(player,"Unexpected failed");
                     } else {
                         island.tp(player);
-                        MessageUtils.success(commandSender,"应该成功了");
+                        MessageUtils.success(player,"Success");
                     }
                 });
 
@@ -72,94 +72,94 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
             case "clear" -> {
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    MessageUtils.fail(commandSender,"岛屿尚未被领取");
+                    MessageUtils.fail(player,"Not claimed");
                     break;
                 }
-                MessageUtils.fail(commandSender,"开始清空岛屿..");
+                MessageUtils.fail(player,"Starting clear..");
                 currentIsland.clearAndApplyNewIsland(() -> {
-                    MessageUtils.success(commandSender,"清空成功!");
+                    MessageUtils.success(player,"Done!");
                 }, 60);
 
             }
 
             case "add" -> {
                 if (strings.length < 2) {
-                    MessageUtils.fail(commandSender,"参数不足");
+                    MessageUtils.fail(player,"Args not enough");
                     return true;
                 }
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
+                    MessageUtils.fail(player,"Not claimed");
                     return true;
                 }
                 String string = strings[1];
 
 
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    UUID uuid = UUIDUtils.get(string);//checked
+                    UUID uuid = UUIDManager.get(string);//checked
                     currentIsland.addMember(uuid);
-                    MessageUtils.success(commandSender,"应该成功了");
+                    MessageUtils.success(player,"Success");
                 });
 
 
             }
             case "remove" -> {
                 if (strings.length < 2) {
-                    MessageUtils.fail(commandSender,"参数不足");
+                    MessageUtils.fail(player,"Args not enough");
                     return true;
                 }
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
+                    MessageUtils.fail(player,"Not claimed");
                     return true;
                 }
-                UUID uuid = UUIDUtils.get(strings[1]);
+                UUID uuid = UUIDManager.get(strings[1]);
                 currentIsland.removeMember(uuid);
 
-                MessageUtils.success(commandSender,"应该成功了");
+                MessageUtils.success(player,"Success");
             }
             case "addflag" -> {
                 if (strings.length < 2) {
-                    MessageUtils.fail(commandSender,"参数不足");
+                    MessageUtils.fail(player,"Args not enough");
                     return true;
                 }
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
+                    MessageUtils.fail(player,"Not claimed");
                     return true;
                 }
                 currentIsland.addIslandFlag(strings[1]);
-                MessageUtils.success(commandSender,"添加成功");
+                MessageUtils.success(player,"Success");
             }
             case "removeflag" -> {
                 if (strings.length < 2) {
-                    MessageUtils.fail(commandSender,"参数不足");
+                    MessageUtils.fail(player,"Args not enough");
                     return true;
                 }
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
+                    MessageUtils.fail(player,"Not claimed");
                     return true;
                 }
 
                 if (currentIsland.containsFlag(strings[1])) {
                     currentIsland.removeIslandFlag(strings[1]);
-                    MessageUtils.success(commandSender,"删除成功");
+                    MessageUtils.success(player,"Success");
                 } else {
-                    MessageUtils.fail(commandSender,"岛屿不包含该标记");
+                    MessageUtils.fail(player,"Island doesn't contain such flag");
                 }
             }
             case "list" -> {
                 if (strings.length < 2) {
-                    MessageUtils.fail(commandSender,"参数不足");
+                    MessageUtils.fail(player,"Args not enough");
                     return true;
                 }
                 String target = strings[1];
 
-                List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(UUIDUtils.get(target));
+                List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(UUIDManager.get(target));
 
 
-                MessageUtils.info(player, target + " 共有 " + playerIslands.size() + " 个岛屿");
+                MessageUtils.info(player, target + " has " + playerIslands.size() + " islands");
 
                 for (Island playerIsland : playerIslands) {
                     MessageUtils.info(player, " - " + playerIsland.getIslandId().toLocalString());
@@ -169,12 +169,12 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
             case "delete" -> {
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
-                    MessageUtils.fail(commandSender,"当前岛屿未被领取");
+                    MessageUtils.fail(player,"Not claimed");
                     return true;
                 }
 
                 IslandManager.INSTANCE.deleteIsland(currentIsland, () -> {
-                    MessageUtils.success(commandSender,"岛屿已被删除");
+                    MessageUtils.success(player,"Done!");
                 });
 
             }

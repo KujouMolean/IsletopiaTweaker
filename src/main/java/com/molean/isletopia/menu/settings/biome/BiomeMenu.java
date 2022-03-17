@@ -2,8 +2,10 @@ package com.molean.isletopia.menu.settings.biome;
 
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.shared.utils.LangUtils;
+import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.task.PlotChunkTask;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
@@ -15,48 +17,35 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class BiomeMenu extends ListMenu<Biome> {
 
     private static final Set<IslandId> changingBiome = new HashSet<>();
+
+
     public BiomeMenu(Player player) {
-        super(player, Component.text("选择想要切换的生物群系:"));
+        super(player, Component.text(MessageUtils.getMessage(player, "menu.member.biome.title")));
         List<Biome> values = new ArrayList<>(List.of(Biome.values()));
         values.remove(Biome.CUSTOM);
         this.components(values);
         Biome currentBiome = player.getLocation().getBlock().getBiome();
         this.convertFunction(biome -> {
-            String id = biome.name();
-            String name = "未知(" + id + ")";
+            String name = MessageUtils.getMessage(player, "menu.member.biome.unknown", Pair.of("biome", biome.name()));
             Material icon = Material.PLAYER_HEAD;
-            List<String> creatures = new ArrayList<>();
-            List<String> environments = new ArrayList<>();
             try {
-                LocalBiome localBiome = LocalBiome.valueOf(id.toUpperCase());
-                name = localBiome.getName();
+                LocalBiome localBiome = LocalBiome.valueOf(biome.name().toUpperCase());
+                String key = "biome." + biome.getKey().namespace() + "." + biome.getKey().value();
+                name = LangUtils.get(player.locale(), key);
                 icon = localBiome.getIcon();
-                creatures.addAll(localBiome.getCreatures());
-                creatures.removeIf(String::isEmpty);
-                environments.addAll(localBiome.getEnvironment());
-                environments.removeIf(String::isEmpty);
             } catch (IllegalArgumentException ignore) {
             }
             ItemStackSheet itemStackSheet = new ItemStackSheet(icon, "§f" + name);
-            if (!creatures.isEmpty()) {
-                itemStackSheet.addLore("§f生物: " + String.join(", ", creatures));
-            }
-            if (!environments.isEmpty()) {
-                itemStackSheet.addLore("§f环境: " + String.join(", ", environments));
-            }
-            if (currentBiome.name().equalsIgnoreCase(id)) {
+            if (currentBiome.name().equalsIgnoreCase(biome.name())) {
                 itemStackSheet.addItemFlag(ItemFlag.HIDE_ENCHANTS);
                 itemStackSheet.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
-                String display = itemStackSheet.getDisplay();
-                itemStackSheet.setDisplay("§f当前所在生物群系: " + display);
+                String display = itemStackSheet.display();
+                itemStackSheet.display(MessageUtils.getMessage(player, "menu.biome.current", Pair.of("current", display)));
             }
             return itemStackSheet.build();
         });
@@ -66,19 +55,20 @@ public class BiomeMenu extends ListMenu<Biome> {
             assert currentPlot != null;
 
             if (changingBiome.contains(currentPlot.getIslandId())) {
-                MessageUtils.fail(player, "你的岛屿正在修改生物群系, 请等待修改完成!");
+                MessageUtils.fail(player, "menu.biome.changing");
                 player.closeInventory();
                 return;
             }
 
-            String biomeName = biome.name();
-            String name = "未知";
+
+            String name = MessageUtils.getMessage(player, "menu.member.biome.unknown", Pair.of("biome", biome.name()));;
             try {
-                name = LocalBiome.valueOf(biomeName.toUpperCase()).getName();
+                String key = "biome." + biome.getKey().namespace() + "." + biome.getKey().value();
+                name = LangUtils.get(player.locale(), key);
             } catch (IllegalArgumentException ignore) {
             }
             if (player.getUniqueId().equals(currentPlot.getUuid())) {
-                MessageUtils.info(player, "尝试修改岛屿生物群系...(需要180秒)");
+                MessageUtils.info(player, "menu.biome.start");
                 String finalName = name;
                 changingBiome.add(currentPlot.getIslandId());
                 new PlotChunkTask(currentPlot, chunk -> {
@@ -90,16 +80,16 @@ public class BiomeMenu extends ListMenu<Biome> {
                         }
                     }
                 }, () -> {
-                    MessageUtils.info(player, "成功修改生物群系为:" + finalName + ".");
+                    MessageUtils.info(player, MessageUtils.getMessage(player, "menu.biome.success", Pair.of("name", finalName)));
                     changingBiome.remove(currentPlot.getIslandId());
-                }, 180 * 20).run();
+                }, 1024).tickRate(12).run();
             } else {
-                player.kick(Component.text("错误, 非岛主操作岛屿成员."));
+                player.kick(Component.text(MessageUtils.getMessage(player, "island.command.noPerm")));
             }
             player.closeInventory();
         });
-        this.closeItemStack(new ItemStackSheet(Material.BARRIER, "§f返回主菜单").build());
-        this.onCloseAsync(() -> new PlayerMenu(player).open())
+        this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
+        this.onCloseAsync(() -> new MainMenu(player).open())
                 .onCloseSync(() -> {});
     }
 }

@@ -1,5 +1,7 @@
 package com.molean.isletopia.charge;
 
+import com.molean.isletopia.shared.model.ChargeDetail;
+
 public class ChargeDetailUtils {
     public static final long DISPENSER_TIMES = 2000;
     public static final long PISTON_TIMES = 200;

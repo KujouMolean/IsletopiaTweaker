@@ -17,7 +17,13 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 public class PlayerIslandChangeEventListener implements Listener {
+    private static final Set<UUID> UUID_SET = new HashSet<>();
+
 
     public PlayerIslandChangeEventListener() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
@@ -30,22 +36,30 @@ public class PlayerIslandChangeEventListener implements Listener {
         PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, null, toIsland);
         Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);
         if (playerIslandChangeEvent.isCancelled()) {
-            MessageUtils.fail(player, "你无法进入该岛屿!");
+            MessageUtils.fail(player, "island.enterInvalidIsland");
             player.performCommand("is");
         }
+        UUID_SET.add(player.getUniqueId());
 
     }
 
     @EventHandler
     public void on(PlayerQuitEvent event) {
+        if (!UUID_SET.contains(event.getPlayer().getUniqueId())) {
+            return;
+        }
         Player player = event.getPlayer();
         LocalIsland fromIsland = IslandManager.INSTANCE.getCurrentIsland(event.getPlayer());
         PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, fromIsland, null);
         Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);
+        UUID_SET.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerTeleportEvent event) {
+        if (!UUID_SET.contains(event.getPlayer().getUniqueId())) {
+            return;
+        }
         if(!move(event.getPlayer(), event.getFrom(), event.getTo())){
             event.setCancelled(true);
         }
@@ -53,6 +67,9 @@ public class PlayerIslandChangeEventListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerMoveEvent event) {
+        if (!UUID_SET.contains(event.getPlayer().getUniqueId())) {
+            return;
+        }
         if(!move(event.getPlayer(), event.getFrom(), event.getTo())){
             event.setCancelled(true);
         }

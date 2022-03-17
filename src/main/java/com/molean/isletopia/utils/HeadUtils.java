@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.utils.RedisUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -79,7 +79,7 @@ public class HeadUtils {
         assert headMeta != null;
         headMeta.displayName(Component.text("§f" + name));
         if (value != null) {
-            UUID uuid = UUIDUtils.getOffline(name);
+            UUID uuid = UUIDManager.getOffline(name);
             GameProfile profile = new GameProfile(uuid, name);
             profile.getProperties().put("textures", new Property("textures", value));
             try {

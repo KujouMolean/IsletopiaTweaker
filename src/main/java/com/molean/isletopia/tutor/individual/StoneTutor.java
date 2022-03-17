@@ -44,7 +44,7 @@ public class StoneTutor implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (Objects.equals(tutorStatus, "Stone") && player.isOnline()) {
-                BossBar bossBar = Bukkit.createBossBar("新手引导: 制造刷石机并获取8组圆石.", BarColor.GREEN, BarStyle.SEGMENTED_20);
+                BossBar bossBar = Bukkit.createBossBar(MessageUtils.getMessage(player, "tutor.stone.title"), BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);
                 PLAYERS.add(player);
                 BARS.put(player, bossBar);
@@ -70,8 +70,8 @@ public class StoneTutor implements Listener {
             PLAYERS.remove(player);
             BARS.remove(player);
 
-            MessageUtils.info(player, "你已经挖到了足够多的石头，尝试建造一个刷怪塔。");
-            MessageUtils.info(player, "如果有困难，请前往哔哩哔哩动画学习。");
+            MessageUtils.info(player, "tutor.stone.next.mobfarm");
+            MessageUtils.info(player, "tutor.stone.next.bilibili");
             UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "MobFarm");
             MobFarmTutor.onJoin(player);
             return;

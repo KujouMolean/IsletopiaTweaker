@@ -15,11 +15,11 @@ public class LocalRecipe {
     }
 
     public static void addRecipe(ItemStack icon, ItemStack type, ItemStack[] source, ItemStack result) {
-        List<ItemStack> icons = List.of(icon);
-        List<ItemStack> types = List.of(type);
+        List<ItemStack> icons = new ArrayList<>(List.of(icon));
+        List<ItemStack> types = new ArrayList<>(List.of(type));
         List<ItemStack[]> sources = new ArrayList<>();
         sources.add(source);
-        List<ItemStack> results = List.of(result);
+        List<ItemStack> results = new ArrayList<>(List.of(result));
         localRecipeList.add(new LocalRecipe(icons, types, sources, results));
     }
 
@@ -52,10 +52,10 @@ public class LocalRecipe {
     public List<ItemStack> results;
 
     public LocalRecipe(List<ItemStack> icons, List<ItemStack> types, List<ItemStack[]> sources, List<ItemStack> results) {
-        this.icons = icons;
-        this.types = types;
-        this.sources = sources;
-        this.results = results;
+        this.icons = new ArrayList<>(icons);
+        this.types = new ArrayList<>(types);
+        this.sources = new ArrayList<>(sources);
+        this.results = new ArrayList<>(results);
     }
 
 

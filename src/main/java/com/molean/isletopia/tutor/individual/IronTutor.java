@@ -38,7 +38,7 @@ public class IronTutor implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (Objects.equals(tutorStatus, "Iron") && player.isOnline()) {
-                BossBar bossBar = Bukkit.createBossBar("新手引导: 合成一块铁锭.", BarColor.GREEN, BarStyle.SEGMENTED_20);
+                BossBar bossBar = Bukkit.createBossBar(MessageUtils.getMessage(player, "tutor.iron.title"), BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);
                 PLAYERS.add(player);
                 BARS.put(player, bossBar);
@@ -93,8 +93,8 @@ public class IronTutor implements Listener {
         }
 
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            MessageUtils.info(player, "接下来是更加困难的挑战，请拯救一只村民。");
-            MessageUtils.info(player, "用女巫的虚弱药水和金苹果将僵尸村民转化为村民为你所用。");
+            MessageUtils.info(player, "tutor.iron.next.village");
+            MessageUtils.info(player, "tutor.iron.next.witcher");
             PLAYERS.remove(player);
             BARS.get(player).removeAll();
             UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "Villager");

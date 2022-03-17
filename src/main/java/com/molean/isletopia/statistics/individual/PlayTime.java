@@ -19,7 +19,6 @@ public class PlayTime implements Listener {
 
     public PlayTime() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        PlayTimeStatisticsDao.checkTable();
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onJoin(onlinePlayer);

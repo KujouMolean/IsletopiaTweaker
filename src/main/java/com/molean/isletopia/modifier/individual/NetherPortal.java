@@ -39,7 +39,7 @@ public class NetherPortal implements Listener {
                 map.put(event.getEntity().getUniqueId(), System.currentTimeMillis());
             } else if (System.currentTimeMillis() - map.get(event.getEntity().getUniqueId()) > 4000) {
                 player.setHealth(0);
-                MessageUtils.notify(player, "下界已被关闭, 如需地狱生物, 请切换到地狱生物群系.");
+                MessageUtils.notify(player, "nether.closed");
                 map.remove(event.getEntity().getUniqueId());
             }
         }

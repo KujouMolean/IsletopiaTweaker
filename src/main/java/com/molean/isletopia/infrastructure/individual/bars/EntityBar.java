@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.protect.individual.IslandMobCap;
+import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.ScoreboardUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -43,12 +44,12 @@ public class EntityBar implements CommandExecutor, TabCompleter, Listener {
             ScoreboardUtils.clearPlayerUniqueSidebar(player);
             return;
         }
-        Map<String, Integer> snapshot = IslandMobCap.getSnapshot(currentIsland.getIslandId());
+        Map<String, Integer> snapshot = IslandMobCap.getSnapshot(player,currentIsland.getIslandId());
         if (snapshot == null) {
             return;
         }
-
-        ScoreboardUtils.setPlayerUniqueSidebar(player,Component.text("§6实体统计"), snapshot);
+        String message = MessageUtils.getMessage(player, "player.bar.entity");
+        ScoreboardUtils.setPlayerUniqueSidebar(player, Component.text( message), snapshot);
     }
 
 

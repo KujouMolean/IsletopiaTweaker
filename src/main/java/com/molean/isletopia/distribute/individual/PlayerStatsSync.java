@@ -31,15 +31,6 @@ public class PlayerStatsSync implements Listener {
     public PlayerStatsSync() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
 
-        // check table
-        try {
-            PlayerStatsDao.checkTable();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            //stop server if check has error
-            Logger.getAnonymousLogger().severe("Database check error!");
-            Bukkit.shutdown();
-        }
 
         IsletopiaTweakers.addDisableTask("Save player stats to database", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -83,13 +74,13 @@ public class PlayerStatsSync implements Listener {
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    MessageUtils.warn(player, "你的统计保存失败，请尽快联系管理员处理！");
+                    MessageUtils.warn(player, "player.stats.saveFailed");
                 }
             });
 
         } catch (Exception e) {
             e.printStackTrace();
-            MessageUtils.warn(player, "你的统计保存失败，请尽快联系管理员处理！");
+            MessageUtils.warn(player, "player.stats.saveFailed");
         }
     }
 
@@ -106,7 +97,7 @@ public class PlayerStatsSync implements Listener {
 
     public void waitLockThenLoadData(Player player) {
         Runnable exceptionHandler = () -> {
-            MessageUtils.warn(player, "你的统计信息读取错误, 可能已经被污染.");
+            MessageUtils.warn(player, "player.stats.loadFailed");
         };
 
         new AsyncTryTask(() -> {

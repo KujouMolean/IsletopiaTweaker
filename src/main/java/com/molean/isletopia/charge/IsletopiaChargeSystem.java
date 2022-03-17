@@ -2,6 +2,7 @@ package com.molean.isletopia.charge;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.infrastructure.individual.bars.ChargeBar;
+import com.molean.isletopia.shared.model.ChargeDetail;
 
 import java.util.logging.Logger;
 

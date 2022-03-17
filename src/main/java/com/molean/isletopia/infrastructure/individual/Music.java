@@ -21,20 +21,21 @@ public class Music implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        Player player = (Player) sender;
 
         if (args.length < 2) {
-            MessageUtils.notify(sender, "/music 音符间隔(t) 音符序列 ...");
+            MessageUtils.notify(player, "/music 音符间隔(t) 音符序列 ...");
             return true;
         }
         int interval;
         try {
             interval = Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
-            MessageUtils.notify(sender, "/music 音符间隔(t) 音符序列 ...");
+            MessageUtils.notify(player, "/music 音符间隔(t) 音符序列 ...");
             return true;
         }
         if (interval > 20 || interval < 1) {
-            MessageUtils.notify(sender, "间隔无效，请重新输入");
+            MessageUtils.notify(player, "间隔无效，请重新输入");
             return true;
         }
         ArrayList<String> strings = new ArrayList<>(Arrays.asList(args));

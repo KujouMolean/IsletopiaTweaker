@@ -19,7 +19,7 @@ public class ReloadPermissionCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         Bukkit.reloadPermissions();
-        MessageUtils.success(commandSender, "OK");
+        commandSender.sendMessage("OK");
         return true;
     }
 }

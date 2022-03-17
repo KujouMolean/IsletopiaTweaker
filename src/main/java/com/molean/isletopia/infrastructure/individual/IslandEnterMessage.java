@@ -2,11 +2,13 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
+import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.model.IslandId;
-import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.shared.utils.Pair;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -39,13 +41,12 @@ public class IslandEnterMessage implements Listener {
                     .replace("%1%", IsletopiaTweakersUtils.getLocalServerName())
                     .replace("%2%", alias);
         }
-        String s = UUIDUtils.get(island.getUuid());
+        String s = UUIDManager.get(island.getUuid());
         if (s == null) {
             s = "Unknown";
         }
-        String subtitle = "§3由 %1% 所有".replace("%1%", s);
-        player.showTitle(Title.title(Component.text(title), Component.text(subtitle)));
-
+        String message = MessageUtils.getMessage(player, "island.enter.subtitle", Pair.of("owner", s));
+        player.showTitle(Title.title(Component.text(title), Component.text(message)));
     }
 
     @EventHandler(ignoreCancelled = true)

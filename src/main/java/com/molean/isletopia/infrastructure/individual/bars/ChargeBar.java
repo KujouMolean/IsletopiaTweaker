@@ -7,6 +7,7 @@ import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.service.UniversalParameter;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -43,7 +44,8 @@ public class ChargeBar implements CommandExecutor, Listener {
                 }
                 long totalPower = ChargeDetailUtils.getTotalPower(ChargeDetailCommitter.get(currentIsland.getIslandId()));
                 long totalPowerUsage = ChargeDetailUtils.getTotalPowerUsage(ChargeDetailCommitter.get(currentIsland.getIslandId()));
-                bossBar.setTitle("电表: " + totalPowerUsage + "/" + totalPower);
+
+                bossBar.setTitle(MessageUtils.getMessage(player,"player.bar.power")+": " + totalPowerUsage + "/" + totalPower);
                 double progress = totalPowerUsage / (double) totalPower;
                 if (progress < 0) {
                     progress = 0;

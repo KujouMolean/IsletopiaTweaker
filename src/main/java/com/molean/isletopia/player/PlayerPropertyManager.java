@@ -2,7 +2,7 @@ package com.molean.isletopia.player;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerPropertyLoadCompleteEvent;
-import com.molean.isletopia.shared.database.ParameterDao;
+import com.molean.isletopia.shared.database.PlayerParameterDao;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.PluginUtils;
@@ -55,14 +55,22 @@ public enum PlayerPropertyManager implements Listener {
     }
 
     private void update(Player player) {
-        Map<String, String> properties = ParameterDao.properties(player.getUniqueId());
+        Map<String, String> properties = PlayerParameterDao.properties(player.getUniqueId());
         propertiesMap.put(player.getUniqueId(), properties);
     }
 
     public void setPropertyAsync(Player player, String key, String value) {
+        setPropertyAsync(player, key, value, null);
+
+    }
+
+    public void setPropertyAsync(Player player, String key, String value,Runnable asyncRunnable) {
         Tasks.INSTANCE.async(() -> {
             UniversalParameter.setParameter(player.getUniqueId(), key, value);
             update(player);
+            if (asyncRunnable != null) {
+                asyncRunnable.run();
+            }
         });
     }
 

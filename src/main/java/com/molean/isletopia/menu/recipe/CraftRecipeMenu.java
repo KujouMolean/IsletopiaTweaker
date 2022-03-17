@@ -2,6 +2,7 @@ package com.molean.isletopia.menu.recipe;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.ItemStackSheet;
+import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ChestMenu;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -14,9 +15,9 @@ public class CraftRecipeMenu extends ChestMenu {
     private BukkitTask bukkitTask;
 
     public CraftRecipeMenu(Player player, LocalRecipe localRecipe) {
-        super(player, 4, Component.text("扩展合成表"));
+        super(player, 4, Component.text(MessageUtils.getMessage(player, "menu.recipe.title")));
         this.localRecipe = localRecipe;
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回");
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.recipeList"));
         for (int i = 27; i < 36; i++) {
             item(i, father.build(), () -> {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {

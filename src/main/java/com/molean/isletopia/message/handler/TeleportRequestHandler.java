@@ -10,7 +10,7 @@ import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.TeleportRequest;
 import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -69,7 +69,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
         teleportResponse.setTarget(sourcePlayer);
         if (target == null) {
             teleportResponse.setResponse("no-player");
-            teleportResponse.setResponseMessage("玩家不存在");
+            teleportResponse.setResponseMessage("visit.noPlayer");
             String playerServerName = ServerInfoUpdater.getPlayerServerMap().get(sourcePlayer);
             ServerMessageUtils.sendMessage(playerServerName, "TeleportResponse", teleportResponse);
 
@@ -79,7 +79,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
                     source.teleport(target.getLocation());
                 });
             } else {
-                UUID sourceUUID = UUIDUtils.get(sourcePlayer);
+                UUID sourceUUID = UUIDManager.get(sourcePlayer);
                 try {
                     if (sourceUUID != null && PlayerDataDao.exist(sourceUUID)) {
                         byte[] query = PlayerDataDao.query(sourceUUID);

@@ -4,7 +4,7 @@ package com.molean.isletopia.database;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.database.DataSourceUtils;
 import com.molean.isletopia.utils.SaveUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -52,7 +52,7 @@ public class DownloadDao {
 
     public static void uploadSave(LocalIsland plot, Consumer<String> consumer) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        deleteOld(UUIDUtils.get(plot.getUuid()));
+        deleteOld(UUIDManager.get(plot.getUuid()));
         File plotRegionFile = plot.getRegionFile();
         UUID uuid = plot.getUuid();
         File playerStatsFile = SaveUtils.getPlayerStatsFile(uuid);
@@ -100,7 +100,7 @@ public class DownloadDao {
         try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "insert into minecraft.isletopia_save(player, data, time, token) values (?,?,?,?);";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setString(1, UUIDUtils.get(plot.getUuid()));
+            preparedStatement.setString(1, UUIDManager.get(plot.getUuid()));
             preparedStatement.setBytes(2, data);
             preparedStatement.setLong(3, System.currentTimeMillis());
             preparedStatement.setString(4, token);

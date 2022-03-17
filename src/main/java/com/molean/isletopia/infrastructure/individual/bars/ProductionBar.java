@@ -5,6 +5,7 @@ import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.LangUtils;
+import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.ScoreboardUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -59,10 +60,12 @@ public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
 
         HashMap<String, Integer> stringIntegerHashMap = new HashMap<>();
         productionPerMin.forEach((material, integer) -> {
-            stringIntegerHashMap.put(LangUtils.get(material.translationKey()), integer);
+            stringIntegerHashMap.put(LangUtils.get(player.locale(),material.translationKey()), integer);
         });
-        stringIntegerHashMap.put("总计", total);
-        ScoreboardUtils.setPlayerUniqueSidebar(player, Component.text("§6产量统计/min"), stringIntegerHashMap);
+
+        stringIntegerHashMap.put(MessageUtils.getMessage(player, "player.bar.production.total"), total);
+        String message = MessageUtils.getMessage(player, "player.bar.production");
+        ScoreboardUtils.setPlayerUniqueSidebar(player, Component.text(message), stringIntegerHashMap);
     }
 
     @EventHandler(ignoreCancelled = true)

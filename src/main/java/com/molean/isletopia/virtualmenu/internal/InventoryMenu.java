@@ -64,6 +64,9 @@ public abstract class InventoryMenu implements Menu {
     @Override
     public void close() {
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            if (player == null) {
+                return;
+            }
             InventoryView openInventory = player.getOpenInventory();
             if (openInventory.getTopInventory().equals(inventory)) {
                 player.closeInventory();

@@ -1,7 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -39,7 +39,7 @@ public class TeleportSign implements Listener {
             String target = firstLine.substring(1, firstLine.length() - 1);
 
             if (!target.startsWith("#")) {
-                if (UUIDUtils.get(target) == null) {
+                if (UUIDManager.get(target) == null) {
                     target = "#" + target;
                 }
             }
@@ -51,7 +51,7 @@ public class TeleportSign implements Listener {
         if (firstLine.matches("\\[[#a-zA-Z0-9_]*") && secondLine.matches("[#a-zA-Z0-9_]*]")) {
             String target = (firstLine + secondLine).substring(1, firstLine.length()+secondLine.length() - 1);
             if (!target.startsWith("#")) {
-                if (UUIDUtils.get(target) == null) {
+                if (UUIDManager.get(target) == null) {
                     target = "#" + target;
                 }
             }

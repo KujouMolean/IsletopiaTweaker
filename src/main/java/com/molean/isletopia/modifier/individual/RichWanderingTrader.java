@@ -38,7 +38,7 @@ public class RichWanderingTrader implements Listener {
             List<ItemStack> icons = new ArrayList<>();
             List<ItemStack> result = new ArrayList<>();
             List<ItemStack> types = new ArrayList<>();
-            types.add(HeadUtils.getSkullFromValue("流浪商人", PlayerHeadDrop.drops.get(EntityType.WANDERING_TRADER)));
+            types.add(HeadUtils.getSkullFromValue("wanderingTrader.name", PlayerHeadDrop.drops.get(EntityType.WANDERING_TRADER)));
             for (Material addition : additions) {
                 icons.add(new ItemStack(addition));
                 result.add(new ItemStack(addition));
@@ -67,14 +67,29 @@ public class RichWanderingTrader implements Listener {
         WanderingTrader wanderingTrader = (WanderingTrader) event.getEntity();
         List<MerchantRecipe> recipes = new ArrayList<>(wanderingTrader.getRecipes());
         for (Material addition : additions) {
-            recipes.add(generateMerchant(addition, 3, 5));
+            recipes.add(generateMerchant(addition, 1, 3, 5));
         }
+        recipes.add(generateMerchant(RED_SAND, 1, SAND, 1, EMERALD, 16, Integer.MAX_VALUE));
+        recipes.add(generateMerchant(LAPIS_LAZULI, 1, 16, Integer.MAX_VALUE));
         wanderingTrader.setRecipes(recipes);
     }
 
-    public static MerchantRecipe generateMerchant(Material result, int price, int maxUses) {
-        MerchantRecipe merchantRecipe = new MerchantRecipe(new ItemStack(result), maxUses);
+    public static MerchantRecipe generateMerchant(Material result, int resultAmount, int price, int maxUses) {
+        MerchantRecipe merchantRecipe = new MerchantRecipe(new ItemStack(result, resultAmount), maxUses);
         merchantRecipe.addIngredient(new ItemStack(Material.EMERALD, price));
+        return merchantRecipe;
+    }
+
+    public static MerchantRecipe generateMerchant(Material result, int resultAmount, Material money, int price, int maxUses) {
+        MerchantRecipe merchantRecipe = new MerchantRecipe(new ItemStack(result, resultAmount), maxUses);
+        merchantRecipe.addIngredient(new ItemStack(money, price));
+        return merchantRecipe;
+    }
+
+    public static MerchantRecipe generateMerchant(Material result, int resultAmount, Material money1, int price1, Material money2, int price2, int maxUses) {
+        MerchantRecipe merchantRecipe = new MerchantRecipe(new ItemStack(result, resultAmount), maxUses);
+        merchantRecipe.addIngredient(new ItemStack(money1, price1));
+        merchantRecipe.addIngredient(new ItemStack(money2, price2));
         return merchantRecipe;
     }
 }

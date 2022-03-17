@@ -46,6 +46,7 @@ public class ScoreboardUtils {
         if (sidebar == null) {
             sidebar = scoreboard.registerNewObjective("sidebar", "dummy", title);
         }
+        sidebar.displayName(title);
         for (String entry : scoreboard.getEntries()) {
             scoreboard.resetScores(entry);
         }

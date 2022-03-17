@@ -47,12 +47,12 @@ public class LogTutor implements Listener {
             String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (tutorStatus == null || tutorStatus.isEmpty()) {
                 UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "Log");
-                MessageUtils.strong(player, "你已开启新手引导,使用/skiptutor跳过引导.");
+                MessageUtils.strong(player, "tutor.enable");
                 tutorStatus = "Log";
             }
 
             if (tutorStatus.equals("Log") && player.isOnline()) {
-                BossBar bossBar = Bukkit.createBossBar("新手引导: 获取4个木头.", BarColor.GREEN, BarStyle.SEGMENTED_20);
+                BossBar bossBar = Bukkit.createBossBar(MessageUtils.getMessage(player, "tutor.log.title"), BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);
                 PLAYERS.add(player);
                 BARS.put(player, bossBar);

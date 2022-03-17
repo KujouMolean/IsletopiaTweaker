@@ -49,9 +49,9 @@ public class DisableVillagerAI implements IslandFlagHandler, Listener {
                 }
             }
         }, () -> {
-            for (Player player : island.getPlayersInIsland()) {
-                MessageUtils.notify(player, "此岛屿的村民失去了AI。");
-            }
+//            for (Player player : island.getPlayersInIsland()) {
+//                MessageUtils.notify(player, "此岛屿的村民失去了AI。");
+//            }
         }, 120).run();
 
 
@@ -67,9 +67,9 @@ public class DisableVillagerAI implements IslandFlagHandler, Listener {
                 }
             }
         }, () -> {
-            for (Player player : island.getPlayersInIsland()) {
-                MessageUtils.notify(player, "此岛屿的村民已恢复AI。");
-            }
+//            for (Player player : island.getPlayersInIsland()) {
+//                MessageUtils.notify(player, "此岛屿的村民已恢复AI。");
+//            }
         }, 120).run();
     }
 }

@@ -18,18 +18,14 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
 
 public class VisitorMenu extends ListMenu<Pair<String, Timestamp>> {
-
-
-
     public VisitorMenu(Player player) {
-        super(player, Component.text("访客列表"));
+        super(player, Component.text(MessageUtils.getMessage(player, "menu.visitor.title")));
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.hasPermission(player) || player.isOp())) {
-            MessageUtils.fail(player, "你只能查看自己岛屿的访客记录!");
-            throw new RuntimeException("not owner");
+            MessageUtils.fail(player, "menu.visitor.noPermission");
+            return;
         }
 
         try {
@@ -52,12 +48,12 @@ public class VisitorMenu extends ListMenu<Pair<String, Timestamp>> {
             LocalDateTime localDateTime = value.toLocalDateTime();
             String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-            components.add(Component.text("访问时间: " + format));
+            components.add(Component.text(MessageUtils.getMessage(player, "menu.visitor.time", Pair.of("time", format))));
             itemStack.lore(components);
             return itemStack;
         });
 
-        this.closeItemStack(new ItemStackSheet(Material.BARRIER, "§f返回主菜单").build());
-        this.onCloseSync(() -> new PlayerMenu(player).open());
+        this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
+        this.onCloseSync(() -> new MainMenu(player).open());
     }
 }

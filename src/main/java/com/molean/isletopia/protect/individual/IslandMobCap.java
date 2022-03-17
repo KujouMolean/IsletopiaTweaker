@@ -57,6 +57,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         Objects.requireNonNull(Bukkit.getPluginCommand("mobcap")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("mobcap")).setExecutor(this);
         setMobCap(EntityType.GUARDIAN, 50);
+        setMobCap(EntityType.VILLAGER, 64);
         ignoredType.add(EntityType.ITEM_FRAME);
         ignoredType.add(EntityType.GLOW_ITEM_FRAME);
         ignoredType.add(EntityType.SMALL_FIREBALL);
@@ -159,7 +160,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (Objects.equals(IslandManager.INSTANCE.getCurrentIsland(onlinePlayer), currentPlot)) {
                     if (IslandManager.INSTANCE.hasCurrentIslandPermission(onlinePlayer)) {
-                        MessageUtils.warn(onlinePlayer, "此岛屿实体已达上限, 实体无法再继续生成, 掉落物品可能会消失.");
+                        MessageUtils.warn(onlinePlayer, "island.protect.mobcap");
                     }
                 }
             }
@@ -202,6 +203,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onEntitySpawn(EntitySpawnEvent event) {
+
         LocalIsland plot = IslandManager.INSTANCE.getCurrentIsland(event.getLocation());
         if (plot == null) {
             return;
@@ -210,7 +212,13 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         if (entityTypeIntegerMap == null) {
             return;
         }
-        if (plotsEntityCount.get(plot.getIslandId()) >= 512) {
+        if (event.getEntityType().equals(EntityType.DROPPED_ITEM)) {
+            if (plotsEntityCount.get(plot.getIslandId()) >= 1024) {
+                warn(plot);
+                event.setCancelled(true);
+                return;
+            }
+        } else if (plotsEntityCount.get(plot.getIslandId()) >= 512) {
             warn(plot);
             event.setCancelled(true);
             return;
@@ -298,7 +306,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
     }
 
-    public static Map<String, Integer> getSnapshot(@NotNull IslandId islandId) {
+    public static Map<String, Integer> getSnapshot(Player player,@NotNull IslandId islandId) {
         Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(islandId);
         if (entityTypeIntegerMap == null) {
             return null;
@@ -312,11 +320,10 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
                     && IslandMobCap.map.get(key) <= entityTypeIntegerMap.get(key))
                     ? "c" : "a";
 
-            String name = LangUtils.get(key.translationKey());
+            String name = LangUtils.get(player.locale(),key.translationKey());
             map.put("§" + c + name, entityTypeIntegerMap.get(key));
         }
-        map.put("§" + (total < 512 ? "a" : "c") + "总计", total);
-
+        map.put("§" + (total < 512 ? "a" : "c") + MessageUtils.getMessage(player, "island.protect.mobcap.total"), total);
         return map;
     }
 
@@ -330,15 +337,15 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         }
         Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(currentPlot.getIslandId());
         if (entityTypeIntegerMap == null) {
-            player.sendMessage("还在统计中, 稍后重试");
+            player.sendMessage("Waiting...");
             return true;
         }
         int total = plotsEntityCount.get(currentPlot.getIslandId());
         ArrayList<EntityType> keys = new ArrayList<>(entityTypeIntegerMap.keySet());
         keys.sort((o1, o2) -> entityTypeIntegerMap.get(o2) - entityTypeIntegerMap.get(o1));
-        player.sendMessage(String.format("§a>§e%s §" + (total < 512 ? "a" : "c") + "%s", "总计", total));
+        player.sendMessage(String.format("§a>§e%s §" + (total < 512 ? "a" : "c") + "%s", MessageUtils.getMessage(player,"island.protect.mobcap.total"), total));
         for (int i = 0; i < 10 && i < keys.size(); i++) {
-            String name = LangUtils.get(keys.get(i).translationKey());
+            String name = LangUtils.get(player.locale(), keys.get(i).translationKey());
             String c = (map.get(keys.get(i)) != null && map.get(keys.get(i)) <= entityTypeIntegerMap.get(keys.get(i))) ? "c" : "a";
             String message = String.format("§a>§e%s §" + c + "%s", name, entityTypeIntegerMap.get(keys.get(i)));
             player.sendMessage(message);

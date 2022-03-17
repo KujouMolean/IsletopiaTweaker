@@ -3,11 +3,8 @@ package com.molean.isletopia.protect.individual;
 import com.google.common.collect.Sets;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.service.UniversalParameter;
-import com.molean.isletopia.shared.utils.UUIDUtils;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.NMSTagUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
@@ -72,7 +68,7 @@ public class ElytraLimiter implements Listener {
 
         if (denied.contains(player.getUniqueId())) {
             event.setCancelled(true);
-            MessageUtils.fail(player, "§c抱歉, 使用鞘翅需要经过管理员审核!");
+            MessageUtils.fail(player, "elytra.noPerm");
         }
     }
 }

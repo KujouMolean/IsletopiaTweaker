@@ -1,117 +1,166 @@
 package com.molean.isletopia.menu;
 
 import com.molean.isletopia.island.IslandManager;
-import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.menu.assist.AssistMenu;
-import com.molean.isletopia.menu.charge.PlayerChargeMenu;
-import com.molean.isletopia.menu.favorite.FavoriteMenu;
-import com.molean.isletopia.menu.recipe.RecipeListMenu;
-import com.molean.isletopia.menu.settings.SettingsMenu;
-import com.molean.isletopia.menu.visit.VisitMenu;
+import com.molean.isletopia.menu.visit.MultiVisitMenu;
+import com.molean.isletopia.shared.database.AchievementDao;
+import com.molean.isletopia.shared.database.ClubDao;
+import com.molean.isletopia.shared.database.CollectionDao;
+import com.molean.isletopia.shared.model.*;
+import com.molean.isletopia.shared.utils.PlayerUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.virtualmenu.ChestMenu;
+import com.molean.isletopia.virtualmenu.ListMenu;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.List;
+import java.sql.SQLException;
+import java.util.*;
 
 public class PlayerMenu extends ChestMenu {
 
-    public PlayerMenu(Player player) {
-        super(player, 6, Component.text("主菜单"));
-
-        ItemStackSheet bookShelf = ItemStackSheet.fromString(Material.BOOKSHELF, """
-                §f指南大全
-                §7这里写了服务器的所有设定
-                §7这里有新人必读的入门教程
-                §7这里有常见物资的获取方法
-                §7(右键查看新合成表)
-                """);
-
-        ItemStackSheet favorite = ItemStackSheet.fromString(Material.NETHER_STAR, """
-                §f收藏夹
-                §7将你喜欢的岛屿添加到收藏夹
-                §7通过收藏夹可以快速访问它们
-                §7被收藏的岛主上上线会提示你
-                §7被收藏的岛主聊天时名称彩色
-                """);
+    public PlayerMenu(Player player, UUID target) {
+        super(player, 6, Component.text(Objects.requireNonNull(UUIDManager.get(target))));
 
 
-        ItemStackSheet visits = ItemStackSheet.fromString(Material.FEATHER, """
-                §f平行世界
-                §7去看看与你同时发展的其他玩家
-                §7这里只会显示在线玩家
-                §7(指令/visit XXX)
-                """);
+        for (int i = 0; i < 6 * 9; i++) {
+            this.item(i, ItemStackSheet.fromString(Material.GRAY_STAINED_GLASS_PANE, " ").build());
+        }
 
+        ItemStack skull = HeadUtils.getSkull(UUIDManager.get(target));
+        ItemStackSheet itemStackSheet = ItemStackSheet.fromString(skull, PlayerUtils.getDisplay(target));
 
-        ItemStackSheet settings = ItemStackSheet.fromString(Material.LEVER, """
-                §f设置
-                §7更改你岛屿的选项
-                §7例如添加岛员,更改生物群系
-                """);
+        this.item(4, itemStackSheet.build());
 
+        try {
+            List<PlayerAchievement> playerAchievements = AchievementDao.getPlayerAchievements(target);
+            for (int i = 0; i < playerAchievements.size() && i < 8; i++) {
+                String achievementName = playerAchievements.get(i).getAchievement();
+                Achievement achievement = AchievementDao.getAchievement(achievementName);
+                assert achievement != null;
+                String icon = achievement.getIcon();
+                Material material = Material.STONE;
+                try {
+                    material = Material.valueOf(icon.toUpperCase(Locale.ROOT));
+                } catch (IllegalArgumentException ignored) {
+                }
+                ItemStackSheet sheet = ItemStackSheet.fromString(material, achievement.toString());
+                this.item(27 + i, sheet.build());
+            }
 
-        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
-        assert currentPlot != null;
-        if (!player.getUniqueId().equals(currentPlot.getUuid())) {
-            settings.setDisplay("§f§m设置");
-            settings.addLore("§c你只能修改自己的岛屿");
+            ItemStackSheet achievementSheet = ItemStackSheet.fromString(Material.REDSTONE_TORCH, """
+                    §f查看此玩家获得的更多成就
+                    """).addEnchantment(Enchantment.ARROW_DAMAGE, 0).addItemFlag(ItemFlag.HIDE_ENCHANTS);
+            if (playerAchievements.size() > 8) {
+                this.itemWithAsyncClickEvent(27 + 8, achievementSheet.build(), () -> {
+                    new ListMenu<PlayerAchievement>(player, Component.text("成就")).components(playerAchievements)
+                            .convertFunction(playerAchievement -> {
+                                String achievementName = playerAchievement.getAchievement();
+                                Achievement achievement = null;
+                                try {
+                                    achievement = AchievementDao.getAchievement(achievementName);
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                                assert achievement != null;
+                                String icon = achievement.getIcon();
+                                Material material = Material.STONE;
+                                try {
+                                    material = Material.valueOf(icon.toUpperCase(Locale.ROOT));
+                                } catch (IllegalArgumentException ignored) {
+                                }
+                                ItemStackSheet sheet = ItemStackSheet.fromString(material, achievement.toString());
+                                return sheet.build();
+                            }).closeItemStack(ItemStackSheet.fromString(Material.BARRIER, "返回").build())
+                            .onCloseAsync(() -> {
+                                new PlayerMenu(player, target).open();
+                            });
+
+                });
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(target);
+        MultiVisitMenu.sortIsland(playerIslands);
+        for (int i = 0; i < playerIslands.size() && i < 8; i++) {
+            IslandId islandId = playerIslands.get(i).getIslandId();
+            this.itemWithAsyncClickEvent(18 + i, MultiVisitMenu.islandToItemStack(player, playerIslands.get(i)), () -> {
+                IsletopiaTweakersUtils.universalPlotVisitByMessage(player, islandId);
+            });
+        }
+        ItemStackSheet visit = ItemStackSheet.fromString(Material.FEATHER, """
+                §f访问该玩家的更多岛屿
+                """).addEnchantment(Enchantment.ARROW_DAMAGE, 0).addItemFlag(ItemFlag.HIDE_ENCHANTS);
+        if (playerIslands.size() > 8) {
+            this.item(18 + 8, visit.build(), () -> {
+                player.performCommand("visit " + UUIDManager.get(target));
+            });
+
         }
 
 
-        ItemStackSheet bills = ItemStackSheet.fromString(Material.PAPER, """
-                §f生活缴费-此岛-本周
-                §7缴纳水费和电费
-                """);
-
-        ItemStackSheet assist = ItemStackSheet.fromString(Material.BEACON, """
-                §f辅助功能
-                §7帮助你更舒适地游玩此服务器
-                """);
-
-        ItemStackSheet projects = ItemStackSheet.fromString(Material.END_PORTAL_FRAME, """
-                §f历史访客
-                §7在这里发现最近三天你的岛屿访客
-                §7看看你的岛屿有多少人参观
-                """);
-
-
-        ItemStack skullWithIslandInfo = HeadUtils.getSkullWithIslandInfo(player.getName());
-        SkullMeta itemMeta = (SkullMeta) skullWithIslandInfo.getItemMeta();
-        assert itemMeta != null;
-        itemMeta.displayName(Component.text("§f回岛"));
-        itemMeta.lore(List.of(Component.text("§f左键回到第一个岛")));
-        itemMeta.lore(List.of(Component.text("§f右键打开岛屿列表")));
-        skullWithIslandInfo.setItemMeta(itemMeta);
-        this
-                .item(18, bookShelf.build())
-                .clickEventSync(ClickType.LEFT, 18, () -> {
-                    player.sendMessage(Component.text("=>§n点击查看梦幻之屿Wiki§r<=")
-                            .clickEvent(ClickEvent.openUrl("http://wiki.islet.world")));
+        if (CollectionDao.getPlayerCollections(player.getUniqueId()).contains(target)) {
+            ItemStackSheet star = ItemStackSheet.fromString(Material.SPYGLASS, """
+                    §f取消关注此玩家
+                    """).addEnchantment(Enchantment.ARROW_DAMAGE, 0).addItemFlag(ItemFlag.HIDE_ENCHANTS);
+            this.itemWithAsyncClickEvent(47, star.build(), () -> {
+                String name = UUIDManager.get(target);
+                Tasks.INSTANCE.sync(() -> {
+                    player.performCommand("is unstar " + name);
                     close();
-                })
-                .clickEventAsync(ClickType.RIGHT, 18, () -> new RecipeListMenu(player).open())
-                .itemWithAsyncClickEvent(20, favorite.build(), () -> new FavoriteMenu(player).open())
-                .itemWithAsyncClickEvent(22, visits.build(), () -> new VisitMenu(player).open())
-                .itemWithAsyncClickEvent(24, settings.build(), () -> new SettingsMenu(player).open())
-                .itemWithAsyncClickEvent(26, projects.build(), () -> new VisitorMenu(player).open())
-                .itemWithAsyncClickEvent(38, bills.build(), () -> new PlayerChargeMenu(player).open())
-                .item(40, skullWithIslandInfo)
-                .clickEventSync(40, clickType -> {
-                    if (clickType.equals(ClickType.LEFT)) {
-                        player.performCommand("is");
-                    } else if (clickType.equals(ClickType.RIGHT)) {
-                        player.performCommand("visit " + player.getName());
-                    }
-                })
-                .itemWithAsyncClickEvent(42, assist.build(), () -> new AssistMenu(player).open());
+                });
+            });
+
+        } else {
+            ItemStackSheet star = ItemStackSheet.fromString(Material.SPYGLASS, """
+                    §f关注此玩家
+                    §7将该玩家添加到你的关注列表
+                    §7该玩家上线和下线都会通知您
+                    """);
+            this.itemWithAsyncClickEvent(47, star.build(), () -> {
+                String name = UUIDManager.get(target);
+                Tasks.INSTANCE.sync(() -> {
+                    player.performCommand("is star " + name);
+                    close();
+                });
+            });
+        }
+
+        this.item(49, ItemStackSheet.fromString(Material.BARRIER, "§f关闭").build(), this::close);
+
+        ItemStackSheet club = ItemStackSheet.fromString(Material.WRITABLE_BOOK, """
+                §f查看此玩家的所在社团
+                """);
+
+        this.itemWithAsyncClickEvent(51, club.build(), () -> {
+            Tasks.INSTANCE.async(() -> {
+                Set<Club> joinedClubs = null;
+                try {
+                    joinedClubs = ClubDao.getJoinedClubs(target);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                assert joinedClubs != null;
+                if (joinedClubs.isEmpty()) {
+                    return;
+                }
+                new ClubListMenu(player, new ArrayList<>(joinedClubs)).open();
+
+            });
+        });
+
 
     }
+
+
 }

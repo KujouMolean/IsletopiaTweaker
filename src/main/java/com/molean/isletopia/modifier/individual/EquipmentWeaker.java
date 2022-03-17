@@ -3,6 +3,7 @@ package com.molean.isletopia.modifier.individual;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -112,10 +113,9 @@ public class EquipmentWeaker implements Listener {
         Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), (task) -> {
             if (uuid == map.get(event.getPlayer())) {
                 double damageMultiplier = getDamageMultiplier(event.getPlayer());
-                String format = String.format("你更新了装备, 受到的伤害被修正为: %.2fx", damageMultiplier);
+                String format = String.format(MessageUtils.getMessage(event.getPlayer(), "equip.update", Pair.of("rate", "%.2fx")), damageMultiplier);
                 MessageUtils.notify(event.getPlayer(), format);
             }
-
         }, 50L);
 
 

@@ -6,8 +6,9 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
+import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -38,11 +39,12 @@ public class ServerLikeReward implements CommandExecutor {
                              @NotNull String label,
                              @NotNull String[] args) {
 
+        Player player = (Player) sender;
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
 
-            UUIDUtils.getOnline(sender.getName(), uuid -> {
+            UUIDManager.getOnline(player.getName(), uuid -> {
                 if (uuid == null) {
-                    MessageUtils.fail(sender, "读取你的UUID失败!");
+                    MessageUtils.fail(player, "like.failed.uuid");
                     return;
                 }
 
@@ -51,26 +53,25 @@ public class ServerLikeReward implements CommandExecutor {
                 }
 
                 if (likeUUIDs.isEmpty()) {
-                    MessageUtils.fail(sender, "从NameMC读取点赞列表失败!");
+                    MessageUtils.fail(player, "like.failed.empty");
                     return;
                 }
                 if (!likeUUIDs.contains(uuid)) {
-                    MessageUtils.fail(sender, "你当前ID没有给服务器点赞!");
+                    MessageUtils.fail(player, "like.failed.notFound");
                     return;
                 }
 
-                List<String> parameterAsList = UniversalParameter.getParameterAsList(UUIDUtils.get("Molean"), "ServerLikes");
+                List<String> parameterAsList = UniversalParameter.getParameterAsList(UUIDManager.get("Molean"), "ServerLikes");
                 if (parameterAsList.contains(uuid.toString())) {
-                    MessageUtils.fail(sender, "你已经领取过了!");
+                    MessageUtils.fail(player, "like.failed.claimed");
                     return;
                 }
-                Player player = (Player) sender;
-                UUID molean = UUIDUtils.get("Molean");
+                UUID molean = UUIDManager.get("Molean");
                 assert molean != null;
                 UniversalParameter.addParameter(molean, "ServerLikes", uuid.toString());
                 CommonResponseObject commonResponseObject = new CommonResponseObject();
-                commonResponseObject.setMessage("玩家" + player.getName() + "在NameMC为服务器点赞,获得龙首奖励! 地址:https://zh-cn.namemc.com/server/play.molean.com");
-                ServerMessageUtils.sendMessage("waterfall", "CommonResponse", commonResponseObject);
+                commonResponseObject.setMessage(MessageUtils.getMessage(player, "like.success", Pair.of("player", player.getName())) + "https://zh-cn.namemc.com/server/play.molean.com");
+                ServerMessageUtils.sendMessage("proxy", "CommonResponse", commonResponseObject);
                 Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
                     HashMap<Integer, ItemStack> integerItemStackHashMap = player.getInventory().addItem(new ItemStack(Material.DRAGON_HEAD));
                     for (ItemStack value : integerItemStackHashMap.values()) {

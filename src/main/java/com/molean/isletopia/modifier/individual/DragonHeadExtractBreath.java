@@ -58,7 +58,7 @@ public class DragonHeadExtractBreath implements Listener {
             return;
         }
         if (System.currentTimeMillis() - getMeta(clickedBlock) < 60 * 1000 * 5) {
-            MessageUtils.fail(event.getPlayer(), "龙息正在缓慢积攒，还不足以装满瓶子。");
+            MessageUtils.fail(event.getPlayer(), "dragonhead.refill");
             return;
         }
         //success

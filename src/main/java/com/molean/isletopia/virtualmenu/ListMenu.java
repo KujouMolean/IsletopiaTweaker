@@ -2,6 +2,7 @@ package com.molean.isletopia.virtualmenu;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.ItemStackSheet;
+import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -26,20 +27,6 @@ public class ListMenu<T> extends ChestMenu {
     private Consumer<T> onClickSync;
     private Consumer<T> onClickAsync;
 
-    @Override
-    public void destroy() {
-        super.destroy();
-        components.clear();
-        itemStackFunction = null;
-        nextPageItemStack = null;
-        prevPageItemStack = null;
-        closeItemStack =null;
-        onCloseSync = null;
-        onCloseAsync = null;
-        onClickSync = null;
-        onClickAsync = null;
-    }
-
     public ListMenu(Player player, Component title) {
         super(player, 6, title);
         this.itemStackFunction = t -> new ItemStackSheet(Material.PAPER, t.toString()).build();
@@ -48,9 +35,9 @@ public class ListMenu<T> extends ChestMenu {
         this.onCloseAsync =()->{};
         this.onClickSync = t -> {};
         this.onClickAsync = t -> {};
-        this.prevPageItemStack = new ItemStackSheet(Material.SOUL_SAND, "§f上一页").build();
-        this.nextPageItemStack = new ItemStackSheet(Material.MAGMA_BLOCK, "§f下一页").build();
-        this.closeItemStack = new ItemStackSheet(Material.BARRIER, "§f关闭").build();
+        this.prevPageItemStack = new ItemStackSheet(Material.SOUL_SAND, MessageUtils.getMessage(player,"menu.list.prev")).build();
+        this.nextPageItemStack = new ItemStackSheet(Material.MAGMA_BLOCK, MessageUtils.getMessage(player,"menu.list.next")).build();
+        this.closeItemStack = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.list.close")).build();
     }
 
     public ListMenu<T> components(List<T> components) {
@@ -157,9 +144,14 @@ public class ListMenu<T> extends ChestMenu {
                 if (page * 45 + slot >= components.size()) {
                     return;
                 }
-                this.onClickSync.accept(components.get(page * 45 + slot));
+                T t = components.get(page * 45 + slot);
+                try {
+                    this.onClickSync.accept(t);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    onClickAsync.accept(components.get(page * 45 + slot));
+                    onClickAsync.accept(t);
                 });
 
             }

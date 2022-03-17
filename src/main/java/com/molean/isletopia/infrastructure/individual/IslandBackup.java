@@ -1,7 +1,6 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.IslandBackupDao;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.database.PlayerBackupDao;
@@ -34,11 +33,6 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
         Objects.requireNonNull(Bukkit.getPluginCommand("backup")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("backup")).setTabCompleter(this);
 
-        //check database before use
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            PlayerBackupDao.checkTable();
-            IslandBackupDao.checkTable();
-        });
 
         BukkitTask bukkitTask1 = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
@@ -54,58 +48,9 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
         }, 5 * 60 * 20, 5 * 60 * 20);
         IsletopiaTweakers.addDisableTask("Stop backup player data", bukkitTask1::cancel);
 
-        BukkitTask bukkitTask2 = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            Set<IslandId> plotIdSet = new HashSet<>();
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(onlinePlayer);
-                if (currentPlot == null) {
-                    continue;
-                }
-                plotIdSet.add(currentPlot.getIslandId());
-            }
-            for (IslandId plotId : plotIdSet) {
-                try {
-                    backup(plotId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    LocalIsland island = IslandManager.INSTANCE.getLocalIsland(plotId);
-                    if (island == null) {
-                        return;
-                    }
-                    for (Player player : island.getPlayersInIsland()) {
-                        if (IslandManager.INSTANCE.hasCurrentIslandPermission(player)) {
-                            MessageUtils.warn(player, "你的岛屿备份失败，请及时联系管理员！");
-                        }
-                    }
-                }
-            }
-
-        }, 10 * 60 * 20, 10 * 60 * 20);
-        IsletopiaTweakers.addDisableTask("Stop backup player island", bukkitTask2::cancel);
     }
 
 
-    @SuppressWarnings("all")
-    public static void backup(IslandId islandId) throws IOException, SQLException {
-        String filename = String.format("r.%d.%d.mca", islandId.getX(), islandId.getZ());
-        File regionSource = new File("SkyWorld/region/" + filename);
-        File poiSource = new File("SkyWorld/poi/" + filename);
-        File entitiesSource = new File("SkyWorld/entities/" + filename);
-        if (!regionSource.exists()) {
-            boolean newFile = regionSource.createNewFile();
-        }
-        if (!poiSource.exists()) {
-            boolean newFile = poiSource.createNewFile();
-        }
-        if (!entitiesSource.exists()) {
-            boolean newFile = entitiesSource.createNewFile();
-        }
-
-        FileInputStream regionInput = new FileInputStream(regionSource);
-        FileInputStream poiInput = new FileInputStream(poiSource);
-        FileInputStream entitiesInput = new FileInputStream(entitiesSource);
-        IslandBackupDao.upload(islandId, regionInput, poiInput, entitiesInput);
-    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -121,52 +66,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
         }
 
         switch (args[0].toLowerCase(Locale.ROOT)) {
-            case "island" -> {
-                LocalIsland plot = IslandManager.INSTANCE.getCurrentIsland(player);
-                assert plot != null;
-                try {
-                    backup(plot.getIslandId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    player.sendMessage("§c备份失败!");
-                    return true;
-                }
-                player.sendMessage("§c备份成功!");
-                return true;
-            }
-            case "listisland" -> {
-                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-                if (currentIsland == null) {
-                    player.sendMessage("?");
-                    return true;
-                }
-                List<Pair<Integer, Timestamp>> list = IslandBackupDao.list(currentIsland.getIslandId());
-                for (Pair<Integer, Timestamp> integerTimestampPair : list) {
-                    Integer id = integerTimestampPair.getKey();
-                    Timestamp value = integerTimestampPair.getValue();
-                    LocalDateTime localDateTime = value.toLocalDateTime();
-                    String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
-                    player.sendMessage(integerTimestampPair.getKey() + " " + format);
-                }
-
-            }
-            case "download" -> {
-                if (args.length <= 1) {
-                    player.sendMessage("参数不足");
-                    return true;
-                }
-                int id = Integer.parseInt(args[1]);
-                try {
-                    IslandBackupDao.download(id);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    player.sendMessage("成功");
-
-                }
-            }
-
             case "player" -> {
-
                 if (args.length <= 1) {
                     player.sendMessage("参数不足");
                     return true;
@@ -205,7 +105,7 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
                     Timestamp value = integerTimestampPair.getValue();
                     LocalDateTime localDateTime = value.toLocalDateTime();
                     String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
-                    player.sendMessage(integerTimestampPair.getKey() + " " + format);
+                    player.sendMessage(id + " " + format);
                 }
                 return true;
             }

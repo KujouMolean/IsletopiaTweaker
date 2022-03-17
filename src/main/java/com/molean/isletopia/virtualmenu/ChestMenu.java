@@ -118,11 +118,4 @@ public class ChestMenu extends AbstractChestMenu {
     public ChestMenu item(int slot, ItemStack itemStack) {
         return (ChestMenu) super.item(slot, itemStack);
     }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-        clickConsumerAsync.clear();;
-        clickConsumerSync.clear();
-    }
 }

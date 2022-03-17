@@ -64,7 +64,7 @@ public class LavaProtect implements Listener {
         String asString = blockData.getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            MessageUtils.notify(event.getPlayer(), "岩浆受到保护,只能用空桶收起.");
+            MessageUtils.notify(event.getPlayer(), "lava.protect.block");
         }
     }
 
@@ -80,7 +80,7 @@ public class LavaProtect implements Listener {
         String asString = event.getBlock().getBlockData().getAsString();
         if ("minecraft:lava[level=0]".equalsIgnoreCase(asString)) {
             event.setCancelled(true);
-            MessageUtils.notify(event.getPlayer(), "岩浆受到保护,只能用空桶收起.");
+            MessageUtils.notify(event.getPlayer(), "lava.protect.water");
         }
     }
 
@@ -98,7 +98,7 @@ public class LavaProtect implements Listener {
         if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
             return;
         }
-        MessageUtils.notify(event.getPlayer(), "岩浆会引起火灾,请务必注意.");
+        MessageUtils.notify(event.getPlayer(), "lava.notify.fire");
     }
 
     //notify player that empty bucket can restore obsidian to lava
@@ -109,8 +109,8 @@ public class LavaProtect implements Listener {
         Location location = event.getBlock().getLocation();
         Collection<Entity> nearbyEntities = event.getBlock().getWorld().getNearbyEntities(location, 8, 8, 8);
         for (Entity nearbyEntity : nearbyEntities) {
-            if (nearbyEntity instanceof Player) {
-                MessageUtils.notify(nearbyEntity, "空桶右键黑曜石可以还原成岩浆.");
+            if (nearbyEntity instanceof Player player) {
+                MessageUtils.notify(player, "lava.notify.restore");
             }
         }
     }

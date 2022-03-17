@@ -1,7 +1,8 @@
 package com.molean.isletopia.charge;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.database.ChargeDao;
+import com.molean.isletopia.shared.database.ChargeDao;
+import com.molean.isletopia.shared.model.ChargeDetail;
 import com.molean.isletopia.shared.model.IslandId;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
@@ -21,7 +22,7 @@ public class ChargeDetailCommitter {
     public void commit() {
         //每分钟提交一次岛屿消费数据
         playerChargeDetailMap.remove(null);
-        playerChargeDetailMap.forEach((s, playerChargeDetail) -> {
+        new HashMap<>(playerChargeDetailMap).forEach((s, playerChargeDetail) -> {
             playerChargeDetail.setLastCommitTime(LocalDateTime.now());
             try {
                 ChargeDao.set(s, playerChargeDetail);
@@ -32,7 +33,6 @@ public class ChargeDetailCommitter {
     }
 
     public ChargeDetailCommitter() {
-        ChargeDao.checkTable();
         //每分钟执行一次
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(),
                 this::commit, 0, 60 * 20L);

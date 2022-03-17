@@ -8,9 +8,10 @@ import com.molean.isletopia.utils.InventoryUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Slab;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -19,6 +20,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 public class AutoFloor implements Listener {
@@ -30,6 +32,9 @@ public class AutoFloor implements Listener {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
         for (Material value : Material.values()) {
             if (value.name().contains("_BED")) {
+                blackList.add(value);
+            }
+            if (value.name().contains("SHULKER")) {
                 blackList.add(value);
             }
             if (!value.isSolid()) {
@@ -67,8 +72,10 @@ public class AutoFloor implements Listener {
         }
         PlayerInventory inventory = event.getPlayer().getInventory();
         ItemStack itemInOffHand = inventory.getItemInOffHand();
-        if (!whiteList.contains(itemInOffHand.getType())) {
-            if (blackList.contains(itemInOffHand.getType())) {
+        Material type = itemInOffHand.getType();
+
+        if (!whiteList.contains(type)) {
+            if (blackList.contains(type)) {
                 return;
             }
         }
@@ -76,22 +83,17 @@ public class AutoFloor implements Listener {
         BlockFace blockFace = direction.toBlockFace();
         assert blockFace != null;
         Location location = event.getPlayer().getLocation();
-        World world = location.getWorld();
-        int maxHeight = world.getMaxHeight();
-        int minHeight = world.getMinHeight();
-        if (location.getBlockY() <= minHeight) {
-            return;
-        }
-        if (location.getBlockY() >= maxHeight + 1) {
-            return;
-        }
 
         double y = location.getY();
         Block from;
+        boolean upBrick = false;
         if (y - Math.floor(y) > 0.05) {
             from = location.getBlock();
         } else {
             from = location.getBlock().getRelative(BlockFace.DOWN);
+            if (type.name().toLowerCase(Locale.ROOT).contains("_slab")) {
+                upBrick = true;
+            }
         }
         Block front = from.getRelative(blockFace);
         Block back = from.getRelative(blockFace.getOppositeFace());
@@ -130,16 +132,29 @@ public class AutoFloor implements Listener {
         blocks.add(rightBack);
         blocks.add(rightFrom);
         for (Block block : blocks) {
+            if (block.getY() >= block.getWorld().getMaxHeight()) {
+                continue;
+            }
+            if (block.getY() < block.getWorld().getMinHeight()) {
+                continue;
+            }
             if (!block.getType().isAir()) {
                 continue;
             }
             if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), block.getLocation())) {
                 continue;
             }
-            if (!InventoryUtils.takeItem(event.getPlayer(), itemInOffHand.getType(), 1)) {
+            if (!InventoryUtils.takeItem(event.getPlayer(), type, 1)) {
                 continue;
             }
-            block.setType(itemInOffHand.getType());
+            block.setType(type);
+            if (upBrick) {
+                BlockData blockData = block.getBlockData();
+                if (blockData instanceof Slab slab) {
+                    slab.setType(Slab.Type.TOP);
+                    block.setBlockData(blockData);
+                }
+            }
         }
     }
 

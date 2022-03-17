@@ -10,6 +10,7 @@ import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -27,7 +28,7 @@ public class TeleportResponseHandler implements MessageHandler<TeleportResponse>
             if (message.getResponse().equals("accepted")) {
                 ServerMessageUtils.switchServer(player.getName(), wrappedMessageObject.getFrom());
             } else {
-                player.sendMessage(message.getResponseMessage());
+                MessageUtils.fail(player, message.getResponseMessage());
             }
 
         }

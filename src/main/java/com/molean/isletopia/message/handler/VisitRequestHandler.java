@@ -70,7 +70,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
         VisitResponse visitResponse = new VisitResponse();
         if (!islandId.getServer().equals(ServerInfoUpdater.getServerName())) {
             visitResponse.setResponse("invalid");
-            visitResponse.setResponseMessage("出现错误。");
+            visitResponse.setResponseMessage("visit.request.error");
             ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
         }
 
@@ -79,7 +79,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
         LocalIsland island = IslandManager.INSTANCE.getLocalIsland(islandId);
         if (island == null) {
             visitResponse.setResponse("invalid");
-            visitResponse.setResponseMessage("该岛屿不存在.");
+            visitResponse.setResponseMessage("visit.request.invalid");
             ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
         } else {
             boolean allow = true;
@@ -103,7 +103,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
 
             if (!allow) {
                 visitResponse.setResponse("refused");
-                visitResponse.setResponseMessage("对方拒绝了你的访问.");
+                visitResponse.setResponseMessage("visit.request.refuse");
                 ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
             } else {
                 Player player = Bukkit.getPlayer(sourcePlayer);

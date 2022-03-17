@@ -1,8 +1,9 @@
 package com.molean.isletopia.menu.assist;
 
-import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.shared.utils.ChatChannelUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.Pair;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ListMenu;
@@ -20,7 +21,7 @@ import java.util.UUID;
 public class ChatChannel extends ListMenu<String> {
 
     public ChatChannel(Player player) {
-        super(player, Component.text("选择你的聊天频道"));
+        super(player, Component.text(MessageUtils.getMessage(player,"menu.channel.title")));
         this.components(ChatChannelUtils.availableChannels);
         Set<String> channels = ChatChannelUtils.getChannels(player.getUniqueId());
         this.onClickSync(s -> {
@@ -28,13 +29,13 @@ public class ChatChannel extends ListMenu<String> {
         this.onClickAsync(s -> {
             if (channels.contains(s)) {
                 ChatChannelUtils.removeChannel(player.getUniqueId(), s);
-                MessageUtils.success(player, "你退出了频道: " + s);
+                MessageUtils.success(player, MessageUtils.getMessage(player, "channel.exit", Pair.of("channel", s)));
                 if (channels.size() == 1) {
-                    MessageUtils.notify(player, "你没有加入任何聊天频道，已自动为你加入白色聊天频道。");
+                    MessageUtils.notify(player, "channel.empty");
                 }
             } else {
                 ChatChannelUtils.addChannel(player.getUniqueId(), s);
-                MessageUtils.success(player, "你加入了频道: " + s);
+                MessageUtils.success(player, MessageUtils.getMessage(player, "channel.join", Pair.of("channel", s)));
             }
             new ChatChannel(player).open();
         });
@@ -62,25 +63,25 @@ public class ChatChannel extends ListMenu<String> {
             }
             ItemStackSheet itemStackSheet = new ItemStackSheet(material, ChatChannelUtils.getChannelColor(s) + s);
             if (s.equals("白")) {
-                itemStackSheet.addLore("该频道为主频道，消息会被转发到QQ群");
+                itemStackSheet.addLore(MessageUtils.getMessage(player, "channel.main"));
             }
             if (channels.contains(s)) {
-                itemStackSheet.addLore("你已经加入该频道，点击退出");
+                itemStackSheet.addLore(MessageUtils.getMessage(player,"channel.joined"));
                 itemStackSheet.addEnchantment(Enchantment.ARROW_DAMAGE, 0);
                 itemStackSheet.addItemFlag(ItemFlag.HIDE_ENCHANTS);
             } else {
-                itemStackSheet.addLore("你未加入该频道，点击加入");
+                itemStackSheet.addLore(MessageUtils.getMessage(player,"channel.notJoined"));
             }
             itemStackSheet.addLore("");
             Collection<UUID> playersInChannel = ChatChannelUtils.getPlayersInChannel(s);
             if (playersInChannel.size() > 0) {
-                itemStackSheet.addLore("§7该聊天频道有以下玩家:");
+                itemStackSheet.addLore(MessageUtils.getMessage(player, "channel.playerList"));
                 int cnt = 0;
                 ArrayList<UUID> uuids = new ArrayList<>(playersInChannel);
                 StringBuilder line = new StringBuilder();
                 line.append(" §7- ");
                 for (int i = 0; i < uuids.size(); i++) {
-                    line.append(UUIDUtils.get(uuids.get(i)));
+                    line.append(UUIDManager.get(uuids.get(i)));
                     line.append("  ");
                     cnt++;
                     if (cnt % 4 == 0 || cnt == uuids.size()) {
@@ -96,7 +97,7 @@ public class ChatChannel extends ListMenu<String> {
         });
 
         this.onCloseAsync(() -> {
-            new PlayerMenu(player).open();
+            new MainMenu(player).open();
         });
     }
 }

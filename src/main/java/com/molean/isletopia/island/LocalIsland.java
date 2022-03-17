@@ -238,6 +238,9 @@ public class LocalIsland extends Island {
         if (target.getUniqueId().equals(uuid)) {
             return true;
         }
+        if (containsFlag("TrustEveryone")) {
+            return true;
+        }
         return members.contains(target.getUniqueId());
     }
 

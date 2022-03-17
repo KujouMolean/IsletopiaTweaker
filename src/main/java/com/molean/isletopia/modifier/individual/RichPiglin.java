@@ -27,7 +27,7 @@ public class RichPiglin implements Listener {
             List<ItemStack> icons = new ArrayList<>();
             List<ItemStack> result = new ArrayList<>();
             List<ItemStack> types = new ArrayList<>();
-            types.add(HeadUtils.getSkullFromValue("猪灵", PlayerHeadDrop.drops.get(EntityType.PIGLIN)));
+            types.add(HeadUtils.getSkullFromValue("plugin.name", PlayerHeadDrop.drops.get(EntityType.PIGLIN)));
                 icons.add(new ItemStack(SMALL_AMETHYST_BUD));
                 icons.add(new ItemStack(MEDIUM_AMETHYST_BUD));
                 icons.add(new ItemStack(LARGE_AMETHYST_BUD));

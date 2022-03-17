@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.modifier.individual.AutoCraft;
 import com.molean.isletopia.modifier.individual.*;
 
 import java.util.logging.Logger;
@@ -29,10 +30,12 @@ public class IsletopiaModifier {
             new AutoFloor();
             new LuckyColor();
             new RichPiglin();
-            new SleepAnyTime();
+//            new SleepAnyTime();
             new ElderGuardianSpawner();
             new CaveSpiderSpawner();
             new PlayerDeathMob();
+            new HexBeacon();
+            new AutoCraft();
 
         } catch (Exception exception) {
             exception.printStackTrace();

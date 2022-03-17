@@ -5,18 +5,18 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
+import com.molean.isletopia.shared.model.ChargeDetail;
 import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.task.MassiveChunkTask;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
-import org.bukkit.block.Conduit;
-import org.bukkit.block.Hopper;
+import org.bukkit.block.data.type.Hopper;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -27,78 +27,39 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 public class ConsumeListener implements Listener {
     private static int TICK_SAMPLE_10 = 10;
     private static final Random random = new Random();
     private static boolean shouldRecord = true;
 
-    public void producePowerAndFood() {
-        if (!shouldRecord) {
-            return;
-        }
-        @NotNull Chunk[] loadedChunks = IsletopiaTweakers.getWorld().getLoadedChunks();
-        for (Chunk loadedChunk : loadedChunks) {
-            Arrays.stream(loadedChunk.getTileEntities(false))
-                    .filter(blockState -> blockState.getType().equals(Material.BEACON))
-                    .map(blockState -> (Beacon) blockState)
-                    .forEach(beacon -> {
-                        if (beacon.getTier() > 0) {
-                            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(beacon.getLocation());
-                            if (currentIsland == null) {
-                                return;
-                            }
-                            ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
-                            chargeDetail.setPowerProduceTimes(chargeDetail.getPowerProduceTimes() + 1);
-                        }
-                    });
-            Arrays.stream(loadedChunk.getTileEntities(false))
-                    .filter(blockState -> blockState.getType().equals(Material.CONDUIT))
-                    .map(blockState -> (Conduit) blockState)
-                    .forEach(conduit -> {
-                        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(conduit.getLocation());
-                        if (currentIsland == null) {
-                            return;
-                        }
-                        ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
-                        chargeDetail.setFoodProduceTimes(chargeDetail.getFoodProduceTimes() + 1);
-                    });
-        }
-    }
-
     public void countHopper() {
         if (!shouldRecord) {
             return;
         }
+        long start = System.currentTimeMillis();
         @NotNull Chunk[] loadedChunks = IsletopiaTweakers.getWorld().getLoadedChunks();
-        for (Chunk loadedChunk : loadedChunks) {
-            long count = Arrays.stream(loadedChunk.getTileEntities())
+        new MassiveChunkTask(loadedChunks, chunk -> {
+            if (!chunk.isLoaded()) {
+                return;
+            }
+            long count = Arrays.stream(chunk.getTileEntities())
                     .filter(blockState -> blockState.getType().equals(Material.HOPPER))
-                    .map(blockState -> (Hopper) blockState)
-                    .filter(hopper -> !hopper.isLocked())
+                    .map(blockState -> (Hopper) (blockState.getBlockData()))
+                    .filter(Hopper::isEnabled)
                     .count();
-            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(loadedChunk);
+            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(chunk);
             if (currentIsland == null) {
                 return;
             }
             ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
-            chargeDetail.setHopper(chargeDetail.getHopper() + count * 60 * 2);
-        }
-    }
-
-    public void countVillager() {
-
-        Collection<Villager> entitiesByClass = IsletopiaTweakers.getWorld().getEntitiesByClass(Villager.class);
-        for (Villager villager : entitiesByClass) {
-            Location location = villager.getLocation();
-            LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(location);
-            if (currentIsland == null) {
-                continue;
-            }
-            ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
-            chargeDetail.setFood(chargeDetail.getFood() + 60);
-        }
+            chargeDetail.setHopper(chargeDetail.getHopper() + 200 * count);
+        }, 30 * 20).run();
+        PluginUtils.getLogger().info("Hopper count used " + (System.currentTimeMillis() - start) + "ms");
     }
 
     public void arrearsDetect(LocalIsland localIsland) {
@@ -107,7 +68,7 @@ public class ConsumeListener implements Listener {
                 localIsland.addIslandFlag("DisableRedstone");
                 for (Player player : localIsland.getPlayersInIsland()) {
                     if (localIsland.hasPermission(player)) {
-                        MessageUtils.warn(player, "当前岛屿已停电，请及时缴纳电费。");
+                        MessageUtils.warn(player, "island.consumer.powerNotEnough");
                     }
                 }
             } else {
@@ -115,24 +76,7 @@ public class ConsumeListener implements Listener {
                     localIsland.removeIslandFlag("DisableRedstone");
                     for (Player player : localIsland.getPlayersInIsland()) {
                         if (localIsland.hasPermission(player)) {
-                            MessageUtils.success(player, "电力供应已恢复。");
-                        }
-                    }
-                }
-            }
-            if (shouldRecord && ChargeDetailUtils.getLeftFood(ChargeDetailCommitter.get(localIsland.getIslandId())) < 0) {
-                localIsland.addIslandFlag("DisableVillagerAI");
-                for (Player player : localIsland.getPlayersInIsland()) {
-                    if (localIsland.hasPermission(player)) {
-                        MessageUtils.warn(player, "当前岛屿已断粮，请及时购买粮草。");
-                    }
-                }
-            } else {
-                if (localIsland.containsFlag("DisableVillagerAI")) {
-                    localIsland.removeIslandFlag("DisableVillagerAI");
-                    for (Player player : localIsland.getPlayersInIsland()) {
-                        if (localIsland.hasPermission(player)) {
-                            MessageUtils.success(player, "粮草供应已恢复。");
+                            MessageUtils.success(player, "island.consumer.powerRecovery");
                         }
                     }
                 }
@@ -169,16 +113,11 @@ public class ConsumeListener implements Listener {
 
         updateSample(20);
 
-        //online count
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
-            //get plot distinct
-            producePowerAndFood();
             countHopper();
-            countVillager();
             for (LocalIsland owner : getIslandHasPlayerUnique()) {
                 addOneMinute(owner.getIslandId());
                 arrearsDetect(owner);
-                warning(owner);
             }
         }, 20 * 60, 20 * 60);
 
@@ -191,30 +130,6 @@ public class ConsumeListener implements Listener {
         ChargeDetail chargeDetail = ChargeDetailCommitter.get(owner);
         int onlineMinutes = chargeDetail.getOnlineMinutes();
         chargeDetail.setOnlineMinutes(onlineMinutes + 1);
-    }
-
-    private void warning(LocalIsland localIsland) {
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            if (localIsland == null) {
-                return;
-            }
-            long leftPower = ChargeDetailUtils.getLeftPower(ChargeDetailCommitter.get(localIsland.getIslandId()));
-            long leftFood = ChargeDetailUtils.getLeftFood(ChargeDetailCommitter.get(localIsland.getIslandId()));
-            if (leftPower < 500 && leftPower > 0) {
-                for (Player player : localIsland.getPlayersInIsland()) {
-                    if (localIsland.hasPermission(player)) {
-                        MessageUtils.warn(player, "岛屿剩余电量较低，即将停电，请及时缴费。");
-                    }
-                }
-            }
-            if (leftFood < 500 && leftFood > 0) {
-                for (Player player : localIsland.getPlayersInIsland()) {
-                    if (localIsland.hasPermission(player)) {
-                        MessageUtils.warn(player, "岛屿剩余粮草较少，即将断粮，请及时缴费。");
-                    }
-                }
-            }
-        });
     }
 
 

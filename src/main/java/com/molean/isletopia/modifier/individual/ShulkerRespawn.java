@@ -30,7 +30,7 @@ import static org.bukkit.Material.*;
 public class ShulkerRespawn implements Listener {
     public ShulkerRespawn() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        LocalRecipe.addRecipe(SHULKER_SPAWN_EGG, PURPUR_BLOCK, HeadUtils.getSkullFromValue("潜影贝", PlayerHeadDrop.drops.get(EntityType.SHULKER)),
+        LocalRecipe.addRecipe(SHULKER_SPAWN_EGG, PURPUR_BLOCK, HeadUtils.getSkullFromValue("shulker.name", PlayerHeadDrop.drops.get(EntityType.SHULKER)),
                 AIR, AIR, AIR,
                 AIR, SHULKER_BOX, AIR,
                 AIR, AIR, AIR);

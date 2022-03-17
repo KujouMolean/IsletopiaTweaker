@@ -28,41 +28,41 @@ public class PlayerDeathMob implements Listener {
 
     @EventHandler
     public void on(PlayerDeathEvent event) {
-        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getEntity())) {
             return;
         }
-        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableIronElevator")) {
+        if (PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getEntity(), "DisablePlayerMob")) {
             return;
         }
-        Location location = event.getPlayer().getLocation();
+        Location location = event.getEntity().getLocation();
         String lowerBiomeName = location.getBlock().getBiome().name().toLowerCase(Locale.ROOT);
         boolean hasWither  = false;
-        for (PotionEffect activePotionEffect : event.getPlayer().getActivePotionEffects()) {
+        for (PotionEffect activePotionEffect : event.getEntity().getActivePotionEffects()) {
             if (activePotionEffect.getType().equals(PotionEffectType.WITHER)) {
                 hasWither = true;
             }
         }
         if (hasWither) {
             WitherSkeleton witherSkeleton = (WitherSkeleton) location.getWorld().spawnEntity(location, EntityType.WITHER_SKELETON,CreatureSpawnEvent.SpawnReason.NATURAL);
-            witherSkeleton.setCustomName(event.getPlayer().getName());
+            witherSkeleton.setCustomName(event.getEntity().getName());
             return;
         }
-        if (event.getPlayer().getFireTicks() > 0) {
+        if (event.getEntity().getFireTicks() > 0) {
             Blaze blaze = (Blaze) location.getWorld().spawnEntity(location, EntityType.BLAZE,CreatureSpawnEvent.SpawnReason.NATURAL);
-            blaze.setCustomName(event.getPlayer().getName());
+            blaze.setCustomName(event.getEntity().getName());
             return;
         }
         if (lowerBiomeName.contains("end")) {
             Enderman enderman = (Enderman) location.getWorld().spawnEntity(location, EntityType.ENDERMAN,CreatureSpawnEvent.SpawnReason.NATURAL);
-            enderman.setCustomName(event.getPlayer().getName());
+            enderman.setCustomName(event.getEntity().getName());
             return;
         }
         if (lowerBiomeName.contains("desert")) {
             Skeleton skeleton = (Skeleton) location.getWorld().spawnEntity(location, EntityType.SKELETON, CreatureSpawnEvent.SpawnReason.NATURAL);
-            skeleton.setCustomName(event.getPlayer().getName());
+            skeleton.setCustomName(event.getEntity().getName());
             return;
         }
         Zombie zombie = (Zombie) location.getWorld().spawnEntity(location, EntityType.ZOMBIE,CreatureSpawnEvent.SpawnReason.NATURAL);
-        zombie.setCustomName(event.getPlayer().getName());
+        zombie.setCustomName(event.getEntity().getName());
     }
 }

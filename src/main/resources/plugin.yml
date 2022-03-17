@@ -3,9 +3,8 @@ version: 1.0-SNAPSHOT
 main: com.molean.isletopia.IsletopiaTweakers
 api-version: 1.13
 load: STARTUP
-denpend:
-  - PlotSquared
 commands:
+  player: { }
   cmd: { }
   isadmin:
     aliases:
@@ -14,7 +13,6 @@ commands:
       - islandadmin
     permission: isletopia.admin
   mail: { }
-  inbox: { }
   isdebug:
     permission: isletopia.isdebug
   clubrealm: { }
@@ -62,8 +60,7 @@ commands:
   skiptutor: { }
   claim: { }
   entitybar: { }
-  sleep: { }
-  goodnight: { }
   music: { }
   blueprint: { }
+  assist: { }
 

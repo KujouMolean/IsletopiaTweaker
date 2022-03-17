@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
@@ -43,7 +44,7 @@ public class AnimalProtect implements Listener {
         if (!IslandManager.INSTANCE.hasTargetIslandPermission(event.getPlayer(), event.getRaid().getLocation())) {
             event.setCancelled(true);
             PotionEffect potionEffect = event.getPlayer().getPotionEffect(PotionEffectType.BAD_OMEN);
-            event.getPlayer().sendMessage("§c你没有权限触发此岛屿的袭击.");
+            MessageUtils.fail(event.getPlayer(), "island.protect.raid");
             Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
                 if (potionEffect == null) {
                     return;

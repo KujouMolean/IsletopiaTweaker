@@ -52,13 +52,9 @@ public class PlayerHeadDrop implements Listener {
         }
 
         ItemStack icon = new ItemStack(Material.PLAYER_HEAD);
-        ItemMeta itemMeta = icon.getItemMeta();
-        itemMeta.displayName(Component.text("§f玩家头颅"));
-        icon.setItemMeta(itemMeta);
-
         ItemStack type = new ItemStack(Material.CREEPER_HEAD);
         ItemMeta typeMeta = type.getItemMeta();
-        typeMeta.displayName(Component.text("§f闪电苦力怕"));
+        typeMeta.displayName(Component.text("entity.creeper.lightning.name"));
         type.setItemMeta(typeMeta);
 
         ItemStack[] source = new ItemStack[9];
@@ -67,7 +63,7 @@ public class PlayerHeadDrop implements Listener {
         }
         source[4] = new ItemStack(Material.PLAYER_HEAD);
         ItemMeta source4Meta = source[4].getItemMeta();
-        source4Meta.displayName(Component.text("任意种类的生物被炸死"));
+        source4Meta.displayName(Component.text("modification.playerHeadDrop.result"));
         source[4].setItemMeta(source4Meta);
 
         ItemStack result = icon.clone();
@@ -133,7 +129,7 @@ public class PlayerHeadDrop implements Listener {
             itemStack.setItemMeta(itemMeta);
             livingEntity.getWorld().dropItem(livingEntity.getLocation(), itemStack);
         } else if (drops.containsKey(livingEntity.getType())) {
-            String name = LangUtils.get(livingEntity.getType().translationKey());
+            String name = LangUtils.get(Locale.SIMPLIFIED_CHINESE, livingEntity.getType().translationKey());
             ItemStack itemStack = HeadUtils.getSkullFromValue(name, drops.get(livingEntity.getType()));
             ItemMeta itemMeta = itemStack.getItemMeta();
             itemMeta.displayName(null);

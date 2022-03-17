@@ -1,7 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.menu.recipe.CraftRecipeMenu;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.menu.recipe.RecipeListMenu;
@@ -33,7 +33,7 @@ public class MenuCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            new PlayerMenu(player).open();
+            new MainMenu(player).open();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("recipe")) {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {

@@ -1,7 +1,9 @@
 package com.molean.isletopia.infrastructure.individual;
 
+import com.alibaba.druid.sql.visitor.functions.Left;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.ItemStackSheet;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -48,18 +50,25 @@ public class ClockMenu implements Listener, CommandExecutor {
         event.setCancelled(true);
     }
 
-    public static ItemStack getClock() {
-        ItemStackSheet itemStackSheet = new ItemStackSheet(Material.CLOCK, "§f[§d主菜单§f]§r");
-        itemStackSheet.addLore("§f[§7左键单击§f]§r §f打开§r §f岛屿列表§r");
-        itemStackSheet.addLore("§f[§7潜行+左键单击§f]§r §f回到§r §f第一个岛屿§r");
-        itemStackSheet.addLore("§f[§7右键单击§f]§r §f打开§r §f主菜单§r");
+    public static ItemStack getClock(Player player) {
+        ItemStackSheet itemStackSheet = new ItemStackSheet(Material.CLOCK, MessageUtils.getMessage(player, "player.clock.title"));
+        String leftClick = MessageUtils.getMessage(player, "player.clock.leftClick");
+        String leftClickFunc = MessageUtils.getMessage(player, "player.clock.leftClick.func");
+        String rightClick = MessageUtils.getMessage(player, "player.clock.rightClick");
+        String rightClickFunc = MessageUtils.getMessage(player, "player.clock.rightClick.func");
+        String shiftLeft = MessageUtils.getMessage(player, "player.clock.shiftLeft");
+        String shiftLeftFunc = MessageUtils.getMessage(player, "player.clock.shiftLeft.func");
+        itemStackSheet.addLore("%s%s".formatted(leftClick,leftClickFunc));
+        itemStackSheet.addLore("%s%s".formatted(rightClick,rightClickFunc));
+        itemStackSheet.addLore("%s%s".formatted(shiftLeft, shiftLeftFunc));
+
         return itemStackSheet.build();
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         Player player = (Player) commandSender;
-        player.getInventory().addItem(getClock());
+        player.getInventory().addItem(getClock(player));
         return true;
     }
 }

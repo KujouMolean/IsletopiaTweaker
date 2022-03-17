@@ -3,9 +3,10 @@ package com.molean.isletopia.menu.settings;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
 import com.molean.isletopia.menu.settings.member.MemberMenu;
+import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ChestMenu;
@@ -23,108 +24,119 @@ import java.util.Random;
 public class SettingsMenu extends ChestMenu {
 
     public SettingsMenu(Player player) {
-        super(player, 2, Component.text("岛屿设置"));
+        super(player, 2, Component.text(MessageUtils.getMessage(player, "menu.settings.title")));
 
         LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
-        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, "§f更改生物群系");
+        ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, MessageUtils.getMessage(player, "menu.settings.biome"));
         itemWithAsyncClickEvent(0, visit.build(), () -> new BiomeMenu(player).open());
 
-        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, "§f添加删除成员");
+        ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, MessageUtils.getMessage(player, "menu.settings.member"));
         itemWithAsyncClickEvent(1, member.build(), () -> new MemberMenu(player).open());
 
-        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, "§f更改复活位置");
+        ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, MessageUtils.getMessage(player, "menu.settings.home"));
         item(2, bed.build(), () -> {
             player.performCommand("is setHome");
             close();
         });
 
         if (currentPlot.containsFlag("Lock")) {
-            ItemStackSheet cancel = new ItemStackSheet(Material.IRON_DOOR, "§f点击开放岛屿");
-            cancel.addLore("§7当前岛屿模式: §c锁定");
-            cancel.addLore("§7仅岛屿成员可访问此岛屿.");
-            item(3, cancel.build(), () -> {
-                if (currentPlot.containsFlag("Lock")) {
-                    player.performCommand("is unlock");
-                } else {
-                    player.performCommand("is lock");
-                }
+
+
+            ItemStackSheet unlock = ItemStackSheet.fromString(Material.IRON_DOOR, MessageUtils.getMessage(player, "menu.settings.unlock"));
+
+            item(3, unlock.build(), () -> {
+                player.performCommand("is unlock");
+
                 close();
             });
         } else {
-            ItemStackSheet denyAll = new ItemStackSheet(Material.OAK_DOOR, "§f点击闭关锁岛");
-            denyAll.addLore("§7当前岛屿模式: §2开放");
-            denyAll.addLore("§7任何人都可以访问此岛屿.");
-            item(3, denyAll.build(), () -> {
-                LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
-                if (currentIsland == null) return;
-                if (currentIsland.containsFlag("Lock")) {
-                    player.performCommand("is unlock");
-                } else {
-                    player.performCommand("is lock");
-                }
+            ItemStackSheet lock = ItemStackSheet.fromString(Material.OAK_DOOR, MessageUtils.getMessage(player, "menu.settings.lock"));
+            item(3, lock.build(), () -> {
+                player.performCommand("is lock");
             });
         }
 
-        ItemStackSheet icon = new ItemStackSheet(Material.GRASS_BLOCK, "§f设置岛屿图标");
-        icon.addLore("§7副手手持需要的图标");
-        icon.addLore("§7设置成功后会消耗掉副手物品");
+        ItemStackSheet icon = ItemStackSheet.fromString(Material.GRASS_BLOCK, MessageUtils.getMessage(player, "menu.settings.icon"));
         item(4, icon.build(), () -> {
             player.performCommand("is setIcon");
         });
 
-        ItemStackSheet name = new ItemStackSheet(Material.NAME_TAG, "§f设置岛屿名称");
-        name.addLore("§7自行使用指令：/is name XXX");
+        ItemStackSheet name = ItemStackSheet.fromString(Material.NAME_TAG, MessageUtils.getMessage(player, "menu.settings.name"));
         item(5, name.build(), () -> {
-            MessageUtils.info(player, "使用: is name XXX");
+            MessageUtils.info(player, "/is name XXX");
             close();
         });
 
-        ItemStackSheet preferred = new ItemStackSheet(Material.APPLE, "§f首选岛屿");
-        preferred.addLore("§7如果你有多个岛屿，你会优先传送到首选岛屿上");
-        preferred.addLore("§7当前: " + (currentPlot.containsFlag("Preferred") ? "首选" : "非首选"));
+        ItemStackSheet preferred = ItemStackSheet.fromString(Material.APPLE,
+                MessageUtils.getMessage(player, "menu.settings.prefer",
+                        Pair.of("status", currentPlot.containsFlag("Preferred") ?
+                                MessageUtils.getMessage(player, "menu.settings.prefer.true") :
+                                MessageUtils.getMessage(player, "menu.settings.prefer.false")
+                        )));
+
         item(6, preferred.build(), () -> {
             player.performCommand("is preferred");
             close();
         });
 
 
-        ItemStackSheet allowDrop = new ItemStackSheet(Material.DROPPER, "§f游客丢弃物品权限");
-        allowDrop.addLore("§7当前: " + (currentPlot.containsFlag("AllowItemDrop") ? "允许" : "不允许"));
+        ItemStackSheet allowDrop = new ItemStackSheet(Material.DROPPER, MessageUtils.getMessage(player, "menu.settings.drop",
+                Pair.of("status", currentPlot.containsFlag("AllowItemDrop") ?
+                        MessageUtils.getMessage(player, "menu.settings.drop.true") :
+                        MessageUtils.getMessage(player, "menu.settings.drop.false")
+                )));
         item(7, allowDrop.build(), () -> {
             player.performCommand("is allowItemDrop");
             close();
         });
 
-        ItemStackSheet allowPickup = new ItemStackSheet(Material.HOPPER, "§f游客拾起物品权限");
-        allowPickup.addLore("§7当前: " + (currentPlot.containsFlag("AllowItemPickup") ? "允许" : "不允许"));
+        ItemStackSheet allowPickup = ItemStackSheet.fromString(Material.HOPPER, "menu.settings.pick",
+                Pair.of("status", currentPlot.containsFlag("AllowItemPickup") ?
+                        MessageUtils.getMessage(player, "menu.settings.pick.true") :
+                        MessageUtils.getMessage(player, "menu.settings.pick.false")
+                ));
+
         item(8, allowPickup.build(), () -> {
             player.performCommand("is allowItemPickup");
             close();
         });
 
-        ItemStackSheet spectator = new ItemStackSheet(Material.FEATHER, "§f游客旁观模式");
-        spectator.addLore("§7当前: " + (currentPlot.containsFlag("SpectatorVisitor") ? "开启" : "关闭"));
+        ItemStackSheet spectator = ItemStackSheet.fromString(Material.FEATHER, "menu.settings.spectator",
+                Pair.of("status", currentPlot.containsFlag("SpectatorVisitor") ?
+                        MessageUtils.getMessage(player, "menu.settings.spectator.true") :
+                        MessageUtils.getMessage(player, "menu.settings.spectator.false")
+                ));
         item(9, spectator.build(), () -> {
             player.performCommand("is spectatorVisitor");
             close();
         });
 
-        ItemStackSheet antiFire = new ItemStackSheet(Material.CAMPFIRE, "§b[Hex]§f岛屿防火");
-        antiFire.addLore("§7当前: " + (currentPlot.containsFlag("AntiFire") ? "开启" : "关闭"));
-        if (currentPlot.containsFlag("AntiFire")) {
-            antiFire.addLore("§c关闭此选项不会返还海洋之心");
-        } else {
-            antiFire.addLore("§c开启此选项需要消耗宝石海洋之心");
+        ItemStackSheet antiFire = ItemStackSheet.fromString(Material.CAMPFIRE, "menu.settings.antifire",
+                Pair.of("status", currentPlot.containsFlag("AntiFire") ?
+                        MessageUtils.getMessage(player, "menu.settings.antifire.true") :
+                        MessageUtils.getMessage(player, "menu.settings.antifire.false")
+                ));
+        if (!currentPlot.containsFlag("AntiFire") && !currentPlot.containsFlag("DisableAntiFire")) {
+            antiFire.addLore(MessageUtils.getMessage(player, "menu.settings.antifire.first"));
         }
         item(10, antiFire.build(), () -> {
             player.performCommand("is antiFire");
             close();
         });
 
+        ItemStackSheet beacon = ItemStackSheet.fromString(Material.BEACON, MessageUtils.getMessage(player, "menu.settings.hexbeacon"));
+        itemWithAsyncClickEvent(11, beacon.build(), () -> new HexBeacon(player).open());
 
-        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, "§f返回主菜单");
-        itemWithAsyncClickEvent(17, father.build(), () -> new PlayerMenu(player).open());
+        ItemStackSheet priority = ItemStackSheet.fromString(Material.ARROW, MessageUtils.getMessage(player, "menu.settings.priority"));
+        item(12, priority.build(), () -> {
+            MessageUtils.info(player, "/is priority XX");
+            close();
+        });
+
+
+        ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main"));
+        itemWithAsyncClickEvent(17, father.build(), () -> new MainMenu(player).open());
     }
 
 

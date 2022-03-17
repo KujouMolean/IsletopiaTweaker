@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Random;
 import java.util.function.Consumer;
 
 public class PlotChunkTask extends BukkitRunnable {
@@ -20,6 +21,8 @@ public class PlotChunkTask extends BukkitRunnable {
     private final int bz;
     private final int tx;
     private final int tz;
+
+    private int tickRate = 1;
 
     private final Consumer<Chunk> consumer;
     private final Runnable runnable;
@@ -43,6 +46,11 @@ public class PlotChunkTask extends BukkitRunnable {
         this.runnable = then;
     }
 
+    public PlotChunkTask tickRate(int tickRate) {
+        this.tickRate = tickRate;
+        return this;
+    }
+
     @Override
     public void run() {
         X = bx;
@@ -61,6 +69,6 @@ public class PlotChunkTask extends BukkitRunnable {
             }
             runnable.run();
             task.cancel();
-        }, 1, 1);
+        }, new Random().nextInt(tickRate), tickRate);
     }
 }

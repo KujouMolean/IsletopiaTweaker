@@ -2,7 +2,7 @@
 
 package com.molean.isletopia.utils;
 
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class SaveUtils {
 
     public static File getPlayerDataFile(String name, Consumer<File> consumer) {
-        UUID uuid = UUIDUtils.get(name);
+        UUID uuid = UUIDManager.get(name);
         if (uuid == null) {
             return null;
         }
@@ -27,7 +27,7 @@ public class SaveUtils {
     }
 
     public static File getPlayerStatsFile(String name, Consumer<File> consumer) {
-        UUID uuid = UUIDUtils.get(name);
+        UUID uuid = UUIDManager.get(name);
         return getPlayerStatsFile(uuid);
 
     }

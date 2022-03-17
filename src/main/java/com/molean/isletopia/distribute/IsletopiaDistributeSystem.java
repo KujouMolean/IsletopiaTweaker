@@ -1,6 +1,7 @@
 package com.molean.isletopia.distribute;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.shared.database.PlayerParameterDao;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.distribute.individual.*;
 import org.bukkit.Bukkit;
@@ -14,6 +15,7 @@ public class IsletopiaDistributeSystem {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         long l = System.currentTimeMillis();
         try {
+            new ParameterCommand();
             new NewbieOperation();
             new VisitCommand();
             new ServerInfoUpdater();

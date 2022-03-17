@@ -1,7 +1,8 @@
 package com.molean.isletopia.tutor.individual;
 
 import com.molean.isletopia.shared.service.UniversalParameter;
-import com.molean.isletopia.other.ConfirmDialog;
+import com.molean.isletopia.dialog.ConfirmDialog;
+import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,9 +21,7 @@ public class SkipTutorCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
 
-        new ConfirmDialog("""
-                跳过新手引导的操作不可逆,你确认这么做吗?
-                """).accept(player1 -> {
+        new ConfirmDialog(MessageUtils.getMessage(player, "tutor.skip")).accept(player1 -> {
             UniversalParameter.setParameter(player1.getUniqueId(), "TutorStatus", "Skip");
             HelpTutor.onQuit(player1);
             IronTutor.onQuit(player1);

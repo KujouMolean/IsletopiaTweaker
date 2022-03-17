@@ -33,10 +33,12 @@ public class IsletopiaInfrastructure {
             new ProductionBar();
             new ServerLikeReward();
             new EntityBar();
-            new ForceSleep();
             new Music();
             new ItemRemover();
             new KeepInventory();
+            new DynamicMobSpawnRate();
+            new VillagerLimiter();
+            new PlayerCommand();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

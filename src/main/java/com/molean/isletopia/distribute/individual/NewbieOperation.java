@@ -6,7 +6,7 @@ import com.molean.isletopia.infrastructure.individual.ClockMenu;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PlayerUtils;
+import com.molean.isletopia.utils.BukkitPlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,8 +24,8 @@ public class NewbieOperation implements Listener {
     public void afterClaim(Player player, LocalIsland island) {
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
             island.tp(player);
-            MessageUtils.success(player, "岛屿分配完毕，开始你的游戏！");
-            MessageUtils.strong(player, "记住，你没有重开的机会。");
+            MessageUtils.success(player, "island.create.complete");
+            MessageUtils.strong(player, "island.create.noRemake");
         });
     }
     public void newPlayerItem(Player player) {
@@ -34,7 +34,7 @@ public class NewbieOperation implements Listener {
             player.getInventory().addItem(new ItemStack(Material.WATER_BUCKET, 1));
             player.getInventory().addItem(new ItemStack(Material.LAVA_BUCKET, 1));
             player.getInventory().addItem(new ItemStack(Material.APPLE, 64));
-            player.getInventory().addItem(ClockMenu.getClock());
+            player.getInventory().addItem(ClockMenu.getClock(player));
         });
     }
 
@@ -47,7 +47,7 @@ public class NewbieOperation implements Listener {
                 newPlayerItem(player);
                 IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), (island -> {
                     if (island == null) {
-                        PlayerUtils.kickAsync(player, "#岛屿创建失败，请联系管理员。");
+                        BukkitPlayerUtils.kickAsync(player, "#Island create failed, please contact server administrator!");
                         return;
                     }
                     afterClaim(player, island);

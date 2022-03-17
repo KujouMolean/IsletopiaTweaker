@@ -38,7 +38,7 @@ public class HelpTutor implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (Objects.equals(tutorStatus, "Help") && player.isOnline()) {
-                BossBar bossBar = Bukkit.createBossBar("新手引导: 使用/is help 查看帮助.", BarColor.GREEN, BarStyle.SEGMENTED_20);
+                BossBar bossBar = Bukkit.createBossBar(MessageUtils.getMessage(player,"tutor.help.title"), BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);
                 PLAYERS.add(player);
                 BARS.put(player, bossBar);
@@ -75,8 +75,8 @@ public class HelpTutor implements Listener {
         switch (message.toLowerCase(Locale.ROOT)) {
             case "/is help", "/islet help", "/isletopia help" -> {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    MessageUtils.strong(event.getPlayer(), "Wiki中有很多重要信息, 非常建议仔细阅读。");
-                    MessageUtils.info(event.getPlayer(), "接下来, 请边挖石头边看梦幻之屿wiki吧。");
+                    MessageUtils.strong(event.getPlayer(), "tutor.help.wiki");
+                    MessageUtils.info(event.getPlayer(), "tutor.help.next");
                     PLAYERS.remove(event.getPlayer());
                     BARS.get(event.getPlayer()).removeAll();
                     UniversalParameter.setParameter(event.getPlayer().getUniqueId(), "TutorStatus", "Stone");

@@ -1,7 +1,7 @@
 package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.other.ConfirmDialog;
+import com.molean.isletopia.dialog.ConfirmDialog;
 import com.molean.isletopia.shared.database.BumpDao;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.model.BumpInfo;
@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -39,7 +40,6 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
     private long lastUpdate = 0;
 
     public ServerBumpReward() throws SQLException {
-        BumpDao.checkTable();
         Objects.requireNonNull(Bukkit.getPluginCommand("bumpreward")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("bumpreward")).setExecutor(this);
 
@@ -62,13 +62,11 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                              @NotNull String label,
                              @NotNull String[] args) {
 
-        new ConfirmDialog("""
-                领取顶帖奖励前，你必须要知道的几件事情：1.请不要在论坛过度水贴以至于被封号；2.请不要在论坛开小号为服务器顶帖；3.不要花钱购买第三方顶帖卡。违反以上规则你会被封禁。
-                """).accept(player -> {
+        new ConfirmDialog(MessageUtils.getMessage((Player) sender, "bump.rules")).accept(player -> {
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
                 if (args.length < 1) {
-                   MessageUtils.info(sender,"请按要求输入：/bumpreward MCBBS用户名");
-                    MessageUtils.info(sender,"例如 /bumpreward Molean");
+                    MessageUtils.info(player, "bump.usage");
+                    MessageUtils.info(player, "bump.usage.example");
                     return;
                 }
                 UUID uuid = player.getUniqueId();
@@ -84,8 +82,8 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
 
                     if (!bumpInfo.getDateTime().toLocalDate().isEqual(LocalDate.now())) {
                         continue;
-
                     }
+
 
                     //claimed, skip
                     try {
@@ -93,12 +91,19 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                             continue;
                         }
                     } catch (SQLException e) {
-                        MessageUtils.fail(sender,"数据库错误，请联系管理员。");
+                        MessageUtils.fail(player, "bump.failed.database");
                         return;
                     }
                     //not owned, skip
                     if (!bumpInfo.getUsername().equalsIgnoreCase(args[0])) {
                         continue;
+                    }
+
+                    //level 6
+                    if (getPoints(bumpInfo.getUid()) < 500) {
+                        MessageUtils.fail(player, "bump.failed.level");
+
+                        return;
                     }
 
 
@@ -110,7 +115,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                     try {
                         BumpDao.addBumpInfo(bumpInfo);
                     } catch (SQLException e) {
-                        MessageUtils.fail(sender,"数据库错误，请联系管理员。");
+                        MessageUtils.fail(player, "bump.failed.database");
                         return;
                     }
 
@@ -122,26 +127,34 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                     Random random = new Random();
                     for (int i = 0; i < bonus; i++) {
                         itemStacks.add(new ItemStack(Material.SHULKER_BOX));
-                        serverBumpObject.getItems().add("潜影盒");
-                        if (random.nextInt(100) < 10) {
+                        serverBumpObject.getItems().add(MessageUtils.getMessage(player, "bump.reward.shulkerBox"));
+                        int beaconRand = random.nextInt(100);
+                        MessageUtils.info(player, "本次信标随机数为" + beaconRand + "(小于10获得)");
+                        int bundleRand = random.nextInt(100);
+                        MessageUtils.info(player, "本次收纳袋随机数为" + bundleRand + "(小于5获得)");
+                        int heartRand = random.nextInt(100);
+                        MessageUtils.info(player, "本次海洋之心随机数为" + heartRand + "(小于10获得)");
+                        int elytraRand = random.nextInt(100);
+                        MessageUtils.info(player, "本次鞘翅随机数为" + elytraRand + "(小于1获得)");
+                        if (beaconRand < 10) {
                             itemStacks.add(new ItemStack(Material.BEACON, 1));
-                            serverBumpObject.getItems().add("信标");
+                            serverBumpObject.getItems().add(MessageUtils.getMessage(player, "bump.reward.beacon"));
                             UniversalParameter.addParameter(uuid, "beacon", "true");
-                            UniversalParameter.setParameter(uuid, "beaconReason", "顶贴");
+                            UniversalParameter.setParameter(uuid, "beaconReason", "bump");
                         }
-                        if (random.nextInt(100) < 5) {
+                        if (bundleRand < 5) {
                             itemStacks.add(new ItemStack(Material.BUNDLE, 1));
-                            serverBumpObject.getItems().add("收纳袋");
+                            serverBumpObject.getItems().add(MessageUtils.getMessage(player, "bump.reward.bundle"));
                         }
-                        if (random.nextInt(100) < 10) {
+                        if (heartRand < 10) {
                             itemStacks.add(new ItemStack(Material.HEART_OF_THE_SEA, 1));
-                            serverBumpObject.getItems().add("海洋之心");
+                            serverBumpObject.getItems().add(MessageUtils.getMessage(player, "bump.reward.heartOfTheSea"));
                         }
-                        if (random.nextInt(100) == 0) {
+                        if (elytraRand == 0) {
                             itemStacks.add(new ItemStack(Material.ELYTRA, 1));
-                            serverBumpObject.getItems().add("鞘翅");
-                            UniversalParameter.addParameter(uuid, "elytra","true");
-                            UniversalParameter.setParameter(uuid, "elytraReason", "顶贴");
+                            serverBumpObject.getItems().add(MessageUtils.getMessage(player, "bump.reward.elytra"));
+                            UniversalParameter.addParameter(uuid, "elytra", "true");
+                            UniversalParameter.setParameter(uuid, "elytraReason", "bump");
                         }
                     }
 
@@ -152,10 +165,10 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                             player.getLocation().getWorld().dropItem(player.getLocation(), value);
                         }
                     });
-                    ServerMessageUtils.sendMessage("waterfall", "ServerBump", serverBumpObject);
+                    ServerMessageUtils.sendMessage("proxy", "ServerBump", serverBumpObject);
                     return;
                 }
-                MessageUtils.fail(sender,"你还没有顶帖，或者ID输入错误，请查证后重新领取。");
+                MessageUtils.fail(player, "bump.failed.notFound");
             });
         }).open((Player) sender);
 
@@ -168,6 +181,33 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                                                 @NotNull String alias,
                                                 @NotNull String[] args) {
         return null;
+    }
+
+    public int getPoints(int uid) {
+        byte[] bytes = new byte[0];
+        try {
+            URL url = new URL("https://www.mcbbs.net/?" + uid);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.109 Safari/537.36");
+            InputStream inputStream = urlConnection.getInputStream();
+            bytes = inputStream.readAllBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String source = new String(bytes, StandardCharsets.UTF_8);
+        Pattern compile = Pattern.compile("<li><em>积分</em>(.{1,30})</li><li>");
+        Matcher matcher = compile.matcher(source);
+
+        int points = 0;
+
+        while (matcher.find()) {
+            try {
+                points = Integer.parseInt(matcher.group(1));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        return points;
     }
 
 
@@ -203,10 +243,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
             int uid = Integer.parseInt(matcher2.group(1));
             String username = matcher2.group(2);
             LocalDateTime dateTime = LocalDateTime.parse(matcher2.group(3), DateTimeFormatter.ofPattern("yyyy-M-d HH:mm"));
-
-            if (dateTime.toLocalDate().isEqual(LocalDate.now())) {
-                bumpInfos.add(new BumpInfo(uid, username, dateTime));
-            }
+            bumpInfos.add(new BumpInfo(uid, username, dateTime));
         }
         lastUpdate = System.currentTimeMillis();
     }

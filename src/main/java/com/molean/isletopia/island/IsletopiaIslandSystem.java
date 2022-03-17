@@ -12,10 +12,8 @@ public class IsletopiaIslandSystem {
         Logger logger = IsletopiaTweakers.getPlugin().getLogger();
         long l = System.currentTimeMillis();
         try {
-            IslandDao.checkTable();
             new IslandCommand();
             new PlayerIslandChangeEventListener();
-            CollectionDao.checkTable();
             IslandManager islandManager = IslandManager.INSTANCE;
             IslandFlagManager islandFlagManager = IslandFlagManager.INSTANCE;
         } catch (Exception e) {

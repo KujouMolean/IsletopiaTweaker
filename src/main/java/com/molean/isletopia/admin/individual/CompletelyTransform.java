@@ -4,11 +4,12 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.shared.database.*;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class CompletelyTransform implements CommandExecutor {
     public void completelyDeleteAccount(UUID uuid) throws SQLException, IOException {
         PlayerDataDao.delete(uuid);
         PlayerStatsDao.delete(uuid);
-        ParameterDao.deletePlayer(uuid);
+        PlayerParameterDao.deletePlayer(uuid);
         CollectionDao.deleteTarget(uuid);
         CollectionDao.deleteSource(uuid);
         IslandDao.deleteMember(uuid);
@@ -36,7 +37,7 @@ public class CompletelyTransform implements CommandExecutor {
     public void completelyReplaceAccount(UUID source, UUID target) throws SQLException, IOException {
         PlayerDataDao.replace(source, target);
         PlayerStatsDao.replace(source, target);
-        ParameterDao.replace(source, target);
+        PlayerParameterDao.replace(source, target);
         IslandDao.replaceOwner(source, target);
         IslandDao.replaceMember(source, target);
         CollectionDao.replaceTarget(source, target);
@@ -46,8 +47,9 @@ public class CompletelyTransform implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
+        Player player = (Player) sender;
         if (args.length < 2) {
-            MessageUtils.fail(sender, "/transform source target");
+            MessageUtils.fail(player, "/transform source target");
             return true;
         }
 
@@ -55,25 +57,25 @@ public class CompletelyTransform implements CommandExecutor {
         String target = args[1];
 
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            UUID sourceUUID = UUIDUtils.get(source);
+            UUID sourceUUID = UUIDManager.get(source);
             if (sourceUUID == null) {
-                MessageUtils.fail(sender, "source not found!");
+                MessageUtils.fail(player, "source not found!");
                 return;
             }
-            UUID targetUUID = UUIDUtils.get(target);
+            UUID targetUUID = UUIDManager.get(target);
             if (targetUUID == null) {
-                targetUUID = UUIDUtils.getOnlineSync(target);
+                targetUUID = UUIDManager.getOnlineSync(target);
             }
             if (IslandManager.INSTANCE.getPlayerIslandCount(targetUUID) > 0) {
-                MessageUtils.fail(sender, "target has island, delete it manually.");
+                MessageUtils.fail(player, "target has island, delete it manually.");
                 return;
             }
             try {
                 completelyDeleteAccount(targetUUID);
                 completelyReplaceAccount(sourceUUID, targetUUID);
-                MessageUtils.success(sender, "OK!");
+                MessageUtils.success(player, "OK!");
             } catch (SQLException | IOException e) {
-                MessageUtils.fail(sender, "some error occurred!");
+                MessageUtils.fail(player, "some error occurred!");
                 e.printStackTrace();
             }
         });

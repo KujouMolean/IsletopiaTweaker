@@ -22,9 +22,6 @@ public class Lock implements IslandFlagHandler, Listener {
     public void on(PlayerIslandChangeEvent event) {
         LocalIsland to = event.getTo();
         Player player = event.getPlayer();
-        if (event.getPlayer().isOp()) {
-            return;
-        }
         if (to == null || (!to.hasPermission(player) && to.containsFlag("Lock"))) {
             if (event.getPlayer().isOp()) {
                 MessageUtils.info(event.getPlayer(), "You are by passing a lock flag!");
@@ -38,11 +35,11 @@ public class Lock implements IslandFlagHandler, Listener {
     public void onFlagAdd(LocalIsland island, String... data) {
         for (Player player : island.getPlayersInIsland()) {
             if (!island.hasPermission(player)) {
-                MessageUtils.strong(player, "你已被踢出此岛.");
+                MessageUtils.strong(player, "island.flag.lock.kick");
                 Island playerFirstIsland = IslandManager.INSTANCE.getPlayerFirstIsland(player.getUniqueId());
                 if (playerFirstIsland == null) {
                     Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-                        player.kick(Component.text("#严重错误，没有岛屿。"));
+                        player.kick(Component.text("#Severe error, you have no island!"));
                     });
                     return;
                 }

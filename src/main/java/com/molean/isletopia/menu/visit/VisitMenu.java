@@ -1,10 +1,12 @@
 package com.molean.isletopia.menu.visit;
 
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.menu.VisitorMenu;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.Island;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
@@ -19,27 +21,27 @@ import java.util.UUID;
 public class VisitMenu extends ListMenu<String> {
 
     public VisitMenu(Player player) {
-        super(player, Component.text("选择你想访问的玩家"));
+        super(player, Component.text(MessageUtils.getMessage(player, "menu.visit.title")));
 
         List<String> onlinePlayers = ServerInfoUpdater.getOnlinePlayers();
         onlinePlayers.sort(String::compareToIgnoreCase);
         this.components(onlinePlayers);
         this.convertFunction(HeadUtils::getSkullWithIslandInfo)
-                .onClickAsync(s -> {
-                    UUID uuid = UUIDUtils.get(s);
+                .onClickSync(s -> {
+                    UUID uuid = UUIDManager.get(s);
                     if (uuid == null) {
-                        MessageUtils.fail(player, "无法获取对方UUID，访问失败。");
+                        MessageUtils.fail(player, "menu.visit.failed.uuid");
                         close();
                         return;
                     }
-                    List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(uuid);
-                    new MultiVisitMenu(player, playerIslands)
-                            .closeItemStack(new ItemStackSheet(Material.BARRIER, "§f返回访问菜单").build())
-                            .onCloseAsync(() -> new VisitMenu(player).open()).open();
+                    new PlayerMenu(player, uuid).itemWithAsyncClickEvent(49, ItemStackSheet.fromString(Material.BARRIER, "§f返回访问菜单").build(), () -> {
+                        new VisitorMenu(player).open();
+                    }).open();
                 })
-                .closeItemStack(new ItemStackSheet(Material.BARRIER, "§f返回主菜单").build())
-                .onCloseAsync(() -> new PlayerMenu(player).open())
-                .onCloseSync(() -> {});
+                .closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
+                .onCloseAsync(() -> new MainMenu(player).open())
+                .onCloseSync(() -> {
+                });
     }
 
 }

@@ -1,12 +1,9 @@
 package com.molean.isletopia.message;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.admin.individual.UniversalCommandExecutor;
 import com.molean.isletopia.message.handler.*;
-import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.req.CommandExecuteRequest;
-import org.bukkit.Server;
 
 import java.util.logging.Logger;
 
@@ -16,7 +13,6 @@ public class IsletopiaMessage {
         long l = System.currentTimeMillis();
         try {
             new PlaySoundHandler();
-            new GiveItemHandler();
             new VisitRequestHandler();
             new VisitResponseHandler();
             new TeleportRequestHandler();
@@ -33,6 +29,6 @@ public class IsletopiaMessage {
             exception.printStackTrace();
             logger.severe("Initialize isletopia message failed!");
         }
-        logger.info("Initialize isletopia message successfully in " + (System.currentTimeMillis()-l) + "ms");
+        logger.info("Initialize isletopia message successfully in " + (System.currentTimeMillis() - l) + "ms");
     }
 }

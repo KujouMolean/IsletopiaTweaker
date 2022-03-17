@@ -15,11 +15,11 @@ public class KeepInventory implements Listener{
 
     @EventHandler
     public void on(PlayerDeathEvent event) {
-        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getPlayer())) {
+        if (!IslandManager.INSTANCE.hasCurrentIslandPermission(event.getEntity())) {
             event.setKeepInventory(true);
             return;
         }
-        if (!PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getPlayer(), "DisableKeepInventory")) {
+        if (!PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(event.getEntity(), "DisableKeepInventory")) {
             event.setKeepInventory(true);
             return;
         }

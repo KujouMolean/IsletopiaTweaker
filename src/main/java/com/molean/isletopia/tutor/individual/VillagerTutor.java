@@ -38,7 +38,7 @@ public class VillagerTutor implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String tutorStatus = UniversalParameter.getParameter(player.getUniqueId(), "TutorStatus");
             if (Objects.equals(tutorStatus, "Villager") && player.isOnline()) {
-                BossBar bossBar = Bukkit.createBossBar("新手引导: 拯救一只村民.", BarColor.GREEN, BarStyle.SEGMENTED_20);
+                BossBar bossBar = Bukkit.createBossBar(MessageUtils.getMessage(player, "tutor.village.title"), BarColor.GREEN, BarStyle.SEGMENTED_20);
                 bossBar.addPlayer(player);
                 PLAYERS.add(player);
                 BARS.put(player, bossBar);
@@ -76,8 +76,8 @@ public class VillagerTutor implements Listener {
         for (Player player : island.getPlayersInIsland()) {
             if (island.hasPermission(player) && PLAYERS.contains(player)) {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    MessageUtils.info(player, "恭喜你完成了新手引导。");
-                    MessageUtils.info(player, "接下来时光请自行探索。");
+                    MessageUtils.info(player, "tutor.village.ok");
+                    MessageUtils.info(player, "tutor.village.next");
                     PLAYERS.remove(player);
                     BARS.get(player).removeAll();
                     UniversalParameter.setParameter(player.getUniqueId(), "TutorStatus", "Done");

@@ -8,7 +8,7 @@ import com.molean.isletopia.task.AsyncTryTask;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
-import com.molean.isletopia.utils.PlayerUtils;
+import com.molean.isletopia.utils.BukkitPlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -23,7 +23,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class PlayerDataSync implements Listener {
 
@@ -31,16 +30,6 @@ public class PlayerDataSync implements Listener {
 
     public PlayerDataSync() {
         Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-
-        // check table
-        try {
-            PlayerDataDao.checkTable();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            //stop server if check has error
-            Logger.getAnonymousLogger().severe("Database check error!");
-            Bukkit.shutdown();
-        }
 
         // add shutdown task
 
@@ -87,7 +76,7 @@ public class PlayerDataSync implements Listener {
     public void update(Player player) {
         PlayerSerializeUtils.serialize(player, bytes -> {
             if (bytes == null) {
-                MessageUtils.warn(player, "你的背包数据保存失败，请尽快联系管理员处理！");
+                MessageUtils.warn(player, "player.data.saveFailed");
                 return;
             }
             try {
@@ -96,7 +85,7 @@ public class PlayerDataSync implements Listener {
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                MessageUtils.warn(player, "你的背包数据保存失败，请尽快联系管理员处理！");
+                MessageUtils.warn(player, "player.data.saveFailed");
             }
         });
 
@@ -141,7 +130,7 @@ public class PlayerDataSync implements Listener {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                PlayerUtils.kickAsync(player, "#读取玩家数据出错，请联系管理员！");
+                BukkitPlayerUtils.kickAsync(player, "#Error when loading your data, please contact server administrator！");
                 return true;
                 //return true to end task
             }
@@ -150,14 +139,14 @@ public class PlayerDataSync implements Listener {
                 String lockForce = PlayerDataDao.getLockForce(player.getUniqueId());
                 if (lockForce == null) {
                     //强制拿锁失败, 出大问题
-                    PlayerUtils.kickAsync(player, "#读取玩家数据出错，请联系管理员！");
+                    BukkitPlayerUtils.kickAsync(player, "#Error when loading your data, please contact server administrator！");
                     throw new RuntimeException("Unexpected error! Force get lock failed.");
                     //end (failed)
                 }
                 loadDataAsync(player, lockForce, location);
             } catch (SQLException | IOException e) {
                 e.printStackTrace();
-                PlayerUtils.kickAsync(player, "#读取玩家数据出错，请联系管理员！");
+                BukkitPlayerUtils.kickAsync(player, "#Error when loading your data, please contact server administrator！");
             }
         }).run();
     }
@@ -189,7 +178,7 @@ public class PlayerDataSync implements Listener {
         //强制拿到锁了, 加载数据
         byte[] query = PlayerDataDao.query(player.getUniqueId(), passwd);
         if (query == null) {
-            PlayerUtils.kickAsync(player, "#读取玩家数据出错，请联系管理员！");
+            BukkitPlayerUtils.kickAsync(player, "#Error when loading your data, please contact server administrator！");
             throw new RuntimeException("Unexpected get player data failed!");
         }
 

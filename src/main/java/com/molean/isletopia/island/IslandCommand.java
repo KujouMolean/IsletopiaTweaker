@@ -5,15 +5,17 @@ import com.molean.isletopia.menu.VisitorMenu;
 import com.molean.isletopia.menu.charge.PlayerChargeMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
 import com.molean.isletopia.menu.visit.VisitMenu;
-import com.molean.isletopia.shared.message.ServerInfoUpdater;
-import com.molean.isletopia.other.ConfirmDialog;
+import com.molean.isletopia.dialog.ConfirmDialog;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.database.CollectionDao;
+import com.molean.isletopia.shared.database.UUIDDao;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.service.AccountService;
 import com.molean.isletopia.shared.utils.RedisUtils;
-import com.molean.isletopia.shared.utils.UUIDUtils;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.Bukkit;
@@ -28,6 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -82,6 +85,14 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                     name(subject, object);
                 }
                 break;
+
+            case "priority":
+                if (args.length < 2) {
+                    priority(subject);
+                } else {
+                    priority(subject, object);
+                }
+                break;
             case "visit":
             case "tp":
                 if (args.length < 2) {
@@ -130,7 +141,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 break;
             case "claimoffline":
                 if (args.length < 2) {
-                    MessageUtils.info(sourcePlayer, "/is claimOffline [密码]");
+                    MessageUtils.info(sourcePlayer, "/is claimOffline [password]");
                     return true;
                 }
                 claimOffline(subject, object);
@@ -172,6 +183,41 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 break;
             case "antifire":
                 antiFire(subject);
+            case "enablehexbeaconspeed":
+                enableHexBeaconSpeed(subject);
+                break;
+            case "enablehexbeaconfastdigging":
+                enableHexBeaconFastDigging(subject);
+                break;
+            case "enablehexbeaconincreasedamage":
+                enableHexBeaconIncreaseDamage(subject);
+                break;
+            case "enablehexbeaconjump":
+                enableHexBeaconJump(subject);
+                break;
+            case "enablehexbeacondamageresistance":
+                enableHexBeaconDamageResistance(subject);
+                break;
+            case "enablehexbeaconregeneration":
+                enableHexBeaconRegeneration(subject);
+                break;
+            case "disablehexbeaconspeed":
+                disableHexBeaconSpeed(subject);
+                break;
+            case "disablehexbeaconfastdigging":
+                disableHexBeaconFastDigging(subject);
+                break;
+            case "disablehexbeaconincreasedamage":
+                disableHexBeaconIncreaseDamage(subject);
+                break;
+            case "disablehexbeaconjump":
+                disableHexBeaconJump(subject);
+                break;
+            case "disablehexbeacondamageresistance":
+                disableHexBeaconDamageResistance(subject);
+                break;
+            case "disablehexbeaconregeneration":
+                disableHexBeaconRegeneration(subject);
                 break;
             default:
             case "help":
@@ -182,27 +228,348 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private void priority(String subject, String object) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        int i;
+        try {
+            i = Integer.parseInt(object);
+        } catch (NumberFormatException e) {
+            MessageUtils.fail(player, object + "不是有效数字!");
+            return;
+        }
+        currentIsland.removeIslandFlag("Priority");
+        currentIsland.addIslandFlag("Priority#" + i);
+        MessageUtils.success(player, "island.command.ok");
+    }
+
+    private void priority(String subject) {
+        priority(subject, "0");
+    }
+
+    private void enableHexBeaconSpeed(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconSpeed")) {
+            MessageUtils.fail(player, "island.command.alreadyEnabled");
+            return;
+        }
+        if (currentIsland.containsFlag("DisableHexBeaconSpeed")) {
+            currentIsland.removeIslandFlag("DisableHexBeaconSpeed");
+            currentIsland.addIslandFlag("EnableHexBeaconSpeed");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+            if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
+                MessageUtils.fail(player, "island.command.heartOfTheSeaNeeded");
+                return;
+            }
+            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+            player.getInventory().setItemInOffHand(itemInOffHand);
+            currentIsland.addIslandFlag("EnableHexBeaconSpeed");
+            MessageUtils.success(player, "island.command.ok");
+        }
+    }
+
+    private void disableHexBeaconSpeed(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconSpeed")) {
+            currentIsland.removeIslandFlag("EnableHexBeaconSpeed");
+            currentIsland.addIslandFlag("DisableHexBeaconSpeed");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            MessageUtils.fail(player, "island.command.failed");
+        }
+    }
+
+    private void enableHexBeaconFastDigging(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconFastDigging")) {
+            MessageUtils.fail(player, "island.command.alreadyEnabled");
+            return;
+        }
+        if (currentIsland.containsFlag("DisableHexBeaconFastDigging")) {
+            currentIsland.removeIslandFlag("DisableHexBeaconFastDigging");
+            currentIsland.addIslandFlag("EnableHexBeaconFastDigging");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+            if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
+                MessageUtils.fail(player, "island.command.heartOfTheSeaNeeded");
+                return;
+            }
+            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+            player.getInventory().setItemInOffHand(itemInOffHand);
+            currentIsland.addIslandFlag("EnableHexBeaconFastDigging");
+            MessageUtils.success(player, "island.command.ok");
+        }
+    }
+
+    private void disableHexBeaconFastDigging(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconFastDigging")) {
+            currentIsland.removeIslandFlag("EnableHexBeaconFastDigging");
+            currentIsland.addIslandFlag("DisableHexBeaconFastDigging");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            MessageUtils.fail(player, "island.command.failed");
+        }
+    }
+
+    private void enableHexBeaconIncreaseDamage(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconIncreaseDamage")) {
+            MessageUtils.fail(player, "island.command.alreadyEnabled");
+            return;
+        }
+        if (currentIsland.containsFlag("DisableHexBeaconIncreaseDamage")) {
+            currentIsland.removeIslandFlag("DisableHexBeaconIncreaseDamage");
+            currentIsland.addIslandFlag("EnableHexBeaconIncreaseDamage");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+            if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
+                MessageUtils.fail(player, "island.command.heartOfTheSeaNeeded");
+                return;
+            }
+            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+            player.getInventory().setItemInOffHand(itemInOffHand);
+            currentIsland.addIslandFlag("EnableHexBeaconIncreaseDamage");
+            MessageUtils.success(player, "island.command.ok");
+        }
+    }
+
+    private void disableHexBeaconIncreaseDamage(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+
+        if (currentIsland.containsFlag("EnableHexBeaconIncreaseDamage")) {
+            currentIsland.removeIslandFlag("EnableHexBeaconIncreaseDamage");
+            currentIsland.addIslandFlag("DisableHexBeaconIncreaseDamage");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            MessageUtils.fail(player, "island.command.failed");
+        }
+    }
+
+    private void enableHexBeaconJump(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconJump")) {
+            MessageUtils.fail(player, "island.command.alreadyEnabled");
+            return;
+        }
+        if (currentIsland.containsFlag("DisableHexBeaconJump")) {
+            currentIsland.removeIslandFlag("DisableHexBeaconJump");
+            currentIsland.addIslandFlag("EnableHexBeaconJump");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+            if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
+                MessageUtils.fail(player, "island.command.heartOfTheSeaNeeded");
+                return;
+            }
+            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+            player.getInventory().setItemInOffHand(itemInOffHand);
+            currentIsland.addIslandFlag("EnableHexBeaconJump");
+            MessageUtils.success(player, "island.command.ok");
+        }
+    }
+
+    private void disableHexBeaconJump(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconJump")) {
+            currentIsland.removeIslandFlag("EnableHexBeaconJump");
+            currentIsland.addIslandFlag("DisableHexBeaconJump");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            MessageUtils.fail(player, "island.command.failed");
+        }
+    }
+
+    private void enableHexBeaconDamageResistance(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconDamageResistance")) {
+            MessageUtils.fail(player, "island.command.alreadyEnabled");
+            return;
+        }
+        if (currentIsland.containsFlag("DisableHexBeaconDamageResistance")) {
+            currentIsland.removeIslandFlag("DisableHexBeaconDamageResistance");
+            currentIsland.addIslandFlag("EnableHexBeaconDamageResistance");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+            if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
+                MessageUtils.fail(player, "island.command.heartOfTheSeaNeeded");
+                return;
+            }
+            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+            player.getInventory().setItemInOffHand(itemInOffHand);
+            currentIsland.addIslandFlag("EnableHexBeaconDamageResistance");
+            MessageUtils.success(player, "island.command.ok");
+        }
+    }
+
+    private void disableHexBeaconDamageResistance(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconDamageResistance")) {
+            currentIsland.removeIslandFlag("EnableHexBeaconDamageResistance");
+            currentIsland.addIslandFlag("DisableHexBeaconDamageResistance");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            MessageUtils.fail(player, "island.command.failed");
+        }
+    }
+
+    private void enableHexBeaconRegeneration(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconRegeneration")) {
+            MessageUtils.fail(player, "island.command.alreadyEnabled");
+            return;
+        }
+        if (currentIsland.containsFlag("DisableHexBeaconRegeneration")) {
+            currentIsland.removeIslandFlag("DisableHexBeaconRegeneration");
+            currentIsland.addIslandFlag("EnableHexBeaconRegeneration");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+            if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
+                MessageUtils.fail(player, "island.command.heartOfTheSeaNeeded");
+                return;
+            }
+            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+            player.getInventory().setItemInOffHand(itemInOffHand);
+            currentIsland.addIslandFlag("EnableHexBeaconRegeneration");
+            MessageUtils.success(player, "island.command.ok");
+        }
+    }
+
+    private void disableHexBeaconRegeneration(String subject) {
+        Player player = Bukkit.getPlayerExact(subject);
+        assert player != null;
+        LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
+        if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
+            MessageUtils.fail(player, "island.command.noPerm");
+            return;
+        }
+        if (currentIsland.containsFlag("EnableHexBeaconRegeneration")) {
+            currentIsland.removeIslandFlag("EnableHexBeaconRegeneration");
+            currentIsland.addIslandFlag("DisableHexBeaconRegeneration");
+            MessageUtils.success(player, "island.command.ok");
+        } else {
+            MessageUtils.fail(player, "island.command.failed");
+        }
+    }
+
+    private static final List<String> subCommand = List.of("home", "visit", "trust", "distrust", "help", "invite",
+            "kick", "lock", "unlock", "setHome", "resetHome",
+            "visits", "trusts", "visitors", "consume", "stars", "star", "unstar", "spectatorVisitor", "setBiome",
+            "setIcon", "name", "preferred", "create", "claimOffline",
+            "allowFirework", "allowItemPickup", "allowItemDrop", "priority",
+            "enableHexBeaconSpeed", "enableHexBeaconFastDigging", "enableHexBeaconIncreaseDamage",
+            "enableHexBeaconJump", "enableHexBeaconDamageResistance", "enableHexBeaconRegeneration",
+            "disableHexBeaconSpeed", "disableHexBeaconFastDigging", "disableHexBeaconIncreaseDamage",
+            "disableHexBeaconJump", "disableHexBeaconDamageResistance", "disableHexBeaconRegeneration");
+
+    private static final List<String> playerCommand = List.of("trust", "distrust",
+            "kick", "invite", "visit", "star", "unstar");
+
     private void antiFire(String subject) {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         if (!currentIsland.containsFlag("AntiFire")) {
-            ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
-            if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
-                MessageUtils.fail(player, "副手需要放一个海洋之心，该物品会被消耗掉.");
-                return;
+            if (currentIsland.containsFlag("DisableAntiFire")) {
+                currentIsland.removeIslandFlag("DisableAntiFire");
+                currentIsland.addIslandFlag("AntiFire");
+
+            }else{
+                ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
+                if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
+                    MessageUtils.fail(player, "island.command.heartOfTheSeaNeeded");
+                    return;
+                }
+                itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
+                player.getInventory().setItemInOffHand(itemInOffHand);
+                currentIsland.addIslandFlag("AntiFire");
             }
-            itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
-            player.getInventory().setItemInOffHand(itemInOffHand);
-            currentIsland.addIslandFlag("AntiFire");
-            MessageUtils.success(player, "已开启岛屿防火.");
+            MessageUtils.success(player, "island.command.enabled");
         } else {
+            currentIsland.addIslandFlag("DisableAntiFire");
             currentIsland.removeIslandFlag("AntiFire");
-            MessageUtils.success(player, "已关闭岛屿防火.");
+            MessageUtils.success(player, "island.command.disabled");
         }
     }
 
@@ -214,15 +581,15 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         if (!currentIsland.containsFlag("AllowItemPickup")) {
             currentIsland.addIslandFlag("AllowItemPickup");
-            MessageUtils.success(player, "已允许游客拾起物品.");
+            MessageUtils.success(player, "island.command.enabled");
         } else {
             currentIsland.removeIslandFlag("AllowItemPickup");
-            MessageUtils.success(player, "已禁止游客拾起物品.");
+            MessageUtils.success(player, "island.command.disabled");
         }
     }
 
@@ -230,18 +597,19 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
 
+
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         if (!currentIsland.containsFlag("AllowItemDrop")) {
             currentIsland.addIslandFlag("AllowItemDrop");
-            MessageUtils.success(player, "已允许游客丢弃物品.");
+            MessageUtils.success(player, "island.command.enabled");
         } else {
             currentIsland.removeIslandFlag("AllowItemDrop");
-            MessageUtils.success(player, "已禁止游客丢弃物品.");
+            MessageUtils.success(player, "island.command.disabled");
         }
     }
 
@@ -252,28 +620,28 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null) {
-            MessageUtils.fail(player, "该岛屿未被领取.");
+            MessageUtils.fail(player, "island.claim.failed.empty");
             return;
         }
         UUID uuid = currentIsland.getUuid();
-        String name = UUIDUtils.get(uuid);
+        String name = UUIDManager.get(uuid);
         if (name == null || !name.startsWith("#")) {
-            MessageUtils.fail(player, "该岛主不是离线玩家，不能被领取.");
+            MessageUtils.fail(player, "island.claim.failed.notOffline");
             return;
         }
         if (!AccountService.login(name, password)) {
-            MessageUtils.fail(player, "密码不对.");
+            MessageUtils.fail(player, "island.claim.failed.passwordWrong");
             return;
         }
         ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
         if (!itemInOffHand.getType().equals(Material.BEACON)) {
-            MessageUtils.fail(player, "副手需要放一个信标，该信标会被消耗掉.");
+            MessageUtils.fail(player, "island.command.beaconNeeded");
             return;
         }
         itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
         player.getInventory().setItemInOffHand(itemInOffHand);
         currentIsland.setUuid(player.getUniqueId());
-        MessageUtils.fail(player, "成功领取岛屿.");
+        MessageUtils.success(player, "island.command.ok");
 
     }
 
@@ -281,18 +649,34 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
 
+
+        String key = "IslandClaim-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        boolean freeClaimed = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, key);
+
+        if (!freeClaimed) {
+            PlayerPropertyManager.INSTANCE.setPropertyAsync(player,key,"true",() -> {
+                PluginUtils.getLogger().info(player.getName() + " claimed a free island!");
+                IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), localIsland -> {
+                    localIsland.tp(player);
+                    MessageUtils.fail(player, "island.command.ok");
+                });
+            });
+            return;
+        }
+
+
         ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
         if (!itemInOffHand.getType().equals(Material.BEACON)) {
-            MessageUtils.fail(player, "副手需要放一个信标，该信标会被消耗掉.");
+            MessageUtils.fail(player, "island.command.beaconNeeded");
             return;
         }
         itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
         player.getInventory().setItemInOffHand(itemInOffHand);
 
-
+        PluginUtils.getLogger().info(player.getName() + " claimed a island by beacon!");
         IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), localIsland -> {
             localIsland.tp(player);
-            MessageUtils.fail(player, "创建成功.");
+            MessageUtils.fail(player, "island.command.ok");
         });
     }
 
@@ -304,16 +688,16 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
 
         if (currentIsland.containsFlag("SpectatorVisitor")) {
             currentIsland.removeIslandFlag("SpectatorVisitor");
-            MessageUtils.success(player, "已取消访客旁观模式.");
+            MessageUtils.success(player, "island.command.enabled.");
         } else {
             currentIsland.addIslandFlag("SpectatorVisitor");
-            MessageUtils.success(player, "已设置访客旁观模式.");
+            MessageUtils.success(player, "island.command.disabled");
         }
 
     }
@@ -342,15 +726,15 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         if (!currentIsland.containsFlag("Preferred")) {
             currentIsland.addIslandFlag("Preferred");
-            MessageUtils.success(player, "成功设置为首选岛屿.");
+            MessageUtils.success(player, "island.command.ok");
         } else {
             currentIsland.removeIslandFlag("Preferred");
-            MessageUtils.success(player, "成功取消首选岛屿设置.");
+            MessageUtils.success(player, "island.command.ok");
         }
     }
 
@@ -359,27 +743,27 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert player != null;
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null) {
-            player.sendMessage("当前岛屿尚未被领取");
+            player.sendMessage("not claimed");
             return;
         }
         player.sendMessage("===========start===========");
         String localServerName = IsletopiaTweakersUtils.getLocalServerName();
-        player.sendMessage("岛屿坐标:" + localServerName + ":" + currentIsland.getX() + "," + currentIsland.getZ());
-        player.sendMessage("岛屿主人:" + UUIDUtils.get(currentIsland.getUuid()));
+        player.sendMessage("pos:" + localServerName + ":" + currentIsland.getX() + "," + currentIsland.getZ());
+        player.sendMessage("owner:" + UUIDManager.get(currentIsland.getUuid()));
         List<UUID> members = new ArrayList<>(currentIsland.getMembers());
         if (members.isEmpty()) {
-            player.sendMessage("岛屿成员:" + "无");
+            player.sendMessage("member:" + "none");
         } else {
-            player.sendMessage("岛屿成员:");
+            player.sendMessage("member:");
             for (UUID uuid : members) {
-                player.sendMessage(" - " + UUIDUtils.get(uuid));
+                player.sendMessage(" - " + UUIDManager.get(uuid));
             }
         }
         Set<String> islandFlags = currentIsland.getIslandFlags();
         if (islandFlags.isEmpty()) {
-            player.sendMessage("岛屿标记:无");
+            player.sendMessage("flag: none");
         } else {
-            player.sendMessage("岛屿标记:");
+            player.sendMessage("flag:");
             for (String islandFlag : islandFlags) {
                 player.sendMessage(" - " + islandFlag);
             }
@@ -387,7 +771,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Timestamp creation = currentIsland.getCreation();
         LocalDateTime localDateTime = creation.toLocalDateTime();
         String format = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
-        player.sendMessage("创建时间:" + format);
+        player.sendMessage("creation:" + format);
         player.sendMessage("===========end===========");
     }
 
@@ -403,11 +787,11 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         currentIsland.setName(object);
-        MessageUtils.success(player, "设置成功.");
+        MessageUtils.success(player, "island.command.ok");
     }
 
 
@@ -424,23 +808,21 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         {
             ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
             if (itemInOffHand.getType().isAir()) {
-                MessageUtils.fail(player, "副手需要持有一个物品");
+                MessageUtils.fail(player, "island.command.itemNeeded");
                 return;
             }
         }
-        new ConfirmDialog(Component.text("""
-                设置图标需要献祭你副手的这个物品，直接消耗掉。
-                """)).accept(player1 -> {
+        new ConfirmDialog(Component.text(MessageUtils.getMessage(player, "island.setIcon.rules"))).accept(player1 -> {
             LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player1);
 
             if (currentIsland == null || !(currentIsland.getUuid().equals(player1.getUniqueId()) || player1.isOp())) {
-                MessageUtils.fail(player1, "阁下只能对自己的岛屿进行设置.");
+                MessageUtils.fail(player1, "island.command.noPerm");
                 return;
             }
             ItemStack itemInOffHand = player1.getInventory().getItemInOffHand();
             Material type = itemInOffHand.getType();
             if (itemInOffHand.getType().isAir()) {
-                MessageUtils.fail(player1, "副手需要持有一个物品");
+                MessageUtils.fail(player1, "island.command.itemNeeded");
                 return;
             }
             itemInOffHand.setAmount(itemInOffHand.getAmount() - 1);
@@ -457,7 +839,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
 
@@ -467,7 +849,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         currentIsland.setSpawnZ(player.getLocation().getZ() - bottomLocation.getZ());
         currentIsland.setYaw(player.getLocation().getYaw());
         currentIsland.setPitch(player.getLocation().getPitch());
-        MessageUtils.success(player, "成功更改重生位置.");
+        MessageUtils.success(player, "island.command.ok");
     }
 
     public static void resetHome(String source) {
@@ -477,7 +859,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
 
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
 
@@ -486,7 +868,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         currentIsland.setSpawnY(128);
         currentIsland.setYaw(0);
         currentIsland.setPitch(0);
-        MessageUtils.success(player, "成功更改重生位置.");
+        MessageUtils.success(player, "island.command.ok");
     }
 
     public static void setBiome(String source) {
@@ -494,7 +876,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert player != null;
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
 
@@ -505,10 +887,10 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     private static void visit(String source, String target) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        UUID targetUUID = UUIDUtils.get(target);
+        UUID targetUUID = UUIDManager.get(target);
         List<Island> playerIslands = IslandManager.INSTANCE.getPlayerIslands(targetUUID);
         if (playerIslands.size() == 0) {
-            MessageUtils.fail(player, "对方没有岛屿。");
+            MessageUtils.fail(player, "island.visit.noIsland");
             return;
         }
         for (Island playerIsland : playerIslands) {
@@ -524,42 +906,39 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void trust(String source, String target) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        UUID targetUUID = UUIDUtils.get(target);
+        UUID targetUUID = UUIDManager.get(target);
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         if (targetUUID == null) {
-            MessageUtils.success(player, "无效, 对方未在梦幻之屿注册.");
+            MessageUtils.success(player, "island.command.notReg");
             return;
         }
         if (currentIsland.getMembers().contains(targetUUID) || currentIsland.getUuid().equals(targetUUID)) {
-            MessageUtils.success(player, "无效,对方已经在你的信任列表中.");
+            MessageUtils.success(player, "island.command.alreadyMember");
             return;
         }
         if (!target.matches("[#a-zA-Z0-9_]{3,16}")) {
-            MessageUtils.success(player, "无效,该用户名不合法.");
+            MessageUtils.success(player, "island.command.invalidName");
             return;
         }
 
         int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(targetUUID);
         if (playerIslandCount == 0) {
-            MessageUtils.success(player, "无效, 对方未在梦幻之屿注册.");
+            MessageUtils.success(player, "island.command.notReg");
             return;
         }
 
-        new ConfirmDialog(Component.text("""
-                添加岛屿成员后，你的岛员将能够随意破坏你的岛屿。
-                请不要随意乱加岛员，如果因为乱给权限导致岛屿被破坏，所有后果自行承担，服务器将不给予任何帮助。
-                """)).accept(player1 -> {
-            UUID uuid = UUIDUtils.get(target);
+        new ConfirmDialog(Component.text(MessageUtils.getMessage(player, "island.command.memberInfo"))).accept(player1 -> {
+            UUID uuid = UUIDManager.get(target);
             if (uuid == null) {
-                MessageUtils.fail(player1, "添加失败，对方从未加入梦幻之屿.");
+                MessageUtils.fail(player1, "island.command.notReg");
                 return;
             }
             currentIsland.addMember(uuid);
-            MessageUtils.success(player1, "已经添加 " + target + " 为信任.");
+            MessageUtils.success(player1, "island.command.ok");
         }).open(player);
 
     }
@@ -569,20 +948,20 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert player != null;
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
-        UUID uuid = UUIDUtils.get(target);
+        UUID uuid = UUIDManager.get(target);
         if (uuid == null) {
-            MessageUtils.fail(player, "失败，数据库找不到该用户信息.");
+            MessageUtils.fail(player, "island.command.notReg");
             return;
         }
-        if (currentIsland.getMembers().contains(UUIDUtils.get(target))) {
+        if (currentIsland.getMembers().contains(UUIDManager.get(target))) {
             currentIsland.removeMember(uuid);
-            MessageUtils.success(player, "已经取消对 " + target + " 的信任.");
+            MessageUtils.success(player, "island.command.ok");
 
         } else {
-            MessageUtils.success(player, "你没有添加 " + target + " 为信任.");
+            MessageUtils.success(player, "island.command.failed");
         }
     }
 
@@ -591,11 +970,11 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert player != null;
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         currentIsland.addIslandFlag("Lock");
-        MessageUtils.success(player, "已将岛屿设置为§c锁定§6, 非成员玩家将无法访问.");
+        MessageUtils.success(player, "island.command.ok");
     }
 
     public static void unlock(String source) {
@@ -603,11 +982,11 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert player != null;
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行设置.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         currentIsland.removeIslandFlag("Lock");
-        MessageUtils.success(player, "已将岛屿设置为§c开放§6, 所有玩家都可以访问.");
+        MessageUtils.success(player, "island.command.ok");
     }
 
 
@@ -616,17 +995,17 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert player != null;
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.getUuid().equals(player.getUniqueId()) || player.isOp())) {
-            MessageUtils.fail(player, "阁下只能对自己的岛屿进行操作.");
+            MessageUtils.fail(player, "island.command.noPerm");
             return;
         }
         List<UUID> members = new ArrayList<>(currentIsland.getMembers());
 
         if (members.isEmpty()) {
-            MessageUtils.info(player, "你的岛屿没有成员");
+            MessageUtils.info(player, "island.command.empty");
         } else {
-            MessageUtils.info(player, "你的岛屿成员列表如下:");
+            MessageUtils.info(player, "island.command.memberTitle");
             for (UUID uuid : members) {
-                MessageUtils.info(player, " - " + UUIDUtils.get(uuid));
+                MessageUtils.info(player, " - " + UUIDManager.get(uuid));
             }
         }
     }
@@ -642,7 +1021,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void cacheCollections(Player player) {
         ArrayList<String> strings = new ArrayList<>();
         for (UUID playerCollection : CollectionDao.getPlayerCollections(player.getUniqueId())) {
-            strings.add(UUIDUtils.get(playerCollection));
+            strings.add(UUIDManager.get(playerCollection));
         }
         String collection = String.join(",", strings);
         if (collection.isEmpty()) {
@@ -656,37 +1035,37 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
         //check player exist
-        UUID targetUUID = UUIDUtils.get(target);
+        UUID targetUUID = UUIDManager.get(target);
         int playerIslandCount = IslandManager.INSTANCE.getPlayerIslandCount(targetUUID);
         if (playerIslandCount == 0) {
-            MessageUtils.fail(player, "失败, " + target + " 未在梦幻之屿注册!");
+            MessageUtils.fail(player, "island.command.notReg");
             return;
         }
         Set<UUID> collection = CollectionDao.getPlayerCollections(player.getUniqueId());
         if (collection.contains(targetUUID)) {
 
-            MessageUtils.fail(player, "失败, " + target + " 已在你的收藏列表中了!");
+            MessageUtils.fail(player, "island.command.alreadySubscribe");
             return;
         }
 
         CollectionDao.addCollection(player.getUniqueId(), targetUUID);
         cacheCollections(player);
-        MessageUtils.success(player, "成功, " + target + " 已添加到你收藏列表!");
+        MessageUtils.success(player, "island.command.ok");
     }
 
     public static void unstar(String source, String target) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        UUID targetUUID = UUIDUtils.get(target);
+        UUID targetUUID = UUIDManager.get(target);
         Set<UUID> collection = CollectionDao.getPlayerCollections(player.getUniqueId());
         if (!collection.contains(targetUUID)) {
-            MessageUtils.fail(player, "失败, " + target + " 不在你的收藏列表中!");
+            MessageUtils.fail(player, "island.command.failed");
             return;
         }
 
         CollectionDao.removeCollection(player.getUniqueId(), targetUUID);
         cacheCollections(player);
-        MessageUtils.success(player, "成功, " + target + " 已从你的收藏列表中删除!");
+        MessageUtils.success(player, "island.command.ok");
     }
 
     public static void stars(String source) {
@@ -694,11 +1073,11 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         assert player != null;
         Set<UUID> collection = CollectionDao.getPlayerCollections(player.getUniqueId());
         if (collection.isEmpty()) {
-            MessageUtils.info(player, "你的收藏夹是空的!");
+            MessageUtils.info(player, "island.command.empty");
         } else {
-            MessageUtils.info(player, "你的收藏夹里有这些玩家:");
+            MessageUtils.info(player, "island.command.subscribeTitle");
             for (UUID member : collection) {
-                MessageUtils.info(player, " - " + UUIDUtils.get(member));
+                MessageUtils.info(player, " - " + UUIDManager.get(member));
             }
         }
         cacheCollections(player);
@@ -707,31 +1086,23 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public void help(String source) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        player.sendMessage("§7§m§l----------§b梦幻之屿§7§m§l----------");
-        player.sendMessage("§e> 快速回家 /is home");
-        player.sendMessage("§e> 查看岛屿信息 /is info");
-        player.sendMessage("§e> 修改锁岛状态 /is lock|unlock");
-        player.sendMessage("§e> 修改生物群系 /is setBiome");
-        player.sendMessage("§e> 打开访问菜单 /is visits|visit (玩家)");
-        player.sendMessage("§e> 查看近期访客 /is visitors");
-        player.sendMessage("§e> 添加删除成员 /is trust|distrust|trusts (玩家)");
-        player.sendMessage("§e> 缴纳水电费用 /is consume");
-        player.sendMessage("§e> 修改复活位置 /is setHome|resetHome");
-        player.sendMessage("§e> 收藏岛屿列表 /is star|unstar|stars (玩家)");
-        player.sendMessage(Component.text("§e§n点击此处查看梦幻之屿服务器指南(WiKi)")
+        player.sendMessage("§7§m§l----------§bIsletopia§7§m§l----------");
+        player.sendMessage("§e>  /is home");
+        player.sendMessage("§e>  /is info");
+        player.sendMessage("§e>  /is lock|unlock");
+        player.sendMessage("§e>  /is setBiome");
+        player.sendMessage("§e>  /is visits|visit (player)");
+        player.sendMessage("§e>  /is visitors");
+        player.sendMessage("§e>  /is trust|distrust|trusts (player)");
+        player.sendMessage("§e>  /is consume");
+        player.sendMessage("§e>  /is setHome|resetHome");
+        player.sendMessage("§e>  /is star|unstar|stars (player)");
+        player.sendMessage(Component.text(MessageUtils.getMessage(player, "island.command.wiki"))
                 .clickEvent(ClickEvent.openUrl("http://wiki.islet.world")));
         player.sendMessage("§7§m§l--------------------------");
 
     }
 
-    private static final List<String> subCommand = List.of("home", "visit", "trust", "distrust", "help", "invite",
-            "kick", "lock", "unlock", "setHome", "resetHome",
-            "visits", "trusts", "visitors", "consume", "stars", "star", "unstar", "spectatorVisitor", "setBiome",
-            "setIcon", "name", "preferred", "create", "claimOffline",
-            "allowFirework","allowItemPickup","allowItemDrop");
-
-    private static final List<String> playerCommand = List.of("trust", "distrust",
-            "kick", "invite", "visit", "star", "unstar");
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String
@@ -745,7 +1116,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             }
         } else if (args.length == 2) {
             if (playerCommand.contains(args[0])) {
-                List<String> onlinePlayers = ServerInfoUpdater.getOnlinePlayers();
+                List<String> onlinePlayers = new ArrayList<>(UUIDDao.snapshot().values());
                 for (String onlinePlayer : onlinePlayers) {
                     if (onlinePlayer.toLowerCase().startsWith(args[1].toLowerCase())) {
                         strings.add(onlinePlayer);

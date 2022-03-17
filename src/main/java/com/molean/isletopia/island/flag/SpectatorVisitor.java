@@ -55,6 +55,8 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
                 return;
             }
             event.getPlayer().setGameMode(GameMode.SPECTATOR);
+            MessageUtils.info(event.getPlayer(), "island.flag.spectator.enter");
+            MessageUtils.strong(event.getPlayer(), "island.flag.spectator.notify");
         } else {
             if (event.getPlayer().isOp()) {
                 return;
@@ -70,7 +72,8 @@ public class SpectatorVisitor implements IslandFlagHandler, Listener {
             return;
         }
         if (event.getCause().equals(PlayerTeleportEvent.TeleportCause.SPECTATE)) {
-            MessageUtils.fail(event.getPlayer(), "你不能使用传送!");
+            MessageUtils.fail(event.getPlayer(), "island.flag.spectator.noTeleport");
+
             event.setCancelled(true);
         }
     }
