@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.PluginUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class PreventRenameHead implements Listener {
     public PreventRenameHead() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @EventHandler(ignoreCancelled = true)

@@ -2,6 +2,7 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.dialog.ConfirmDialog;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -28,7 +29,7 @@ public class SlimeChunk implements CommandExecutor {
             final int blockY = player.getLocation().getBlockY();
             final int z = player.getLocation().getChunk().getZ();
 
-            Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
+            Tasks.INSTANCE.timeout(30 * 20, () -> {
                 if (!player.isOnline()) {
                     return;
                 }
@@ -45,7 +46,7 @@ public class SlimeChunk implements CommandExecutor {
                         }
                     }
                 }
-            }, 30 * 20L);
+            });
             BlockData blockData = Bukkit.createBlockData(Material.SLIME_BLOCK);
             for (int i = x - 4; i < x + 5; i++) {
                 for (int j = z - 4; j < z + 5; j++) {

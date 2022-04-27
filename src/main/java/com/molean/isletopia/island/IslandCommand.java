@@ -1,11 +1,10 @@
 package com.molean.isletopia.island;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.menu.VisitorMenu;
+import com.molean.isletopia.dialog.ConfirmDialog;
 import com.molean.isletopia.menu.charge.PlayerChargeMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
 import com.molean.isletopia.menu.visit.VisitMenu;
-import com.molean.isletopia.dialog.ConfirmDialog;
+import com.molean.isletopia.menu.visit.VisitorMenu;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.shared.database.UUIDDao;
@@ -13,6 +12,7 @@ import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.service.AccountService;
 import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.shared.utils.UUIDManager;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PluginUtils;
@@ -49,182 +49,183 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        Player sourcePlayer = (Player) sender;
-        String subject = sourcePlayer.getName();
-        String verb;
-        String object = null;
+        Tasks.INSTANCE.async(() -> {
+            Player sourcePlayer = (Player) sender;
+            String subject = sourcePlayer.getName();
+            String verb;
+            String object = null;
 
-        if (args.length == 0) {
-            home(subject);
-            return true;
-        }
-
-        verb = args[0].toLowerCase();
-
-        if (args.length > 1) {
-            object = args[1];
-        }
-
-        switch (verb) {
-            case "home":
+            if (args.length == 0) {
                 home(subject);
-                break;
-            case "preferred":
-                preferred(subject);
-                break;
-            case "create":
-                create(subject);
-                break;
-            case "visits":
-                visits(subject);
-                break;
-            case "name":
-                if (args.length < 2) {
-                    name(subject);
-                } else {
-                    name(subject, object);
-                }
-                break;
+                return;
+            }
 
-            case "priority":
-                if (args.length < 2) {
-                    priority(subject);
-                } else {
-                    priority(subject, object);
-                }
-                break;
-            case "visit":
-            case "tp":
-                if (args.length < 2) {
-                    help(subject);
-                    return true;
-                }
-                visit(subject, object);
-                break;
-            case "trust":
-            case "invite":
-                if (args.length < 2) {
-                    help(subject);
-                    return true;
-                }
-                trust(subject, object);
-                break;
-            case "kick":
-            case "distrust":
-                if (args.length < 2) {
-                    help(subject);
-                    return true;
-                }
-                distrust(subject, object);
-                break;
-            case "lock":
-                lock(subject);
-                break;
-            case "unlock":
-            case "open":
-                unlock(subject);
-                break;
-            case "spectatorvisitor":
-                spectatorVisitor(subject);
-                break;
-            case "seticon":
-                setIcon(subject);
-                break;
-            case "sethome":
-                setHome(subject);
-                break;
-            case "resethome":
-                resetHome(subject);
-                break;
-            case "setbiome":
-                setBiome(subject);
-                break;
-            case "claimoffline":
-                if (args.length < 2) {
-                    MessageUtils.info(sourcePlayer, "/is claimOffline [password]");
-                    return true;
-                }
-                claimOffline(subject, object);
-                break;
-            case "info":
-                info(subject);
-                break;
-            case "consume":
-                consume(subject);
-                break;
-            case "trusts":
-                trusts(subject);
-                break;
-            case "visitors":
-                visitors(subject);
-                break;
-            case "stars":
-                stars(subject);
-                break;
-            case "star":
-                if (args.length < 2) {
-                    help(subject);
-                    return true;
-                }
-                star(subject, object);
-                break;
-            case "unstar":
-                if (args.length < 2) {
-                    help(subject);
-                    return true;
-                }
-                unstar(subject, object);
-                break;
-            case "allowitempickup":
-                allowItemPickup(subject);
-                break;
-            case "allowitemdrop":
-                allowItemDrop(subject);
-                break;
-            case "antifire":
-                antiFire(subject);
-            case "enablehexbeaconspeed":
-                enableHexBeaconSpeed(subject);
-                break;
-            case "enablehexbeaconfastdigging":
-                enableHexBeaconFastDigging(subject);
-                break;
-            case "enablehexbeaconincreasedamage":
-                enableHexBeaconIncreaseDamage(subject);
-                break;
-            case "enablehexbeaconjump":
-                enableHexBeaconJump(subject);
-                break;
-            case "enablehexbeacondamageresistance":
-                enableHexBeaconDamageResistance(subject);
-                break;
-            case "enablehexbeaconregeneration":
-                enableHexBeaconRegeneration(subject);
-                break;
-            case "disablehexbeaconspeed":
-                disableHexBeaconSpeed(subject);
-                break;
-            case "disablehexbeaconfastdigging":
-                disableHexBeaconFastDigging(subject);
-                break;
-            case "disablehexbeaconincreasedamage":
-                disableHexBeaconIncreaseDamage(subject);
-                break;
-            case "disablehexbeaconjump":
-                disableHexBeaconJump(subject);
-                break;
-            case "disablehexbeacondamageresistance":
-                disableHexBeaconDamageResistance(subject);
-                break;
-            case "disablehexbeaconregeneration":
-                disableHexBeaconRegeneration(subject);
-                break;
-            default:
-            case "help":
-                help(subject);
-                break;
+            verb = args[0].toLowerCase();
 
-        }
+            if (args.length > 1) {
+                object = args[1];
+            }
+            switch (verb) {
+                case "home":
+                    home(subject);
+                    break;
+                case "preferred":
+                    preferred(subject);
+                    break;
+                case "create":
+                    create(subject);
+                    break;
+                case "visits":
+                    visits(subject);
+                    break;
+                case "name":
+                    if (args.length < 2) {
+                        name(subject);
+                    } else {
+                        name(subject, object);
+                    }
+                    break;
+
+                case "priority":
+                    if (args.length < 2) {
+                        priority(subject);
+                    } else {
+                        priority(subject, object);
+                    }
+                    break;
+                case "visit":
+                case "tp":
+                    if (args.length < 2) {
+                        help(subject);
+                        return;
+                    }
+                    visit(subject, object);
+                    break;
+                case "trust":
+                case "invite":
+                    if (args.length < 2) {
+                        help(subject);
+                        return;
+                    }
+                    trust(subject, object);
+                    break;
+                case "kick":
+                case "distrust":
+                    if (args.length < 2) {
+                        help(subject);
+                        return;
+                    }
+                    distrust(subject, object);
+                    break;
+                case "lock":
+                    lock(subject);
+                    break;
+                case "unlock":
+                case "open":
+                    unlock(subject);
+                    break;
+                case "spectatorvisitor":
+                    spectatorVisitor(subject);
+                    break;
+                case "seticon":
+                    setIcon(subject);
+                    break;
+                case "sethome":
+                    setHome(subject);
+                    break;
+                case "resethome":
+                    resetHome(subject);
+                    break;
+                case "setbiome":
+                    setBiome(subject);
+                    break;
+                case "claimoffline":
+                    if (args.length < 2) {
+                        MessageUtils.info(sourcePlayer, "/is claimOffline [password]");
+                        return;
+                    }
+                    claimOffline(subject, object);
+                    break;
+                case "info":
+                    info(subject);
+                    break;
+                case "consume":
+                    consume(subject);
+                    break;
+                case "trusts":
+                    trusts(subject);
+                    break;
+                case "visitors":
+                    visitors(subject);
+                    break;
+                case "stars":
+                    stars(subject);
+                    break;
+                case "star":
+                    if (args.length < 2) {
+                        help(subject);
+                        return;
+                    }
+                    star(subject, object);
+                    break;
+                case "unstar":
+                    if (args.length < 2) {
+                        help(subject);
+                        return;
+                    }
+                    unstar(subject, object);
+                    break;
+                case "allowitempickup":
+                    allowItemPickup(subject);
+                    break;
+                case "allowitemdrop":
+                    allowItemDrop(subject);
+                    break;
+                case "antifire":
+                    antiFire(subject);
+                case "enablehexbeaconspeed":
+                    enableHexBeaconSpeed(subject);
+                    break;
+                case "enablehexbeaconfastdigging":
+                    enableHexBeaconFastDigging(subject);
+                    break;
+                case "enablehexbeaconincreasedamage":
+                    enableHexBeaconIncreaseDamage(subject);
+                    break;
+                case "enablehexbeaconjump":
+                    enableHexBeaconJump(subject);
+                    break;
+                case "enablehexbeacondamageresistance":
+                    enableHexBeaconDamageResistance(subject);
+                    break;
+                case "enablehexbeaconregeneration":
+                    enableHexBeaconRegeneration(subject);
+                    break;
+                case "disablehexbeaconspeed":
+                    disableHexBeaconSpeed(subject);
+                    break;
+                case "disablehexbeaconfastdigging":
+                    disableHexBeaconFastDigging(subject);
+                    break;
+                case "disablehexbeaconincreasedamage":
+                    disableHexBeaconIncreaseDamage(subject);
+                    break;
+                case "disablehexbeaconjump":
+                    disableHexBeaconJump(subject);
+                    break;
+                case "disablehexbeacondamageresistance":
+                    disableHexBeaconDamageResistance(subject);
+                    break;
+                case "disablehexbeaconregeneration":
+                    disableHexBeaconRegeneration(subject);
+                    break;
+                default:
+                case "help":
+                    help(subject);
+                    break;
+
+            }
+        });
         return true;
     }
 
@@ -245,6 +246,9 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         }
         currentIsland.removeIslandFlag("Priority");
         currentIsland.addIslandFlag("Priority#" + i);
+        if (i == 0) {
+            currentIsland.removeIslandFlag("Priority");
+        }
         MessageUtils.success(player, "island.command.ok");
     }
 
@@ -555,7 +559,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
                 currentIsland.removeIslandFlag("DisableAntiFire");
                 currentIsland.addIslandFlag("AntiFire");
 
-            }else{
+            } else {
                 ItemStack itemInOffHand = player.getInventory().getItemInOffHand();
                 if (!itemInOffHand.getType().equals(Material.HEART_OF_THE_SEA)) {
                     MessageUtils.fail(player, "island.command.heartOfTheSeaNeeded");
@@ -614,7 +618,6 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     }
 
     private void claimOffline(String subject, String password) {
-
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
 
@@ -654,7 +657,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
         boolean freeClaimed = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, key);
 
         if (!freeClaimed) {
-            PlayerPropertyManager.INSTANCE.setPropertyAsync(player,key,"true",() -> {
+            PlayerPropertyManager.INSTANCE.setPropertyAsync(player, key, "true", () -> {
                 PluginUtils.getLogger().info(player.getName() + " claimed a free island!");
                 IslandManager.INSTANCE.createNewIsland(player.getUniqueId(), localIsland -> {
                     localIsland.tp(player);
@@ -705,17 +708,13 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void visitors(String subject) {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            new VisitorMenu(player).open();
-        });
+        new VisitorMenu(player).open();
     }
 
     public static void consume(String subject) {
         Player player = Bukkit.getPlayerExact(subject);
         assert player != null;
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            new PlayerChargeMenu(player).open();
-        });
+        new PlayerChargeMenu(player).open();
     }
 
 
@@ -880,8 +879,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(),
-                () -> new BiomeMenu(player).open());
+        new BiomeMenu(player).open();
     }
 
     private static void visit(String source, String target) {
@@ -1013,9 +1011,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
     public static void visits(String source) {
         Player player = Bukkit.getPlayerExact(source);
         assert player != null;
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            new VisitMenu(player).open();
-        });
+        new VisitMenu(player).open();
     }
 
     public static void cacheCollections(Player player) {
@@ -1116,7 +1112,7 @@ public class IslandCommand implements CommandExecutor, TabCompleter {
             }
         } else if (args.length == 2) {
             if (playerCommand.contains(args[0])) {
-                List<String> onlinePlayers = new ArrayList<>(UUIDDao.snapshot().values());
+                List<String> onlinePlayers = new ArrayList<>(UUIDManager.INSTANCE.getSnapshot().values());
                 for (String onlinePlayer : onlinePlayers) {
                     if (onlinePlayer.toLowerCase().startsWith(args[1].toLowerCase())) {
                         strings.add(onlinePlayer);

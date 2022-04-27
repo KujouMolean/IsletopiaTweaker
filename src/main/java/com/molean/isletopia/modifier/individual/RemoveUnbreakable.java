@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -13,7 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class RemoveUnbreakable implements Listener {
     public RemoveUnbreakable() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @EventHandler(ignoreCancelled = true)

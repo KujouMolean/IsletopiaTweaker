@@ -3,6 +3,7 @@ package com.molean.isletopia.menu.settings;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.utils.Pair;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ChestMenu;
@@ -91,7 +92,7 @@ public class HexBeacon extends ChestMenu {
                 player.performCommand("is enableHexBeaconSpeed");
 
             }
-            new HexBeacon(player).open();
+            Tasks.INSTANCE.async(() -> new HexBeacon(player).open());
         });
 
         ItemStackSheet fastDiggingItem = ItemStackSheet.fromString(Material.GOLDEN_PICKAXE,  MessageUtils.getMessage(player, "menu.hexbeacon.info",
@@ -110,7 +111,7 @@ public class HexBeacon extends ChestMenu {
                 player.performCommand("is enableHexBeaconFastDigging");
 
             }
-            new HexBeacon(player).open();
+             Tasks.INSTANCE.async(() -> new HexBeacon(player).open());
         });
 
         ItemStackSheet jumpItem = ItemStackSheet.fromString(Material.RABBIT_FOOT,  MessageUtils.getMessage(player, "menu.hexbeacon.info",
@@ -128,7 +129,7 @@ public class HexBeacon extends ChestMenu {
                 player.performCommand("is enableHexBeaconJump");
 
             }
-            new HexBeacon(player).open();
+             Tasks.INSTANCE.async(() -> new HexBeacon(player).open());
         });
 
         ItemStackSheet damageResistanceItem = ItemStackSheet.fromString(Material.SHIELD,  MessageUtils.getMessage(player, "menu.hexbeacon.info",
@@ -147,7 +148,7 @@ public class HexBeacon extends ChestMenu {
                 player.performCommand("is enableHexBeaconDamageResistance");
 
             }
-            new HexBeacon(player).open();
+             Tasks.INSTANCE.async(() -> new HexBeacon(player).open());
         });
 
         ItemStackSheet increaseDamageItem = ItemStackSheet.fromString(Material.IRON_SWORD,  MessageUtils.getMessage(player, "menu.hexbeacon.info",
@@ -164,7 +165,7 @@ public class HexBeacon extends ChestMenu {
             } else {
                 player.performCommand("is enableHexBeaconIncreaseDamage");
             }
-            new HexBeacon(player).open();
+             Tasks.INSTANCE.async(() -> new HexBeacon(player).open());
         });
         ItemStackSheet regenerationItem = ItemStackSheet.fromString(Material.APPLE,  MessageUtils.getMessage(player, "menu.hexbeacon.info",
                 Pair.of("effect", MessageUtils.getMessage(player, "menu.hexbeacon.regeneration")),
@@ -180,7 +181,7 @@ public class HexBeacon extends ChestMenu {
             } else {
                 player.performCommand("is enableHexBeaconRegeneration");
             }
-            new HexBeacon(player).open();
+             Tasks.INSTANCE.async(() -> new HexBeacon(player).open());
         });
 
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.settings"));

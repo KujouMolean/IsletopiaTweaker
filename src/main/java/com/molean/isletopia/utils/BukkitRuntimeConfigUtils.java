@@ -9,9 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class BukkitRuntimeConfigUtils {
-    public static void setWorld(SpawnCategory key, int value) {
+    public static void setWorld(World world,SpawnCategory key, int value) {
         try {
-            World world = IsletopiaTweakers.getWorld();
             Class<?> craftServer = NMSUtils.getBukkitClass("CraftWorld");
             Method getHandle = craftServer.getDeclaredMethod("getHandle");
             getHandle.setAccessible(true);

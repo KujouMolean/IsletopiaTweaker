@@ -3,6 +3,7 @@ package com.molean.isletopia.infrastructure.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.Direction;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -18,7 +19,8 @@ import java.util.List;
 
 public class RailWay implements Listener {
     public RailWay() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
+
     }
 
     @EventHandler

@@ -16,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemRemover implements Listener {
     public ItemRemover() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     private static boolean warning = false;

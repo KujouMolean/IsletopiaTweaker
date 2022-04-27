@@ -8,6 +8,7 @@ import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.UUIDManager;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -76,9 +77,7 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
                     break;
                 }
                 MessageUtils.fail(player,"Starting clear..");
-                currentIsland.clearAndApplyNewIsland(() -> {
-                    MessageUtils.success(player,"Done!");
-                }, 60);
+                currentIsland.clearAndApplyNewIsland(() -> MessageUtils.success(player,"Done!"), 60);
 
             }
 
@@ -95,7 +94,7 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
                 String string = strings[1];
 
 
-                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+                Tasks.INSTANCE.async(()-> {
                     UUID uuid = UUIDManager.get(string);//checked
                     currentIsland.addMember(uuid);
                     MessageUtils.success(player,"Success");
@@ -173,9 +172,7 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
                     return true;
                 }
 
-                IslandManager.INSTANCE.deleteIsland(currentIsland, () -> {
-                    MessageUtils.success(player,"Done!");
-                });
+                IslandManager.INSTANCE.deleteIsland(currentIsland, () -> MessageUtils.success(player,"Done!"));
 
             }
 
@@ -191,7 +188,7 @@ public class IslandAdmin implements CommandExecutor, TabCompleter {
                     for (IslandId localServerIslandId : localServerIslandIds) {
                         islandStringIds.add(localServerIslandId.getX() + "." + localServerIslandId.getZ());
                     }
-                    File file = new File(IsletopiaTweakers.getWorld().getWorldFolder() + "/region/");
+                    File file = new File(Objects.requireNonNull(Bukkit.getWorld("SkyWorld")).getWorldFolder() + "/region/");
                     File[] files = file.listFiles((dir, name) -> name.matches("r\\.[0-9]+\\.[0-9]+\\.mca"));
 
                     assert files != null;

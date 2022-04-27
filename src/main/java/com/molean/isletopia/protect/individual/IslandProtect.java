@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.utils.PluginUtils;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -28,7 +29,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class IslandProtect implements Listener {
     public IslandProtect() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
 
@@ -199,7 +200,5 @@ public class IslandProtect implements Listener {
         } else {
             event.getPlayer().setGameMode(GameMode.ADVENTURE);
         }
-
-
     }
 }

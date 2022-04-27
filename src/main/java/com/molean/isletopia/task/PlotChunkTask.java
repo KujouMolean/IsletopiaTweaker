@@ -27,13 +27,12 @@ public class PlotChunkTask extends BukkitRunnable {
     private final Consumer<Chunk> consumer;
     private final Runnable runnable;
     private int chunkPerTick;
+    private final World world;
 
-    public PlotChunkTask(@NotNull LocalIsland plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
+    public PlotChunkTask(World world,@NotNull LocalIsland plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
         Location bottomLocation = plot.getBottomLocation();
         Location topLocation = plot.getTopLocation();
-        World world = Bukkit.getWorld("SkyWorld");
-
-        assert world != null;
+        this.world = world;
         bx = bottomLocation.getBlockX() >> 4;
         bz = bottomLocation.getBlockZ() >> 4;
         tx = topLocation.getBlockX() >> 4;
@@ -62,7 +61,7 @@ public class PlotChunkTask extends BukkitRunnable {
                     if (count++ > chunkPerTick) {
                         return;
                     }
-                    Chunk chunkAt = IsletopiaTweakers.getWorld().getChunkAt(X, Z);
+                    Chunk chunkAt = world.getChunkAt(X, Z);
                     consumer.accept(chunkAt);
                 }
                 Z = bz;

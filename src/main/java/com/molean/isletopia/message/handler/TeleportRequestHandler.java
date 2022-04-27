@@ -11,7 +11,9 @@ import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.TeleportRequest;
 import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
 import com.molean.isletopia.shared.utils.UUIDManager;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -32,7 +34,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
 
     public TeleportRequestHandler() {
         RedisMessageListener.setHandler("TeleportRequest", this, TeleportRequest.class);
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @EventHandler
@@ -75,7 +77,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
 
         } else {
             if (source != null && source.isOnline()) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                Tasks.INSTANCE.sync( () -> {
                     source.teleport(target.getLocation());
                 });
             } else {

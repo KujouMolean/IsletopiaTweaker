@@ -3,6 +3,7 @@ package com.molean.isletopia.modifier.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -22,7 +23,7 @@ public class RichWanderingTrader implements Listener {
     private static final List<Material> additions = new ArrayList<>();
 
     public RichWanderingTrader() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
         additions.add(COCOA_BEANS);
         additions.add(CHORUS_FLOWER);

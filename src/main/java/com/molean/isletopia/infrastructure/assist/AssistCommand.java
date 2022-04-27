@@ -17,44 +17,58 @@ public class AssistCommand extends MultiCommand {
         super("assist");
 
         this.addSubCommand(new SimpleCommand("EntityBar", (player) -> {
-            player.performCommand("entitybar");
+            Tasks.INSTANCE.sync(() -> {
+                player.performCommand("entitybar");
+            });
         }));
         this.addSubCommand(new SimpleCommand("ProductionBar", (player) -> {
-            player.performCommand("productionbar");
+            Tasks.INSTANCE.sync(() -> {
+                player.performCommand("productionbar");
+            });
         }));
         this.addSubCommand(new SimpleCommand("mailbox", (player) -> {
             Tasks.INSTANCE.async(() -> new MailListMenu(player).open());
+            MessageUtils.info(player, "已为你打开邮箱");
 
         }));
-        this.addSubCommand(new BooleanCommand("DisableCharis", (player, aBoolean) -> {
+        this.addSubCommand(new BooleanCommand("DisableChairs", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisableChairs", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
 
         this.addSubCommand(new BooleanCommand("DisableRailway", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisableRailWay", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
 
         this.addSubCommand(new BooleanCommand("DisableIronElevator", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisableIronElevator", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
 
         this.addSubCommand(new BooleanCommand("DisablePlayerRide", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisablePlayerRide", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
         this.addSubCommand(new BooleanCommand("DisableLavaProtect", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisableLavaProtect", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
         this.addSubCommand(new BooleanCommand("DisableSingleIslandMenu", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisableSingleIslandMenu", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
         this.addSubCommand(new BooleanCommand("DisablePlayerMob", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisablePlayerMob", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
         this.addSubCommand(new BooleanCommand("DisableKeepInventory", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "DisableKeepInventory", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
         this.addSubCommand(new BooleanCommand("AutoFloor", (player, aBoolean) -> {
             PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "AutoFloor", aBoolean.toString());
+            MessageUtils.info(player, "OK");
         }));
         this.addSubCommand(new SubCommand("AutoCraft", (player, strings) -> {
             if (strings.size() == 1 && strings.get(0).equals("clear")) {
@@ -106,11 +120,9 @@ public class AssistCommand extends MultiCommand {
                 }, type);
             }
         }, (player, strings) -> new ArrayList<>()));
-        this.addSubCommand(new BooleanCommand("slime", (player, aBoolean) -> {
-            player.performCommand("slime");
-
+        this.addSubCommand(new SimpleCommand("slime", (player) -> {
+            Tasks.INSTANCE.sync(() -> player.performCommand("slime"));
         }));
-
     }
 
 

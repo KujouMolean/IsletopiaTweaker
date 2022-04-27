@@ -6,6 +6,7 @@ import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.database.PlayerBackupDao;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.Pair;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
 import org.bukkit.Bukkit;
@@ -34,19 +35,17 @@ public class IslandBackup implements CommandExecutor, TabCompleter {
         Objects.requireNonNull(Bukkit.getPluginCommand("backup")).setTabCompleter(this);
 
 
-        BukkitTask bukkitTask1 = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+       Tasks.INSTANCE.interval(5 * 60 * 20,() -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 onlinePlayer.saveData();
             }
-            Bukkit.getScheduler().runTaskLaterAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    PlayerBackupDao.upload(onlinePlayer.getName());
-                    ;
-                }
+           Tasks.INSTANCE.timeout(20, () -> {
+               for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                   PlayerBackupDao.upload(onlinePlayer.getName());
+               }
+           });
+        });
 
-            }, 20L);
-        }, 5 * 60 * 20, 5 * 60 * 20);
-        IsletopiaTweakers.addDisableTask("Stop backup player data", bukkitTask1::cancel);
 
     }
 

@@ -5,6 +5,7 @@ import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.task.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -28,7 +29,7 @@ public enum IslandManager {
 
 
     IslandManager() {
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.intervalAsync(20 * 60, () -> {
             HashMap<IslandId, LocalIsland> islandIdIslandHashMap = new HashMap<>(islandSet);
             for (IslandId islandId : islandIdIslandHashMap.keySet()) {
                 Long l = lastQuery.get(islandId);
@@ -40,8 +41,8 @@ public enum IslandManager {
             for (IslandId islandId : islandSet.keySet()) {
                 reloadIsland(islandId);
             }
-        }, new Random().nextInt(200), 20 * 60);
-        IsletopiaTweakers.addDisableTask("Stop update island data..", bukkitTask::cancel);
+        });
+
     }
 
     private void reloadIsland(IslandId islandId) {
@@ -270,7 +271,7 @@ public enum IslandManager {
 
         LocalIsland temp = new LocalIsland(0, islandId.getX(), islandId.getZ(),
                 256, 128, 256, 0f, 0f,
-                ServerInfoUpdater.getServerName(), uuid, null, Biome.PLAINS.name(),
+                ServerInfoUpdater.getServerName(), uuid, null,
                 new Timestamp(System.currentTimeMillis()),
                 new HashSet<>(),
                 new HashSet<>(), "GRASS_BLOCK");

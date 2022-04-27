@@ -1,4 +1,4 @@
-package com.molean.isletopia.menu;
+package com.molean.isletopia.menu.club;
 
 import com.molean.isletopia.shared.model.Club;
 import com.molean.isletopia.shared.utils.PlayerUtils;

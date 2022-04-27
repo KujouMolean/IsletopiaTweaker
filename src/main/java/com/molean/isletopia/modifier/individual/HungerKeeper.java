@@ -2,6 +2,7 @@ package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.utils.Pair;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,7 +17,7 @@ public class HungerKeeper implements Listener {
     private static final Map<UUID, Pair<Integer, Float>> hungerMap = new HashMap<>();
     private static final Map<UUID, Collection<PotionEffect>> effect = new HashMap<>();
     public HungerKeeper() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @EventHandler

@@ -3,7 +3,9 @@ package com.molean.isletopia.protect.individual;
 import com.google.common.collect.Sets;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.service.UniversalParameter;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -20,11 +22,11 @@ public class ElytraLimiter implements Listener {
     private static final Set<UUID> denied = Collections.synchronizedSet(Sets.newHashSet());
 
     public ElytraLimiter() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
         BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             denied.removeIf(ElytraLimiter::check);
         }, new Random().nextInt(100), 20 * 30);
-        IsletopiaTweakers.addDisableTask("Disable beacon permission update..", bukkitTask::cancel);
+        Tasks.INSTANCE.addDisableTask("Disable beacon permission update..", bukkitTask::cancel);
 
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {

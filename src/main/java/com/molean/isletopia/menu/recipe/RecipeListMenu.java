@@ -76,8 +76,8 @@ public class RecipeListMenu extends ListMenu<LocalRecipe> {
         this.components(this.localRecipeList);
         this.onClickAsync(localRecipe -> new CraftRecipeMenu(player, localRecipe).open());
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
-        this.onCloseAsync(() -> new MainMenu(player).open()).onCloseSync(() -> {
-        });
+        this.onCloseAsync(() -> new MainMenu(player).open())
+                .onCloseSync(null);
     }
 
     @Override

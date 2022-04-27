@@ -1,6 +1,7 @@
 package com.molean.isletopia.menu;
 
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.menu.club.ClubListMenu;
 import com.molean.isletopia.menu.visit.MultiVisitMenu;
 import com.molean.isletopia.shared.database.AchievementDao;
 import com.molean.isletopia.shared.database.ClubDao;
@@ -79,9 +80,8 @@ public class PlayerMenu extends ChestMenu {
                                 ItemStackSheet sheet = ItemStackSheet.fromString(material, achievement.toString());
                                 return sheet.build();
                             }).closeItemStack(ItemStackSheet.fromString(Material.BARRIER, "返回").build())
-                            .onCloseAsync(() -> {
-                                new PlayerMenu(player, target).open();
-                            });
+                            .onCloseAsync(() -> new PlayerMenu(player, target).open())
+                            .onCloseSync(null);
 
                 });
 

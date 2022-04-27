@@ -5,8 +5,10 @@ import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.model.Island;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,7 +17,7 @@ import org.bukkit.event.Listener;
 
 public class Lock implements IslandFlagHandler, Listener {
     public Lock() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @EventHandler
@@ -38,7 +40,7 @@ public class Lock implements IslandFlagHandler, Listener {
                 MessageUtils.strong(player, "island.flag.lock.kick");
                 Island playerFirstIsland = IslandManager.INSTANCE.getPlayerFirstIsland(player.getUniqueId());
                 if (playerFirstIsland == null) {
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                    Tasks.INSTANCE.sync( () -> {
                         player.kick(Component.text("#Severe error, you have no island!"));
                     });
                     return;

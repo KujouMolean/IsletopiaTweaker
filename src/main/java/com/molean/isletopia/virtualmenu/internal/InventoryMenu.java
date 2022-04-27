@@ -1,7 +1,10 @@
 package com.molean.isletopia.virtualmenu.internal;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.task.Tasks;
+import com.molean.isletopia.utils.PluginUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -42,9 +45,15 @@ public abstract class InventoryMenu implements Menu {
         if (destroyed) {
             throw new RuntimeException("Can't open a destroyed menu!");
         }
+
+        if (Bukkit.isPrimaryThread()) {
+            PluginUtils.getLogger().warning("Open menu " + getClass().getSimpleName() + " in main thread.");
+        }
+
+
         VirtualMenuManager.INSTANCE.registerMenu(this);
-        beforeOpen();
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.sync( () -> {
+            beforeOpen();
             this.player.openInventory(inventory);
             afterOpen();
         });
@@ -63,7 +72,7 @@ public abstract class InventoryMenu implements Menu {
 
     @Override
     public void close() {
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.sync( () -> {
             if (player == null) {
                 return;
             }

@@ -46,3 +46,5 @@ aliases: now-in-commands.yml
 worlds:
   SkyWorld:
     generator: IsletopiaTweakers
+  SkyWorld_nether:
+    generator: IsletopiaTweakers

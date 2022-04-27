@@ -1,9 +1,9 @@
 package com.molean.isletopia.infrastructure.individual;
 
-import com.alibaba.druid.sql.visitor.functions.Left;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -12,7 +12,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -24,7 +23,7 @@ import java.util.Objects;
 public class ClockMenu implements Listener, CommandExecutor {
 
     public ClockMenu() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("clock")).setExecutor(this);
     }
 
@@ -58,8 +57,8 @@ public class ClockMenu implements Listener, CommandExecutor {
         String rightClickFunc = MessageUtils.getMessage(player, "player.clock.rightClick.func");
         String shiftLeft = MessageUtils.getMessage(player, "player.clock.shiftLeft");
         String shiftLeftFunc = MessageUtils.getMessage(player, "player.clock.shiftLeft.func");
-        itemStackSheet.addLore("%s%s".formatted(leftClick,leftClickFunc));
-        itemStackSheet.addLore("%s%s".formatted(rightClick,rightClickFunc));
+        itemStackSheet.addLore("%s%s".formatted(leftClick, leftClickFunc));
+        itemStackSheet.addLore("%s%s".formatted(rightClick, rightClickFunc));
         itemStackSheet.addLore("%s%s".formatted(shiftLeft, shiftLeftFunc));
 
         return itemStackSheet.build();

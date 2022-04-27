@@ -59,8 +59,7 @@ public class MultiVisitMenu extends ListMenu<Island> {
         this.convertFunction(island -> MultiVisitMenu.islandToItemStack(player, island));
         this.onClickSync(island -> IsletopiaTweakersUtils.universalPlotVisitByMessage(player, island.getIslandId()));
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
-                .onCloseSync(() -> {
-                })
+                .onCloseSync(null)
                 .onCloseAsync(() -> new MainMenu(player).open());
     }
 

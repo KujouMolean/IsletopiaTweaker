@@ -4,7 +4,9 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.protect.individual.IslandMobCap;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import com.molean.isletopia.utils.ScoreboardUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -18,24 +20,25 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public class EntityBar implements CommandExecutor, TabCompleter, Listener {
 
 
     public EntityBar() {
-
         Objects.requireNonNull(Bukkit.getPluginCommand("entitybar")).setTabCompleter(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("entitybar")).setExecutor(this);
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        PluginUtils.registerEvents(this);
+        Tasks.INSTANCE.intervalAsync(20, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if ("EntityBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(player.getUniqueId()))) {
+                if ("EntityBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(player))) {
                     update(player);
                 }
             }
-        }, 20, 20);
-        IsletopiaTweakers.addDisableTask("Stop update entity bars", bukkitTask::cancel);
+        });
     }
 
     public static void update(Player player) {
@@ -44,26 +47,26 @@ public class EntityBar implements CommandExecutor, TabCompleter, Listener {
             ScoreboardUtils.clearPlayerUniqueSidebar(player);
             return;
         }
-        Map<String, Integer> snapshot = IslandMobCap.getSnapshot(player,currentIsland.getIslandId());
+        Map<String, Integer> snapshot = IslandMobCap.getSnapshot(player, currentIsland.getIslandId());
         if (snapshot == null) {
             return;
         }
         String message = MessageUtils.getMessage(player, "player.bar.entity");
-        ScoreboardUtils.setPlayerUniqueSidebar(player, Component.text( message), snapshot);
+        Tasks.INSTANCE.sync(() -> {
+            ScoreboardUtils.updateOrCreatePlayerUniqueSidebar(player, Component.text(message), snapshot);
+        });
     }
 
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
-        UUID uuid = player.getUniqueId();
-        if (!"EntityBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(uuid))) {
+        if (!"EntityBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(player))) {
             ScoreboardUtils.clearPlayerUniqueSidebar(player);
-            SidebarManager.INSTANCE.setSidebar(uuid, "EntityBar");
+            SidebarManager.INSTANCE.setSidebar(player, "EntityBar");
         } else {
-            SidebarManager.INSTANCE.setSidebar(uuid, null);
+            SidebarManager.INSTANCE.setSidebar(player, null);
             ScoreboardUtils.clearPlayerUniqueSidebar(player);
-
         }
         return true;
     }

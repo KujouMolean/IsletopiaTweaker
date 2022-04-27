@@ -20,7 +20,6 @@ public class IsletopiaProtect {
             new MobRemover();
             new ElytraLimiter();
             new BucketUsageProtect();
-            new DragonEggLimiter();
             new EdgeBlockDetect();
         } catch (Exception exception) {
             exception.printStackTrace();

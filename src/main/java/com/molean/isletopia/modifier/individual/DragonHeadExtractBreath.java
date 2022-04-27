@@ -4,6 +4,7 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -24,7 +25,7 @@ import java.util.List;
 public class DragonHeadExtractBreath implements Listener {
     public DragonHeadExtractBreath() {
 
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
         LocalRecipe.addRecipe(Material.DRAGON_BREATH, Material.DRAGON_HEAD,
                 Material.AIR, Material.AIR, Material.AIR,

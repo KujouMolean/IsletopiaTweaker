@@ -6,8 +6,10 @@ import com.molean.isletopia.charge.ChargeDetailUtils;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.shared.service.UniversalParameter;
+import com.molean.isletopia.player.PlayerPropertyManager;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -24,18 +26,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.UUID;
 
 public class ChargeBar implements CommandExecutor, Listener {
     private static final HashMap<Player, BossBar> powerBars = new HashMap<>();
 
     public ChargeBar() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("powerbar")).setExecutor(this);
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             checkPlayerBar(onlinePlayer);
         }
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.intervalAsync(20, () -> {
             powerBars.forEach((player, bossBar) -> {
                 LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                 if (currentIsland == null) {
@@ -45,7 +46,7 @@ public class ChargeBar implements CommandExecutor, Listener {
                 long totalPower = ChargeDetailUtils.getTotalPower(ChargeDetailCommitter.get(currentIsland.getIslandId()));
                 long totalPowerUsage = ChargeDetailUtils.getTotalPowerUsage(ChargeDetailCommitter.get(currentIsland.getIslandId()));
 
-                bossBar.setTitle(MessageUtils.getMessage(player,"player.bar.power")+": " + totalPowerUsage + "/" + totalPower);
+                bossBar.setTitle(MessageUtils.getMessage(player, "player.bar.power") + ": " + totalPowerUsage + "/" + totalPower);
                 double progress = totalPowerUsage / (double) totalPower;
                 if (progress < 0) {
                     progress = 0;
@@ -58,10 +59,8 @@ public class ChargeBar implements CommandExecutor, Listener {
                 bossBar.setVisible(true);
             });
 
-        }, 0, 20);
-
-        IsletopiaTweakers.addDisableTask("Stop charge bar, and remove all bars", () -> {
-            bukkitTask.cancel();
+        });
+        Tasks.INSTANCE.addDisableTask("Stop charge bar, and remove all bars",()->{
             powerBars.forEach((player, bossBar) -> {
                 bossBar.setVisible(false);
                 bossBar.removeAll();
@@ -73,20 +72,24 @@ public class ChargeBar implements CommandExecutor, Listener {
 
     public void checkPlayerBar(Player player) {
         BossBar powerBossBar = powerBars.get(player);
-        String powerBar = UniversalParameter.getParameter(player.getUniqueId(), "PowerBar");
-        if (powerBar != null && !powerBar.isEmpty()) {
+        boolean powerBar = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "PowerBar");
+        if (powerBar) {
             if (powerBossBar == null) {
                 powerBars.put(player, Bukkit.createBossBar(null, BarColor.RED, BarStyle.SOLID));
             }
+        }else{
+            if (powerBossBar != null) {
+                powerBossBar.removeAll();
+                powerBars.remove(player);
+            }
+
         }
     }
 
 
     @EventHandler
     public void on(PlayerDataSyncCompleteEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-            checkPlayerBar(event.getPlayer());
-        });
+        Tasks.INSTANCE.async(() -> checkPlayerBar(event.getPlayer()));
     }
 
     @EventHandler
@@ -97,18 +100,12 @@ public class ChargeBar implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         Player player = (Player) commandSender;
-
         if (command.getName().equals("powerbar")) {
-            String powerBar = UniversalParameter.getParameter(player.getUniqueId(), "PowerBar");
-            if (powerBar != null && !powerBar.isEmpty()) {
-                UniversalParameter.unsetParameter(player.getUniqueId(), "PowerBar");
-            } else {
-                UniversalParameter.setParameter(player.getUniqueId(), "PowerBar", "true");
-            }
-            checkPlayerBar(player);
+            boolean powerBar = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "PowerBar");
+            PlayerPropertyManager.INSTANCE.setPropertyAsync(player, "PowerBar", !powerBar + "", () -> {
+                checkPlayerBar(player);
+            });
         }
-
-
         return true;
     }
 

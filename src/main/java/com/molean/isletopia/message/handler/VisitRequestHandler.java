@@ -19,6 +19,7 @@ import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.VisitRequest;
 import com.molean.isletopia.shared.pojo.resp.VisitResponse;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -29,7 +30,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listener {
     private final Map<UUID, LocalIsland> locationMap = new HashMap<>();
@@ -37,7 +41,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
 
     public VisitRequestHandler() {
         RedisMessageListener.setHandler("VisitRequest", this, VisitRequest.class);
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @EventHandler
@@ -108,13 +112,13 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
             } else {
                 Player player = Bukkit.getPlayer(sourcePlayer);
                 if (player != null && player.isOnline()) {
-                    System.out.println("handle visit request handler: " + sourcePlayer + " " + player.getName());
+                    PluginUtils.getLogger().info("handle visit request handler: " + sourcePlayer + " " + player.getName());
                     island.tp(player);
                 } else {
                     try {
                         if (PlayerDataDao.exist(sourcePlayer)) {
                             byte[] query = PlayerDataDao.query(sourcePlayer);
-                            Location safeSpawnLocation = island.getSafeSpawnLocation();
+                            Location safeSpawnLocation = island.getSafeSpawnLocation(Bukkit.getWorld("SkyWorld"));
                             double x = safeSpawnLocation.getX();
                             double y = safeSpawnLocation.getY();
                             double z = safeSpawnLocation.getZ();

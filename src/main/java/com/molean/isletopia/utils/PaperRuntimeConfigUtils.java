@@ -8,9 +8,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class PaperRuntimeConfigUtils {
-    public static Table<String, String, Integer> getSensorTickRatesTable() {
+    public static Table<String, String, Integer> getSensorTickRatesTable(World world) {
         try {
-            World world = IsletopiaTweakers.getWorld();
             Class<?> craftServer = NMSUtils.getBukkitClass("CraftWorld");
             Method getHandle = craftServer.getDeclaredMethod("getHandle");
             getHandle.setAccessible(true);
@@ -30,9 +29,8 @@ public class PaperRuntimeConfigUtils {
         return null;
     }
 
-    public static Table<String, String, Integer> getBehaviorTickRatesTable() {
+    public static Table<String, String, Integer> getBehaviorTickRatesTable(World world) {
         try {
-            World world = IsletopiaTweakers.getWorld();
             Class<?> craftServer = NMSUtils.getBukkitClass("CraftWorld");
             Method getHandle = craftServer.getDeclaredMethod("getHandle");
             getHandle.setAccessible(true);

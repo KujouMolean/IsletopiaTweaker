@@ -4,12 +4,13 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.island.listener.PlayerIslandChangeEventListener;
+import com.molean.isletopia.utils.PluginUtils;
 
 import java.util.logging.Logger;
 
 public class IsletopiaIslandSystem {
     public IsletopiaIslandSystem() {
-        Logger logger = IsletopiaTweakers.getPlugin().getLogger();
+        Logger logger = PluginUtils.getLogger();
         long l = System.currentTimeMillis();
         try {
             new IslandCommand();

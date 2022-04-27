@@ -1,19 +1,16 @@
 package com.molean.isletopia.charge;
 
 import com.destroystokyo.paper.event.block.TNTPrimeEvent;
-import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.ChargeDetail;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.task.MassiveChunkTask;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Hopper;
 import org.bukkit.entity.Player;
@@ -23,14 +20,9 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
-import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class ConsumeListener implements Listener {
     private static int TICK_SAMPLE_10 = 10;
@@ -41,39 +33,53 @@ public class ConsumeListener implements Listener {
         if (!shouldRecord) {
             return;
         }
-        long start = System.currentTimeMillis();
-        @NotNull Chunk[] loadedChunks = IsletopiaTweakers.getWorld().getLoadedChunks();
-        new MassiveChunkTask(loadedChunks, chunk -> {
+        ArrayList<Chunk> chunks = new ArrayList<>();
+        for (World world : Bukkit.getWorlds()) {
+            chunks.addAll(List.of(world.getLoadedChunks()));
+        }
+        new MassiveChunkTask(chunks.toArray(new Chunk[0]), chunk -> {
             if (!chunk.isLoaded()) {
                 return;
             }
-            long count = Arrays.stream(chunk.getTileEntities())
-                    .filter(blockState -> blockState.getType().equals(Material.HOPPER))
-                    .map(blockState -> (Hopper) (blockState.getBlockData()))
-                    .filter(Hopper::isEnabled)
-                    .count();
             LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(chunk);
+
             if (currentIsland == null) {
                 return;
             }
-            ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
-            chargeDetail.setHopper(chargeDetail.getHopper() + 200 * count);
+
+            if (currentIsland.containsFlag("PowerOff")) {
+                Arrays.stream(chunk.getTileEntities())
+                        .filter(blockState -> blockState.getType().equals(Material.HOPPER))
+                        .map(blockState -> (Hopper) (blockState.getBlockData()))
+                        .forEach(hopper -> hopper.setEnabled(false));
+
+            } else {
+                long count = Arrays.stream(chunk.getTileEntities())
+                        .filter(blockState -> blockState.getType().equals(Material.HOPPER))
+                        .map(blockState -> (Hopper) (blockState.getBlockData()))
+                        .filter(Hopper::isEnabled)
+                        .count();
+                ChargeDetail chargeDetail = ChargeDetailCommitter.get(currentIsland.getIslandId());
+                chargeDetail.setHopper(chargeDetail.getHopper() + 200 * count);
+            }
+
+
         }, 30 * 20).run();
-        PluginUtils.getLogger().info("Hopper count used " + (System.currentTimeMillis() - start) + "ms");
+
     }
 
     public void arrearsDetect(LocalIsland localIsland) {
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.async(() -> {
             if (shouldRecord && ChargeDetailUtils.getLeftPower(ChargeDetailCommitter.get(localIsland.getIslandId())) < 0) {
-                localIsland.addIslandFlag("DisableRedstone");
+                localIsland.addIslandFlag("PowerOff");
                 for (Player player : localIsland.getPlayersInIsland()) {
                     if (localIsland.hasPermission(player)) {
                         MessageUtils.warn(player, "island.consumer.powerNotEnough");
                     }
                 }
             } else {
-                if (localIsland.containsFlag("DisableRedstone")) {
-                    localIsland.removeIslandFlag("DisableRedstone");
+                if (localIsland.containsFlag("PowerOff")) {
+                    localIsland.removeIslandFlag("PowerOff");
                     for (Player player : localIsland.getPlayersInIsland()) {
                         if (localIsland.hasPermission(player)) {
                             MessageUtils.success(player, "island.consumer.powerRecovery");
@@ -87,11 +93,11 @@ public class ConsumeListener implements Listener {
 
     //更新取样间隔，均匀取样
     public void updateSample(int perTicks) {
-        Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.interval(perTicks, () -> {
             TICK_SAMPLE_10 = random.nextInt(20) + 1;
             LocalDateTime now = LocalDateTime.now();
             shouldRecord = now.getHour() >= 12;
-        }, perTicks, perTicks);
+        });
     }
 
     //获取岛上有玩家的岛屿, 取这些岛屿的岛主
@@ -109,19 +115,18 @@ public class ConsumeListener implements Listener {
     }
 
     public ConsumeListener() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
         updateSample(20);
 
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.interval(20 * 60, () -> {
             countHopper();
             for (LocalIsland owner : getIslandHasPlayerUnique()) {
                 addOneMinute(owner.getIslandId());
                 arrearsDetect(owner);
             }
-        }, 20 * 60, 20 * 60);
+        });
 
-        IsletopiaTweakers.addDisableTask("Stop listen player consumer", bukkitTask::cancel);
 
     }
 

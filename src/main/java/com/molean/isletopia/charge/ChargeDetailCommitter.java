@@ -1,11 +1,9 @@
 package com.molean.isletopia.charge;
 
-import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.database.ChargeDao;
 import com.molean.isletopia.shared.model.ChargeDetail;
 import com.molean.isletopia.shared.model.IslandId;
-import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitTask;
+import com.molean.isletopia.task.Tasks;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -33,15 +31,8 @@ public class ChargeDetailCommitter {
     }
 
     public ChargeDetailCommitter() {
-        //每分钟执行一次
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(),
-                this::commit, 0, 60 * 20L);
-
-        IsletopiaTweakers.addDisableTask("Stop commit player charge", () -> {
-            bukkitTask.cancel();
-            this.commit();
-        });
-
+        Tasks.INSTANCE.intervalAsync(60 * 20, this::commit);
+        Tasks.INSTANCE.addDisableTask("Last charge bill commit ", this::commit);
     }
 
     //获取当前周

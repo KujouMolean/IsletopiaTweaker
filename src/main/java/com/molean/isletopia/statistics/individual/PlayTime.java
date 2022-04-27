@@ -4,6 +4,8 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.database.PlayTimeStatisticsDao;
+import com.molean.isletopia.task.Tasks;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,13 +20,13 @@ public class PlayTime implements Listener {
     private static final Map<String, Long> playerJoinTime = new HashMap<>();
 
     public PlayTime() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             onJoin(onlinePlayer);
         }
 
-        IsletopiaTweakers.addDisableTask("Commit play time statistics..", () -> {
+        Tasks.INSTANCE.addDisableTask("Commit play time statistics..", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 onQuit(onlinePlayer);
             }

@@ -8,6 +8,7 @@ import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -26,7 +27,7 @@ public class PlayerIslandChangeEventListener implements Listener {
 
 
     public PlayerIslandChangeEventListener() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @EventHandler

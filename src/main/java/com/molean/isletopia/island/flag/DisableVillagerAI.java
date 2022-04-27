@@ -3,6 +3,7 @@ package com.molean.isletopia.island.flag;
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.task.PlotAllChunkTask;
 import com.molean.isletopia.task.PlotChunkTask;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PluginUtils;
@@ -41,7 +42,7 @@ public class DisableVillagerAI implements IslandFlagHandler, Listener {
 
     @Override
     public void onFlagAdd(LocalIsland island, String... data) {
-        new PlotChunkTask(island, chunk -> {
+        new PlotAllChunkTask(island, chunk -> {
             for (Entity entity : chunk.getEntities()) {
                 if (entity.getType().equals(EntityType.VILLAGER)) {
                     Villager villager = (Villager) entity;
@@ -59,7 +60,7 @@ public class DisableVillagerAI implements IslandFlagHandler, Listener {
 
     @Override
     public void onFlagRemove(LocalIsland island, String... data) {
-        new PlotChunkTask(island, chunk -> {
+        new PlotAllChunkTask(island, chunk -> {
             for (Entity entity : chunk.getEntities()) {
                 if (entity.getType().equals(EntityType.VILLAGER)) {
                     Villager villager = (Villager) entity;

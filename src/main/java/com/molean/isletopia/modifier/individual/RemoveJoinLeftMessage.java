@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,7 +10,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class RemoveJoinLeftMessage implements Listener {
     public RemoveJoinLeftMessage() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
     @EventHandler(ignoreCancelled = true)
     public void onJoin(PlayerJoinEvent event) {

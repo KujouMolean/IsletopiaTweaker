@@ -2,7 +2,9 @@ package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -29,7 +31,7 @@ import static org.bukkit.Material.*;
 
 public class ShulkerRespawn implements Listener {
     public ShulkerRespawn() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
         LocalRecipe.addRecipe(SHULKER_SPAWN_EGG, PURPUR_BLOCK, HeadUtils.getSkullFromValue("shulker.name", PlayerHeadDrop.drops.get(EntityType.SHULKER)),
                 AIR, AIR, AIR,
                 AIR, SHULKER_BOX, AIR,
@@ -150,7 +152,7 @@ public class ShulkerRespawn implements Listener {
         }
         Block shulkerBox = event.getBlock().getRelative(dispenser.getFacing());
         if (event.getItem().getType().name().toLowerCase(Locale.ROOT).contains("shulker_box")) {
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            Tasks.INSTANCE.sync( () -> {
                 stainShulkerBox(shulkerBox, shulkerBox);
 
             });

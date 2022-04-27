@@ -1,7 +1,6 @@
 package com.molean.isletopia.island;
 
 import com.google.gson.Gson;
-import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.obj.CuboidRegion;
 import com.molean.isletopia.island.obj.CuboidShape;
@@ -9,12 +8,14 @@ import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.utils.ResourceUtils;
-import com.molean.isletopia.task.PlotChunkTask;
+import com.molean.isletopia.task.PlotAllChunkTask;
+import com.molean.isletopia.task.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -30,6 +31,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+
+// 每次使用都应该从IslandManager获取, 而不是保存在某处。
+// 只能在岛屿所在的服务器上获取LocalIsland, 否则应该使用Island
+
 public class LocalIsland extends Island {
 
     public LocalIsland(Island island) {
@@ -39,14 +44,18 @@ public class LocalIsland extends Island {
     private final Set<Material> blacklistInBlock = Set.of(Material.NETHER_PORTAL);
     private final Set<Material> blacklistOnBlock = Set.of();
 
-    public LocalIsland(int id, int x, int z, double spawnX, double spawnY, double spawnZ, float yaw, float pitch, @NotNull String server, @NotNull UUID uuid, @Nullable String name, @Nullable String biome, @NotNull Timestamp creation, Set<UUID> members, Set<String> islandFlags, String icon) {
-        super(id, x, z, spawnX, spawnY, spawnZ, yaw, pitch, server, uuid, name, biome, creation, members, islandFlags, icon);
+    public LocalIsland(int id, int x, int z, double spawnX, double spawnY, double spawnZ, float yaw, float pitch, @NotNull String server, @NotNull UUID uuid, @Nullable String name, @NotNull Timestamp creation, Set<UUID> members, Set<String> islandFlags, String icon) {
+        super(id, x, z, spawnX, spawnY, spawnZ, yaw, pitch, server, uuid, name, creation, members, islandFlags, icon);
     }
+
 
     @Nullable
     private Location getSafeLandingPosition(@NotNull Location location) {
-        for (int i = 0; i < location.getY(); i++) {
+        for (int i = 0; i < location.getY() - location.getWorld().getMinHeight(); i++) {
             Location add = location.clone().add(0, -i, 0);
+            if (add.getBlock().getRelative(BlockFace.DOWN).isPassable()) {
+                continue;
+            }
             if (add.getBlock().getRelative(BlockFace.DOWN).isPassable()) {
                 continue;
             }
@@ -71,7 +80,7 @@ public class LocalIsland extends Island {
     }
 
     private Location getHigherLandingPosition(Location location) {
-        for (int i = 0; i < 256 - location.getY(); i++) {
+        for (int i = 0; i < location.getWorld().getMaxHeight() - location.getY(); i++) {
             Location add = location.clone().add(0, i, 0);
             if (add.getBlock().getRelative(BlockFace.DOWN).isPassable()) {
                 continue;
@@ -96,15 +105,21 @@ public class LocalIsland extends Island {
         return null;
     }
 
-    public Location getSafeSpawnLocation() {
-        World skyWorld = Bukkit.getWorld("SkyWorld");
-        Location location = new Location(skyWorld, (x << 9) + spawnX, spawnY, (z << 9) + spawnZ, yaw, pitch);
+    public Location getSafeSpawnLocation(World world) {
+        Location location = new Location(world, (x << 9) + spawnX, spawnY, (z << 9) + spawnZ, yaw, pitch);
+
+        if (location.getY() < location.getWorld().getMinHeight()) {
+            location.setY(location.getWorld().getMinHeight() + 1);
+        }
+        if (location.getY() > location.getWorld().getMaxHeight()) {
+            location.setY(location.getWorld().getMaxHeight());
+        }
         Location safeLandingPosition = getSafeLandingPosition(location);
         if (safeLandingPosition == null) {
             Location higherLandingPosition = getHigherLandingPosition(location);
             if (higherLandingPosition == null) {
                 Location finalLocation = location;
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                Tasks.INSTANCE.sync(() -> {
                     finalLocation.getBlock().getRelative(BlockFace.DOWN).setType(Material.STONE);
                 });
             } else {
@@ -117,9 +132,9 @@ public class LocalIsland extends Island {
     }
 
     public void tp(Entity entity) {
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.sync(() -> {
             if (server.equals(ServerInfoUpdater.getServerName())) {
-                entity.teleport(getSafeSpawnLocation());
+                entity.teleport(getSafeSpawnLocation(Bukkit.getWorld("SkyWorld")));
             } else {
                 throw new RuntimeException("Can't teleport to island in other server");
             }
@@ -139,22 +154,15 @@ public class LocalIsland extends Island {
         boolean disableLiquidFlow = containsFlag("DisableLiquidFlow");
         if (!disableLiquidFlow) {
             addIslandFlag("DisableLiquidFlow");
-
         }
-        Biome biome;
-        try {
-            biome = Biome.valueOf(this.getBiome());
-        } catch (IllegalArgumentException e) {
-            biome = Biome.PLAINS;
-        }
-
-        Biome finalBiome = biome;
-        new PlotChunkTask(this, (chunk -> {
+        new PlotAllChunkTask(this, (chunk -> {
+            int minHeight = chunk.getWorld().getMinHeight();
+            int maxHeight = chunk.getWorld().getMaxHeight();
             for (int i = 0; i < 16; i++) {
-                for (int j = -64; j < 320; j++) {
+                for (int j = minHeight; j < maxHeight; j++) {
                     for (int k = 0; k < 16; k++) {
                         chunk.getBlock(i, j, k).setType(Material.AIR);
-                        chunk.getBlock(i, j, k).setBiome(finalBiome);
+                        chunk.getBlock(i, j, k).setBiome(Biome.PLAINS);
                     }
                 }
             }
@@ -224,14 +232,16 @@ public class LocalIsland extends Island {
         World skyWorld = Bukkit.getWorld("SkyWorld");
         int blockX = x << 9;
         int blockZ = z << 9;
-        return new Location(skyWorld, blockX, 0, blockZ);
+        assert skyWorld != null;
+        return new Location(skyWorld, blockX, skyWorld.getMinHeight(), blockZ);
     }
 
     public Location getTopLocation() {
         World skyWorld = Bukkit.getWorld("SkyWorld");
+        assert skyWorld != null;
         int blockX = (x + 1) << 9;
         int blockZ = (z + 1) << 9;
-        return new Location(skyWorld, blockX, 256, blockZ);
+        return new Location(skyWorld, blockX, skyWorld.getMaxHeight(), blockZ);
     }
 
     public boolean hasPermission(Player target) {
@@ -241,6 +251,7 @@ public class LocalIsland extends Island {
         if (containsFlag("TrustEveryone")) {
             return true;
         }
+
         return members.contains(target.getUniqueId());
     }
 
@@ -254,24 +265,15 @@ public class LocalIsland extends Island {
     }
 
 
-    public void setBiome(@Nullable String biome) {
-        if (!ServerInfoUpdater.getServerName().equals(server)) {
-            throw new RuntimeException("Can't edit other servers island!");
-        }
-        this.biome = biome;
-        IslandManager.INSTANCE.update(this);
-    }
-
-
     public void addMember(UUID uuid) {
         if (!ServerInfoUpdater.getServerName().equals(server)) {
             throw new RuntimeException("Can't edit other servers island!");
         }
         members.add(uuid);
-        IslandManager.INSTANCE.update(this);
+        Tasks.INSTANCE.async(() -> IslandManager.INSTANCE.update(this));
 
 
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.sync(() -> {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null && Objects.equals(IslandManager.INSTANCE.getCurrentIsland(player), this)) {
                 PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, this, this);
@@ -288,7 +290,7 @@ public class LocalIsland extends Island {
         members.remove(uuid);
         IslandManager.INSTANCE.update(this);
 
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.sync(() -> {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null && Objects.equals(IslandManager.INSTANCE.getCurrentIsland(player), this)) {
                 PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, this, this);

@@ -3,6 +3,7 @@ package com.molean.isletopia.modifier.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.HeadUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
@@ -21,7 +22,7 @@ import static org.bukkit.Material.*;
 
 public class RichPiglin implements Listener {
     public RichPiglin() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
         {
             List<ItemStack> icons = new ArrayList<>();

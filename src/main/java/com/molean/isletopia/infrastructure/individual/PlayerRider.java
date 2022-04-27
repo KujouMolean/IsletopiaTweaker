@@ -4,7 +4,9 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.player.PlayerPropertyManager;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -28,13 +30,9 @@ import java.util.UUID;
 
 public class PlayerRider implements Listener {
     public PlayerRider() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-
-        }, 20, 20);
-
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+     Tasks.INSTANCE.interval(20, () -> {
             long currentTimeMillis = System.currentTimeMillis();
             for (UUID uuid : sneakTime.keySet()) {
                 Player player = Bukkit.getPlayer(uuid);
@@ -51,8 +49,7 @@ public class PlayerRider implements Listener {
                                 "§f" + "◼".repeat(10 - level);
                 MessageUtils.action(player, str);
             }
-        }, 0, 20);
-        IsletopiaTweakers.addDisableTask("Disable sneak rider check,,", bukkitTask::cancel);
+        });
     }
     private final Map<UUID, Long> sneakTime = new HashMap<>();
     @EventHandler(ignoreCancelled = true)
@@ -105,7 +102,7 @@ public class PlayerRider implements Listener {
             if (!(passenger instanceof Player)) {
                 split(passenger, velocity);
             }
-            Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+            Tasks.INSTANCE.sync(() -> {
                 passenger.setVelocity(velocity);
             });
         }

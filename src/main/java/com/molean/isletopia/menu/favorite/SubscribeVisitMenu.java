@@ -29,6 +29,7 @@ public class SubscribeVisitMenu extends ListMenu<String> {
                 .convertFunction(HeadUtils::getSkullWithIslandInfo)
                 .onClickSync(s -> player.performCommand("visit " + s))
                 .closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.subscribe")).build())
-                .onCloseSync(() -> new SubscribeMenu(player).open());
+                .onCloseAsync(() -> new SubscribeMenu(player).open())
+                .onCloseSync(null);
     }
 }

@@ -41,8 +41,6 @@ public class SettingsMenu extends ChestMenu {
         });
 
         if (currentPlot.containsFlag("Lock")) {
-
-
             ItemStackSheet unlock = ItemStackSheet.fromString(Material.IRON_DOOR, MessageUtils.getMessage(player, "menu.settings.unlock"));
 
             item(3, unlock.build(), () -> {
@@ -91,32 +89,29 @@ public class SettingsMenu extends ChestMenu {
             close();
         });
 
-        ItemStackSheet allowPickup = ItemStackSheet.fromString(Material.HOPPER, "menu.settings.pick",
-                Pair.of("status", currentPlot.containsFlag("AllowItemPickup") ?
+        ItemStackSheet allowPickup = ItemStackSheet.fromString(Material.HOPPER, MessageUtils.getMessage(player, "menu.settings.pick", Pair.of("status", currentPlot.containsFlag("AllowItemPickup") ?
                         MessageUtils.getMessage(player, "menu.settings.pick.true") :
                         MessageUtils.getMessage(player, "menu.settings.pick.false")
-                ));
+                )));
 
         item(8, allowPickup.build(), () -> {
             player.performCommand("is allowItemPickup");
             close();
         });
 
-        ItemStackSheet spectator = ItemStackSheet.fromString(Material.FEATHER, "menu.settings.spectator",
-                Pair.of("status", currentPlot.containsFlag("SpectatorVisitor") ?
-                        MessageUtils.getMessage(player, "menu.settings.spectator.true") :
-                        MessageUtils.getMessage(player, "menu.settings.spectator.false")
-                ));
+        ItemStackSheet spectator = ItemStackSheet.fromString(Material.FEATHER, MessageUtils.getMessage(player, "menu.settings.spectator",Pair.of("status", currentPlot.containsFlag("SpectatorVisitor") ?
+                MessageUtils.getMessage(player, "menu.settings.spectator.true") :
+                MessageUtils.getMessage(player, "menu.settings.spectator.false")
+        )));
         item(9, spectator.build(), () -> {
             player.performCommand("is spectatorVisitor");
             close();
         });
 
-        ItemStackSheet antiFire = ItemStackSheet.fromString(Material.CAMPFIRE, "menu.settings.antifire",
-                Pair.of("status", currentPlot.containsFlag("AntiFire") ?
+        ItemStackSheet antiFire = ItemStackSheet.fromString(Material.CAMPFIRE, MessageUtils.getMessage(player, "menu.settings.antifire",Pair.of("status", currentPlot.containsFlag("AntiFire") ?
                         MessageUtils.getMessage(player, "menu.settings.antifire.true") :
                         MessageUtils.getMessage(player, "menu.settings.antifire.false")
-                ));
+                )));
         if (!currentPlot.containsFlag("AntiFire") && !currentPlot.containsFlag("DisableAntiFire")) {
             antiFire.addLore(MessageUtils.getMessage(player, "menu.settings.antifire.first"));
         }

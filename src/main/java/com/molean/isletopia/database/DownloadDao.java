@@ -20,25 +20,6 @@ import java.util.zip.ZipOutputStream;
 
 public class DownloadDao {
 
-    public static void checkTable() {
-        try (Connection connection = DataSourceUtils.getConnection()) {
-            String sql = """
-                    create table if not exists isletopia_save
-                    (
-                        id     int primary key auto_increment,
-                        player text     not null,
-                        data   longblob not null,
-                        time   long     not null,
-                        token  text     not null
-                    );""";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.execute();
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-    }
-
     public static void deleteOld(String player) {
         try (Connection connection = DataSourceUtils.getConnection()) {
             String sql = "delete from minecraft.isletopia_save where player=?";

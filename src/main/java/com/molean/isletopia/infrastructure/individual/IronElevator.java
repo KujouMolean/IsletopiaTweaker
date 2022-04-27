@@ -3,6 +3,7 @@ package com.molean.isletopia.infrastructure.individual;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.player.PlayerPropertyManager;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -14,7 +15,7 @@ public class IronElevator implements Listener {
 
 
     public IronElevator() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @EventHandler

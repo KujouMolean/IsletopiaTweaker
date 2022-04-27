@@ -2,12 +2,13 @@ package com.molean.isletopia.admin;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.admin.individual.*;
+import com.molean.isletopia.utils.PluginUtils;
 
 import java.util.logging.Logger;
 
 public class IsletopiaAdmin {
     public IsletopiaAdmin() {
-        Logger logger = IsletopiaTweakers.getPlugin().getLogger();
+        Logger logger = PluginUtils.getLogger();
         long l = System.currentTimeMillis();
         try {
             new UniversalTeleportCommand();
@@ -18,6 +19,7 @@ public class IsletopiaAdmin {
             new IsDebugCommand();
             new IslandAdmin();
             new ReloadPermissionCommand();
+            new AchievementCommand();
 
         } catch (Exception exception) {
             exception.printStackTrace();

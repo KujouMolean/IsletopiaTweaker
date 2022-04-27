@@ -9,6 +9,7 @@ import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -19,7 +20,7 @@ import org.bukkit.event.Listener;
 public class IslandEnterMessage implements Listener {
 
     public IslandEnterMessage() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     public void sendEnterMessage(Player player, IslandId to) {

@@ -5,7 +5,9 @@ import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.LangUtils;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import com.molean.isletopia.utils.ScoreboardUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -34,15 +36,15 @@ public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
     public ProductionBar() {
         Objects.requireNonNull(Bukkit.getPluginCommand("productionbar")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("productionbar")).setTabCompleter(this);
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        PluginUtils.registerEvents(this);
+        BukkitTask bukkitTask = Tasks.INSTANCE.intervalAsync(20, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if ("ProductionBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(player.getUniqueId()))) {
+                if ("ProductionBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(player))) {
                     update(player);
                 }
             }
-        }, 20, 20);
-        IsletopiaTweakers.addDisableTask("Stop update production bars", bukkitTask::cancel);
+        });
+        Tasks.INSTANCE.addDisableTask("Stop update production bars", bukkitTask::cancel);
     }
 
 
@@ -65,7 +67,9 @@ public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
 
         stringIntegerHashMap.put(MessageUtils.getMessage(player, "player.bar.production.total"), total);
         String message = MessageUtils.getMessage(player, "player.bar.production");
-        ScoreboardUtils.setPlayerUniqueSidebar(player, Component.text(message), stringIntegerHashMap);
+        Tasks.INSTANCE.sync(() -> {
+            ScoreboardUtils.updateOrCreatePlayerUniqueSidebar(player, Component.text(message), stringIntegerHashMap);
+        });
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -129,11 +133,16 @@ public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
         Player player = (Player) commandSender;
         UUID uuid = player.getUniqueId();
 
-        if (!"ProductionBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(uuid))) {
+        if (!"ProductionBar".equalsIgnoreCase(SidebarManager.INSTANCE.getSidebar(player))) {
             ScoreboardUtils.clearPlayerUniqueSidebar(player);
-            SidebarManager.INSTANCE.setSidebar(uuid, "ProductionBar");
+            Tasks.INSTANCE.async(() -> {
+                SidebarManager.INSTANCE.setSidebar(player, "ProductionBar");
+            });
+            Tasks.INSTANCE.async(() -> {
+
+            });
         } else {
-            SidebarManager.INSTANCE.setSidebar(uuid, null);
+            SidebarManager.INSTANCE.setSidebar(player, null);
             ScoreboardUtils.clearPlayerUniqueSidebar(player);
         }
 

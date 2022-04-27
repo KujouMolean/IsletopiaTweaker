@@ -7,6 +7,7 @@ import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
 import com.molean.isletopia.shared.utils.Pair;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import org.bukkit.Bukkit;
@@ -40,7 +41,7 @@ public class ServerLikeReward implements CommandExecutor {
                              @NotNull String[] args) {
 
         Player player = (Player) sender;
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.async( () -> {
 
             UUIDManager.getOnline(player.getName(), uuid -> {
                 if (uuid == null) {
@@ -72,12 +73,12 @@ public class ServerLikeReward implements CommandExecutor {
                 CommonResponseObject commonResponseObject = new CommonResponseObject();
                 commonResponseObject.setMessage(MessageUtils.getMessage(player, "like.success", Pair.of("player", player.getName())) + "https://zh-cn.namemc.com/server/play.molean.com");
                 ServerMessageUtils.sendMessage("proxy", "CommonResponse", commonResponseObject);
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                Tasks.INSTANCE.sync((() -> {
                     HashMap<Integer, ItemStack> integerItemStackHashMap = player.getInventory().addItem(new ItemStack(Material.DRAGON_HEAD));
                     for (ItemStack value : integerItemStackHashMap.values()) {
                         player.getWorld().dropItem(player.getLocation(), value);
                     }
-                });
+                }));
             });
         });
         return true;

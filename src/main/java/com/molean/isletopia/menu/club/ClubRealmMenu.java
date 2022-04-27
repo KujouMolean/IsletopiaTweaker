@@ -1,5 +1,6 @@
-package com.molean.isletopia.menu;
+package com.molean.isletopia.menu.club;
 
+import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.shared.database.ParameterDao;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.utils.ItemStackSheet;
@@ -67,8 +68,7 @@ public class ClubRealmMenu extends ListMenu<String> {
             player.performCommand("clubrealm " + s);
         });
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
-                .onCloseSync(() -> {
-                })
+                .onCloseSync(null)
                 .onCloseAsync(() -> new MainMenu(player).open());
 
     }

@@ -4,8 +4,10 @@ import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MapUtils;
 import com.molean.isletopia.utils.NMSTagUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -38,7 +40,7 @@ import java.util.Objects;
 
 public class StaticMap implements  Listener {
     public StaticMap() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
         ItemStack icon = new ItemStack(Material.FILLED_MAP);
         ItemMeta itemMeta = icon.getItemMeta();
         itemMeta.displayName(Component.text("recipe.map.title"));
@@ -82,7 +84,7 @@ public class StaticMap implements  Listener {
     @EventHandler
     public void onJoin(PlayerDataSyncCompleteEvent event) {
         ItemStack itemStack = event.getPlayer().getInventory().getItemInMainHand();
-        Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.timeout(1, () -> {
             if (!itemStack.getType().equals(Material.FILLED_MAP)) {
                 return;
             }
@@ -90,7 +92,7 @@ public class StaticMap implements  Listener {
             ItemMeta itemMeta = itemStack.getItemMeta();
             MapUtils.updateStaticMap(colors, (MapMeta) itemMeta);
             itemStack.setItemMeta(itemMeta);
-        }, 1L);
+        });
     }
 
     @EventHandler

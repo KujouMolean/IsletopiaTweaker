@@ -3,6 +3,8 @@ package com.molean.isletopia.infrastructure.individual;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.BukkitRuntimeConfigUtils;
 import com.molean.isletopia.utils.MSPTUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.SpawnCategory;
 
 public class DynamicMobSpawnRate {
@@ -28,12 +30,15 @@ public class DynamicMobSpawnRate {
 //    }
 
     public void setRate(int val) {
-        BukkitRuntimeConfigUtils.setWorld(SpawnCategory.MONSTER, getValLess(5, 1, val));
-        BukkitRuntimeConfigUtils.setWorld(SpawnCategory.ANIMAL,getValLess(400, 400, val));
-        BukkitRuntimeConfigUtils.setWorld(SpawnCategory.WATER_ANIMAL,getValLess(5, 1, val));
-        BukkitRuntimeConfigUtils.setWorld(SpawnCategory.WATER_AMBIENT, getValLess(5, 1, val));
-        BukkitRuntimeConfigUtils.setWorld(SpawnCategory.AMBIENT, getValLess(5, 1, val));
-        BukkitRuntimeConfigUtils.setWorld(SpawnCategory.WATER_UNDERGROUND_CREATURE, getValLess(5, 1, val));
+        for (World world : Bukkit.getWorlds()) {
+            BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.MONSTER, getValLess(5, 1, val));
+            BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.ANIMAL,getValLess(400, 400, val));
+            BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.WATER_ANIMAL,getValLess(5, 1, val));
+            BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.WATER_AMBIENT, getValLess(5, 1, val));
+            BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.AMBIENT, getValLess(5, 1, val));
+            BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.WATER_UNDERGROUND_CREATURE, getValLess(5, 1, val));
+
+        }
 
     }
 
@@ -46,7 +51,7 @@ public class DynamicMobSpawnRate {
             } else {
                 balance -= 5;
             }
-            balance = (int) Math.min(balance, Math.max(v - 45, 20) * 5);
+            balance = (int) Math.min(balance, Math.min(v - 45, 20) * 5);
             if (balance > 100) {
                 balance = 100;
             }

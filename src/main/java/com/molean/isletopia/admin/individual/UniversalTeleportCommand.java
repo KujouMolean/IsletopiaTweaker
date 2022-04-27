@@ -3,6 +3,7 @@ package com.molean.isletopia.admin.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -20,7 +21,7 @@ public class UniversalTeleportCommand implements CommandExecutor, TabCompleter, 
     public UniversalTeleportCommand() {
         Objects.requireNonNull(Bukkit.getPluginCommand("gtp")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("gtp")).setTabCompleter(this);
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
 
     @Override

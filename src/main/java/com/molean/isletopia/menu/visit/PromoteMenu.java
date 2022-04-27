@@ -1,5 +1,6 @@
-package com.molean.isletopia.menu;
+package com.molean.isletopia.menu.visit;
 
+import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.shared.model.PromoteDao;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.visit.MultiVisitMenu;
@@ -40,8 +41,7 @@ public class PromoteMenu extends ListMenu<PromoteDao.Promote> {
             IsletopiaTweakersUtils.universalPlotVisitByMessage(player, island.getIslandId());
         });
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
-                .onCloseSync(() -> {
-                })
+                .onCloseSync(null)
                 .onCloseAsync(() -> new MainMenu(player).open());
     }
 }

@@ -1,6 +1,7 @@
 package com.molean.isletopia.virtualmenu;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import net.kyori.adventure.text.Component;
@@ -26,24 +27,34 @@ public class ListMenu<T> extends ChestMenu {
     private int page = 0;
     private Consumer<T> onClickSync;
     private Consumer<T> onClickAsync;
+    private int initialPage = 0;
 
-    public ListMenu(Player player, Component title) {
+
+    public ListMenu(Player player, Component title, int initialPage) {
         super(player, 6, title);
         this.itemStackFunction = t -> new ItemStackSheet(Material.PAPER, t.toString()).build();
         this.components = new ArrayList<>();
         this.onCloseSync = this::close;
-        this.onCloseAsync =()->{};
-        this.onClickSync = t -> {};
-        this.onClickAsync = t -> {};
-        this.prevPageItemStack = new ItemStackSheet(Material.SOUL_SAND, MessageUtils.getMessage(player,"menu.list.prev")).build();
-        this.nextPageItemStack = new ItemStackSheet(Material.MAGMA_BLOCK, MessageUtils.getMessage(player,"menu.list.next")).build();
+        this.onCloseAsync = () -> {
+        };
+        this.onClickSync = t -> {
+        };
+        this.onClickAsync = t -> {
+        };
+        this.prevPageItemStack = new ItemStackSheet(Material.SOUL_SAND, MessageUtils.getMessage(player, "menu.list.prev")).build();
+        this.nextPageItemStack = new ItemStackSheet(Material.MAGMA_BLOCK, MessageUtils.getMessage(player, "menu.list.next")).build();
         this.closeItemStack = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.list.close")).build();
+        this.initialPage = initialPage;
+    }
+
+    public ListMenu(Player player, Component title) {
+        this(player, title, 0);
     }
 
     public ListMenu<T> components(List<T> components) {
         this.components.clear();
         this.components.addAll(components);
-        pageUpdate(page);
+        Tasks.INSTANCE.async(()-> pageUpdate(page));
         return this;
     }
 
@@ -114,9 +125,9 @@ public class ListMenu<T> extends ChestMenu {
     }
 
     @Override
-    public void beforeOpen() {
-        super.beforeOpen();
-        pageUpdate(0);
+    public void afterOpen() {
+        super.afterOpen();
+        Tasks.INSTANCE.async(() -> pageUpdate(initialPage));
     }
 
     @Override
@@ -124,15 +135,19 @@ public class ListMenu<T> extends ChestMenu {
         super.onLeftClick(slot);
         switch (slot) {
             case 47 -> {
-                pageUpdate(page - 1);
+                Tasks.INSTANCE.async(() -> pageUpdate(page - 1));
             }
             case 49 -> {
-                onCloseSync.run();
-                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), onCloseAsync);
+                if (onCloseSync != null) {
+                    onCloseSync.run();
+                }
+                if (onCloseAsync != null) {
+                    Tasks.INSTANCE.async(onCloseAsync);
+                }
 
             }
             case 51 -> {
-                pageUpdate(page + 1);
+                Tasks.INSTANCE.async(() -> pageUpdate(page + 1));
             }
             default -> {
                 if (slot < 0) {
@@ -150,9 +165,7 @@ public class ListMenu<T> extends ChestMenu {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    onClickAsync.accept(t);
-                });
+                Tasks.INSTANCE.async(() -> onClickAsync.accept(t));
 
             }
         }

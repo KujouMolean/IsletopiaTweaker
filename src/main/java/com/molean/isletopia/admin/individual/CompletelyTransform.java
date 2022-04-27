@@ -3,6 +3,7 @@ package com.molean.isletopia.admin.individual;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.shared.database.*;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import org.bukkit.Bukkit;
@@ -56,7 +57,7 @@ public class CompletelyTransform implements CommandExecutor {
         String source = args[0];
         String target = args[1];
 
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.async(() -> {
             UUID sourceUUID = UUIDManager.get(source);
             if (sourceUUID == null) {
                 MessageUtils.fail(player, "source not found!");

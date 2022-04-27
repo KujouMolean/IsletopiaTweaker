@@ -21,10 +21,11 @@ public class IsletopiaMessage {
             new CommandExecuteRequestHandler();
             new TellMessageRequestHandler();
 
+
             //load class
             new ServerMessageUtils();
             new CommandExecuteRequest();
-
+            new PluginReloadRequestHandler();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia message failed!");

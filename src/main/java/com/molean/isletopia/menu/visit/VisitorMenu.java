@@ -1,5 +1,6 @@
-package com.molean.isletopia.menu;
+package com.molean.isletopia.menu.visit;
 
+import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
@@ -54,6 +55,7 @@ public class VisitorMenu extends ListMenu<Pair<String, Timestamp>> {
         });
 
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
-        this.onCloseSync(() -> new MainMenu(player).open());
+        this.onCloseAsync(() -> new MainMenu(player).open())
+                .onCloseSync(null);
     }
 }

@@ -1,6 +1,6 @@
 package com.molean.isletopia.admin.individual;
 
-import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.task.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -12,7 +12,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
@@ -25,20 +24,19 @@ public class PlayerServerFirework implements CommandExecutor {
 
     public PlayerServerFirework() {
         Objects.requireNonNull(Bukkit.getPluginCommand("firework")).setExecutor(this);
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.interval(20, () -> {
             fireworkMap.removeIf(s -> Bukkit.getOnlinePlayers().stream()
                     .noneMatch(player -> player.getName().equalsIgnoreCase(s)));
 
             for (String player : fireworkMap) {
-                Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
+                Tasks.INSTANCE.timeout(random.nextInt(20), () -> {
                     Player bukkitPlayer = Bukkit.getPlayerExact(player);
                     if (bukkitPlayer != null && bukkitPlayer.isOnline()) {
                         spawnFirework(bukkitPlayer.getLocation().add(0, 2, 0));
                     }
-                }, random.nextInt(20));
+                });
             }
-        }, 20, 20);
-        IsletopiaTweakers.addDisableTask("Disable  player firework", bukkitTask::cancel);
+        });
     }
 
     @Override

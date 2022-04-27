@@ -6,7 +6,9 @@ import com.molean.isletopia.shared.database.PlayerStatsDao;
 import com.molean.isletopia.task.AsyncTryTask;
 import com.molean.isletopia.task.ConditionalAsyncTask;
 import com.molean.isletopia.task.SyncThenAsyncTask;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import com.molean.isletopia.utils.StatsSerializeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -29,10 +31,10 @@ public class PlayerStatsSync implements Listener {
     private final Map<UUID, String> passwdMap = new ConcurrentHashMap<>();
 
     public PlayerStatsSync() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
 
-        IsletopiaTweakers.addDisableTask("Save player stats to database", () -> {
+        Tasks.INSTANCE.addDisableTask("Save player stats to database", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (passwdMap.containsKey(onlinePlayer.getUniqueId())) {
                     String stats = StatsSerializeUtils.getStats(onlinePlayer);
@@ -48,7 +50,7 @@ public class PlayerStatsSync implements Listener {
 
         //update one player data per second
         Queue<Player> queue = new ArrayDeque<>();
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.intervalAsync(20, () -> {
             if (queue.isEmpty()) {
                 queue.addAll(Bukkit.getOnlinePlayers());
                 return;
@@ -57,9 +59,9 @@ public class PlayerStatsSync implements Listener {
             Player player = queue.poll();
 
             if (player.isOnline() && passwdMap.containsKey(player.getUniqueId())) {
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> update(player));
+                Tasks.INSTANCE.sync(() -> update(player));
             }
-        }, 20, 20);
+        });
 
     }
 
@@ -67,7 +69,7 @@ public class PlayerStatsSync implements Listener {
     public void update(Player player) {
         try {
             String stats = StatsSerializeUtils.getStats(player);
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            Tasks.INSTANCE.async(() -> {
                 try {
                     if (!PlayerStatsDao.update(player.getUniqueId(), stats, passwdMap.get(player.getUniqueId()))) {
                         throw new RuntimeException("Unexpected complete player stats error!");
@@ -163,9 +165,7 @@ public class PlayerStatsSync implements Listener {
             throw new RuntimeException("Unexpected get player data failed!");
             //end (failed)
         }
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
-            StatsSerializeUtils.loadStats(player, stats);
-        });
+        Tasks.INSTANCE.sync(() -> StatsSerializeUtils.loadStats(player, stats));
     }
 
 
@@ -178,9 +178,7 @@ public class PlayerStatsSync implements Listener {
     public void on(PlayerQuitEvent event) {
         if (passwdMap.containsKey(event.getPlayer().getUniqueId())) {
             String stats = StatsSerializeUtils.getStats(event.getPlayer());
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                onLeft(event.getPlayer(), stats);
-            });
+            Tasks.INSTANCE.async(() -> onLeft(event.getPlayer(), stats));
         }
     }
 

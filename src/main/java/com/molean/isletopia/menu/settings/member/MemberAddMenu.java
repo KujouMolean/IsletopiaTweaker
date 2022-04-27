@@ -42,7 +42,7 @@ public class MemberAddMenu extends ListMenu<String> {
 
         });
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player,"menu.return.main")).build());
-        this.onCloseAsync(() -> new MemberMenu(player).open()).onCloseSync(() -> {
-        });
+        this.onCloseAsync(() -> new MemberMenu(player).open())
+                .onCloseSync(null);
     }
 }

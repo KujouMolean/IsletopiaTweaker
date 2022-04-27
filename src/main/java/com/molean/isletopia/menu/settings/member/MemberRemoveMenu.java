@@ -38,8 +38,7 @@ public class MemberRemoveMenu extends ListMenu<String> {
                 .convertFunction(HeadUtils::getSkullWithIslandInfo)
                 .closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
                 .onCloseAsync(() -> new MemberMenu(player).open())
-                .onCloseSync(() -> {
-                })
+                .onCloseSync(null)
                 .onClickSync(s -> new SyncThenAsyncTask<>(() -> {
                     player.performCommand("is distrust " + s);
                     return null;

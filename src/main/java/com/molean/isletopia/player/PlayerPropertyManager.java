@@ -1,6 +1,7 @@
 package com.molean.isletopia.player;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.event.PlayerPropertyLoadCompleteEvent;
 import com.molean.isletopia.shared.database.PlayerParameterDao;
 import com.molean.isletopia.shared.service.UniversalParameter;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
@@ -38,7 +40,7 @@ public enum PlayerPropertyManager implements Listener {
     }
 
     @EventHandler
-    public void on(PlayerJoinEvent event) {
+    public void on(PlayerDataSyncCompleteEvent event) {
         Tasks.INSTANCE.async(() -> {
             update(event.getPlayer());
             if (!event.getPlayer().isOnline()) {
@@ -64,6 +66,20 @@ public enum PlayerPropertyManager implements Listener {
 
     }
 
+    public void addStringListPropertyEntryAsync(Player player, String key, String value) {
+        assert isLoad(player.getUniqueId());
+        List<String> propertyAsStringList = getPropertyAsStringList(player, key);
+        propertyAsStringList.add(value);
+        setPropertyAsync(player, key, String.join(",", propertyAsStringList));
+    }
+
+    public void removeStringListPropertyEntryAsync(Player player, String key, String value) {
+        assert isLoad(player.getUniqueId());
+        List<String> propertyAsStringList = getPropertyAsStringList(player, key);
+        propertyAsStringList.remove(value);
+        setPropertyAsync(player, key, String.join(",", propertyAsStringList));
+    }
+
     public void setPropertyAsync(Player player, String key, String value,Runnable asyncRunnable) {
         Tasks.INSTANCE.async(() -> {
             UniversalParameter.setParameter(player.getUniqueId(), key, value);
@@ -84,6 +100,23 @@ public enum PlayerPropertyManager implements Listener {
 
 
     public boolean getPropertyAsBoolean(Player player, String key) {
+        return "true".equalsIgnoreCase(getProperty(player, key));
+    }
+
+    @NotNull
+    public List<String> getPropertyAsStringList(Player player, String key) {
+        String property = getProperty(player, key);
+        if (property == null || property.isEmpty()) {
+            return new ArrayList<>();
+        }
+        String[] split = property.split(",");
+        return new ArrayList<>(Arrays.asList(split));
+    }
+
+    public boolean getPropertyAsBoolean(Player player, String key, boolean defaultValue) {
+        if (!isLoad(player.getUniqueId())) {
+            return defaultValue;
+        }
         return "true".equalsIgnoreCase(getProperty(player, key));
     }
 

@@ -4,6 +4,10 @@ main: com.molean.isletopia.IsletopiaTweakers
 api-version: 1.13
 load: STARTUP
 commands:
+  achievement:
+    aliases:
+      - ach
+    permission: isletopia.admin
   player: { }
   cmd: { }
   isadmin:
@@ -63,4 +67,9 @@ commands:
   music: { }
   blueprint: { }
   assist: { }
+  tpsbar: { }
+  CloudInventory:
+    aliases:
+      - ci
+    permission: isletopia.cloudinventory
 

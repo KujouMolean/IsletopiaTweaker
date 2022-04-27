@@ -25,7 +25,9 @@ public class ItemStackSheet {
         ItemStackSheet itemStackSheet = new ItemStackSheet(itemStack);
         String[] split = titleAndContent.split("\n");
         if (split.length >= 1) {
-            itemStackSheet.display(split[0]);
+            if (!split[0].isEmpty()) {
+                itemStackSheet.display(split[0]);
+            }
         }
         for (int i = 1; i < split.length; i++) {
             itemStackSheet.addLore(split[i]);

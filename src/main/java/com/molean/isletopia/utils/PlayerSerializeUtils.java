@@ -1,6 +1,7 @@
 package com.molean.isletopia.utils;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.task.Tasks;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
@@ -15,15 +16,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class PlayerSerializeUtils {
     public static void serialize(Player player, Consumer<byte[]> asyncConsumer) {
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.sync( () -> {
             player.saveData();
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
+            Tasks.INSTANCE.async(() -> {
+                File dataFolder = Objects.requireNonNull(Bukkit.getWorld("SkyWorld")).getWorldFolder();
                 String filename = dataFolder + "/playerdata/" + player.getUniqueId() + ".dat";
                 File file = new File(filename);
                 try (FileInputStream fileInputStream = new FileInputStream(file)) {
@@ -41,7 +43,7 @@ public class PlayerSerializeUtils {
             throw new RuntimeException("Must in primary thread");
         }
         player.saveData();
-        File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
+        File dataFolder =  Objects.requireNonNull(Bukkit.getWorld("SkyWorld")).getWorldFolder();
         String filename = dataFolder + "/playerdata/" + player.getUniqueId() + ".dat";
         File file = new File(filename);
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
@@ -50,7 +52,7 @@ public class PlayerSerializeUtils {
     }
 
     public static byte[] serializeOffline(UUID uuid) throws IOException {
-        File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
+        File dataFolder =  Objects.requireNonNull(Bukkit.getWorld("SkyWorld")).getWorldFolder();
         String filename = dataFolder + "/playerdata/" + uuid + ".dat";
         File file = new File(filename);
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
@@ -66,10 +68,10 @@ public class PlayerSerializeUtils {
     }
 
     public static void deserialize(Player player, byte[] data, Runnable whenCompleteSync) {
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.sync(() -> {
             player.saveData();
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
+            Tasks.INSTANCE.async( () -> {
+                File dataFolder =  Objects.requireNonNull(Bukkit.getWorld("SkyWorld")).getWorldFolder();
                 String filename = dataFolder + "/playerdata/" + player.getUniqueId() + ".dat";
                 File file = new File(filename);
                 Long worldUUIDLeast = null;
@@ -87,7 +89,7 @@ public class PlayerSerializeUtils {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+               Tasks.INSTANCE.sync(() -> {
                     for (PotionEffect activePotionEffect : player.getActivePotionEffects()) {
                         player.removePotionEffect(activePotionEffect.getType());
                     }
@@ -99,7 +101,7 @@ public class PlayerSerializeUtils {
     }
 
     public static void modifySpawnLocation(UUID uuid, byte[] data, double x, double y, double z) throws IOException {
-        File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
+        File dataFolder =  Objects.requireNonNull(Bukkit.getWorld("SkyWorld")).getWorldFolder();
         String filename = dataFolder + "/playerdata/" + uuid + ".dat";
         File file = new File(filename);
         if (!file.exists()) {
@@ -119,7 +121,7 @@ public class PlayerSerializeUtils {
     }
 
     public static void deserializeOfflineWithModifier(UUID uuid, byte[] data) throws IOException {
-        File dataFolder = IsletopiaTweakers.getWorld().getWorldFolder();
+        File dataFolder =  Objects.requireNonNull(Bukkit.getWorld("SkyWorld")).getWorldFolder();
         String filename = dataFolder + "/playerdata/" + uuid + ".dat";
         File file = new File(filename);
         if (file.exists()) {

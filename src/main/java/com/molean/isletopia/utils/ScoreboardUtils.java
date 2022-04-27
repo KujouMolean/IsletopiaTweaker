@@ -1,17 +1,15 @@
 package com.molean.isletopia.utils;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.apache.commons.lang3.ThreadUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -56,17 +54,33 @@ public class ScoreboardUtils {
         sidebar.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
+    private static void updateSideBar(Scoreboard scoreboard, Component title, Map<String, Integer> map) {
+        if (title == null || map == null) {
+            return;
+        }
+        HashSet<String> strings = new HashSet<>();
+        for (String s : map.keySet()) {
+            strings.add("§b► §r" + s);
+        }
+        Objective sidebar = scoreboard.getObjective("sidebar");
+        if (sidebar == null) {
+            sidebar = scoreboard.registerNewObjective("sidebar", "dummy", title);
+        }
+        sidebar.displayName(title);
+        for (String entry : scoreboard.getEntries()) {
+            if (!strings.contains(entry)) {
+                scoreboard.resetScores(entry);
+            }
+        }
+        for (String s : map.keySet()) {
+            sidebar.getScore("§b► §r" + s).setScore(map.get(s));
+        }
+        sidebar.setDisplaySlot(DisplaySlot.SIDEBAR);
+    }
+
     public static void setGlobalSideBar(Component title, Map<String, Integer> map) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
         setSideBar(scoreboard, title, map);
-    }
-
-    public static void hideGlobalTitle() {
-
-    }
-
-    public static void showGlobalTitle() {
-
     }
 
     public static void setGlobalTitle(String player, @Nullable Component component, int value) {
@@ -80,13 +94,11 @@ public class ScoreboardUtils {
         objective.setDisplaySlot(DisplaySlot.BELOW_NAME);
     }
 
-    public static void setPlayerUniqueSidebar(Player player, Component title, Map<String, Integer> map) {
+    public static void updateOrCreatePlayerUniqueSidebar(Player player, Component title, Map<String, Integer> map) {
         if (player.getScoreboard().equals(Bukkit.getScoreboardManager().getMainScoreboard())) {
             player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
         }
-//        player.getScoreboard().getScores()
-
-        setSideBar(player.getScoreboard(), title, map);
+        updateSideBar(player.getScoreboard(), title, map);
     }
 
     public static void clearPlayerUniqueSidebar(Player player) {
@@ -96,11 +108,4 @@ public class ScoreboardUtils {
         }
         clearSidebar(scoreboard);
     }
-
-    public static void test(Player player) {
-        Team test = player.getScoreboard().registerNewTeam("test");
-        Team test2 = player.getScoreboard().registerNewTeam("test2");
-
-    }
-
 }

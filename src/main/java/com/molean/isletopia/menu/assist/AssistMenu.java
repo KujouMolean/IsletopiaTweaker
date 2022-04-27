@@ -26,7 +26,8 @@ public class AssistMenu extends ChestMenu {
         String messageOn = MessageUtils.getMessage(player, "menu.assist.on");
         String messageOff = MessageUtils.getMessage(player, "menu.assist.off");
 
-        String sidebar = SidebarManager.INSTANCE.getSidebar(player.getUniqueId());
+        String sidebar = SidebarManager.INSTANCE.getSidebar(player);
+
         {
             String message = MessageUtils.getMessage(player, "menu.assist.entityBar",
                     Pair.of("status", "EntityBar".equalsIgnoreCase(sidebar) ? messageOn : messageOff));
@@ -52,7 +53,6 @@ public class AssistMenu extends ChestMenu {
 
             this.item(2, inbox.build(), () -> {
                 player.performCommand("assist mailbox ");
-                close();
             });
 
         }
@@ -147,7 +147,7 @@ public class AssistMenu extends ChestMenu {
             ItemStackSheet lava = ItemStackSheet.fromString(Material.LAVA_BUCKET, message);
 
             this.item(9, lava.build(), () -> {
-                player.performCommand("assist DisableLavaProtect" + !disableLavaProtect);
+                player.performCommand("assist DisableLavaProtect " + !disableLavaProtect);
 
                 close();
             });
@@ -163,16 +163,11 @@ public class AssistMenu extends ChestMenu {
             });
 
         }
-
         {
+            ItemStackSheet modification = ItemStackSheet.fromString(Material.WRITABLE_BOOK, MessageUtils.getMessage(player, "menu.assist.modification"));
+            this.itemWithAsyncClickEvent(11, modification.build(), () -> new ModificationMenu(player).open());
 
-            String message = MessageUtils.getMessage(player, "menu.assist.tutor");
-            ItemStackSheet skip = ItemStackSheet.fromString(Material.FEATHER, message);
-            this.item(11, skip.build(), () -> {
-                player.performCommand("skiptutor");
-            });
         }
-
 
         {
             String message = MessageUtils.getMessage(player, "menu.assist.visit",
@@ -261,11 +256,15 @@ public class AssistMenu extends ChestMenu {
             });
         }
 
-        {
-            ItemStackSheet modification = ItemStackSheet.fromString(Material.WRITABLE_BOOK, MessageUtils.getMessage(player, "menu.assist.modification"));
-            this.itemWithAsyncClickEvent(19, modification.build(), () -> new ModificationMenu(player).open());
 
+        {
+            ItemStackSheet ci = ItemStackSheet.fromString(Material.ENDER_CHEST, MessageUtils.getMessage(player, "云仓(测试)"));
+            this.item(19, ci.build(), () -> {
+                player.performCommand("ci GUI");
+            });
         }
+
+
 
         {
             ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main"));

@@ -4,12 +4,16 @@ import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.infrastructure.individual.*;
 import com.molean.isletopia.infrastructure.individual.bars.EntityBar;
 import com.molean.isletopia.infrastructure.individual.bars.ProductionBar;
+import com.molean.isletopia.shared.database.PlayerStatsDao;
+import com.molean.isletopia.utils.PluginUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.Statistic;
 
 import java.util.logging.Logger;
 
 public class IsletopiaInfrastructure {
     public IsletopiaInfrastructure() {
-        Logger logger = IsletopiaTweakers.getPlugin().getLogger();
+        Logger logger = PluginUtils.getLogger();
         long l = System.currentTimeMillis();
         try {
 
@@ -39,6 +43,7 @@ public class IsletopiaInfrastructure {
             new DynamicMobSpawnRate();
             new VillagerLimiter();
             new PlayerCommand();
+            new TPSBar();
         } catch (Exception exception) {
             exception.printStackTrace();
             logger.severe("Initialize isletopia infrastructure failed!");

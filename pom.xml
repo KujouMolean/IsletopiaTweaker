@@ -36,7 +36,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.0-SNAPSHOT</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>shade</id>
@@ -49,6 +49,7 @@
                                 <includes>
                                     <include>com.molean:IsletopiaShared</include>
                                     <include>net.wesjd.anvilgui:anvilgui</include>
+                                    <include>co.aikar:acf-paper</include>
                                 </includes>
                             </artifactSet>
                             <minimizeJar>true</minimizeJar>
@@ -93,6 +94,10 @@
             <id>codemc-snapshots</id>
             <url>https://repo.codemc.io/repository/maven-snapshots/</url>
         </repository>
+        <repository>
+            <id>aikar</id>
+            <url>https://repo.aikar.co/content/groups/aikar/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -123,7 +128,6 @@
             <artifactId>anvilgui</artifactId>
             <version>1.5.3-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>com.molean</groupId>
             <artifactId>IsletopiaShared</artifactId>
@@ -136,13 +140,15 @@
             <version>3.0.0</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/it.unimi.dsi/fastutil -->
         <dependency>
-            <groupId>it.unimi.dsi</groupId>
-            <artifactId>fastutil</artifactId>
-            <version>8.5.8</version>
+            <groupId>co.aikar</groupId>
+            <artifactId>acf-paper</artifactId>
+            <version>0.5.1-SNAPSHOT</version>
         </dependency>
-
-
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.0</version>
+        </dependency>
     </dependencies>
 </project>

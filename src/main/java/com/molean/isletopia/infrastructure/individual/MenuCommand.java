@@ -5,6 +5,7 @@ import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.menu.recipe.CraftRecipeMenu;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.menu.recipe.RecipeListMenu;
+import com.molean.isletopia.task.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,12 +34,11 @@ public class MenuCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            new MainMenu(player).open();
+            Tasks.INSTANCE.async(() -> new MainMenu(player).open());
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("recipe")) {
-                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    new RecipeListMenu(player).open();
-                });
+                Tasks.INSTANCE.async(() -> new RecipeListMenu(player).open());
+
             }
             if (args[0].equalsIgnoreCase("close")) {
                 player.closeInventory();
@@ -48,9 +48,7 @@ public class MenuCommand implements CommandExecutor, TabCompleter {
                 for (LocalRecipe localRecipe : LocalRecipe.localRecipeList) {
                     for (ItemStack result : localRecipe.results) {
                         if (result.getType().name().equalsIgnoreCase(args[1])) {
-                            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                                new CraftRecipeMenu(player, localRecipe).open();
-                            });
+                            Tasks.INSTANCE.async(() -> new CraftRecipeMenu(player, localRecipe).open());
                         }
                     }
 

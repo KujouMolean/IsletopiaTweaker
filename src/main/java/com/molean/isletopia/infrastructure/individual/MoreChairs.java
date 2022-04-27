@@ -4,6 +4,8 @@ import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
 import com.molean.isletopia.player.PlayerPropertyManager;
+import com.molean.isletopia.task.Tasks;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -11,12 +13,13 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.HashMap;
@@ -26,8 +29,8 @@ import java.util.UUID;
 public class MoreChairs implements Listener {
 
     public MoreChairs() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
-        BukkitTask bukkitTask = Bukkit.getScheduler().runTaskTimer(IsletopiaTweakers.getPlugin(), () -> {
+        PluginUtils.registerEvents(this);
+        Tasks.INSTANCE.interval(1, () -> {
             map.forEach((uuid, armorStand) -> {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null) {
@@ -35,8 +38,8 @@ public class MoreChairs implements Listener {
                 }
                 armorStand.setRotation(player.getLocation().getYaw(), player.getLocation().getPitch());
             });
-        }, 0, 1);
-        IsletopiaTweakers.addDisableTask("Stop update chair position..", bukkitTask::cancel);
+        });
+
     }
 
     private static final Map<UUID, ArmorStand> map = new HashMap<>();
@@ -67,13 +70,13 @@ public class MoreChairs implements Listener {
         }
         if (event.isSneaking()) {
             sneakTime.put(event.getPlayer().getUniqueId(), currentTimeMillis);
-            Bukkit.getScheduler().runTaskLater(IsletopiaTweakers.getPlugin(), () -> {
+            Tasks.INSTANCE.timeout(20, () -> {
                 if (sneakTime.getOrDefault(event.getPlayer().getUniqueId(), 0L).equals(currentTimeMillis)) {
                     Location location = event.getPlayer().getLocation();
                     Sound sound = Sound.ITEM_ARMOR_EQUIP_TURTLE;
                     event.getPlayer().playSound(location, sound, SoundCategory.PLAYERS, 1.0F, 1.0F);
                 }
-            }, 20L);
+            });
             return;
         }
         long duration = currentTimeMillis - sneakTime.getOrDefault(event.getPlayer().getUniqueId(), currentTimeMillis);
@@ -86,21 +89,21 @@ public class MoreChairs implements Listener {
             return;
         }
 
-            Location location = event.getPlayer().getLocation().add(0, -1.7, 0);
-            Entity entity = event.getPlayer().getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
-            ArmorStand armorStand = (ArmorStand) entity;
-            originLocation.put(event.getPlayer().getUniqueId(), event.getPlayer().getLocation());
-            armorStand.addPassenger(event.getPlayer());
-            armorStand.setGravity(false);
-            armorStand.setCanMove(false);
-            armorStand.setInvulnerable(true);
-            armorStand.setAI(false);
-            armorStand.setArms(false);
-            armorStand.setCanTick(false);
-            armorStand.setVisualFire(false);
-            armorStand.setDisabledSlots(EquipmentSlot.values());
-            armorStand.setVisible(false);
-            map.put(event.getPlayer().getUniqueId(), armorStand);
+        Location location = event.getPlayer().getLocation().add(0, -1.7, 0);
+        Entity entity = event.getPlayer().getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+        ArmorStand armorStand = (ArmorStand) entity;
+        originLocation.put(event.getPlayer().getUniqueId(), event.getPlayer().getLocation());
+        armorStand.addPassenger(event.getPlayer());
+        armorStand.setGravity(false);
+        armorStand.setCanMove(false);
+        armorStand.setInvulnerable(true);
+        armorStand.setAI(false);
+        armorStand.setArms(false);
+        armorStand.setCanTick(false);
+        armorStand.setVisualFire(false);
+        armorStand.setDisabledSlots(EquipmentSlot.values());
+        armorStand.setVisible(false);
+        map.put(event.getPlayer().getUniqueId(), armorStand);
     }
 
     @EventHandler

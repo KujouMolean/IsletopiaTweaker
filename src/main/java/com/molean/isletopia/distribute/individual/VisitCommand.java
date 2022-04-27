@@ -11,6 +11,7 @@ import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,7 +28,8 @@ public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
     public VisitCommand() {
         Objects.requireNonNull(Bukkit.getPluginCommand("visit")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("visit")).setTabCompleter(this);
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
+
     }
 
     @Override

@@ -4,12 +4,15 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.pojo.req.SwitchServerRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,11 +37,9 @@ public class UniversalPlayerSender implements CommandExecutor, TabCompleter {
         if (args.length < 2) {
             return true;
         }
-        @SuppressWarnings("all") ByteArrayDataOutput out = ByteStreams.newDataOutput();
-        out.writeUTF("ConnectOther");
-        out.writeUTF(args[0]);
-        out.writeUTF(args[1]);
-        player.sendPluginMessage(IsletopiaTweakers.getPlugin(), "BungeeCord", out.toByteArray());
+        String target = args[0];
+        String server = args[1];
+        ServerMessageUtils.sendMessage("proxy", "SwitchServer", new SwitchServerRequest(target, server));
         return true;
     }
 

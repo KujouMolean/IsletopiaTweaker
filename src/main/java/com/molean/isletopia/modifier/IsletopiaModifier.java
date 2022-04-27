@@ -1,7 +1,6 @@
 package com.molean.isletopia.modifier;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.modifier.individual.AutoCraft;
 import com.molean.isletopia.modifier.individual.*;
 
 import java.util.logging.Logger;
@@ -25,7 +24,6 @@ public class IsletopiaModifier {
             new EquipmentWeaker();
             new PreventRenameHead();
             new AutoFloor();
-            new NetherPortal();
             new ShulkerRespawn();
             new AutoFloor();
             new LuckyColor();
@@ -36,6 +34,7 @@ public class IsletopiaModifier {
             new PlayerDeathMob();
             new HexBeacon();
             new AutoCraft();
+            new NetherAdapter();
 
         } catch (Exception exception) {
             exception.printStackTrace();

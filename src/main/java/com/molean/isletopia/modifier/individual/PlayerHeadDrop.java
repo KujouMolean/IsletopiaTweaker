@@ -5,6 +5,7 @@ import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.BlockHeadUtils;
 import com.molean.isletopia.utils.HeadUtils;
 import com.molean.isletopia.shared.utils.LangUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -34,7 +35,7 @@ public class PlayerHeadDrop implements Listener {
 
 
     public PlayerHeadDrop() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
         blocks = BlockHeadUtils.getBlockHeadMap();
 

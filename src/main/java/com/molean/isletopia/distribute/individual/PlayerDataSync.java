@@ -9,6 +9,7 @@ import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
 import com.molean.isletopia.utils.BukkitPlayerUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -29,11 +30,11 @@ public class PlayerDataSync implements Listener {
     private final Map<UUID, String> passwdMap = new HashMap<>();
 
     public PlayerDataSync() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
 
         // add shutdown task
 
-        IsletopiaTweakers.addDisableTask("Save player data to database", () -> {
+        Tasks.INSTANCE.addDisableTask("Save player data to database", () -> {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (passwdMap.containsKey(onlinePlayer.getUniqueId())) {
                     try {
@@ -54,7 +55,7 @@ public class PlayerDataSync implements Listener {
 
         //update one player data per second
         Queue<UUID> queue = new ArrayDeque<>();
-        Bukkit.getScheduler().runTaskTimerAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.intervalAsync(20, () -> {
             if (queue.isEmpty()) {
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                     if (passwdMap.containsKey(onlinePlayer.getUniqueId())) {
@@ -66,9 +67,9 @@ public class PlayerDataSync implements Listener {
             UUID uuid = queue.poll();
             Player player = Bukkit.getPlayer(uuid);
             if (player != null && player.isOnline() && passwdMap.containsKey(player.getUniqueId())) {
-                Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> update(player));
+                Tasks.INSTANCE.async(() -> update(player));
             }
-        }, 20, 20);
+        });
 
     }
 
@@ -184,7 +185,7 @@ public class PlayerDataSync implements Listener {
 
         PlayerSerializeUtils.deserialize(player, query, () -> {
             player.teleport(location);
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            Tasks.INSTANCE.async(() -> {
                 GameMode finalGameMode;
                 if (RedisUtils.getCommand().exists("GameMode:" + player.getName()) > 0) {
                     String s = RedisUtils.getCommand().get("GameMode:" + player.getName());
@@ -192,7 +193,7 @@ public class PlayerDataSync implements Listener {
                 } else {
                     finalGameMode = GameMode.SURVIVAL;
                 }
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                Tasks.INSTANCE.sync(() -> {
                     player.setGameMode(finalGameMode);
                     PlayerDataSyncCompleteEvent playerDataSyncCompleteEvent = new PlayerDataSyncCompleteEvent(player);
                     Bukkit.getPluginManager().callEvent(playerDataSyncCompleteEvent);

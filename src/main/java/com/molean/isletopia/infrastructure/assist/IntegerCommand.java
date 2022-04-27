@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public class IntegerCommand<T> extends SubCommand {
+public class IntegerCommand extends SubCommand {
 
-    public IntegerCommand(String name, BiConsumer<Player,Integer> consumer, List<Integer> suggest) {
-        super(name, (player, args) -> {
+    public IntegerCommand integerConsumer(BiConsumer<Player, Integer> consumer) {
+        super.consumer((player, args) -> {
             if (args.size() == 1) {
                 int i = 0;
                 try {
@@ -19,13 +19,18 @@ public class IntegerCommand<T> extends SubCommand {
                 } catch (NumberFormatException e) {
                     MessageUtils.fail(player, MessageUtils.getMessage(player, "subcommand.int.valid", Pair.of("arg", args.get(0))));
                 }
-                consumer.accept(player,i);
+                consumer.accept(player, i);
             } else {
                 MessageUtils.fail(player, "subcommand.int.arg");
 
             }
 
-        }, (player,args) -> {
+        });
+        return this;
+    }
+
+    public IntegerCommand suggest(List<Integer> suggest) {
+        super.completer((player, args) -> {
             ArrayList<String> strings = new ArrayList<>();
 
             if (suggest != null) {
@@ -35,5 +40,16 @@ public class IntegerCommand<T> extends SubCommand {
             }
             return strings;
         });
+        return this;
+    }
+
+    public IntegerCommand(String name) {
+        super(name);
+    }
+
+    public IntegerCommand(String name, BiConsumer<Player,Integer> consumer, List<Integer> suggest) {
+        super(name);
+        this.suggest(suggest);
+        this.integerConsumer(consumer);
     }
 }

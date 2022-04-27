@@ -1,6 +1,7 @@
 package com.molean.isletopia.utils;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.task.Tasks;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -117,7 +118,7 @@ public class NoteUtils {
                 }
                 double pitch = pitches.get(pitchIndex % pitches.size());
 
-                Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                Tasks.INSTANCE.sync( () -> {
                     test(player.getLocation(), sound, (float) pitch);
                 });
                 i += 2;

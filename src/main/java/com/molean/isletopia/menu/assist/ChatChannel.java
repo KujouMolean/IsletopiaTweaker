@@ -93,11 +93,7 @@ public class ChatChannel extends ListMenu<String> {
             }
             return itemStackSheet.build();
         });
-        this.onCloseSync(() -> {
-        });
-
-        this.onCloseAsync(() -> {
-            new MainMenu(player).open();
-        });
+        this.onCloseSync(null);
+        this.onCloseAsync(() -> new MainMenu(player).open());
     }
 }

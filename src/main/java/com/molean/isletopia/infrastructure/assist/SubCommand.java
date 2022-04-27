@@ -9,8 +9,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class SubCommand {
-    private final BiConsumer<Player, List<String>> consumer;
-    private final BiFunction<Player, List<String>, List<String>> completer;
+    private BiConsumer<Player, List<String>> consumer = (player, strings) -> {};
+
+    private BiFunction<Player, List<String>, List<String>> completer = (player, strings) -> new ArrayList<>();
     private final String name;
 
 
@@ -18,10 +19,23 @@ public class SubCommand {
         return name;
     }
 
+    public SubCommand(String name) {
+        this.name = name;
+    }
+
     public SubCommand(String name, BiConsumer<Player, List<String>> consumer, BiFunction<Player, List<String>, List<String>> completer) {
         this.consumer = consumer;
         this.name = name;
         this.completer = completer;
+    }
+
+    public SubCommand consumer(BiConsumer<Player, List<String>> consumer) {
+        this.consumer = consumer;
+        return this;
+    }
+    public SubCommand completer(BiFunction<Player, List<String>, List<String>> completer) {
+        this.completer = completer;
+        return this;
     }
 
     public void run(Player player,String... args) {

@@ -5,6 +5,7 @@ import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.Direction;
 import com.molean.isletopia.utils.InventoryUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,7 +30,7 @@ public class AutoFloor implements Listener {
     private final Set<Material> whiteList = new HashSet<>();
 
     public AutoFloor() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
         for (Material value : Material.values()) {
             if (value.name().contains("_BED")) {
                 blackList.add(value);

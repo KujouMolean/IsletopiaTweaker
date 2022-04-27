@@ -30,7 +30,7 @@ public class PlayerChargeMenu extends ChestMenu {
         ItemStackSheet introduction = ItemStackSheet.fromString(Material.BOOK, MessageUtils.getMessage(player, "menu.charge.info"));
         ItemStackSheet father = ItemStackSheet.fromString(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main"));
         this.item(10, introduction.build())
-                .item(26, father.build(), () -> new MainMenu(player).open());
+                .itemWithAsyncClickEvent(26, father.build(), () -> new MainMenu(player).open());
     }
 
 

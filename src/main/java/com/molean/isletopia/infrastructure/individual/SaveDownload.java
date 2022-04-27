@@ -2,9 +2,10 @@ package com.molean.isletopia.infrastructure.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.database.DownloadDao;
-import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
+import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.utils.UUIDManager;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -24,7 +25,6 @@ public class SaveDownload implements CommandExecutor, TabCompleter {
     public SaveDownload() {
         Objects.requireNonNull(Bukkit.getPluginCommand("download")).setExecutor(this);
         Objects.requireNonNull(Bukkit.getPluginCommand("download")).setTabCompleter(this);
-        DownloadDao.checkTable();
     }
 
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -39,11 +39,11 @@ public class SaveDownload implements CommandExecutor, TabCompleter {
             return true;
         }
         if (!Objects.equals(currentIsland.getUuid(), player.getUniqueId()) && !player.isOp()) {
-            MessageUtils.fail(player,"island.save.failed.noPerm");
+            MessageUtils.fail(player, "island.save.failed.noPerm");
             return true;
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.async( () -> {
             try {
                 DownloadDao.uploadSave(currentIsland, token -> {
                     MessageUtils.info(player, "island.save.success");

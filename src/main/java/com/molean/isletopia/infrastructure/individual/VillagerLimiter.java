@@ -8,12 +8,14 @@ import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,7 +28,11 @@ public class VillagerLimiter implements Listener {
             HashSet<Villager> tobeActivate = new HashSet<>();
             HashSet<Villager> tobeFreeze = new HashSet<>();
             HashMap<IslandId, Integer> activeVillagerNumbers = new HashMap<>();
-            Collection<Villager> entitiesByClass = IsletopiaTweakers.getWorld().getEntitiesByClass(Villager.class);
+            ArrayList<Villager> entitiesByClass = new ArrayList<>();
+            for (World world : Bukkit.getWorlds()) {
+                entitiesByClass.addAll(world.getEntitiesByClass(Villager.class));
+            }
+
             for (Villager villager : entitiesByClass) {
                 Location location = villager.getLocation();
                 IslandId islandId = IslandId.fromLocation(ServerInfoUpdater.getServerName(), location.getBlockX(), location.getBlockZ());

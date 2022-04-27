@@ -13,7 +13,8 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.inventory.*;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,7 @@ public class AutoCraft implements Listener {
             ArrayList<Player> players = new ArrayList<>(set);
             set.clear();
             for (Player player : players) {
-                Map<Material, Integer> materialIntegerMap = autoCraft(player,0);
+                Map<Material, Integer> materialIntegerMap = autoCraft(player, 0);
 
                 for (Material material : materialIntegerMap.keySet()) {
                     MessageUtils.info(player, MessageUtils.getMessage(player, "autocraft.craft",

@@ -26,7 +26,7 @@ public class SyncThenAsyncTask<T> extends BukkitRunnable {
 
     @Override
     public void run() {
-        Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+        Tasks.INSTANCE.sync( () -> {
             T t = supplier.get();
             Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
                 consumer.accept(t);

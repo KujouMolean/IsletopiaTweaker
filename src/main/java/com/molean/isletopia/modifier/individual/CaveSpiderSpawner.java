@@ -1,6 +1,7 @@
 package com.molean.isletopia.modifier.individual;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -13,7 +14,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 
 public class CaveSpiderSpawner implements Listener {
     public CaveSpiderSpawner() {
-        Bukkit.getPluginManager().registerEvents(this, IsletopiaTweakers.getPlugin());
+        PluginUtils.registerEvents(this);
     }
     @EventHandler
     public void on(EntityDamageByEntityEvent event) {

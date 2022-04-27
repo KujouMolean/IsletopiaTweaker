@@ -71,9 +71,11 @@ public class BiomeMenu extends ListMenu<Biome> {
                 MessageUtils.info(player, "menu.biome.start");
                 String finalName = name;
                 changingBiome.add(currentPlot.getIslandId());
-                new PlotChunkTask(currentPlot, chunk -> {
+                new PlotChunkTask(player.getWorld(), currentPlot, chunk -> {
+                    int minHeight = chunk.getWorld().getMinHeight();
+                    int maxHeight = chunk.getWorld().getMaxHeight();
                     for (int i = 0; i < 16; i++) {
-                        for (int j = -64; j < 320; j++) {
+                        for (int j = minHeight; j < maxHeight; j++) {
                             for (int k = 0; k < 16; k++) {
                                 chunk.getBlock(i, j, k).setBiome(biome);
                             }
@@ -90,6 +92,6 @@ public class BiomeMenu extends ListMenu<Biome> {
         });
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
         this.onCloseAsync(() -> new MainMenu(player).open())
-                .onCloseSync(() -> {});
+                .onCloseSync(null);
     }
 }

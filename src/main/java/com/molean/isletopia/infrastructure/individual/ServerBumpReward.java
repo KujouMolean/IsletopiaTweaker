@@ -7,7 +7,9 @@ import com.molean.isletopia.shared.message.ServerMessageUtils;
 import com.molean.isletopia.shared.model.BumpInfo;
 import com.molean.isletopia.shared.pojo.obj.ServerBumpObject;
 import com.molean.isletopia.shared.service.UniversalParameter;
+import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
+import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -63,7 +65,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                              @NotNull String[] args) {
 
         new ConfirmDialog(MessageUtils.getMessage((Player) sender, "bump.rules")).accept(player -> {
-            Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
+            Tasks.INSTANCE.async( () -> {
                 if (args.length < 1) {
                     MessageUtils.info(player, "bump.usage");
                     MessageUtils.info(player, "bump.usage.example");
@@ -77,7 +79,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
 
                 for (BumpInfo bumpInfo : bumpInfos) {
                     if (args[0].equalsIgnoreCase("debug")) {
-                        System.out.println(bumpInfo);
+                        PluginUtils.getLogger().info(bumpInfo.toString());
                     }
 
                     if (!bumpInfo.getDateTime().toLocalDate().isEqual(LocalDate.now())) {
@@ -159,7 +161,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                     }
 
 
-                    Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), () -> {
+                   Tasks.INSTANCE.sync(() -> {
                         Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
                         for (ItemStack value : values) {
                             player.getLocation().getWorld().dropItem(player.getLocation(), value);
@@ -195,19 +197,40 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
             e.printStackTrace();
         }
         String source = new String(bytes, StandardCharsets.UTF_8);
-        Pattern compile = Pattern.compile("<li><em>积分</em>(.{1,30})</li><li>");
-        Matcher matcher = compile.matcher(source);
+        {
 
-        int points = 0;
 
-        while (matcher.find()) {
-            try {
-                points = Integer.parseInt(matcher.group(1));
-            } catch (NumberFormatException ignored) {
+            Pattern compile = Pattern.compile("<li><em>积分</em>(.{1,30})</li><li>");
+            Matcher matcher = compile.matcher(source);
+
+            while (matcher.find()) {
+                try {
+                    return  Integer.parseInt(matcher.group(1));
+                } catch (NumberFormatException ignored) {
+                }
             }
+
+        }
+        {
+
+
+            Pattern compile = Pattern.compile("<li><em>!credits!</em>(.{1,30})</li><li>");
+            Matcher matcher = compile.matcher(source);
+
+            int points = 0;
+
+            while (matcher.find()) {
+                try {
+                    return Integer.parseInt(matcher.group(1));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+
         }
 
-        return points;
+        return -1;
+
+
     }
 
 
