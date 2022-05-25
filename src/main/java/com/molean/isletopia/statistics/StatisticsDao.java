@@ -1,4 +1,4 @@
-package com.molean.isletopia.statistics.individual;
+package com.molean.isletopia.statistics;
 
 import com.molean.isletopia.shared.database.DataSourceUtils;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;

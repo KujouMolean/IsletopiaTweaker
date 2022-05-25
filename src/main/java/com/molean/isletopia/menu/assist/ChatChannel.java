@@ -1,7 +1,11 @@
 package com.molean.isletopia.menu.assist;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.menu.MainMenu;
-import com.molean.isletopia.shared.utils.ChatChannelUtils;
+import com.molean.isletopia.player.PlayerPropertyManager;
+import com.molean.isletopia.shared.ClassResolver;
+import com.molean.isletopia.shared.utils.ChatChannelService;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.ItemStackSheet;
@@ -20,24 +24,28 @@ import java.util.UUID;
 
 public class ChatChannel extends ListMenu<String> {
 
-    public ChatChannel(Player player) {
-        super(player, Component.text(MessageUtils.getMessage(player,"menu.channel.title")));
-        this.components(ChatChannelUtils.availableChannels);
-        Set<String> channels = ChatChannelUtils.getChannels(player.getUniqueId());
+    private final ChatChannelService chatChannelService;
+
+    public ChatChannel(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+        super(player, Component.text(MessageUtils.getMessage(player, "menu.channel.title")));
+
+        chatChannelService = ClassResolver.INSTANCE.getObject(ChatChannelService.class);
+        this.components(chatChannelService.availableChannels);
+        Set<String> channels = chatChannelService.getChannels(player.getUniqueId());
         this.onClickSync(s -> {
         });
         this.onClickAsync(s -> {
             if (channels.contains(s)) {
-                ChatChannelUtils.removeChannel(player.getUniqueId(), s);
+                chatChannelService.removeChannel(player.getUniqueId(), s);
                 MessageUtils.success(player, MessageUtils.getMessage(player, "channel.exit", Pair.of("channel", s)));
                 if (channels.size() == 1) {
                     MessageUtils.notify(player, "channel.empty");
                 }
             } else {
-                ChatChannelUtils.addChannel(player.getUniqueId(), s);
+                chatChannelService.addChannel(player.getUniqueId(), s);
                 MessageUtils.success(player, MessageUtils.getMessage(player, "channel.join", Pair.of("channel", s)));
             }
-            new ChatChannel(player).open();
+            new ChatChannel(playerPropertyManager, sidebarManager, chargeCommitter, player).open();
         });
 
         this.convertFunction(s -> {
@@ -61,19 +69,19 @@ public class ChatChannel extends ListMenu<String> {
                 case "白" -> material = Material.WHITE_WOOL;
                 default -> material = Material.BARRIER;
             }
-            ItemStackSheet itemStackSheet = new ItemStackSheet(material, ChatChannelUtils.getChannelColor(s) + s);
+            ItemStackSheet itemStackSheet = new ItemStackSheet(material, chatChannelService.getChannelColor(s) + s);
             if (s.equals("白")) {
                 itemStackSheet.addLore(MessageUtils.getMessage(player, "channel.main"));
             }
             if (channels.contains(s)) {
-                itemStackSheet.addLore(MessageUtils.getMessage(player,"channel.joined"));
+                itemStackSheet.addLore(MessageUtils.getMessage(player, "channel.joined"));
                 itemStackSheet.addEnchantment(Enchantment.ARROW_DAMAGE, 0);
                 itemStackSheet.addItemFlag(ItemFlag.HIDE_ENCHANTS);
             } else {
-                itemStackSheet.addLore(MessageUtils.getMessage(player,"channel.notJoined"));
+                itemStackSheet.addLore(MessageUtils.getMessage(player, "channel.notJoined"));
             }
             itemStackSheet.addLore("");
-            Collection<UUID> playersInChannel = ChatChannelUtils.getPlayersInChannel(s);
+            Collection<UUID> playersInChannel = chatChannelService.getPlayersInChannel(s);
             if (playersInChannel.size() > 0) {
                 itemStackSheet.addLore(MessageUtils.getMessage(player, "channel.playerList"));
                 int cnt = 0;
@@ -94,6 +102,7 @@ public class ChatChannel extends ListMenu<String> {
             return itemStackSheet.build();
         });
         this.onCloseSync(null);
-        this.onCloseAsync(() -> new MainMenu(player).open());
+        this.onCloseAsync(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
+
     }
 }

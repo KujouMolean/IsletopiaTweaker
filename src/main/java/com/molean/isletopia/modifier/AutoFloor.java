@@ -1,14 +1,11 @@
 package com.molean.isletopia.modifier;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.player.PlayerManager;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.Direction;
 import com.molean.isletopia.utils.InventoryUtils;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

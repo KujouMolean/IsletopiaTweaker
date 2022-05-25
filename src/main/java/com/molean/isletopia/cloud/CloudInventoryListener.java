@@ -1,5 +1,8 @@
 package com.molean.isletopia.cloud;
 
+import com.molean.isletopia.annotations.Interval;
+import com.molean.isletopia.shared.annotations.Singleton;
+import com.molean.isletopia.player.PlayerManager;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.database.CloudInventoryDao;
 import com.molean.isletopia.shared.utils.LangUtils;
@@ -8,8 +11,6 @@ import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.BukkitPlayerUtils;
 import com.molean.isletopia.utils.MaterialListUtil;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,19 +24,45 @@ import org.bukkit.inventory.PlayerInventory;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+@Singleton
 public class CloudInventoryListener implements Listener {
+    private final PlayerPropertyManager playerPropertyManager;
+    private final PlayerManager playerManager;
+
+    public CloudInventoryListener(PlayerManager playerManager, PlayerPropertyManager playerPropertyManager) {
+
+        this.playerPropertyManager = playerPropertyManager;
+        this.playerManager = playerManager;
+
+    }
+
+    @Interval(value = 20, async = true)
+    public void autoGetTask() {
+        for (Player onlinePlayer : playerManager.getLoggedPlayers()) {
+            autoGet(onlinePlayer);
+        }
+    }
+
+    @Interval(value = 20, async = true)
+    public void autoPutTask() {
+        for (Player onlinePlayer : playerManager.getLoggedPlayers()) {
+            autoPut(onlinePlayer);
+        }
+    }
+
+
 
     private final static Set<UUID> UUIDS = new CopyOnWriteArraySet<>();
 
-    public static void autoGet(Player player) {
-        if (!PlayerPropertyManager.INSTANCE.isLoad(player.getUniqueId())) {
+    public  void autoGet(Player player) {
+        if (!playerPropertyManager.isLoad(player.getUniqueId())) {
             return;
         }
         if (UUIDS.contains(player.getUniqueId())) {
             return;
         }
         UUIDS.add(player.getUniqueId());
-        List<String> autoGet = PlayerPropertyManager.INSTANCE.getPropertyAsStringList(player, "AutoGet");
+        List<String> autoGet = playerPropertyManager.getPropertyAsStringList(player, "AutoGet");
         List<Material> materials = MaterialListUtil.toMaterialList(autoGet);
         if (materials.size() == 0) {
             UUIDS.remove(player.getUniqueId());
@@ -77,7 +104,7 @@ public class CloudInventoryListener implements Listener {
                     MessageUtils.action(player, "已为你补充%dx%s".formatted(amount, LangUtils.get(player.locale(), material.translationKey())));
                     result.put(material, amount);
                 } else {
-                    PlayerPropertyManager.INSTANCE.removeStringListPropertyEntryAsync(player, "AutoGet", material.name());
+                    playerPropertyManager.removeStringListPropertyEntryAsync(player, "AutoGet", material.name());
                     MessageUtils.success(player, "%s补充失败，已关闭自动补充".formatted(LangUtils.get(player.locale(), material.translationKey())));
                 }
             });
@@ -93,15 +120,15 @@ public class CloudInventoryListener implements Listener {
 
     }
 
-    public static void autoPut(Player player) {
-        if (!PlayerPropertyManager.INSTANCE.isLoad(player.getUniqueId())) {
+    public  void autoPut(Player player) {
+        if (!playerPropertyManager.isLoad(player.getUniqueId())) {
             return;
         }
         if (UUIDS.contains(player.getUniqueId())) {
             return;
         }
         UUIDS.add(player.getUniqueId());
-        List<String> autoPut = PlayerPropertyManager.INSTANCE.getPropertyAsStringList(player, "AutoPut");
+        List<String> autoPut = playerPropertyManager.getPropertyAsStringList(player, "AutoPut");
         List<Material> materials = MaterialListUtil.toMaterialList(autoPut);
         if (materials.size() == 0) {
             UUIDS.remove(player.getUniqueId());
@@ -169,23 +196,5 @@ public class CloudInventoryListener implements Listener {
         });
     }
 
-    public CloudInventoryListener() {
-        PluginUtils.registerEvents(this);
 
-        //auto get
-        Tasks.INSTANCE.intervalAsync(20, () -> {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                autoGet(onlinePlayer);
-            }
-        });
-
-
-        //auto put
-        Tasks.INSTANCE.intervalAsync(20, () -> {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                autoPut(onlinePlayer);
-            }
-        });
-
-    }
 }

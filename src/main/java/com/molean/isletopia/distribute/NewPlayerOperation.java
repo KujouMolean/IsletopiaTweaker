@@ -15,9 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 @Singleton
-public class NewbieOperation implements Listener {
-
-
+public class NewPlayerOperation implements Listener {
 
     public void afterClaim(Player player, LocalIsland island) {
         Tasks.INSTANCE.sync(() -> {

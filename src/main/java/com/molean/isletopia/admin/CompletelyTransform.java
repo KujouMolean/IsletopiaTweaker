@@ -1,64 +1,27 @@
-package com.molean.isletopia.admin.individual;
+package com.molean.isletopia.admin;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.BukkitCommand;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.shared.database.*;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.shared.utils.UUIDManager;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Objects;
 import java.util.UUID;
 
-@BukkitCommand("transform")
-public class CompletelyTransform implements CommandExecutor {
-
-    public CompletelyTransform() {
-        Objects.requireNonNull(Bukkit.getPluginCommand("transform")).setExecutor(this);
-    }
-
-
-    public void completelyDeleteAccount(UUID uuid) throws SQLException, IOException {
-        PlayerDataDao.delete(uuid);
-        PlayerStatsDao.delete(uuid);
-        PlayerParameterDao.deletePlayer(uuid);
-        CollectionDao.deleteTarget(uuid);
-        CollectionDao.deleteSource(uuid);
-        IslandDao.deleteMember(uuid);
-
-    }
-
-    public void completelyReplaceAccount(UUID source, UUID target) throws SQLException, IOException {
-        PlayerDataDao.replace(source, target);
-        PlayerStatsDao.replace(source, target);
-        PlayerParameterDao.replace(source, target);
-        IslandDao.replaceOwner(source, target);
-        IslandDao.replaceMember(source, target);
-        CollectionDao.replaceTarget(source, target);
-        CollectionDao.replaceSource(source, target);
-    }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-
-        Player player = (Player) sender;
-        if (args.length < 2) {
-            MessageUtils.fail(player, "/transform source target");
-            return true;
-        }
-
-        String source = args[0];
-        String target = args[1];
-
+@CommandAlias("transform")
+@Singleton
+@CommandPermission("isletopia.transform")
+public class CompletelyTransform extends BaseCommand {
+    @Default
+    public void onDefault(Player player, String source, String target) {
         Tasks.INSTANCE.async(() -> {
             UUID sourceUUID = UUIDManager.get(source);
             if (sourceUUID == null) {
@@ -83,7 +46,27 @@ public class CompletelyTransform implements CommandExecutor {
             }
         });
 
-
-        return true;
     }
+
+
+    public void completelyDeleteAccount(UUID uuid) throws SQLException, IOException {
+        PlayerDataDao.delete(uuid);
+        PlayerStatsDao.delete(uuid);
+        PlayerParameterDao.deletePlayer(uuid);
+        CollectionDao.deleteTarget(uuid);
+        CollectionDao.deleteSource(uuid);
+        IslandDao.deleteMember(uuid);
+
+    }
+
+    public void completelyReplaceAccount(UUID source, UUID target) throws SQLException, IOException {
+        PlayerDataDao.replace(source, target);
+        PlayerStatsDao.replace(source, target);
+        PlayerParameterDao.replace(source, target);
+        IslandDao.replaceOwner(source, target);
+        IslandDao.replaceMember(source, target);
+        CollectionDao.replaceTarget(source, target);
+        CollectionDao.replaceSource(source, target);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.molean.isletopia.task;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.shared.platform.BukkitRelatedUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -14,6 +15,10 @@ public enum Tasks {
     INSTANCE;
 
     public void async(Runnable runnable) {
+        if (BukkitRelatedUtils.getInstance().isShutdown()) {
+            runnable.run();
+            return;
+        }
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), runnable);
 
     }
@@ -29,6 +34,10 @@ public enum Tasks {
     }
 
     public void sync(Runnable runnable) {
+        if (BukkitRelatedUtils.getInstance().isShutdown()) {
+            runnable.run();
+            return;
+        }
         Bukkit.getScheduler().runTask(IsletopiaTweakers.getPlugin(), runnable);
 
     }

@@ -1,6 +1,9 @@
 package com.molean.isletopia.menu.club;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.menu.MainMenu;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.database.ParameterDao;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.utils.ItemStackSheet;
@@ -16,12 +19,11 @@ import java.util.UUID;
 
 public class ClubRealmMenu extends ListMenu<String> {
 
-    public ClubRealmMenu(Player player) {
+    public ClubRealmMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
         super(player, Component.text(MessageUtils.getMessage(player, "menu.clubrealm.title")));
         this.components(ParameterDao.targets("ClubRealm"));
         Map<String, Integer> players = new HashMap<>();
         Map<UUID, String> uuidServerMap = ServerInfoUpdater.getUUIDServerMap();
-
         for (UUID uuid :uuidServerMap.keySet()) {
             String s = uuidServerMap.get(uuid);
             Integer orDefault = players.getOrDefault(s, 0);
@@ -69,7 +71,7 @@ public class ClubRealmMenu extends ListMenu<String> {
         });
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
                 .onCloseSync(null)
-                .onCloseAsync(() -> new MainMenu(player).open());
+                .onCloseAsync(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
 
     }
 }

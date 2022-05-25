@@ -1,17 +1,14 @@
 package com.molean.isletopia.player;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
-import com.molean.isletopia.event.PlayerPropertyLoadCompleteEvent;
+import com.molean.isletopia.shared.annotations.AutoInject;
+import com.molean.isletopia.shared.annotations.Singleton;
+import com.molean.isletopia.distribute.DataLoadTask;
 import com.molean.isletopia.shared.database.PlayerParameterDao;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.task.Tasks;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,35 +18,31 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public enum PlayerPropertyManager implements Listener {
-    INSTANCE;
+@Singleton
+public class PlayerPropertyManager implements Listener {
 
     private final Map<UUID, Map<String, String>> propertiesMap = new ConcurrentHashMap<>();
 
-    PlayerPropertyManager() {
-        PluginUtils.registerEvents(this);
-        Tasks.INSTANCE.async(() -> {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                update(onlinePlayer);
-            }
+    @AutoInject
+    private UniversalParameter universalParameter;
+
+    public PlayerPropertyManager(PlayerManager playerManager) {
+        DataLoadTask<Map<String, String>> dataLoadTask = new DataLoadTask<>("Property");
+        dataLoadTask.setAsyncLoad((player, mapConsumer) -> {
+            mapConsumer.accept(PlayerParameterDao.properties(player.getUniqueId()));
         });
+        dataLoadTask.setSyncRestore((player, stringStringMap, consumer) -> {
+            propertiesMap.put(player.getUniqueId(), stringStringMap);
+            consumer.accept(player);
+        });
+
+        playerManager.registerDataLoading(dataLoadTask);
     }
 
     public boolean isLoad(UUID uuid) {
         return propertiesMap.containsKey(uuid);
     }
 
-    @EventHandler
-    public void on(PlayerDataSyncCompleteEvent event) {
-        Tasks.INSTANCE.async(() -> {
-            update(event.getPlayer());
-            if (!event.getPlayer().isOnline()) {
-                return;
-            }
-            PlayerPropertyLoadCompleteEvent playerPropertyLoadCompleteEvent = new PlayerPropertyLoadCompleteEvent(event.getPlayer());
-            PluginUtils.callEvent(playerPropertyLoadCompleteEvent);
-        });
-    }
 
     @EventHandler
     public void on(PlayerQuitEvent event) {
@@ -82,7 +75,7 @@ public enum PlayerPropertyManager implements Listener {
 
     public void setPropertyAsync(Player player, String key, String value,Runnable asyncRunnable) {
         Tasks.INSTANCE.async(() -> {
-            UniversalParameter.setParameter(player.getUniqueId(), key, value);
+            universalParameter.setParameter(player.getUniqueId(), key, value);
             update(player);
             if (asyncRunnable != null) {
                 asyncRunnable.run();
@@ -92,8 +85,7 @@ public enum PlayerPropertyManager implements Listener {
 
     public String getProperty(Player player, String key) {
         if (!propertiesMap.containsKey(player.getUniqueId())) {
-            IsletopiaTweakers.getPlugin().getLogger().warning("load properties " + player.getName() + "-" + key + " in main thread!");
-            update(player);
+            throw new RuntimeException("Error property query!");
         }
         return propertiesMap.get(player.getUniqueId()).get(key);
     }

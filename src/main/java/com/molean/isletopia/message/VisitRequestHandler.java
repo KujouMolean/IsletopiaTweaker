@@ -3,17 +3,17 @@
 // (powered by FernFlower decompiler)
 //
 
-package com.molean.isletopia.message.handler;
+package com.molean.isletopia.message;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.AutoInject;
+import com.molean.isletopia.shared.annotations.MessageHandlerType;
 import com.molean.isletopia.event.PlayerLoggedEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.MessageHandler;
 import com.molean.isletopia.shared.database.PlayerDataDao;
-import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
-import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.message.ServerMessageService;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.VisitRequest;
@@ -35,14 +35,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-@Singleton
-public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listener {
+
+@MessageHandlerType(VisitRequest.class)
+public class VisitRequestHandler implements Listener, MessageHandler<VisitRequest> {
     private final Map<UUID, LocalIsland> locationMap = new HashMap<>();
     private final Map<UUID, Long> expire = new HashMap<>();
 
-    public VisitRequestHandler() {
-        RedisMessageListener.setHandler("VisitRequest", this, VisitRequest.class);
-    }
+
+    @AutoInject
+    private ServerMessageService serverMessageService;
 
     @EventHandler
     public void on(PlayerJoinEvent event) {
@@ -75,7 +76,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
         if (!islandId.getServer().equals(ServerInfoUpdater.getServerName())) {
             visitResponse.setResponse("invalid");
             visitResponse.setResponseMessage("visit.request.error");
-            ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
+            serverMessageService.sendMessage(wrappedMessageObject.getFrom(), visitResponse);
         }
 
         visitResponse.setTarget(sourcePlayer);
@@ -84,7 +85,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
             if (island == null) {
                 visitResponse.setResponse("invalid");
                 visitResponse.setResponseMessage("visit.request.invalid");
-                ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
+                serverMessageService.sendMessage(wrappedMessageObject.getFrom(), visitResponse);
             } else {
                 boolean allow = true;
                 Set<UUID> membersMap = island.getMembers();
@@ -108,7 +109,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
                 if (!allow) {
                     visitResponse.setResponse("refused");
                     visitResponse.setResponseMessage("visit.request.refuse");
-                    ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
+                    serverMessageService.sendMessage(wrappedMessageObject.getFrom(), visitResponse);
                 } else {
                     Player player = Bukkit.getPlayer(sourcePlayer);
                     if (player != null && player.isOnline()) {
@@ -134,7 +135,7 @@ public class VisitRequestHandler implements MessageHandler<VisitRequest>, Listen
 
                     visitResponse.setResponse("accepted");
                     visitResponse.setResponseMessage("");
-                    ServerMessageUtils.sendMessage(wrappedMessageObject.getFrom(), "VisitResponse", visitResponse);
+                    serverMessageService.sendMessage(wrappedMessageObject.getFrom(), visitResponse);
                 }
             }
         });

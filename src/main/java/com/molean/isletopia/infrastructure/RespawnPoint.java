@@ -1,6 +1,6 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import org.bukkit.Location;

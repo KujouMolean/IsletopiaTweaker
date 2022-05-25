@@ -1,11 +1,14 @@
 package com.molean.isletopia.menu.settings;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.menu.settings.biome.BiomeMenu;
 import com.molean.isletopia.menu.settings.member.MemberMenu;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
@@ -23,16 +26,17 @@ import java.util.Random;
 
 public class SettingsMenu extends ChestMenu {
 
-    public SettingsMenu(Player player) {
+    public SettingsMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, 2, Component.text(MessageUtils.getMessage(player, "menu.settings.title")));
 
         LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
         assert currentPlot != null;
         ItemStackSheet visit = new ItemStackSheet(Material.GRASS_BLOCK, MessageUtils.getMessage(player, "menu.settings.biome"));
-        itemWithAsyncClickEvent(0, visit.build(), () -> new BiomeMenu(player).open());
+        itemWithAsyncClickEvent(0, visit.build(), () -> new BiomeMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
 
         ItemStackSheet member = new ItemStackSheet(Material.PLAYER_HEAD, MessageUtils.getMessage(player, "menu.settings.member"));
-        itemWithAsyncClickEvent(1, member.build(), () -> new MemberMenu(player).open());
+        itemWithAsyncClickEvent(1, member.build(), () -> new MemberMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
 
         ItemStackSheet bed = new ItemStackSheet(Material.RED_BED, MessageUtils.getMessage(player, "menu.settings.home"));
         item(2, bed.build(), () -> {
@@ -90,16 +94,16 @@ public class SettingsMenu extends ChestMenu {
         });
 
         ItemStackSheet allowPickup = ItemStackSheet.fromString(Material.HOPPER, MessageUtils.getMessage(player, "menu.settings.pick", Pair.of("status", currentPlot.containsFlag("AllowItemPickup") ?
-                        MessageUtils.getMessage(player, "menu.settings.pick.true") :
-                        MessageUtils.getMessage(player, "menu.settings.pick.false")
-                )));
+                MessageUtils.getMessage(player, "menu.settings.pick.true") :
+                MessageUtils.getMessage(player, "menu.settings.pick.false")
+        )));
 
         item(8, allowPickup.build(), () -> {
             player.performCommand("is allowItemPickup");
             close();
         });
 
-        ItemStackSheet spectator = ItemStackSheet.fromString(Material.FEATHER, MessageUtils.getMessage(player, "menu.settings.spectator",Pair.of("status", currentPlot.containsFlag("SpectatorVisitor") ?
+        ItemStackSheet spectator = ItemStackSheet.fromString(Material.FEATHER, MessageUtils.getMessage(player, "menu.settings.spectator", Pair.of("status", currentPlot.containsFlag("SpectatorVisitor") ?
                 MessageUtils.getMessage(player, "menu.settings.spectator.true") :
                 MessageUtils.getMessage(player, "menu.settings.spectator.false")
         )));
@@ -108,10 +112,10 @@ public class SettingsMenu extends ChestMenu {
             close();
         });
 
-        ItemStackSheet antiFire = ItemStackSheet.fromString(Material.CAMPFIRE, MessageUtils.getMessage(player, "menu.settings.antifire",Pair.of("status", currentPlot.containsFlag("AntiFire") ?
-                        MessageUtils.getMessage(player, "menu.settings.antifire.true") :
-                        MessageUtils.getMessage(player, "menu.settings.antifire.false")
-                )));
+        ItemStackSheet antiFire = ItemStackSheet.fromString(Material.CAMPFIRE, MessageUtils.getMessage(player, "menu.settings.antifire", Pair.of("status", currentPlot.containsFlag("AntiFire") ?
+                MessageUtils.getMessage(player, "menu.settings.antifire.true") :
+                MessageUtils.getMessage(player, "menu.settings.antifire.false")
+        )));
         if (!currentPlot.containsFlag("AntiFire") && !currentPlot.containsFlag("DisableAntiFire")) {
             antiFire.addLore(MessageUtils.getMessage(player, "menu.settings.antifire.first"));
         }
@@ -121,7 +125,7 @@ public class SettingsMenu extends ChestMenu {
         });
 
         ItemStackSheet beacon = ItemStackSheet.fromString(Material.BEACON, MessageUtils.getMessage(player, "menu.settings.hexbeacon"));
-        itemWithAsyncClickEvent(11, beacon.build(), () -> new HexBeacon(player).open());
+        itemWithAsyncClickEvent(11, beacon.build(), () -> new HexBeacon(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
 
         ItemStackSheet priority = ItemStackSheet.fromString(Material.ARROW, MessageUtils.getMessage(player, "menu.settings.priority"));
         item(12, priority.build(), () -> {
@@ -131,7 +135,7 @@ public class SettingsMenu extends ChestMenu {
 
 
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main"));
-        itemWithAsyncClickEvent(17, father.build(), () -> new MainMenu(player).open());
+        itemWithAsyncClickEvent(17, father.build(), () -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
     }
 
 

@@ -10,8 +10,10 @@ import com.molean.isletopia.virtualmenu.ListMenu;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BundleMeta;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class MailListMenu extends ListMenu<Mail> {
 
@@ -35,7 +37,9 @@ public class MailListMenu extends ListMenu<Mail> {
                 mail.setClaimed(true);
                 MailboxDao.claim(mail.getId());
                 ItemStack itemStack = ItemStack.deserializeBytes(mail.getData());
-                BukkitPlayerUtils.giveItem(player, itemStack);
+                BundleMeta bundleMeta = (BundleMeta) itemStack.getItemMeta();
+                List<ItemStack> items = bundleMeta.getItems();
+                BukkitPlayerUtils.giveItem(player, items.toArray(new ItemStack[0]));
                 close();
             } catch (SQLException e) {
                 e.printStackTrace();

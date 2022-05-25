@@ -1,9 +1,11 @@
 package com.molean.isletopia.menu.visit;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.menu.MainMenu;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.model.PromoteDao;
 import com.molean.isletopia.island.IslandManager;
-import com.molean.isletopia.menu.visit.MultiVisitMenu;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.shared.utils.UUIDManager;
@@ -20,7 +22,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class PromoteMenu extends ListMenu<PromoteDao.Promote> {
-    public PromoteMenu(Player player) {
+    public PromoteMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.promote.title")));
         List<PromoteDao.Promote> query = PromoteDao.query();
         this.components(query);
@@ -42,6 +45,6 @@ public class PromoteMenu extends ListMenu<PromoteDao.Promote> {
         });
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
                 .onCloseSync(null)
-                .onCloseAsync(() -> new MainMenu(player).open());
+                .onCloseAsync(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
     }
 }

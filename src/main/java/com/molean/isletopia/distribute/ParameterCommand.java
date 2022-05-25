@@ -1,72 +1,51 @@
-package com.molean.isletopia.distribute.individual;
+package com.molean.isletopia.distribute;
 
-import com.molean.isletopia.annotations.BukkitCommand;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Subcommand;
+import com.molean.isletopia.shared.annotations.AutoInject;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.shared.utils.UUIDManager;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-@BukkitCommand("parameter")
-public class ParameterCommand implements CommandExecutor {
+@Singleton
+@CommandAlias("parameter")
+@CommandPermission("isletopia.parameter")
+public class ParameterCommand extends BaseCommand {
+
+    @AutoInject
+    private UniversalParameter universalParameter;
+
+    @Subcommand("set")
+    public void set(String target, String key, String value) {
+        universalParameter.setParameter(UUIDManager.get(target), key, value);
+    }
+
+    @Subcommand("view|get")
+    public void view(CommandSender commandSender, String target, String key) {
+        String s = universalParameter.getParameter(UUIDManager.get(target), key);
+        assert s != null;
+        commandSender.sendMessage(s);
+    }
 
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (args.length == 0)
-            return false;
-        String opt = args[0].toLowerCase();
-        String cmd = command.getName().toLowerCase();
-        String target = null, key = null, value = null;
-        if (!sender.isOp()) {
-            return false;
-        }
-        if (args.length < 2)
-            return false;
+    @Subcommand("add")
+    public void add(String target, String key, String value) {
+        universalParameter.addParameter(Objects.requireNonNull(UUIDManager.get(target)), key, value);
+    }
 
-        target = args[1];
-        if (args.length >= 3) {
-            key = args[2];
-        }
-        if (args.length >= 4) {
-            value = args[3];
-        }
+    @Subcommand("remove")
+    public void remove(String target, String key, String value) {
+        universalParameter.removeParameter(UUIDManager.get(target), key, value);
+    }
 
-        switch (opt) {
-            case "set":
-                if (target != null && key != null && value != null) {
-                    UniversalParameter.setParameter(UUIDManager.get(target), key, value);
-                }
-                break;
-            case "unset":
-                if (target != null && key != null) {
-                    UniversalParameter.unsetParameter(UUIDManager.get(target), key);
-                }
-                break;
-            case "view":
-                if (target != null && key != null) {
-                    String s = UniversalParameter.getParameter(UUIDManager.get(target), key);
-                    assert s != null;
-                    sender.sendMessage(s);
-                }
-                break;
-            case "add":
-                if (target != null && key != null && value != null) {
-                    UniversalParameter.addParameter(Objects.requireNonNull(UUIDManager.get(target)), key, value);
-
-                }
-                break;
-            case "remove":
-                if (target != null && key != null && value != null) {
-                    UniversalParameter.removeParameter(UUIDManager.get(target), key, value);
-                }
-                break;
-        }
-        return false;
+    @Subcommand("unset")
+    public void unset(String target, String key) {
+        universalParameter.unsetParameter(UUIDManager.get(target), key);
     }
 }
 

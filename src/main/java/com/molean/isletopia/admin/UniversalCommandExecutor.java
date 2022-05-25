@@ -1,72 +1,43 @@
-package com.molean.isletopia.admin.individual;
+package com.molean.isletopia.admin;
 
-import com.molean.isletopia.annotations.BukkitCommand;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
+import com.molean.isletopia.shared.annotations.AutoInject;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
+import com.molean.isletopia.shared.message.ServerMessageService;
 import com.molean.isletopia.shared.pojo.req.CommandExecuteRequest;
-import com.molean.isletopia.shared.message.ServerMessageUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+@CommandAlias("gcmd")
+@Singleton
+@CommandPermission("isletopia.gcmd")
+public class UniversalCommandExecutor extends BaseCommand {
 
-@BukkitCommand("gcmd")
-public class UniversalCommandExecutor implements CommandExecutor, TabCompleter {
-    public UniversalCommandExecutor() {
-        Objects.requireNonNull(Bukkit.getPluginCommand("gcmd")).setExecutor(this);
-        Objects.requireNonNull(Bukkit.getPluginCommand("gcmd")).setTabCompleter(this);
-    }
+    @AutoInject
+    private ServerMessageService serverMessageService;
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!sender.isOp()) {
-            return true;
-        }
-        if (args.length < 2) {
-            return true;
-        }
-        String serverName = args[0];
-        StringBuilder cmd = new StringBuilder();
-        for (int i = 1; i < args.length; i++) {
-            cmd.append(args[i]).append(" ");
-        }
-        CommandExecuteRequest obj = new CommandExecuteRequest(cmd.toString());
+    @Default
+    public void onDefault(String serverName, String... cmds) {
+        String cmd = String.join(" ", cmds);
+        CommandExecuteRequest obj = new CommandExecuteRequest(cmd);
         switch (serverName) {
             case "servers" -> {
                 for (String server : ServerInfoUpdater.getServers()) {
                     if (server.startsWith("server")) {
-                        ServerMessageUtils.sendMessage(server, "CommandExecuteRequest", obj);
+                        serverMessageService.sendMessage(server, obj);
                     }
                 }
             }
             case "all" -> {
                 for (String server : ServerInfoUpdater.getServers()) {
-                    ServerMessageUtils.sendMessage(server, "CommandExecuteRequest", obj);
+                    serverMessageService.sendMessage(server, obj);
                 }
             }
-            default -> ServerMessageUtils.sendMessage(serverName, "CommandExecuteRequest", obj);
+            default -> serverMessageService.sendMessage(serverName, obj);
         }
-        return true;
     }
 
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        if (args.length == 1) {
-            ArrayList<String> strings = new ArrayList<>();
-            strings.add("all");
-            strings.add("servers");
-            strings.addAll(ServerInfoUpdater.getServers());
-            strings.removeIf(s -> !s.startsWith(args[0]));
-            return strings;
-        }else{
-            return new ArrayList<>();
-        }
 
-    }
 }

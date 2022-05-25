@@ -1,7 +1,9 @@
 package com.molean.isletopia.menu;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.charge.ChargeCommitter;
 import com.molean.isletopia.dialog.ConfirmDialog;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.menu.assist.AssistMenu;
@@ -13,6 +15,7 @@ import com.molean.isletopia.menu.visit.MultiVisitMenu;
 import com.molean.isletopia.menu.visit.PromoteMenu;
 import com.molean.isletopia.menu.visit.VisitMenu;
 import com.molean.isletopia.menu.visit.VisitorMenu;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.model.Island;
 import com.molean.isletopia.shared.model.PromoteDao;
 import com.molean.isletopia.shared.utils.Pair;
@@ -37,7 +40,8 @@ public class MainMenu extends ChestMenu {
         PromoteDao.checkTable();
     }
 
-    public MainMenu(Player player) {
+    public MainMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, 6, Component.text(MessageUtils.getMessage(player, "menu.title")));
 
         for (int i = 0; i < 6 * 9; i++) {
@@ -50,7 +54,7 @@ public class MainMenu extends ChestMenu {
             if (island == null) {
                 continue;
             }
-            ItemStack itemStack = MultiVisitMenu.islandToItemStack(player,island);
+            ItemStack itemStack = MultiVisitMenu.islandToItemStack(player, island);
             List<Component> lore = itemStack.lore();
             assert lore != null;
             lore.add(Component.text(MessageUtils.getMessage(player, "menu.promote.buyer", Pair.of("buyer", UUIDManager.get(promote.uuid)))));
@@ -64,16 +68,17 @@ public class MainMenu extends ChestMenu {
         }
 
         ItemStackSheet heart = ItemStackSheet.fromString(Material.HEART_OF_THE_SEA, MessageUtils.getMessage(player, "menu.promote"))
-                .addEnchantment(Enchantment.ARROW_DAMAGE,0).addItemFlag(ItemFlag.HIDE_ENCHANTS);
+                .addEnchantment(Enchantment.ARROW_DAMAGE, 0).addItemFlag(ItemFlag.HIDE_ENCHANTS);
         this.item(8, heart.build());
         this.clickEventAsync(8, clickType -> {
             if (clickType.equals(ClickType.LEFT)) {
-                new PromoteMenu(player).open();
+                new PromoteMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open();
             }
         });
         this.clickEventSync(8, clickType -> {
             if (clickType.equals(ClickType.RIGHT)) {
-                new ConfirmDialog(Component.text(MessageUtils.getMessage(player, "menu.promote.confirm"))).accept(player1 -> {
+                ConfirmDialog confirmDialog = new ConfirmDialog(player, Component.text(MessageUtils.getMessage(player, "menu.promote.confirm")));
+                confirmDialog.onConfirm(player1 -> {
                     LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
                     if (currentIsland == null) {
                         MessageUtils.fail(player, "menu.promote.failed.empty");
@@ -82,34 +87,32 @@ public class MainMenu extends ChestMenu {
                     if (InventoryUtils.takeItem(player, Material.HEART_OF_THE_SEA, 1)) {
                         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
                             PromoteDao.add(currentIsland.getId(), player.getUniqueId());
-                            new MainMenu(player).open();
+                            new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open();
                             MessageUtils.success(player, "menu.promote.success");
                         });
                     } else {
                         MessageUtils.fail(player, "menu.promote.failed.heart");
                     }
-                }).open(player);
+                });
+                confirmDialog.open();
             }
         });
 
 
-        ItemStackSheet bookShelf = ItemStackSheet.fromString(Material.ENCHANTED_GOLDEN_APPLE, MessageUtils.getMessage(player,"menu.clubrealm"));
+        ItemStackSheet bookShelf = ItemStackSheet.fromString(Material.ENCHANTED_GOLDEN_APPLE, MessageUtils.getMessage(player, "menu.clubrealm"));
 
-        ItemStackSheet favorite = ItemStackSheet.fromString(Material.NETHER_STAR, MessageUtils.getMessage(player,"menu.subscribe"));
-
+        ItemStackSheet favorite = ItemStackSheet.fromString(Material.NETHER_STAR, MessageUtils.getMessage(player, "menu.subscribe"));
 
         ItemStackSheet visits = ItemStackSheet.fromString(Material.FEATHER, MessageUtils.getMessage(player, "menu.visit"));
 
-
         ItemStackSheet settings = ItemStackSheet.fromString(Material.LEVER, MessageUtils.getMessage(player, "menu.settings"));
 
-
         LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
+
         assert currentPlot != null;
         if (!player.getUniqueId().equals(currentPlot.getUuid())) {
             settings = ItemStackSheet.fromString(Material.LEVER, MessageUtils.getMessage(player, "menu.settings.notOwned"));
         }
-
 
         ItemStackSheet bills = ItemStackSheet.fromString(Material.PAPER, MessageUtils.getMessage(player, "menu.power"));
 
@@ -125,18 +128,18 @@ public class MainMenu extends ChestMenu {
         ItemStack skullWithIslandInfo = HeadUtils.getSkullWithIslandInfo(player.getName());
         SkullMeta itemMeta = (SkullMeta) skullWithIslandInfo.getItemMeta();
         assert itemMeta != null;
-        itemMeta.displayName(Component.text(MessageUtils.getMessage(player,"menu.is")));
-        itemMeta.lore(List.of(Component.text(MessageUtils.getMessage(player,"menu.is.left"))));
+        itemMeta.displayName(Component.text(MessageUtils.getMessage(player, "menu.is")));
+        itemMeta.lore(List.of(Component.text(MessageUtils.getMessage(player, "menu.is.left"))));
         itemMeta.lore(List.of(Component.text(MessageUtils.getMessage(player, "menu.is.right"))));
         skullWithIslandInfo.setItemMeta(itemMeta);
 
         this
-                .itemWithAsyncClickEvent(35, bookShelf.build(), () -> new ClubRealmMenu(player).open())
-                .itemWithAsyncClickEvent(29, favorite.build(), () -> new SubscribeMenu(player).open())
-                .itemWithAsyncClickEvent(31, visits.build(), () -> new VisitMenu(player).open())
-                .itemWithAsyncClickEvent(33, settings.build(), () -> new SettingsMenu(player).open())
-                .itemWithAsyncClickEvent(27, projects.build(), () -> new VisitorMenu(player).open())
-                .itemWithAsyncClickEvent(47, bills.build(), () -> new PlayerChargeMenu(player).open())
+                .itemWithAsyncClickEvent(35, bookShelf.build(), () -> new ClubRealmMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
+                .itemWithAsyncClickEvent(29, favorite.build(), () -> new SubscribeMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
+                .itemWithAsyncClickEvent(31, visits.build(), () -> new VisitMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
+                .itemWithAsyncClickEvent(33, settings.build(), () -> new SettingsMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
+                .itemWithAsyncClickEvent(27, projects.build(), () -> new VisitorMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
+                .itemWithAsyncClickEvent(47, bills.build(), () -> new PlayerChargeMenu(chargeCommitter, playerPropertyManager, sidebarManager, player).open())
                 .item(49, skullWithIslandInfo)
                 .clickEventSync(49, clickType -> {
                     if (clickType.equals(ClickType.LEFT)) {
@@ -145,6 +148,7 @@ public class MainMenu extends ChestMenu {
                         player.performCommand("visit " + player.getName());
                     }
                 })
-                .itemWithAsyncClickEvent(51, assist.build(), () -> new AssistMenu(player).open());
+                .itemWithAsyncClickEvent(51, assist.build(), () -> new AssistMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
+
     }
 }

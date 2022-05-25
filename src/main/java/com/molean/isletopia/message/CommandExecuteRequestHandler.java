@@ -1,7 +1,6 @@
-package com.molean.isletopia.message.handler;
+package com.molean.isletopia.message;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.MessageHandlerType;
 import com.molean.isletopia.shared.MessageHandler;
 import com.molean.isletopia.shared.pojo.req.CommandExecuteRequest;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
@@ -9,17 +8,14 @@ import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.task.Tasks;
 import org.bukkit.Bukkit;
 
-@Singleton
+
+@MessageHandlerType(CommandExecuteRequest.class)
 public class CommandExecuteRequestHandler implements MessageHandler<CommandExecuteRequest> {
-    public CommandExecuteRequestHandler() {
-        RedisMessageListener.setHandler("CommandExecuteRequest", this, CommandExecuteRequest.class);
-        CommandExecuteRequest commandExecuteRequest = new CommandExecuteRequest();
-    }
 
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject, CommandExecuteRequest message) {
         String command = message.getCommand();
-        Tasks.INSTANCE.sync( () -> {
+        Tasks.INSTANCE.sync(() -> {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
         });
 

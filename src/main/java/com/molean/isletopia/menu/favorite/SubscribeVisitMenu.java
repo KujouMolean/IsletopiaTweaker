@@ -1,5 +1,8 @@
 package com.molean.isletopia.menu.favorite;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.utils.HeadUtils;
@@ -23,13 +26,15 @@ public class SubscribeVisitMenu extends ListMenu<String> {
     }
 
 
-    public SubscribeVisitMenu(Player player) {
+    public SubscribeVisitMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.subscribe.visit.title")));
         this.components(getAvailablePlayer(player))
                 .convertFunction(HeadUtils::getSkullWithIslandInfo)
                 .onClickSync(s -> player.performCommand("visit " + s))
                 .closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.subscribe")).build())
-                .onCloseAsync(() -> new SubscribeMenu(player).open())
+                .onCloseAsync(() -> new SubscribeMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
                 .onCloseSync(null);
+
     }
 }

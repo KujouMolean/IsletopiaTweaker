@@ -49,8 +49,6 @@ public abstract class InventoryMenu implements Menu {
         if (Bukkit.isPrimaryThread()) {
             PluginUtils.getLogger().warning("Open menu " + getClass().getSimpleName() + " in main thread.");
         }
-
-
         VirtualMenuManager.INSTANCE.registerMenu(this);
         Tasks.INSTANCE.sync( () -> {
             beforeOpen();

@@ -1,5 +1,8 @@
 package com.molean.isletopia.menu.favorite;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.database.CollectionDao;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.task.SyncThenAsyncTask;
@@ -25,13 +28,14 @@ public class SubscribeRemoveMenu extends ListMenu<String> {
                 .collect(Collectors.toList());
     }
 
-    public SubscribeRemoveMenu(Player player) {
+    public SubscribeRemoveMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.subscribe.remove.title")));
         this
                 .convertFunction(HeadUtils::getSkullWithIslandInfo)
                 .components(getAvailablePlayer(player))
-                .closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player,"menu.return.subscribe")).build())
-                .onCloseAsync(() -> new SubscribeMenu(player).open())
+                .closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.subscribe")).build())
+                .onCloseAsync(() -> new SubscribeMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
                 .onClickSync(s -> {
                     new SyncThenAsyncTask<>(() -> {
                         player.performCommand("is unstar " + s);

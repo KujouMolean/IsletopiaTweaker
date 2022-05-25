@@ -1,7 +1,10 @@
 package com.molean.isletopia.menu.recipe;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.menu.MainMenu;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ListMenu;
@@ -48,7 +51,8 @@ public class RecipeListMenu extends ListMenu<LocalRecipe> {
         return itemStack;
     }
 
-    public RecipeListMenu(Player player) {
+    public RecipeListMenu(SidebarManager sidebarManager, PlayerPropertyManager playerPropertyManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.recipe.list.title")));
         this.convertFunction(localRecipe -> {
             List<ItemStack> icons = localRecipe.icons;
@@ -74,9 +78,9 @@ public class RecipeListMenu extends ListMenu<LocalRecipe> {
         }
 
         this.components(this.localRecipeList);
-        this.onClickAsync(localRecipe -> new CraftRecipeMenu(player, localRecipe).open());
+        this.onClickAsync(localRecipe -> new CraftRecipeMenu(playerPropertyManager, sidebarManager, chargeCommitter, player, localRecipe).open());
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
-        this.onCloseAsync(() -> new MainMenu(player).open())
+        this.onCloseAsync(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
                 .onCloseSync(null);
     }
 

@@ -1,7 +1,10 @@
 package com.molean.isletopia.menu.visit;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.menu.PlayerMenu;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.utils.PlayerUtils;
 import com.molean.isletopia.shared.utils.UUIDManager;
@@ -19,7 +22,8 @@ import java.util.UUID;
 
 public class VisitMenu extends ListMenu<String> {
 
-    public VisitMenu(Player player) {
+    public VisitMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.visit.title")));
 
         List<String> onlinePlayers = ServerInfoUpdater.getOnlinePlayers();
@@ -38,11 +42,12 @@ public class VisitMenu extends ListMenu<String> {
                         return;
                     }
                     new PlayerMenu(player, uuid).itemWithAsyncClickEvent(49, ItemStackSheet.fromString(Material.BARRIER, "§f返回访问菜单").build(), () -> {
-                        new VisitMenu(player).open();
+                        new VisitMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open();
+
                     }).open();
                 })
                 .closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
-                .onCloseAsync(() -> new MainMenu(player).open())
+                .onCloseAsync(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
                 .onCloseSync(null);
     }
 

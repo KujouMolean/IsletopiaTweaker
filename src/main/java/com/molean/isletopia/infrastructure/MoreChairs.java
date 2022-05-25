@@ -1,8 +1,9 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.annotations.Interval;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.event.PlayerLoggedEvent;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.task.Tasks;
@@ -29,26 +30,27 @@ import java.util.UUID;
 @Singleton
 public class MoreChairs implements Listener {
 
-    private PlayerPropertyManager playerPropertyManager;
-
-    public MoreChairs(PlayerPropertyManager playerPropertyManager) {
-        this.playerPropertyManager = playerPropertyManager;
-
-        Tasks.INSTANCE.interval(1, () -> {
-            map.forEach((uuid, armorStand) -> {
-                Player player = Bukkit.getPlayer(uuid);
-                if (player == null) {
-                    return;
-                }
-                armorStand.setRotation(player.getLocation().getYaw(), player.getLocation().getPitch());
-            });
-        });
-
-    }
-
+    private final PlayerPropertyManager playerPropertyManager;
     private static final Map<UUID, ArmorStand> map = new HashMap<>();
     private static final Map<UUID, Location> originLocation = new HashMap<>();
     private static final Map<UUID, Long> sneakTime = new HashMap<>();
+
+
+
+    public MoreChairs(PlayerPropertyManager playerPropertyManager) {
+        this.playerPropertyManager = playerPropertyManager;
+    }
+
+    @Interval(1)
+    public void updateCharis() {
+        map.forEach((uuid, armorStand) -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null) {
+                return;
+            }
+            armorStand.setRotation(player.getLocation().getYaw(), player.getLocation().getPitch());
+        });
+    }
 
 
     @SuppressWarnings("deprecation")

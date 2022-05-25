@@ -1,14 +1,13 @@
 package com.molean.isletopia.island.listener;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.event.PlayerDataSyncCompleteEvent;
+import com.molean.isletopia.shared.annotations.Singleton;
+import com.molean.isletopia.event.PlayerLoggedEvent;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -22,16 +21,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@Singleton
 public class PlayerIslandChangeEventListener implements Listener {
     private static final Set<UUID> UUID_SET = new HashSet<>();
 
 
-    public PlayerIslandChangeEventListener() {
-        PluginUtils.registerEvents(this);
-    }
-
     @EventHandler
-    public void on(PlayerDataSyncCompleteEvent event) {
+    public void on(PlayerLoggedEvent event) {
         Player player = event.getPlayer();
         LocalIsland toIsland = IslandManager.INSTANCE.getCurrentIsland(event.getPlayer());
         PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, null, toIsland);
@@ -61,7 +57,7 @@ public class PlayerIslandChangeEventListener implements Listener {
         if (!UUID_SET.contains(event.getPlayer().getUniqueId())) {
             return;
         }
-        if(!move(event.getPlayer(), event.getFrom(), event.getTo())){
+        if (!move(event.getPlayer(), event.getFrom(), event.getTo())) {
             event.setCancelled(true);
         }
     }
@@ -71,7 +67,7 @@ public class PlayerIslandChangeEventListener implements Listener {
         if (!UUID_SET.contains(event.getPlayer().getUniqueId())) {
             return;
         }
-        if(!move(event.getPlayer(), event.getFrom(), event.getTo())){
+        if (!move(event.getPlayer(), event.getFrom(), event.getTo())) {
             event.setCancelled(true);
         }
     }
@@ -90,8 +86,8 @@ public class PlayerIslandChangeEventListener implements Listener {
         }
         String serverName = ServerInfoUpdater.getServerName();
 
-        LocalIsland fromIsland = IslandManager.INSTANCE.getLocalIsland(new IslandId(serverName, fromIslandX, fromIslandZ));
-        LocalIsland toIsland = IslandManager.INSTANCE.getLocalIsland(new IslandId(serverName, toIslandX, toIslandZ));
+        LocalIsland fromIsland = IslandManager.INSTANCE.getLocalIslandIfLoaded(new IslandId(serverName, fromIslandX, fromIslandZ));
+        LocalIsland toIsland = IslandManager.INSTANCE.getLocalIslandIfLoaded(new IslandId(serverName, toIslandX, toIslandZ));
 
         PlayerIslandChangeEvent playerIslandChangeEvent = new PlayerIslandChangeEvent(player, fromIsland, toIsland);
         Bukkit.getPluginManager().callEvent(playerIslandChangeEvent);

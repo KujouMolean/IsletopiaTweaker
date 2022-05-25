@@ -1,27 +1,24 @@
-package com.molean.isletopia.protect.individual;
+package com.molean.isletopia.protect;
 
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.BukkitCommand;
-import com.molean.isletopia.annotations.Singleton;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.shared.service.RedisService;
 import com.molean.isletopia.shared.utils.LangUtils;
 import com.molean.isletopia.shared.utils.ObjectUtils;
-import com.molean.isletopia.shared.utils.RedisUtils;
 import com.molean.isletopia.task.CustomTask;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -36,14 +33,14 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@BukkitCommand("mobcap")
-public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
+@Singleton
+@CommandAlias("mobcap")
+public class IslandMobCap extends BaseCommand implements Listener {
 
 
     private static final Map<EntityType, Integer> capMap = new HashMap<>();
@@ -62,7 +59,11 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         capMap.remove(entityType);
     }
 
-    public IslandMobCap() {
+
+    private RedisService redisService;
+
+    public IslandMobCap(RedisService redisService) {
+        this.redisService = redisService;
         setMobCap(EntityType.GUARDIAN, 50);
         setMobCap(EntityType.VILLAGER, 64);
         ignoredType.add(EntityType.ITEM_FRAME);
@@ -111,12 +112,12 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
         }
         byte[] serialize = ObjectUtils.serialize(entityTypeIntegerHashMap);
         Tasks.INSTANCE.async(() -> {
-            RedisUtils.getByteCommand().set(key, serialize);
+            redisService.getByteCommand().set(key, serialize);
             unloadedLocalCache.put(stringKey, entityTypeIntegerHashMap);
         });
     }
 
-    public static Map<EntityType, Integer> countChunk(World world, int x, int z) {
+    public Map<EntityType, Integer> countChunk(World world, int x, int z) {
         String stringKey = getKey(world, x, z);
         byte[] key = stringKey.getBytes(StandardCharsets.UTF_8);
         if (world.isChunkLoaded(x, z)) {
@@ -136,8 +137,8 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
             }
 
             //else load from redis server
-            if (RedisUtils.getByteCommand().exists(key) > 0) {
-                byte[] bytes = RedisUtils.getByteCommand().get(key);
+            if (redisService.getByteCommand().exists(key) > 0) {
+                byte[] bytes = redisService.getByteCommand().get(key);
                 HashMap<EntityType, Integer> deserialize = (HashMap<EntityType, Integer>) ObjectUtils.deserialize(bytes);
                 unloadedLocalCache.put(stringKey, deserialize);
                 return deserialize;
@@ -146,7 +147,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
 
         HashMap<EntityType, Integer> entityTypeIntegerHashMap = new HashMap<>();
         byte[] serialize = ObjectUtils.serialize(entityTypeIntegerHashMap);
-        RedisUtils.getByteCommand().set(key, serialize);
+        redisService.getByteCommand().set(key, serialize);
         unloadedLocalCache.put(stringKey, entityTypeIntegerHashMap);
         return entityTypeIntegerHashMap;
     }
@@ -253,7 +254,7 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
     }
 
 
-    public static void newCountEntities(IslandId plotId) {
+    public void newCountEntities(IslandId plotId) {
         HashMap<EntityType, Integer> plotEntities = new HashMap<>();
         if (!plotId.getServer().equals(ServerInfoUpdater.getServerName())) {
             throw new RuntimeException("Can't count mob in other server!");
@@ -305,17 +306,12 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
     }
 
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        Player player = (Player) sender;
-        LocalIsland currentPlot = IslandManager.INSTANCE.getCurrentIsland(player);
-        if (currentPlot == null) {
-            return true;
-        }
+    @Default
+    public void onCommand(Player player, LocalIsland currentPlot) {
         Map<EntityType, Integer> entityTypeIntegerMap = plotsEntities.get(currentPlot.getIslandId());
         if (entityTypeIntegerMap == null) {
             player.sendMessage("Waiting...");
-            return true;
+            return;
         }
         int total = plotsEntityCount.get(currentPlot.getIslandId());
         ArrayList<EntityType> keys = new ArrayList<>(entityTypeIntegerMap.keySet());
@@ -327,12 +323,5 @@ public class IslandMobCap implements Listener, CommandExecutor, TabCompleter {
             String message = String.format("§a>§e%s §" + c + "%s", name, entityTypeIntegerMap.get(keys.get(i)));
             player.sendMessage(message);
         }
-        return true;
-    }
-
-    @Nullable
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return null;
     }
 }

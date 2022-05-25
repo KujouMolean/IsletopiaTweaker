@@ -2,7 +2,7 @@ package com.molean.isletopia.modifier;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.event.PlayerLoggedEvent;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.MessageUtils;

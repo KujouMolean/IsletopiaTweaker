@@ -1,9 +1,11 @@
 package com.molean.isletopia.menu.assist;
 
-import com.molean.isletopia.infrastructure.individual.bars.SidebarManager;
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.player.PlayerPropertyManager;
-import com.molean.isletopia.shared.utils.ChatChannelUtils;
+import com.molean.isletopia.shared.ClassResolver;
+import com.molean.isletopia.shared.utils.ChatChannelService;
 import com.molean.isletopia.shared.utils.LangUtils;
 import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.utils.ItemStackSheet;
@@ -20,13 +22,13 @@ import java.util.Set;
 
 public class AssistMenu extends ChestMenu {
 
-    public AssistMenu(Player player) {
-        super(player, 3, Component.text(  MessageUtils.getMessage(player, "menu.assist.title")));
+    public AssistMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
 
+        super(player, 3, Component.text(MessageUtils.getMessage(player, "menu.assist.title")));
         String messageOn = MessageUtils.getMessage(player, "menu.assist.on");
         String messageOff = MessageUtils.getMessage(player, "menu.assist.off");
 
-        String sidebar = SidebarManager.INSTANCE.getSidebar(player);
+        String sidebar = sidebarManager.getSidebar(player);
 
         {
             String message = MessageUtils.getMessage(player, "menu.assist.entityBar",
@@ -49,7 +51,7 @@ public class AssistMenu extends ChestMenu {
             });
         }
         {
-            ItemStackSheet inbox = ItemStackSheet.fromString(Material.CHEST, MessageUtils.getMessage(player,"menu.assist.mailbox" ));
+            ItemStackSheet inbox = ItemStackSheet.fromString(Material.CHEST, MessageUtils.getMessage(player, "menu.assist.mailbox"));
 
             this.item(2, inbox.build(), () -> {
                 player.performCommand("assist mailbox ");
@@ -61,7 +63,7 @@ public class AssistMenu extends ChestMenu {
             String messageClaimed = MessageUtils.getMessage(player, "menu.assist.claimed");
             String messageNotClaimed = MessageUtils.getMessage(player, "menu.assist.notClaimed");
             String key = "IslandClaim-" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
-            boolean freeClaimed = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, key);
+            boolean freeClaimed = playerPropertyManager.getPropertyAsBoolean(player, key);
             String message = MessageUtils.getMessage(player, "menu.assist.create",
                     Pair.of("status", freeClaimed ? messageClaimed : messageNotClaimed));
             ItemStackSheet create = ItemStackSheet.fromString(Material.GRASS_BLOCK, message);
@@ -78,15 +80,15 @@ public class AssistMenu extends ChestMenu {
         }
 
 
-        boolean disablePlayerRide = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisablePlayerRide");
-        boolean disableRailWay = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableRailWay");
-        boolean disableIronElevator = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableIronElevator");
-        boolean disableChairs = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableChairs");
-        boolean disableLavaProtect = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableLavaProtect");
-        boolean disableSingleIslandMenu = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableSingleIslandMenu");
-        boolean disablePlayerMob = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisablePlayerMob");
-        boolean disableKeepInventory = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableKeepInventory");
-        boolean autoFloor = PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "AutoFloor");
+        boolean disablePlayerRide = playerPropertyManager.getPropertyAsBoolean(player, "DisablePlayerRide");
+        boolean disableRailWay = playerPropertyManager.getPropertyAsBoolean(player, "DisableRailWay");
+        boolean disableIronElevator = playerPropertyManager.getPropertyAsBoolean(player, "DisableIronElevator");
+        boolean disableChairs = playerPropertyManager.getPropertyAsBoolean(player, "DisableChairs");
+        boolean disableLavaProtect = playerPropertyManager.getPropertyAsBoolean(player, "DisableLavaProtect");
+        boolean disableSingleIslandMenu = playerPropertyManager.getPropertyAsBoolean(player, "DisableSingleIslandMenu");
+        boolean disablePlayerMob = playerPropertyManager.getPropertyAsBoolean(player, "DisablePlayerMob");
+        boolean disableKeepInventory = playerPropertyManager.getPropertyAsBoolean(player, "DisableKeepInventory");
+        boolean autoFloor = playerPropertyManager.getPropertyAsBoolean(player, "AutoFloor");
 
         {
             //DisableChairs
@@ -165,7 +167,7 @@ public class AssistMenu extends ChestMenu {
         }
         {
             ItemStackSheet modification = ItemStackSheet.fromString(Material.WRITABLE_BOOK, MessageUtils.getMessage(player, "menu.assist.modification"));
-            this.itemWithAsyncClickEvent(11, modification.build(), () -> new ModificationMenu(player).open());
+            this.itemWithAsyncClickEvent(11, modification.build(), () -> new ModificationMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
 
         }
 
@@ -201,7 +203,10 @@ public class AssistMenu extends ChestMenu {
 
 
         {
-            Set<String> channels = ChatChannelUtils.getChannels(player.getUniqueId());
+
+            ChatChannelService chatChannelService = ClassResolver.INSTANCE.getObject(ChatChannelService.class);
+            assert chatChannelService != null;
+            Set<String> channels = chatChannelService.getChannels(player.getUniqueId());
             String message = MessageUtils.getMessage(player, "menu.assist.channel", Pair.of("channels", String.join(",", channels)));
             ItemStackSheet channel = ItemStackSheet.fromString(Material.SUNFLOWER, message);
             this.item(15, channel.build(), () -> {
@@ -223,7 +228,7 @@ public class AssistMenu extends ChestMenu {
         }
 
         {
-            String autoCraft = PlayerPropertyManager.INSTANCE.getProperty(player, "AutoCraft");
+            String autoCraft = playerPropertyManager.getProperty(player, "AutoCraft");
             if (autoCraft == null) {
                 autoCraft = "";
             }
@@ -265,10 +270,9 @@ public class AssistMenu extends ChestMenu {
         }
 
 
-
         {
             ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main"));
-            itemWithAsyncClickEvent(26, father.build(), () -> new MainMenu(player).open());
+            itemWithAsyncClickEvent(26, father.build(), () -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
         }
 
     }

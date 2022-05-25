@@ -1,6 +1,9 @@
 package com.molean.isletopia.menu.visit;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.menu.MainMenu;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.database.IslandDao;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.island.IslandManager;
@@ -21,7 +24,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class VisitorMenu extends ListMenu<Pair<String, Timestamp>> {
-    public VisitorMenu(Player player) {
+    public VisitorMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.visitor.title")));
         LocalIsland currentIsland = IslandManager.INSTANCE.getCurrentIsland(player);
         if (currentIsland == null || !(currentIsland.hasPermission(player) || player.isOp())) {
@@ -55,7 +59,8 @@ public class VisitorMenu extends ListMenu<Pair<String, Timestamp>> {
         });
 
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
-        this.onCloseAsync(() -> new MainMenu(player).open())
+        this.onCloseAsync(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
                 .onCloseSync(null);
+
     }
 }

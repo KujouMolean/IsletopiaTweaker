@@ -1,6 +1,6 @@
 package com.molean.isletopia.modifier;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.player.PlayerManager;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.utils.LangUtils;
@@ -8,7 +8,6 @@ import com.molean.isletopia.shared.utils.Pair;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.InventoryUtils;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;

@@ -1,7 +1,10 @@
 package com.molean.isletopia.menu.settings.member;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.task.SyncThenAsyncTask;
 import com.molean.isletopia.utils.HeadUtils;
@@ -31,13 +34,14 @@ public class MemberRemoveMenu extends ListMenu<String> {
         return new ArrayList<>();
     }
 
-    public MemberRemoveMenu(Player player) {
+    public MemberRemoveMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.member.remove.title")));
         this
                 .components(getAvailablePlayer(player))
                 .convertFunction(HeadUtils::getSkullWithIslandInfo)
                 .closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
-                .onCloseAsync(() -> new MemberMenu(player).open())
+                .onCloseAsync(() -> new MemberMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
                 .onCloseSync(null)
                 .onClickSync(s -> new SyncThenAsyncTask<>(() -> {
                     player.performCommand("is distrust " + s);

@@ -1,6 +1,6 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.BukkitRuntimeConfigUtils;
 import com.molean.isletopia.utils.MSPTUtils;
@@ -20,14 +20,6 @@ public class DynamicMobSpawnRate {
         return (int) ((max - min) / (double) 100 * balance + min);
     }
 
-//    public void setLimit(int val) {
-//        BukkitRuntimeConfigUtils.setMonsterSpawn(getValGreater(70, 70, val));
-//        BukkitRuntimeConfigUtils.setAnimalSpawn(getValGreater(10, 10, val));
-//        BukkitRuntimeConfigUtils.setWaterAnimalSpawn(getValGreater(5, 5, val));
-//        BukkitRuntimeConfigUtils.setWaterAmbientSpawn(getValGreater(20, 20, val));
-//        BukkitRuntimeConfigUtils.setAmbientSpawn(getValGreater(15, 15, val));
-//        BukkitRuntimeConfigUtils.setWaterUndergroundCreatureSpawn(getValGreater(5, 5, val));
-//    }
 
     public void setRate(int val) {
         for (World world : Bukkit.getWorlds()) {
@@ -37,11 +29,8 @@ public class DynamicMobSpawnRate {
             BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.WATER_AMBIENT, getValLess(5, 1, val));
             BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.AMBIENT, getValLess(5, 1, val));
             BukkitRuntimeConfigUtils.setWorld(world,SpawnCategory.WATER_UNDERGROUND_CREATURE, getValLess(5, 1, val));
-
         }
-
     }
-
 
     public DynamicMobSpawnRate() {
         Tasks.INSTANCE.interval(60 * 20, () -> {
@@ -59,7 +48,6 @@ public class DynamicMobSpawnRate {
                 balance = 0;
             }
             setRate(balance);
-//            setLimit(balance);
         });
     }
 }

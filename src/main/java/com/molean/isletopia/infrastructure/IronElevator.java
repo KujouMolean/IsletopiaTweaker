@@ -1,8 +1,7 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
-import com.molean.isletopia.annotations.Singleton;
-import com.molean.isletopia.player.PlayerManager;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -34,7 +33,7 @@ public class IronElevator implements Listener {
         }
         World world = event.getPlayer().getWorld();
         Location location = event.getPlayer().getLocation();
-        for (int i = location.getBlockY() - 2; i >= -64; i--) {
+        for (int i = location.getBlockY() - 2; i >= world.getMinHeight(); i--) {
             location.setY(i);
             Block block = world.getBlockAt(location);
             if (block.getType().equals(Material.IRON_BLOCK)) {
@@ -60,7 +59,7 @@ public class IronElevator implements Listener {
         }
         World world = event.getPlayer().getWorld();
         Location location = event.getPlayer().getLocation();
-        for (int i = location.getBlockY(); i < 320; i++) {
+        for (int i = location.getBlockY(); i < world.getMaxHeight(); i++) {
             location.setY(i);
             Block block = world.getBlockAt(location);
             if (block.getType().equals(Material.IRON_BLOCK)) {

@@ -1,6 +1,6 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.Direction;
 import org.bukkit.Location;

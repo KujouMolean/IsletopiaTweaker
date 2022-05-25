@@ -2,7 +2,7 @@ package com.molean.isletopia.charge;
 
 import com.molean.isletopia.shared.model.ChargeDetail;
 
-public class ChargeDetailUtils {
+public class ChargeUtils {
     public static final long DISPENSER_TIMES = 2000;
     public static final long PISTON_TIMES = 200;
     public static final long REDSTONE_TIMES = 2000;
@@ -104,18 +104,18 @@ public class ChargeDetailUtils {
     }
 
     public static long getLeftPower(ChargeDetail chargeDetail) {
-        return ChargeDetailUtils.getTotalPower(chargeDetail) - ChargeDetailUtils.getTotalPowerUsage(chargeDetail);
+        return ChargeUtils.getTotalPower(chargeDetail) - ChargeUtils.getTotalPowerUsage(chargeDetail);
     }
 
     public static long getLeftFood(ChargeDetail chargeDetail) {
-        return ChargeDetailUtils.getTotalFood(chargeDetail) - ChargeDetailUtils.getTotalFoodUsage(chargeDetail);
+        return ChargeUtils.getTotalFood(chargeDetail) - ChargeUtils.getTotalFoodUsage(chargeDetail);
     }
 
     public static long getPowerCost(ChargeDetail chargeDetail) {
         long powerCost = 0;
         long leftPower = getLeftPower(chargeDetail);
         if (leftPower < 0) {
-            long t = (long) Math.ceil(-leftPower / (double) ChargeDetailUtils.POWER_PER_BUY);
+            long t = (long) Math.ceil(-leftPower / (double) ChargeUtils.POWER_PER_BUY);
             for (int i = chargeDetail.getPowerChargeTimes() + 1; i <= t; i++) {
                 powerCost += i;
             }
@@ -127,7 +127,7 @@ public class ChargeDetailUtils {
         long foodCost = 0;
         long leftFood = getLeftFood(chargeDetail);
         if (leftFood < 0) {
-            long t = (long) Math.ceil(-leftFood / (double) ChargeDetailUtils.FOOD_PER_BUY);
+            long t = (long) Math.ceil(-leftFood / (double) ChargeUtils.FOOD_PER_BUY);
             for (int i = chargeDetail.getPowerChargeTimes() + 1; i <= t; i++) {
                 foodCost += i;
             }

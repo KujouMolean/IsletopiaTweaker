@@ -1,6 +1,6 @@
 package com.molean.isletopia.modifier;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.utils.HeadUtils;
 import org.bukkit.Location;

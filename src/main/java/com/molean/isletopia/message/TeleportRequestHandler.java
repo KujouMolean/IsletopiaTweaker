@@ -1,19 +1,18 @@
-package com.molean.isletopia.message.handler;
+package com.molean.isletopia.message;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.AutoInject;
+import com.molean.isletopia.shared.annotations.MessageHandlerType;
 import com.molean.isletopia.event.PlayerLoggedEvent;
 import com.molean.isletopia.shared.MessageHandler;
 import com.molean.isletopia.shared.database.PlayerDataDao;
-import com.molean.isletopia.shared.message.RedisMessageListener;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
-import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.message.ServerMessageService;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.req.TeleportRequest;
 import com.molean.isletopia.shared.pojo.resp.TeleportResponse;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.PlayerSerializeUtils;
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -27,15 +26,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Singleton
+@MessageHandlerType(TeleportRequest.class)
 public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, Listener {
 
     private final Map<String, Location> locationMap = new HashMap<>();
     private final Map<String, Long> expire = new HashMap<>();
 
-    public TeleportRequestHandler() {
-        RedisMessageListener.setHandler("TeleportRequest", this, TeleportRequest.class);
-    }
+    @AutoInject
+    private ServerMessageService serverMessageService;
 
     @EventHandler
     public void on(PlayerJoinEvent event) {
@@ -73,7 +71,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
             teleportResponse.setResponse("no-player");
             teleportResponse.setResponseMessage("visit.noPlayer");
             String playerServerName = ServerInfoUpdater.getPlayerServerMap().get(sourcePlayer);
-            ServerMessageUtils.sendMessage(playerServerName, "TeleportResponse", teleportResponse);
+            serverMessageService.sendMessage(playerServerName, teleportResponse);
 
         } else {
             if (source != null && source.isOnline()) {
@@ -99,7 +97,7 @@ public class TeleportRequestHandler implements MessageHandler<TeleportRequest>, 
             teleportResponse.setResponse("accepted");
             teleportResponse.setResponseMessage("");
             String playerServerName = ServerInfoUpdater.getPlayerServerMap().get(sourcePlayer);
-            ServerMessageUtils.sendMessage(playerServerName, "TeleportResponse", teleportResponse);
+            serverMessageService.sendMessage(playerServerName, teleportResponse);
         }
     }
 }

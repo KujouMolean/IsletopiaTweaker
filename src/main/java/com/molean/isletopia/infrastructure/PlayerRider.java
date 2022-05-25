@@ -1,9 +1,10 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.annotations.Interval;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.player.PlayerPropertyManager;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Bukkit;
@@ -26,30 +27,36 @@ import java.util.UUID;
 
 @Singleton
 public class PlayerRider implements Listener {
-    private PlayerPropertyManager playerPropertyManager;
+    private final PlayerPropertyManager playerPropertyManager;
+    private final Map<UUID, Long> sneakTime = new HashMap<>();
 
     public PlayerRider(PlayerPropertyManager playerPropertyManager) {
         this.playerPropertyManager = playerPropertyManager;
-     Tasks.INSTANCE.interval(20, () -> {
-            long currentTimeMillis = System.currentTimeMillis();
-            for (UUID uuid : sneakTime.keySet()) {
-                Player player = Bukkit.getPlayer(uuid);
-                if (player == null || !player.isOnline() || player.getPassengers().isEmpty()) {
-                    continue;
-                }
-                int diff = (int) (currentTimeMillis - sneakTime.get(uuid));
-                if (diff < 0) diff = 0;
-                if (diff > 10000) diff = 10000;
-
-                int level = diff / 1000;
-                String str =
-                        "§a" + "◼".repeat(level) +
-                                "§f" + "◼".repeat(10 - level);
-                MessageUtils.action(player, str);
-            }
-        });
     }
-    private final Map<UUID, Long> sneakTime = new HashMap<>();
+
+    @Interval
+    public void updateForce() {
+        long currentTimeMillis = System.currentTimeMillis();
+        for (UUID uuid : sneakTime.keySet()) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null || !player.isOnline() || player.getPassengers().isEmpty()) {
+                continue;
+            }
+            int diff = (int) (currentTimeMillis - sneakTime.get(uuid));
+            if (diff < 0) diff = 0;
+            if (diff > 10000) diff = 10000;
+
+            int level = diff / 1000;
+            String str =
+                    "§a" + "◼".repeat(level) +
+                            "§f" + "◼".repeat(10 - level);
+            MessageUtils.action(player, str);
+        }
+    }
+
+
+
+
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerToggleSneakEvent event) {
         if (event.isSneaking()) {

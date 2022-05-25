@@ -1,74 +1,42 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
-import com.molean.isletopia.annotations.BukkitCommand;
-import com.molean.isletopia.annotations.Singleton;
-import com.molean.isletopia.charge.ChargeDetailCommitter;
-import com.molean.isletopia.infrastructure.individual.bars.SidebarManager;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Subcommand;
+import com.molean.isletopia.bars.SidebarManager;
+import com.molean.isletopia.charge.ChargeCommitter;
 import com.molean.isletopia.menu.MainMenu;
-import com.molean.isletopia.menu.recipe.CraftRecipeMenu;
-import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.menu.recipe.RecipeListMenu;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.task.Tasks;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+@CommandAlias("menu")
+public class MenuCommand extends BaseCommand {
 
-@BukkitCommand("menu")
-public class MenuCommand implements CommandExecutor, TabCompleter {
+    private final PlayerPropertyManager playerPropertyManager;
+    private final SidebarManager sidebarManager;
+    private final ChargeCommitter chargeCommitter;
 
-    private PlayerPropertyManager playerPropertyManager;
-    private SidebarManager sidebarManager;
-    private ChargeDetailCommitter chargeDetailCommitter;
-    public MenuCommand(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeDetailCommitter chargeDetailCommitter) {
+    public MenuCommand(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter) {
         this.playerPropertyManager = playerPropertyManager;
         this.sidebarManager = sidebarManager;
-        this.chargeDetailCommitter = chargeDetailCommitter;
+        this.chargeCommitter = chargeCommitter;
     }
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) {
-            return false;
-        }
-
-        if (args.length == 0) {
-            Tasks.INSTANCE.async(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeDetailCommitter, player).open());
-        } else if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("recipe")) {
-                Tasks.INSTANCE.async(() -> new RecipeListMenu(sidebarManager, playerPropertyManager, chargeDetailCommitter, player).open());
-
-            }
-            if (args[0].equalsIgnoreCase("close")) {
-                player.closeInventory();
-            }
-        } else if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("recipe")) {
-                for (LocalRecipe localRecipe : LocalRecipe.localRecipeList) {
-                    for (ItemStack result : localRecipe.results) {
-                        if (result.getType().name().equalsIgnoreCase(args[1])) {
-                            Tasks.INSTANCE.async(() -> new CraftRecipeMenu(playerPropertyManager, sidebarManager, chargeDetailCommitter, player, localRecipe).open());
-                        }
-                    }
-
-                }
-
-            }
-        }
-        return true;
+    @Default
+    public void onDefault(Player player) {
+        Tasks.INSTANCE.async(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
     }
 
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return new ArrayList<>();
+    @Subcommand("recipe")
+    public void recipe(Player player) {
+        Tasks.INSTANCE.async(() -> new RecipeListMenu(sidebarManager, playerPropertyManager, chargeCommitter, player).open());
     }
 
+    @Subcommand("close")
+    public void close(Player player) {
+        player.closeInventory();
+    }
 }

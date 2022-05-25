@@ -1,10 +1,10 @@
 package com.molean.isletopia.island.flag;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -13,12 +13,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.jetbrains.annotations.NotNull;
 
+@Singleton
 public class Fly implements IslandFlagHandler, Listener {
-
-    public Fly() {
-        PluginUtils.registerEvents(this);
-    }
-
     @Override
     public void onFlagAdd(LocalIsland island, String... data) {
         for (Player player : island.getPlayersInIsland()) {

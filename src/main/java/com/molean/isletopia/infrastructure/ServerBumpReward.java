@@ -1,25 +1,22 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
-import com.molean.isletopia.annotations.BukkitCommand;
-import com.molean.isletopia.annotations.Singleton;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
 import com.molean.isletopia.dialog.ConfirmDialog;
+import com.molean.isletopia.player.PlayerPropertyManager;
+import com.molean.isletopia.shared.annotations.AutoInject;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.shared.database.BumpDao;
-import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.message.ServerMessageService;
 import com.molean.isletopia.shared.model.BumpInfo;
 import com.molean.isletopia.shared.pojo.obj.ServerBumpObject;
 import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,17 +27,26 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Singleton
-@BukkitCommand("bumpreward")
-public class ServerBumpReward implements CommandExecutor, TabCompleter {
+@CommandAlias("BumpReward")
+public class ServerBumpReward extends BaseCommand {
     private final List<BumpInfo> bumpInfos = new ArrayList<>();
 
     private long lastUpdate = 0;
+    @AutoInject
+    private UniversalParameter universalParameter;
+    @AutoInject
+    private ServerMessageService serverMessageService;
 
+    @AutoInject
+    private PlayerPropertyManager playerPropertyManager;
 
     public boolean hasPreviousBump(BumpInfo bumpInfo) {
         for (BumpInfo info : bumpInfos) {
@@ -53,31 +59,16 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
         return false;
     }
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender,
-                             @NotNull Command command,
-                             @NotNull String label,
-                             @NotNull String[] args) {
 
-        ConfirmDialog confirmDialog = new ConfirmDialog((Player) sender, MessageUtils.getMessage((Player) sender, "bump.rules"));
-        confirmDialog.onConfirm(player -> {
-            Tasks.INSTANCE.async( () -> {
-                if (args.length < 1) {
-                    MessageUtils.info(player, "bump.usage");
-                    MessageUtils.info(player, "bump.usage.example");
-                    return;
-                }
-                UUID uuid = player.getUniqueId();
+    @Default
+    public void onDefault(Player player, String bbsName) {
+        ConfirmDialog confirmDialog = new ConfirmDialog(player, MessageUtils.getMessage(player, "bump.rules"));
+        confirmDialog.onConfirm(ignore -> {
+            Tasks.INSTANCE.async(() -> {
                 if (System.currentTimeMillis() - lastUpdate > 1000 * 30) {
                     updateInformation();
                 }
-
-
                 for (BumpInfo bumpInfo : bumpInfos) {
-                    if (args[0].equalsIgnoreCase("debug")) {
-                        PluginUtils.getLogger().info(bumpInfo.toString());
-                    }
-
                     if (!bumpInfo.getDateTime().toLocalDate().isEqual(LocalDate.now())) {
                         continue;
                     }
@@ -93,7 +84,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                         return;
                     }
                     //not owned, skip
-                    if (!bumpInfo.getUsername().equalsIgnoreCase(args[0])) {
+                    if (!bumpInfo.getUsername().equalsIgnoreCase(bbsName)) {
                         continue;
                     }
 
@@ -118,8 +109,8 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                     }
 
                     ServerBumpObject serverBumpObject = new ServerBumpObject();
-                    serverBumpObject.setPlayer(sender.getName());
-                    serverBumpObject.setUser(args[0]);
+                    serverBumpObject.setPlayer(player.getName());
+                    serverBumpObject.setUser(bbsName);
                     serverBumpObject.setItems(new ArrayList<>());
                     ArrayList<ItemStack> itemStacks = new ArrayList<>();
                     Random random = new Random();
@@ -137,8 +128,6 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                         if (beaconRand < 10) {
                             itemStacks.add(new ItemStack(Material.BEACON, 1));
                             serverBumpObject.getItems().add(MessageUtils.getMessage(player, "bump.reward.beacon"));
-                            UniversalParameter.addParameter(uuid, "beacon", "true");
-                            UniversalParameter.setParameter(uuid, "beaconReason", "bump");
                         }
                         if (bundleRand < 5) {
                             itemStacks.add(new ItemStack(Material.BUNDLE, 1));
@@ -151,35 +140,27 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
                         if (elytraRand == 0) {
                             itemStacks.add(new ItemStack(Material.ELYTRA, 1));
                             serverBumpObject.getItems().add(MessageUtils.getMessage(player, "bump.reward.elytra"));
-                            UniversalParameter.addParameter(uuid, "elytra", "true");
-                            UniversalParameter.setParameter(uuid, "elytraReason", "bump");
+                            playerPropertyManager.setPropertyAsync(player, "elytra", "true");
+                            playerPropertyManager.setPropertyAsync(player, "elytraReason", "bump");
                         }
                     }
 
 
-                   Tasks.INSTANCE.sync(() -> {
+                    Tasks.INSTANCE.sync(() -> {
                         Collection<ItemStack> values = player.getInventory().addItem(itemStacks.toArray(new ItemStack[0])).values();
                         for (ItemStack value : values) {
                             player.getLocation().getWorld().dropItem(player.getLocation(), value);
                         }
                     });
-                    ServerMessageUtils.sendMessage("proxy", "ServerBump", serverBumpObject);
+                    serverMessageService.sendMessage("proxy", serverBumpObject);
                     return;
                 }
                 MessageUtils.fail(player, "bump.failed.notFound");
             });
-        }) ;
+        });
         confirmDialog.open();
-        return true;
     }
 
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender,
-                                                @NotNull Command command,
-                                                @NotNull String alias,
-                                                @NotNull String[] args) {
-        return null;
-    }
 
     public int getPoints(int uid) {
         byte[] bytes = new byte[0];
@@ -201,7 +182,7 @@ public class ServerBumpReward implements CommandExecutor, TabCompleter {
 
             while (matcher.find()) {
                 try {
-                    return  Integer.parseInt(matcher.group(1));
+                    return Integer.parseInt(matcher.group(1));
                 } catch (NumberFormatException ignored) {
                 }
             }

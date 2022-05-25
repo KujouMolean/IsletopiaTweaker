@@ -1,7 +1,10 @@
 package com.molean.isletopia.menu.settings.member;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.task.SyncThenAsyncTask;
@@ -30,7 +33,8 @@ public class MemberAddMenu extends ListMenu<String> {
         return onlinePlayers;
     }
 
-    public MemberAddMenu(Player player) {
+    public MemberAddMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.member.add.title")));
         this.components(getAvailablePlayer(player));
         this.convertFunction(HeadUtils::getSkullWithIslandInfo);
@@ -41,8 +45,9 @@ public class MemberAddMenu extends ListMenu<String> {
             }, o -> this.components(getAvailablePlayer(player))).run();
 
         });
-        this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player,"menu.return.main")).build());
-        this.onCloseAsync(() -> new MemberMenu(player).open())
+        this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
+        this.onCloseAsync(() -> new MemberMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
                 .onCloseSync(null);
+
     }
 }

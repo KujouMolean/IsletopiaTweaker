@@ -7,6 +7,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,8 +30,9 @@ public class PlotAllChunkTask extends BukkitRunnable {
     private int chunkPerTick;
 
     public PlotAllChunkTask(@NotNull LocalIsland plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
-        Location bottomLocation = plot.getBottomLocation();
-        Location topLocation = plot.getTopLocation();
+        World skyWorld = Bukkit.getWorld("SkyWorld");
+         Location bottomLocation = plot.getBottomLocation(skyWorld);
+        Location topLocation = plot.getTopLocation(skyWorld);
         bx = bottomLocation.getBlockX() >> 4;
         bz = bottomLocation.getBlockZ() >> 4;
         tx = topLocation.getBlockX() >> 4;

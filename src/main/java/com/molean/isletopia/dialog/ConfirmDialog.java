@@ -11,26 +11,21 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class ConfirmDialog extends PlayerDialog {
+public class ConfirmDialog extends BookDialog implements IConfirmDialog {
     private final Component component;
     private Consumer<Player> acceptConsumer;
 
-    public ConfirmDialog(Component component) {
+    public ConfirmDialog(Player player,Component component) {
+        super(player);
         this.component = component;
     }
 
-    public ConfirmDialog(String text) {
-        this(Component.text(text));
-    }
-
-    public ConfirmDialog accept(Consumer<Player> consumer) {
-        this.acceptConsumer = consumer;
-        return this;
+    public ConfirmDialog(Player player,String text) {
+        this(player, Component.text(text));
     }
 
     @Override
-    public void open(Player player) {
-
+    public void open() {
         UUID uuid1 = UUID.randomUUID();
         CommandListener.register(uuid1.toString(), (key, thePlayer) -> {
             if (acceptConsumer != null) {
@@ -56,6 +51,16 @@ public class ConfirmDialog extends PlayerDialog {
         newComponent = newComponent.append(refuseComponent);
         componentList.clear();
         componentList.add(newComponent);
-        super.open(player, "title", "author");
+        super.open();
+    }
+
+    @Override
+    public void onConfirm(Consumer<Player> consumer) {
+        this.acceptConsumer = consumer;
+    }
+
+    @Override
+    public Consumer<Player> onConfirm() {
+        return acceptConsumer;
     }
 }

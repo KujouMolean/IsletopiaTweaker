@@ -1,23 +1,19 @@
-package com.molean.isletopia.message.handler;
+package com.molean.isletopia.message;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.MessageHandlerType;
 import com.molean.isletopia.shared.MessageHandler;
 import com.molean.isletopia.shared.pojo.obj.PlaySoundObject;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
-import com.molean.isletopia.shared.message.RedisMessageListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-@Singleton
+
+@MessageHandlerType(PlaySoundObject.class)
 public class PlaySoundHandler implements MessageHandler<PlaySoundObject> {
 
-    public PlaySoundHandler() {
-        RedisMessageListener.setHandler("PlaySound", this, PlaySoundObject.class);
-    }
-
     @Override
-    public void handle(WrappedMessageObject wrappedMessageObject,PlaySoundObject message) {
+    public void handle(WrappedMessageObject wrappedMessageObject, PlaySoundObject message) {
 
         Player target = Bukkit.getPlayerExact(message.getPlayer());
         if (target == null) {

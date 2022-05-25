@@ -1,7 +1,7 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.event.PlayerLoggedEvent;
 import com.molean.isletopia.menu.recipe.LocalRecipe;
 import com.molean.isletopia.task.Tasks;

@@ -1,12 +1,9 @@
-package com.molean.isletopia.protect.individual;
+package com.molean.isletopia.protect;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Statistic;

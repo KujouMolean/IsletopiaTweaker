@@ -12,7 +12,7 @@ public abstract class AbstractChestMenu extends InventoryMenu {
         super(player, rows * 9, title);
         if (Bukkit.isPrimaryThread()) {
             PluginUtils.getLogger().warning("Create menu " + ((TextComponent) title).content() + " in main thread.");
-
         }
     }
+
 }

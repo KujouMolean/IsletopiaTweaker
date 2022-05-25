@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class CloudInventoryList extends ListMenu<CloudInventorySlot> {
-
     public CloudInventoryList(Player player) {
         super(player, Component.text("云仓(测试中|不稳定)"));
         List<CloudInventorySlot> inventorySlotsSnapshot = null;
@@ -48,7 +47,7 @@ public class CloudInventoryList extends ListMenu<CloudInventorySlot> {
                 MessageUtils.notify(player, "/ci create 材料名称");
                 close();
             }else{
-                new CloudInventoryDetail(player, cloudInventorySlot).open();
+                new CloudInventoryDetailMenu(player, cloudInventorySlot).open();
             }
 
         });

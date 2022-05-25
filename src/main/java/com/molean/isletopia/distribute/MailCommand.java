@@ -1,20 +1,19 @@
-package com.molean.isletopia.distribute.individual;
+package com.molean.isletopia.distribute;
 
-import com.molean.isletopia.annotations.BukkitCommand;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
+import com.molean.isletopia.annotations.Completion;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.shared.database.MailboxDao;
 import com.molean.isletopia.shared.model.Mail;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,24 +24,18 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BundleMeta;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-@BukkitCommand("mail")
-
-public class MailCommand implements TabCompleter, CommandExecutor, Listener {
+@CommandAlias("mail")
+@Singleton
+public class MailCommand extends BaseCommand implements Listener {
 
     private final Map<Inventory, Mail> inventorySet = new HashMap<>();
-
-    public MailCommand() {
-        Objects.requireNonNull(Bukkit.getPluginCommand("mail")).setExecutor(this);
-        Objects.requireNonNull(Bukkit.getPluginCommand("mail")).setTabCompleter(this);
-    }
-
 
     @EventHandler(ignoreCancelled = true)
     public void on(PlayerInteractEvent event) {
@@ -130,43 +123,23 @@ public class MailCommand implements TabCompleter, CommandExecutor, Listener {
 
     }
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        Player player = (Player) sender;
-        if (args.length < 2) {
-            MessageUtils.info(player, "用法: /mail 某玩家 赠言");
-            return true;
-        }
 
-        String target = args[0];
+    @Default
+    @Completion("@players @empty")
+    public void onDefault(Player player, String target, String message) {
         UUID uuid = UUIDManager.get(target);
         if (uuid == null) {
             MessageUtils.fail(player, "该玩家未进入过服务器哦!");
+            return;
         }
-
         Inventory inventory = Bukkit.createInventory(player, 9, Component.text("放入送给" + target + "的物品"));
         Mail mail = new Mail();
         mail.setSource(player.getUniqueId());
         mail.setTarget(uuid);
         mail.setLocalDateTime(LocalDateTime.now());
-        mail.setMessage(args[1]);
+        mail.setMessage(message);
         mail.setClaimed(false);
         inventorySet.put(inventory, mail);
         player.openInventory(inventory);
-        return true;
-    }
-
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        ArrayList<String> strings = new ArrayList<>();
-        Map<UUID, String> snapshot = UUIDManager.INSTANCE.getSnapshot();
-        if (args.length == 1) {
-            for (String value : snapshot.values()) {
-                if (value.startsWith(args[0])) {
-                    strings.add(value);
-                }
-            }
-        }
-        return strings;
     }
 }

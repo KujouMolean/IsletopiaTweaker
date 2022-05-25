@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 public class EmptyChunkGenerator extends ChunkGenerator {
     public EmptyChunkGenerator() {
     }
-
     @Override
     public @NotNull ChunkData createVanillaChunkData(@NotNull World world, int x, int z) {
         return super.createVanillaChunkData(world, x, z);

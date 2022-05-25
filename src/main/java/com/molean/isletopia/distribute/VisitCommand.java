@@ -1,9 +1,8 @@
-package com.molean.isletopia.distribute.individual;
+package com.molean.isletopia.distribute;
 
-import com.molean.isletopia.IsletopiaTweakers;
 import com.molean.isletopia.annotations.BukkitCommand;
-import com.molean.isletopia.charge.ChargeDetailCommitter;
-import com.molean.isletopia.infrastructure.individual.bars.SidebarManager;
+import com.molean.isletopia.bars.SidebarManager;
+import com.molean.isletopia.charge.ChargeCommitter;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.menu.visit.MultiVisitMenu;
 import com.molean.isletopia.player.PlayerPropertyManager;
@@ -15,8 +14,6 @@ import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.IsletopiaTweakersUtils;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,19 +22,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 
 @BukkitCommand("visit")
-
 public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
-
-
     private final PlayerPropertyManager playerPropertyManager;
-
     private final SidebarManager sidebarManager;
-    private final ChargeDetailCommitter chargeDetailCommitter;
-    public VisitCommand(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeDetailCommitter chargeDetailCommitter) {
-        this.chargeDetailCommitter = chargeDetailCommitter;
+    private final ChargeCommitter chargeCommitter;
+
+    public VisitCommand(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter) {
+        this.chargeCommitter = chargeCommitter;
         this.sidebarManager = sidebarManager;
         this.playerPropertyManager = playerPropertyManager;
     }
@@ -112,7 +109,7 @@ public class VisitCommand implements CommandExecutor, TabCompleter, Listener {
                     return;
                 }
                 playerIslands.sort(Comparator.comparingInt(Island::getId));
-                new MultiVisitMenu(playerPropertyManager, sidebarManager, chargeDetailCommitter, sourcePlayer, playerIslands).open();
+                new MultiVisitMenu(playerPropertyManager, sidebarManager, chargeCommitter, sourcePlayer, playerIslands).open();
 
                 return;
             }

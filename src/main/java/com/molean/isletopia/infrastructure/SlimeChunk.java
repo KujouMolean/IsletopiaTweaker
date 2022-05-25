@@ -1,28 +1,25 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
-import com.molean.isletopia.annotations.BukkitCommand;
-import com.molean.isletopia.annotations.Singleton;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
 import com.molean.isletopia.dialog.ConfirmDialog;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 @Singleton
-@BukkitCommand("slime")
-public class SlimeChunk implements CommandExecutor {
+@CommandAlias("slime")
+public class SlimeChunk extends BaseCommand {
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-
-        ConfirmDialog confirmDialog = new ConfirmDialog((Player) commandSender,MessageUtils.getMessage((Player) commandSender, "infrastructure.slime.rules"));
-        confirmDialog.onConfirm(player -> {
+    @Default
+    public void onDefault(Player player) {
+        ConfirmDialog confirmDialog = new ConfirmDialog(player, MessageUtils.getMessage(player, "infrastructure.slime.rules"));
+        confirmDialog.onConfirm(ignore -> {
             World world = player.getLocation().getWorld();
             final int x = player.getLocation().getChunk().getX();
             final int blockY = player.getLocation().getBlockY();
@@ -60,8 +57,7 @@ public class SlimeChunk implements CommandExecutor {
                     }
                 }
             }
-        }) ;
+        });
         confirmDialog.open();
-        return true;
     }
 }

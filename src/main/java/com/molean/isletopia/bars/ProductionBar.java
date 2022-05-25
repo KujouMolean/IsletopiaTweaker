@@ -1,51 +1,49 @@
-package com.molean.isletopia.infrastructure.individual.bars;
+package com.molean.isletopia.bars;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.BukkitCommand;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
+import com.molean.isletopia.annotations.Interval;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.shared.utils.LangUtils;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
 import com.molean.isletopia.utils.ScoreboardUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-@BukkitCommand("productionbar")
-public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
+@CommandAlias("ProductionBar")
+@Singleton
+public class ProductionBar extends BaseCommand implements Listener {
     private static final Map<IslandId, Map<Material, Deque<Long>>> map = new HashMap<>();
     private static final Map<IslandId, Map<Material, Integer>> maxMap = new HashMap<>();
 
 
-    private SidebarManager sidebarManager;
+    private final SidebarManager sidebarManager;
+
     public ProductionBar(SidebarManager sidebarManager) {
         this.sidebarManager = sidebarManager;
-        BukkitTask bukkitTask = Tasks.INSTANCE.intervalAsync(20, () -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if ("ProductionBar".equalsIgnoreCase(sidebarManager.getSidebar(player))) {
-                    update(player);
-                }
+    }
+
+    @Interval(value = 20,async = true)
+    public void productionBarUpdate() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if ("ProductionBar".equalsIgnoreCase(sidebarManager.getSidebar(player))) {
+                update(player);
             }
-        });
-        Tasks.INSTANCE.addDisableTask("Stop update production bars", bukkitTask::cancel);
+        }
     }
 
 
@@ -63,7 +61,7 @@ public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
 
         HashMap<String, Integer> stringIntegerHashMap = new HashMap<>();
         productionPerMin.forEach((material, integer) -> {
-            stringIntegerHashMap.put(LangUtils.get(player.locale(),material.translationKey()), integer);
+            stringIntegerHashMap.put(LangUtils.get(player.locale(), material.translationKey()), integer);
         });
 
         stringIntegerHashMap.put(MessageUtils.getMessage(player, "player.bar.production.total"), total);
@@ -129,11 +127,8 @@ public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
     }
 
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        Player player = (Player) commandSender;
-        UUID uuid = player.getUniqueId();
-
+    @Default
+    public void onDefault(Player player) {
         if (!"ProductionBar".equalsIgnoreCase(sidebarManager.getSidebar(player))) {
             ScoreboardUtils.clearPlayerUniqueSidebar(player);
             Tasks.INSTANCE.async(() -> {
@@ -148,11 +143,6 @@ public class ProductionBar implements Listener, CommandExecutor, TabCompleter {
         }
 
 
-        return true;
     }
 
-    @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return List.of();
-    }
 }

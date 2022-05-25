@@ -1,11 +1,9 @@
 package com.molean.isletopia.island.flag;
 
-import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,12 +11,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+@Singleton
 public class SpectatorVisitor implements IslandFlagHandler, Listener {
-
-    public SpectatorVisitor() {
-        PluginUtils.registerEvents(this);
-    }
-
     @Override
     public void onFlagAdd(LocalIsland island, String... data) {
         for (Player player : island.getPlayersInIsland()) {

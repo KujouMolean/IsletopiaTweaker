@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class CloudInventoryDetail extends ChestMenu {
+public class CloudInventoryDetailMenu extends ChestMenu {
 
     public static String getTitle(Player player, CloudInventorySlot cloudInventorySlot) {
         String materialString = cloudInventorySlot.getMaterial();
@@ -17,7 +17,7 @@ public class CloudInventoryDetail extends ChestMenu {
        return LangUtils.get(player.locale(), material.translationKey());
     }
 
-    public CloudInventoryDetail(Player player, CloudInventorySlot inventorySlot) {
+    public CloudInventoryDetailMenu(Player player, CloudInventorySlot inventorySlot) {
         super(player, 3, Component.text(getTitle(player, inventorySlot)));
         String materialString = inventorySlot.getMaterial();
         Material material = Material.getMaterial(materialString);

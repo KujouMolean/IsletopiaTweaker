@@ -1,5 +1,7 @@
 package com.molean.isletopia.menu.visit;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.menu.MainMenu;
 import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.model.Island;
@@ -52,15 +54,20 @@ public class MultiVisitMenu extends ListMenu<Island> {
         });
     }
 
-    public MultiVisitMenu(Player player, List<Island> islandList) {
+    private final PlayerPropertyManager playerPropertyManager;
+
+    public MultiVisitMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player, List<Island> islandList) {
+
         super(player, Component.text(MessageUtils.getMessage(player, "menu.multivisit.title")));
+
+        this.playerPropertyManager = playerPropertyManager;
         sortIsland(islandList);
         this.components(islandList);
         this.convertFunction(island -> MultiVisitMenu.islandToItemStack(player, island));
         this.onClickSync(island -> IsletopiaTweakersUtils.universalPlotVisitByMessage(player, island.getIslandId()));
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build())
                 .onCloseSync(null)
-                .onCloseAsync(() -> new MainMenu(player).open());
+                .onCloseAsync(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open());
     }
 
     @Override
@@ -69,7 +76,7 @@ public class MultiVisitMenu extends ListMenu<Island> {
         if (components().size() != 1) {
             return;
         }
-        if (!PlayerPropertyManager.INSTANCE.getPropertyAsBoolean(player, "DisableSingleIslandMenu")) {
+        if (!playerPropertyManager.getPropertyAsBoolean(player, "DisableSingleIslandMenu")) {
             return;
         }
         IsletopiaTweakersUtils.universalPlotVisitByMessage(player, components().get(0).getIslandId());

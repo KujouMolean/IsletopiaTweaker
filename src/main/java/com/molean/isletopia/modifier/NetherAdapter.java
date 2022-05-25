@@ -1,21 +1,13 @@
 package com.molean.isletopia.modifier;
 
-import com.molean.isletopia.annotations.Singleton;
-import com.molean.isletopia.island.IslandManager;
-import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.protect.individual.IslandMobCap;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.model.IslandId;
 import com.molean.isletopia.utils.NMSUtils;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPortalEnterEvent;
-import org.bukkit.event.entity.EntityTeleportEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 
 import java.lang.reflect.Field;

@@ -1,6 +1,9 @@
 package com.molean.isletopia.menu.recipe;
 
 import com.molean.isletopia.IsletopiaTweakers;
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ChestMenu;
@@ -14,14 +17,16 @@ public class CraftRecipeMenu extends ChestMenu {
     private final LocalRecipe localRecipe;
     private BukkitTask bukkitTask;
 
-    public CraftRecipeMenu(Player player, LocalRecipe localRecipe) {
+    public CraftRecipeMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player, LocalRecipe localRecipe) {
+
         super(player, 4, Component.text(MessageUtils.getMessage(player, "menu.recipe.title")));
         this.localRecipe = localRecipe;
         ItemStackSheet father = new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.recipeList"));
         for (int i = 27; i < 36; i++) {
             item(i, father.build(), () -> {
                 Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
-                    new RecipeListMenu(player).open();
+                    new RecipeListMenu(sidebarManager, playerPropertyManager, chargeCommitter, player).open();
+
                 });
             });
         }

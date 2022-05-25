@@ -16,10 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 public class Lock implements IslandFlagHandler, Listener {
-    public Lock() {
-        PluginUtils.registerEvents(this);
-    }
-
     @EventHandler
     public void on(PlayerIslandChangeEvent event) {
         LocalIsland to = event.getTo();

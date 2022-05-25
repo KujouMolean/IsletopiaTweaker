@@ -5,10 +5,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerDataSyncCompleteEvent extends PlayerEvent {
+public class PlayerLoggedEvent extends PlayerEvent {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
-    public PlayerDataSyncCompleteEvent(@NotNull Player who) {
+    public PlayerLoggedEvent(@NotNull Player who) {
         super(who);
     }
 

@@ -1,11 +1,8 @@
 package com.molean.isletopia.admin;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Subcommand;
-import co.aikar.commands.annotation.Syntax;
-import com.molean.isletopia.annotations.Singleton;
+import co.aikar.commands.annotation.*;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.shared.database.AchievementDao;
 import com.molean.isletopia.shared.model.Achievement;
 import com.molean.isletopia.shared.model.PlayerAchievement;
@@ -23,11 +20,6 @@ import java.util.UUID;
 @CommandAlias("achievement")
 @CommandPermission("achievement.admin")
 public class AchievementCommand extends BaseCommand {
-
-    @Subcommand("list")
-    public void list() {
-
-    }
 
     @Subcommand("create")
     @Syntax("<Achievement>")
@@ -52,6 +44,7 @@ public class AchievementCommand extends BaseCommand {
 
     @Subcommand("grant")
     @Syntax("<Player> <Achievement>")
+    @CommandCompletion("@players @achievements")
     public void grant(Player player, String target, String ach) {
         Tasks.INSTANCE.async(() -> {
             Achievement achievement = null;
@@ -83,6 +76,7 @@ public class AchievementCommand extends BaseCommand {
 
     @Subcommand("setIcon")
     @Syntax("<Achievement> <Material>")
+    @CommandCompletion("@achievements @nothing")
     public void setIcon(Player player, String ach, Material material) {
         Tasks.INSTANCE.async(() -> {
             Achievement achievement = null;
@@ -110,6 +104,7 @@ public class AchievementCommand extends BaseCommand {
 
     @Subcommand("setDisplay")
     @Syntax("<Achievement> <Access>")
+    @CommandCompletion("@achievements @nothing")
     public void setDisplay(Player player, String ach, String access) throws SQLException {
         Tasks.INSTANCE.async(() -> {
             Achievement achievement = null;
@@ -139,6 +134,7 @@ public class AchievementCommand extends BaseCommand {
 
     @Subcommand("setDesc")
     @Syntax("<Achievement> <Desc>")
+    @CommandCompletion("@achievements @nothing")
     public void setDesc(Player player, String ach, String value) throws SQLException {
         Tasks.INSTANCE.async(() -> {
             Achievement achievement;
@@ -170,6 +166,7 @@ public class AchievementCommand extends BaseCommand {
 
     @Subcommand("setScore")
     @Syntax("<Achievement> <Score>")
+    @CommandCompletion("@achievements @nothing")
     public void setScore(Player player, String ach, int score) throws SQLException {
         Tasks.INSTANCE.async(() -> {
             Achievement achievement;
@@ -196,6 +193,7 @@ public class AchievementCommand extends BaseCommand {
 
     @Subcommand("setAccess")
     @Syntax("<Achievement> <Access>")
+    @CommandCompletion("@achievements @nothing")
     public void setAccess(Player player, String ach, String access) {
         Tasks.INSTANCE.async(() -> {
             Achievement achievement;

@@ -1,9 +1,6 @@
 package com.molean.isletopia.modifier;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
+import com.molean.isletopia.shared.annotations.Singleton;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

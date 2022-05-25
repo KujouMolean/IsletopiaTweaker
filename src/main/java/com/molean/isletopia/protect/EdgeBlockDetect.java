@@ -1,13 +1,9 @@
-package com.molean.isletopia.protect.individual;
+package com.molean.isletopia.protect;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
-import com.molean.isletopia.utils.PluginUtils;
-import org.bukkit.Bukkit;
+import com.molean.isletopia.shared.annotations.Singleton;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.data.type.Piston;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -18,7 +14,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Singleton
 public class EdgeBlockDetect implements Listener {

@@ -30,8 +30,8 @@ public class PlotChunkTask extends BukkitRunnable {
     private final World world;
 
     public PlotChunkTask(World world,@NotNull LocalIsland plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
-        Location bottomLocation = plot.getBottomLocation();
-        Location topLocation = plot.getTopLocation();
+        Location bottomLocation = plot.getBottomLocation(world);
+        Location topLocation = plot.getTopLocation(world);
         this.world = world;
         bx = bottomLocation.getBlockX() >> 4;
         bz = bottomLocation.getBlockZ() >> 4;

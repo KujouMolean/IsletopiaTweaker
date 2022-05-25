@@ -1,4 +1,4 @@
-package com.molean.isletopia.distribute.individual;
+package com.molean.isletopia.distribute;
 
 
 import com.molean.isletopia.task.Tasks;

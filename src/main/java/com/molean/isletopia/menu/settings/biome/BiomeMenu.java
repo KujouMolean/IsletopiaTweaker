@@ -1,12 +1,13 @@
 package com.molean.isletopia.menu.settings.biome;
 
+import com.molean.isletopia.charge.ChargeCommitter;
+import com.molean.isletopia.bars.SidebarManager;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.menu.MainMenu;
-import com.molean.isletopia.shared.model.IslandId;
+import com.molean.isletopia.player.PlayerPropertyManager;
 import com.molean.isletopia.shared.utils.LangUtils;
 import com.molean.isletopia.shared.utils.Pair;
-import com.molean.isletopia.task.PlotChunkTask;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import com.molean.isletopia.virtualmenu.ListMenu;
@@ -21,10 +22,9 @@ import java.util.*;
 
 public class BiomeMenu extends ListMenu<Biome> {
 
-    private static final Set<IslandId> changingBiome = new HashSet<>();
 
+    public BiomeMenu(PlayerPropertyManager playerPropertyManager, SidebarManager sidebarManager, ChargeCommitter chargeCommitter, Player player) {
 
-    public BiomeMenu(Player player) {
         super(player, Component.text(MessageUtils.getMessage(player, "menu.member.biome.title")));
         List<Biome> values = new ArrayList<>(List.of(Biome.values()));
         values.remove(Biome.CUSTOM);
@@ -54,14 +54,15 @@ public class BiomeMenu extends ListMenu<Biome> {
 
             assert currentPlot != null;
 
-            if (changingBiome.contains(currentPlot.getIslandId())) {
+            if (currentPlot.isChangingBiome()) {
                 MessageUtils.fail(player, "menu.biome.changing");
                 player.closeInventory();
                 return;
             }
 
 
-            String name = MessageUtils.getMessage(player, "menu.member.biome.unknown", Pair.of("biome", biome.name()));;
+            String name = MessageUtils.getMessage(player, "menu.member.biome.unknown", Pair.of("biome", biome.name()));
+            ;
             try {
                 String key = "biome." + biome.getKey().namespace() + "." + biome.getKey().value();
                 name = LangUtils.get(player.locale(), key);
@@ -70,28 +71,17 @@ public class BiomeMenu extends ListMenu<Biome> {
             if (player.getUniqueId().equals(currentPlot.getUuid())) {
                 MessageUtils.info(player, "menu.biome.start");
                 String finalName = name;
-                changingBiome.add(currentPlot.getIslandId());
-                new PlotChunkTask(player.getWorld(), currentPlot, chunk -> {
-                    int minHeight = chunk.getWorld().getMinHeight();
-                    int maxHeight = chunk.getWorld().getMaxHeight();
-                    for (int i = 0; i < 16; i++) {
-                        for (int j = minHeight; j < maxHeight; j++) {
-                            for (int k = 0; k < 16; k++) {
-                                chunk.getBlock(i, j, k).setBiome(biome);
-                            }
-                        }
-                    }
-                }, () -> {
+
+                currentPlot.setBiome(player.getWorld(), biome, () -> {
                     MessageUtils.info(player, MessageUtils.getMessage(player, "menu.biome.success", Pair.of("name", finalName)));
-                    changingBiome.remove(currentPlot.getIslandId());
-                }, 1024).tickRate(12).run();
+                });
             } else {
                 player.kick(Component.text(MessageUtils.getMessage(player, "island.command.noPerm")));
             }
             player.closeInventory();
         });
         this.closeItemStack(new ItemStackSheet(Material.BARRIER, MessageUtils.getMessage(player, "menu.return.main")).build());
-        this.onCloseAsync(() -> new MainMenu(player).open())
+        this.onCloseAsync(() -> new MainMenu(playerPropertyManager, sidebarManager, chargeCommitter, player).open())
                 .onCloseSync(null);
     }
 }

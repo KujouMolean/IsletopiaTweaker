@@ -1,12 +1,11 @@
-package com.molean.isletopia.statistics.individual;
+package com.molean.isletopia.statistics;
 
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.event.PlayerLoggedEvent;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.shared.database.PlayTimeStatisticsDao;
 import com.molean.isletopia.task.Tasks;
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

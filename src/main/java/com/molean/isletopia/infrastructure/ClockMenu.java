@@ -1,13 +1,13 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
-import com.molean.isletopia.annotations.BukkitCommand;
-import com.molean.isletopia.annotations.Singleton;
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.utils.ItemStackSheet;
 import com.molean.isletopia.utils.MessageUtils;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -15,11 +15,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 @Singleton
-@BukkitCommand("clock")
-public class ClockMenu implements Listener, CommandExecutor {
+@CommandAlias("clock")
+public class ClockMenu extends BaseCommand implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
@@ -58,10 +57,8 @@ public class ClockMenu implements Listener, CommandExecutor {
         return itemStackSheet.build();
     }
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        Player player = (Player) commandSender;
+    @Default
+    public void onDefault(Player player) {
         player.getInventory().addItem(getClock(player));
-        return true;
     }
 }

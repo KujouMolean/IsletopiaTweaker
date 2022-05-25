@@ -1,47 +1,49 @@
-package com.molean.isletopia.infrastructure.individual;
+package com.molean.isletopia.infrastructure;
 
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.molean.isletopia.annotations.BukkitCommand;
-import com.molean.isletopia.annotations.Singleton;
-import com.molean.isletopia.shared.service.UniversalParameter;
-import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.annotations.AutoInject;
+import com.molean.isletopia.shared.annotations.Singleton;
+import com.molean.isletopia.shared.message.ServerMessageService;
 import com.molean.isletopia.shared.pojo.resp.CommonResponseObject;
+import com.molean.isletopia.shared.service.UniversalParameter;
 import com.molean.isletopia.shared.utils.Pair;
+import com.molean.isletopia.shared.utils.UUIDManager;
 import com.molean.isletopia.task.Tasks;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.shared.utils.UUIDManager;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 @Singleton
-@BukkitCommand("likereward")
-public class ServerLikeReward implements CommandExecutor {
+@CommandAlias("likereward")
+public class ServerLikeReward extends BaseCommand {
 
     private long lastUpdate = 0;
     private final List<UUID> likeUUIDs = new ArrayList<>();
 
+    @AutoInject
+    private UniversalParameter universalParameter;
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender,
-                             @NotNull Command command,
-                             @NotNull String label,
-                             @NotNull String[] args) {
+    @AutoInject
+    private ServerMessageService serverMessageService;
 
-        Player player = (Player) sender;
+
+    @Default
+    public void onDefault(Player player) {
         Tasks.INSTANCE.async(() -> {
-
             UUIDManager.getOnline(player.getName(), uuid -> {
                 if (uuid == null) {
                     MessageUtils.fail(player, "like.failed.uuid");
@@ -61,17 +63,17 @@ public class ServerLikeReward implements CommandExecutor {
                     return;
                 }
 
-                List<String> parameterAsList = UniversalParameter.getParameterAsList(UUIDManager.get("Molean"), "ServerLikes");
+                List<String> parameterAsList = universalParameter.getParameterAsList(UUIDManager.get("Molean"), "ServerLikes");
                 if (parameterAsList.contains(uuid.toString())) {
                     MessageUtils.fail(player, "like.failed.claimed");
                     return;
                 }
                 UUID molean = UUIDManager.get("Molean");
                 assert molean != null;
-                UniversalParameter.addParameter(molean, "ServerLikes", uuid.toString());
+                universalParameter.addParameter(molean, "ServerLikes", uuid.toString());
                 CommonResponseObject commonResponseObject = new CommonResponseObject();
                 commonResponseObject.setMessage(MessageUtils.getMessage(player, "like.success", Pair.of("player", player.getName())) + "https://zh-cn.namemc.com/server/play.molean.com");
-                ServerMessageUtils.sendMessage("proxy", "CommonResponse", commonResponseObject);
+                serverMessageService.sendMessage("proxy", commonResponseObject);
                 Tasks.INSTANCE.sync((() -> {
                     HashMap<Integer, ItemStack> integerItemStackHashMap = player.getInventory().addItem(new ItemStack(Material.DRAGON_HEAD));
                     for (ItemStack value : integerItemStackHashMap.values()) {
@@ -80,7 +82,6 @@ public class ServerLikeReward implements CommandExecutor {
                 }));
             });
         });
-        return true;
     }
 
     public void updateInformation() {

@@ -3,12 +3,12 @@
 // (powered by FernFlower decompiler)
 //
 
-package com.molean.isletopia.message.handler;
+package com.molean.isletopia.message;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.AutoInject;
+import com.molean.isletopia.shared.annotations.MessageHandlerType;
 import com.molean.isletopia.shared.MessageHandler;
-import com.molean.isletopia.shared.message.RedisMessageListener;
-import com.molean.isletopia.shared.message.ServerMessageUtils;
+import com.molean.isletopia.shared.message.ServerMessageService;
 import com.molean.isletopia.shared.pojo.WrappedMessageObject;
 import com.molean.isletopia.shared.pojo.resp.VisitResponse;
 import com.molean.isletopia.utils.MessageUtils;
@@ -17,11 +17,11 @@ import org.bukkit.entity.Player;
 
 import java.util.Objects;
 
-@Singleton
+@MessageHandlerType(VisitResponse.class)
 public class VisitResponseHandler implements MessageHandler<VisitResponse> {
-    public VisitResponseHandler() {
-        RedisMessageListener.setHandler("VisitResponse", this, VisitResponse.class);
-    }
+
+    @AutoInject
+    private ServerMessageService serverMessageService;
 
     @Override
     public void handle(WrappedMessageObject wrappedMessageObject, VisitResponse visitResponse) {
@@ -30,7 +30,7 @@ public class VisitResponseHandler implements MessageHandler<VisitResponse> {
             if (!Objects.equals("accepted", visitResponse.getResponse())) {
                 MessageUtils.fail(player, visitResponse.getResponseMessage());
             } else {
-                ServerMessageUtils.switchServer(player.getName(), wrappedMessageObject.getFrom());
+                serverMessageService.switchServer(player.getName(), wrappedMessageObject.getFrom());
             }
         }
     }

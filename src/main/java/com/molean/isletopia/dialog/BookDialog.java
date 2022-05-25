@@ -7,22 +7,27 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class PlayerDialog {
+public abstract class BookDialog implements IPlayerDialog {
     protected List<Component> componentList = new ArrayList<>();
+    protected Player player;
 
-    public PlayerDialog() {
-
+    public BookDialog(Player player) {
+        this.player = player;
     }
 
-    public PlayerDialog(List<Component> componentList) {
+    public List<Component> componentList() {
+        return componentList;
+    }
+
+    public void componentList(List<Component> componentList) {
         this.componentList = componentList;
     }
 
-    public void open(Player player) {
-        open(player, "title", "author");
+    public void open() {
+        open("title", "author");
     }
 
-    public void open(Player player, String title, String author) {
+    public void open(String title, String author) {
         Component bookTitle = Component.text(title);
         Component bookAuthor = Component.text(author);
         player.openBook(Book.book(bookTitle, bookAuthor, componentList));

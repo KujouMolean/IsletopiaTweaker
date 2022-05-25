@@ -1,6 +1,6 @@
-package com.molean.isletopia.statistics.individual;
+package com.molean.isletopia.statistics;
 
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.shared.database.MSPTDao;
 import com.molean.isletopia.shared.message.ServerInfoUpdater;
 import com.molean.isletopia.task.Tasks;

@@ -26,9 +26,9 @@ public class PlotAllLoadedChunkTask extends BukkitRunnable {
     private int chunkPerTick;
 
     public PlotAllLoadedChunkTask( @NotNull LocalIsland plot, @NotNull Consumer<Chunk> consumer, @Nullable Runnable then, int timeOutTicks) {
-        Location bottomLocation = plot.getBottomLocation();
-        Location topLocation = plot.getTopLocation();
-
+        World skyWorld = Bukkit.getWorld("SkyWorld");
+        Location bottomLocation = plot.getBottomLocation(skyWorld);
+        Location topLocation = plot.getTopLocation(skyWorld);
         bx = bottomLocation.getBlockX() >> 4;
         bz = bottomLocation.getBlockZ() >> 4;
         tx = topLocation.getBlockX() >> 4;

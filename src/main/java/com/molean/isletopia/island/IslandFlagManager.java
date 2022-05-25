@@ -22,7 +22,6 @@ public enum IslandFlagManager {
             registerHandler(SpectatorVisitor.class);
             registerHandler(DisableMobSpawn.class);
             registerHandler(DisableBlockBurn.class);
-            registerHandler(DisableVillagerAI.class);
             registerHandler(AntiFire.class);
             registerHandler(PowerOff.class);
         } catch (Exception e) {

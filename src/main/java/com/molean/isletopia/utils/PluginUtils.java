@@ -8,9 +8,6 @@ import org.bukkit.event.Listener;
 import java.util.logging.Logger;
 
 public class PluginUtils {
-    public static void registerEvents(Listener listener) {
-        Bukkit.getPluginManager().registerEvents(listener, IsletopiaTweakers.getPlugin());
-    }
 
     public static void callEvent(Event event) {
         Bukkit.getPluginManager().callEvent(event);

@@ -1,4 +1,4 @@
-package com.molean.isletopia.assist;
+package com.molean.isletopia.distribute;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;

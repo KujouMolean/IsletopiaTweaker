@@ -1,4 +1,4 @@
-package com.molean.isletopia.completion;
+package com.molean.isletopia.command.completion;
 
 import co.aikar.commands.BukkitCommandCompletionContext;
 import co.aikar.commands.CommandCompletions;

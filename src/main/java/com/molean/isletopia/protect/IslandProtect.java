@@ -1,13 +1,10 @@
-package com.molean.isletopia.protect.individual;
+package com.molean.isletopia.protect;
 
-import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.event.PlayerIslandChangeEvent;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
-import com.molean.isletopia.utils.PluginUtils;
 import io.papermc.paper.event.entity.EntityMoveEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;

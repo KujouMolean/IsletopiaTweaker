@@ -3,7 +3,8 @@ package com.molean.isletopia.utils;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.shared.utils.RedisUtils;
+import com.molean.isletopia.shared.ClassResolver;
+import com.molean.isletopia.shared.service.RedisService;
 import com.molean.isletopia.shared.utils.UUIDManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -55,8 +56,11 @@ public class HeadUtils {
 
     public static ItemStack getSkull(String name) {
         String skinValue = null;
-        if (RedisUtils.getCommand().exists(name + ":SkinValue") > 0) {
-            skinValue = RedisUtils.getCommand().get(name + ":SkinValue");
+
+
+        RedisService redisService = ClassResolver.INSTANCE.getObject(RedisService.class);
+        if (redisService.getCommand().exists(name + ":SkinValue") > 0) {
+            skinValue = redisService.getCommand().get(name + ":SkinValue");
         }
         return getSkullFromValue(name, skinValue);
 
@@ -65,8 +69,9 @@ public class HeadUtils {
     public static void getSkull(String name, Consumer<ItemStack> itemStackConsumer) {
         Bukkit.getScheduler().runTaskAsynchronously(IsletopiaTweakers.getPlugin(), () -> {
             String skinValue = null;
-            if (RedisUtils.getCommand().exists(name + ":SkinValue") > 0) {
-                skinValue = RedisUtils.getCommand().get(name + ":SkinValue");
+            RedisService redisService = ClassResolver.INSTANCE.getObject(RedisService.class);
+            if (redisService.getCommand().exists(name + ":SkinValue") > 0) {
+                skinValue = redisService.getCommand().get(name + ":SkinValue");
             }
             itemStackConsumer.accept(getSkullFromValue(name, skinValue));
         });

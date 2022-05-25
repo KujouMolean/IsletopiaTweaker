@@ -1,6 +1,5 @@
 package com.molean.isletopia.virtualmenu.internal;
 
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -17,9 +16,6 @@ public enum VirtualMenuManager implements Listener {
 
     private final Map<Inventory, InventoryMenu> registerMap = new HashMap<>();
 
-    VirtualMenuManager() {
-        PluginUtils.registerEvents(this);
-    }
 
     public void registerMenu(InventoryMenu menu) {
         registerMap.put(menu.inventory(), menu);
@@ -76,4 +72,4 @@ public enum VirtualMenuManager implements Listener {
         registerMap.remove(inventory);
 
     }
-}
+    }

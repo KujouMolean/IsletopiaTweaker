@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @Singleton
-public class ChargeDetailCommitter {
+public class ChargeCommitter {
 
     private final Map<IslandId, ChargeDetail> playerChargeDetailMap = new HashMap<>();
     private final Set<IslandId> tobeQuery = new CopyOnWriteArraySet<>();

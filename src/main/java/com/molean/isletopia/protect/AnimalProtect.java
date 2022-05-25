@@ -1,12 +1,11 @@
-package com.molean.isletopia.protect.individual;
+package com.molean.isletopia.protect;
 
 import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import com.molean.isletopia.IsletopiaTweakers;
-import com.molean.isletopia.annotations.Singleton;
+import com.molean.isletopia.shared.annotations.Singleton;
 import com.molean.isletopia.island.IslandManager;
 import com.molean.isletopia.island.LocalIsland;
 import com.molean.isletopia.utils.MessageUtils;
-import com.molean.isletopia.utils.PluginUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
